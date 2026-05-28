@@ -36,6 +36,12 @@ import { setsTuplesSteps } from "./sets-tuples/derivation";
 import { SetsTuplesVisualizer } from "./sets-tuples/visualizer";
 import setsTuplesPy from "./sets-tuples/algorithm.py";
 
+// Trees
+import { meta as treesMeta } from "./trees/meta";
+import { treesSteps } from "./trees/derivation";
+import { TreesVisualizer } from "./trees/visualizer";
+import treesPy from "./trees/algorithm.py";
+
 const dataStructureBundles: Record<string, TopicBundle> = {
   arrays: {
     meta: arraysMeta,
@@ -101,6 +107,17 @@ const dataStructureBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Try the set or tuple first",
       enabledLabel: "Identity vs grouping",
+    },
+  },
+  trees: {
+    meta: treesMeta,
+    steps: treesSteps,
+    Visualizer: TreesVisualizer,
+    pythonCode: treesPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Click a node first",
+      enabledLabel: "Each node points to its kids",
     },
   },
 };

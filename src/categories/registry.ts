@@ -10,6 +10,7 @@ import { meta as stacksQueuesMeta } from "./data-structures/topics/stacks-queues
 import { meta as linkedListsMeta } from "./data-structures/topics/linked-lists/meta";
 import { meta as hashMapsMeta } from "./data-structures/topics/hash-maps/meta";
 import { meta as setsTuplesMeta } from "./data-structures/topics/sets-tuples/meta";
+import { meta as treesMeta } from "./data-structures/topics/trees/meta";
 
 // Algorithms
 import { meta as slidingWindowMeta } from "./algorithms/topics/sliding-window/meta";
@@ -25,6 +26,7 @@ const topics: TopicMeta[] = [
   setsTuplesMeta,
   stacksQueuesMeta,
   linkedListsMeta,
+  treesMeta,
   // Algorithms
   twoPointersMeta,
   slidingWindowMeta,
