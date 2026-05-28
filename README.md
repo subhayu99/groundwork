@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# first-principles-learning-platform
 
-## Getting Started
+Interactive first-principles learning platform — starting with data structures and algorithms.
 
-First, run the development server:
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tests
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run test
+```
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+Deploys to Vercel automatically on push to `main` via GitHub Actions.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### One-time Vercel setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Create a Vercel project linked to this repo.
+2. Add the following secrets to the GitHub repo:
+   - `VERCEL_TOKEN` — from https://vercel.com/account/tokens
+   - `VERCEL_ORG_ID` — from `.vercel/project.json` after `vercel link`
+   - `VERCEL_PROJECT_ID` — from `.vercel/project.json` after `vercel link`
 
-## Deploy on Vercel
+## Project structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+See `docs/superpowers/specs/2026-05-24-dsa-first-principles-design.md` for the design spec.
+See `docs/superpowers/plans/` for implementation plans.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Naming
+
+The codebase uses `first-principles-learning-platform` as a placeholder name. Rename across the codebase when the final name is chosen:
+
+```bash
+find . -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.json" -o -name "*.md" -o -name "*.yml" \) \
+  -not -path "./node_modules/*" -not -path "./.next/*" \
+  -exec sed -i '' 's/first-principles-learning-platform/REAL_NAME/g' {} +
+```
