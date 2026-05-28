@@ -18,6 +18,8 @@ import { meta as slidingWindowMeta } from "./algorithms/topics/sliding-window/me
 import { meta as twoPointersMeta } from "./algorithms/topics/two-pointers/meta";
 import { meta as binarySearchMeta } from "./algorithms/topics/binary-search/meta";
 import { meta as slidingWindowVariableMeta } from "./algorithms/topics/sliding-window-variable/meta";
+import { meta as monotonicStackMeta } from "./algorithms/topics/monotonic-stack/meta";
+import { meta as activitySelectionMeta } from "./algorithms/topics/activity-selection/meta";
 
 const categories: CategoryMeta[] = [dataStructuresMeta, algorithmsMeta];
 
@@ -36,6 +38,8 @@ const topics: TopicMeta[] = [
   binarySearchMeta,
   slidingWindowMeta,
   slidingWindowVariableMeta,
+  monotonicStackMeta,
+  activitySelectionMeta,
 ];
 
 export function listCategories(): CategoryMeta[] {

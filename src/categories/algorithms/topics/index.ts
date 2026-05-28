@@ -37,6 +37,18 @@ import { slidingWindowVariableSteps } from "./sliding-window-variable/derivation
 import { SlidingWindowVariableVisualizer } from "./sliding-window-variable/visualizer";
 import slidingWindowVariablePy from "./sliding-window-variable/algorithm.py";
 
+// Monotonic Stack
+import { meta as monotonicStackMeta } from "./monotonic-stack/meta";
+import { monotonicStackSteps } from "./monotonic-stack/derivation";
+import { MonotonicStackVisualizer } from "./monotonic-stack/visualizer";
+import monotonicStackPy from "./monotonic-stack/algorithm.py";
+
+// Activity Selection
+import { meta as activitySelectionMeta } from "./activity-selection/meta";
+import { activitySelectionSteps } from "./activity-selection/derivation";
+import { ActivitySelectionVisualizer } from "./activity-selection/visualizer";
+import activitySelectionPy from "./activity-selection/algorithm.py";
+
 const algorithmBundles: Record<string, TopicBundle> = {
   "two-pointers": {
     meta: twoPointersMeta,
@@ -80,6 +92,28 @@ const algorithmBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Expand or contract first",
       enabledLabel: "Two motions, one rule",
+    },
+  },
+  "monotonic-stack": {
+    meta: monotonicStackMeta,
+    steps: monotonicStackSteps,
+    Visualizer: MonotonicStackVisualizer,
+    pythonCode: monotonicStackPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Send a day first",
+      enabledLabel: "The stack does the work",
+    },
+  },
+  "activity-selection": {
+    meta: activitySelectionMeta,
+    steps: activitySelectionSteps,
+    Visualizer: ActivitySelectionVisualizer,
+    pythonCode: activitySelectionPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Sort by end first",
+      enabledLabel: "Take the earliest finish",
     },
   },
 };
