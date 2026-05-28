@@ -3,11 +3,18 @@ import { CategoryMeta, TopicMeta } from "@/shared/derivation/types";
 import { meta as algorithmsMeta } from "./algorithms/meta";
 import { meta as dataStructuresMeta } from "./data-structures/meta";
 
+// Algorithms
 import { meta as slidingWindowMeta } from "./algorithms/topics/sliding-window/meta";
+import { meta as twoPointersMeta } from "./algorithms/topics/two-pointers/meta";
 
 const categories: CategoryMeta[] = [dataStructuresMeta, algorithmsMeta];
 
-const topics: TopicMeta[] = [slidingWindowMeta];
+const topics: TopicMeta[] = [
+  // Data Structures (foundations) — registered as they're built
+  // Algorithms
+  twoPointersMeta,
+  slidingWindowMeta,
+];
 
 export function listCategories(): CategoryMeta[] {
   return [...categories].sort((a, b) => a.order - b.order);

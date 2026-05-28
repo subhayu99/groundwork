@@ -6,12 +6,11 @@ import { TopicLayout } from "@/shared/layout/TopicLayout";
 import { DerivationEngine } from "@/shared/derivation/DerivationEngine";
 import { CodeHighlight } from "@/shared/code/CodeHighlight";
 import { AccessGate } from "@/shared/access/AccessGate";
-import { getCategory, getTopic } from "@/categories/registry";
-import { slidingWindowSteps } from "@/categories/algorithms/topics/sliding-window/derivation";
-import { SlidingWindowVisualizer } from "@/categories/algorithms/topics/sliding-window/visualizer";
-import slidingWindowPy from "@/categories/algorithms/topics/sliding-window/algorithm.py";
+import { getCategory } from "@/categories/registry";
+import { getTopicBundle } from "@/categories/topic-registry";
 import { emitEvent } from "@/shared/analytics/events";
 import { useProgress } from "@/shared/progress/useProgress";
+import { notFound } from "next/navigation";
 
 interface Props {
   categoryKey: string;
@@ -19,8 +18,8 @@ interface Props {
 }
 
 export function TopicPageClient({ categoryKey, topicKey }: Props) {
-  const cat = getCategory(categoryKey)!;
-  const topic = getTopic(categoryKey, topicKey)!;
+  const cat = getCategory(categoryKey);
+  const bundle = getTopicBundle(categoryKey, topicKey);
   const [currentStep, setCurrentStep] = useState(1);
   const [wedgeInteracted, setWedgeInteracted] = useState(false);
   const { getTopic: getTopicProgress } = useProgress();
@@ -31,10 +30,19 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
     emitEvent({ type: "topic_opened", category: categoryKey, topic: topicKey });
   }, [categoryKey, topicKey]);
 
-  // For Phase 0, only sliding-window is wired up.
-  const steps = slidingWindowSteps;
-  const Visualizer = SlidingWindowVisualizer;
-  const pythonCode = slidingWindowPy;
+  if (!cat || !bundle) notFound();
+
+  const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep } = bundle;
+  const unlockAt = unlockCodeAtStep ?? steps.length;
+
+  const stepGating = wedgeStep && wedgeGating
+    ? {
+        [wedgeStep]: {
+          disabled: !wedgeInteracted,
+          label: wedgeInteracted ? wedgeGating.enabledLabel : wedgeGating.disabledLabel,
+        },
+      }
+    : undefined;
 
   return (
     <AccessGate tier={topic.tier}>
@@ -75,14 +83,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
                 topicKey={topicKey}
                 steps={steps}
                 onStepChange={setCurrentStep}
-                stepGating={{
-                  3: {
-                    disabled: !wedgeInteracted,
-                    label: wedgeInteracted
-                      ? "I think I see it"
-                      : "Drag the window first",
-                  },
-                }}
+                stepGating={stepGating}
               />
             </>
           }
@@ -90,7 +91,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
             <Visualizer step={currentStep} onWedgeInteraction={() => setWedgeInteracted(true)} />
           }
           codeDrawer={<CodeHighlight code={pythonCode} filename="algorithm.py" />}
-          codeDrawerLocked={!everCompleted && currentStep < 7}
+          codeDrawerLocked={!everCompleted && currentStep < unlockAt}
         />
       </div>
     </AccessGate>
