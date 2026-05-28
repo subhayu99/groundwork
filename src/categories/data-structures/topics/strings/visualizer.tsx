@@ -274,7 +274,7 @@ function SummaryViz() {
         <div>len(s)</div><div className="text-[var(--diff-easy)]">O(1)</div>
         <div>s[i:j]</div><div className="text-[var(--diff-med)]">O(j − i)</div>
         <div>a + b</div><div className="text-[var(--diff-med)]">O(n + m)</div>
-        <div>repeat +=</div><div className="text-[var(--diff-hard)]">O(n²)</div>
+        <div>repeat +=</div><div className="text-[var(--diff-hard)]">way too long</div>
         <div>find substring</div><div className="text-[var(--diff-med)]">O(n)–O(n·m)</div>
       </div>
     </div>

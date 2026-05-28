@@ -81,7 +81,7 @@ function NaiveViz({ step }: { step: number }) {
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        naive · O(n·k)
+        the obvious way · re-adding everything
       </div>
       {step === 2 && (
         <p className="text-sm text-[var(--text-muted)] max-w-md text-center">
@@ -275,7 +275,7 @@ function DerivedViz() {
               : "text-[var(--text-faint)] border border-[var(--line)] hover:text-[var(--text-muted)]"
           }`}
         >
-          naive · O(n·k)
+          the obvious way · re-adding everything
         </button>
         <span>↔</span>
         <button
@@ -286,7 +286,7 @@ function DerivedViz() {
               : "text-[var(--text-faint)] border border-[var(--line)] hover:text-[var(--text-muted)]"
           }`}
         >
-          derived · O(n)
+          the wedge way · two ops per slide
         </button>
       </div>
 

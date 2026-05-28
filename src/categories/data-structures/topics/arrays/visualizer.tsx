@@ -57,11 +57,9 @@ function PileViz() {
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        the pile · find position {TARGET_INDEX}
+        the pile · find the 7th book in this pile
       </div>
-      <p className="text-sm text-[var(--text-muted)] max-w-md text-center">
-        Watch the cursor crawl one book at a time. Every lift counts.
-      </p>
+      <p className="text-sm text-[var(--text-muted)] max-w-md text-center">Watch the cursor crawl one book at a time. Every lift counts. (Imagine this row is 1,000 books long instead of 10.)</p>
 
       <div className="relative pt-6">
         <ArrayViz values={VALUES} highlightedIndices={[scan]} />
@@ -99,7 +97,7 @@ function SliderViz({ onInteraction }: { onInteraction?: () => void }) {
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        the shelf · drag to any position
+        the shelf · drag to any slot · land in one step
       </div>
 
       <div className="relative pt-6">

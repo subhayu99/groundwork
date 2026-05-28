@@ -116,7 +116,7 @@ function NaiveScanViz() {
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        naive · every substring
+        the obvious way · every starting spot
       </div>
       <CharCells s={S} inWindow={inWindow} l={start} r={end} />
       <div className="flex flex-col items-center gap-3 mt-6">
@@ -260,7 +260,7 @@ function DerivedViz() {
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        derived · O(n) · longest unique substring
+        the breathing window · longest stretch with no repeats
       </div>
       <CharCells s={S} inWindow={inWindow} l={l} r={Math.max(0, r)} />
 

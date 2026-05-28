@@ -244,7 +244,7 @@ function BinarySearchAnimatedViz() {
   return (
     <div className="flex flex-col items-center gap-8 max-w-[760px]">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        binary search · find page {TARGET}
+        halve and halve again · find page {TARGET}
       </div>
 
       <div className="overflow-x-auto max-w-full">

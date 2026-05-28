@@ -83,7 +83,7 @@ function NaiveViz() {
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        naive · O(n²)
+        trying every pair
       </div>
       <p className="text-sm text-[var(--text-muted)] max-w-md text-center">
         Target: <span className="text-[var(--accent)] font-mono">{TARGET}</span>. Watch every pair
@@ -245,7 +245,7 @@ function DerivedViz() {
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        derived · O(n) · target {TARGET}
+        two pointers · target {TARGET}
       </div>
 
       <div className="relative pt-6">
