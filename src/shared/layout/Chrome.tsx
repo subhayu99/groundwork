@@ -24,8 +24,8 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
       <Link href="/" className="flex items-center gap-2.5 font-mono text-xs tracking-wider text-[var(--text-muted)] hover:text-[var(--text)] leading-tight">
         <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
         <span className="flex flex-col">
-          <span>first</span>
-          <span>principles</span>
+          <span>ground</span>
+          <span>work</span>
         </span>
       </Link>
 

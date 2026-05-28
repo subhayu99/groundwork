@@ -1,8 +1,18 @@
 import { notFound } from "next/navigation";
-import { getCategory, getTopic } from "@/categories/registry";
-import { getPracticeProblem } from "@/categories/topic-registry";
+import { getCategory, getTopic, listAllTopics } from "@/categories/registry";
+import { getPracticeProblem, listPracticeProblems } from "@/categories/topic-registry";
 import { Chrome } from "@/shared/layout/Chrome";
 import { ProblemView } from "@/shared/practice/ProblemView";
+
+export function generateStaticParams() {
+  const params: { category: string; topic: string; problemId: string }[] = [];
+  for (const t of listAllTopics()) {
+    for (const p of listPracticeProblems(t.category, t.key)) {
+      params.push({ category: t.category, topic: t.key, problemId: p.id });
+    }
+  }
+  return params;
+}
 
 export default async function PracticeProblemPage({
   params,

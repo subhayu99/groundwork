@@ -15,8 +15,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "first-principles-learning-platform",
-  description: "Learn DSA from first principles, not patterns.",
+  title: "Groundwork — algorithms from first principles",
+  description:
+    "Learn data structures and algorithms from first principles, not patterns. Built to be followed by anyone, including people with zero computer-science background.",
 };
 
 export default function RootLayout({

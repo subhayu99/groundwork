@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
-import { getCategory, getTopic } from "@/categories/registry";
+import { getCategory, getTopic, listAllTopics } from "@/categories/registry";
 import { TopicPageClient } from "./TopicPageClient";
+
+export function generateStaticParams() {
+  return listAllTopics().map((t) => ({ category: t.category, topic: t.key }));
+}
 
 export default async function TopicPage({
   params,

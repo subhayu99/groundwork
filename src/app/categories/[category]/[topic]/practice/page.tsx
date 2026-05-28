@@ -1,7 +1,11 @@
 import { notFound } from "next/navigation";
-import { getCategory, getTopic } from "@/categories/registry";
+import { getCategory, getTopic, listAllTopics } from "@/categories/registry";
 import { listPracticeProblems } from "@/categories/topic-registry";
 import { PracticeListClient } from "./PracticeListClient";
+
+export function generateStaticParams() {
+  return listAllTopics().map((t) => ({ category: t.category, topic: t.key }));
+}
 
 export default async function PracticeListPage({
   params,

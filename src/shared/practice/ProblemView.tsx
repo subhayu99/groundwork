@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useProgress } from "@/shared/progress/useProgress";
 import type { PracticeProblem } from "./types";
@@ -163,12 +164,12 @@ export function ProblemView({ categoryKey, topicKey, topicName, problem }: Props
       </div>
 
       <div className="flex items-center justify-between pt-4 border-t border-[var(--line-faint)]">
-        <a
+        <Link
           href={`/categories/${categoryKey}/${topicKey}/practice`}
           className="font-mono text-xs text-[var(--text-muted)] hover:text-[var(--text)]"
         >
           ← back to {topicName.toLowerCase()} problems
-        </a>
+        </Link>
         <button
           onClick={markSolved}
           disabled={solved}
