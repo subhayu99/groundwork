@@ -97,7 +97,7 @@ export const slidingWindowSteps: DerivationStep[] = [
               are <em>arr[i]</em> (leaver) and <em>arr[i+k]</em> (newcomer).
             </p>
             <p>
-              So the recurrence almost writes itself:
+              So the recipe almost writes itself:
               <code> sum[i+1] = sum[i] &minus; arr[i] + arr[i+k]</code>. Two operations. The middle
               <code> k &minus; 1</code> numbers never enter the equation again.
             </p>

@@ -156,10 +156,13 @@ export const binarySearchSteps: DerivationStep[] = [
             <p>
               You can binary-search the answer to questions like: &ldquo;What&rsquo;s the smallest
               ship capacity that can finish the deliveries in 14 days?&rdquo; &mdash; even though
-              there&rsquo;s no array, just a monotonic predicate <em>feasible(capacity)</em>.
+              there&rsquo;s no list at all. As long as the answers go in one direction (the bigger
+              the ship, the easier the job), you can guess in the middle and throw away half of
+              what&rsquo;s left.
             </p>
             <p>
-              Anywhere the answer space has a direction, you can prune half of it per check.
+              Anywhere the possibilities line up &mdash; small to big, easy to hard, no to yes
+              &mdash; you can cut them in half with one check.
             </p>
           </>
         ),
@@ -187,7 +190,7 @@ export const binarySearchSteps: DerivationStep[] = [
               <li>&ldquo;Sorted array&rdquo; + find / find-or-insert position</li>
               <li>&ldquo;Smallest value such that...&rdquo; / &ldquo;largest value such that...&rdquo;</li>
               <li>&ldquo;Minimum X to make all Y feasible&rdquo;</li>
-              <li>Anywhere a monotone predicate flips from false to true exactly once</li>
+              <li>Anywhere a &ldquo;does this work?&rdquo; answer flips from no to yes exactly once as you turn a dial</li>
             </ul>
           </>
         ),

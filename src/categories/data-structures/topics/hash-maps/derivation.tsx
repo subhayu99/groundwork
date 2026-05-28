@@ -127,8 +127,7 @@ export const hashMapsSteps: DerivationStep[] = [
             </p>
             <p>
               <strong>Resize:</strong> when the table fills up, we allocate a bigger one and rehash
-              everything. That step is <code>O(n)</code>, but it happens rarely enough that the
-              <em> amortized</em> cost per insert is still constant.
+              everything. That step is <code>O(n)</code>, but it happens rarely enough that the average cost per insert is still tiny &mdash; constant time. The one slow step is rare enough to disappear in the average.
             </p>
           </>
         ),

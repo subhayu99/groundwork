@@ -98,9 +98,7 @@ export const twoPointersSteps: DerivationStep[] = [
               from <code>L</code> to <code>R</code> is also too big. Drop <code>R</code> by one.
             </p>
             <div className="mt-3 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The principle:</strong> sortedness is a guarantee &mdash; an{" "}
-              <em>invariant</em>. Each comparison eliminates a whole side of the search space, not
-              just one pair.
+              <strong>The principle:</strong> sortedness is a promise the data keeps. Each comparison eliminates a whole side of the remaining cards, not just one pair.
             </div>
           </>
         ),
@@ -173,7 +171,7 @@ export const twoPointersSteps: DerivationStep[] = [
           <>
             <p>
               That&rsquo;s the name. It applies whenever a row of data has a direction &mdash; sorted
-              order, symmetry, or some monotone property &mdash; and each comparison can eliminate
+              order, symmetry, or some pattern that always moves in one direction &mdash; and each comparison can eliminate
               one whole side of the remaining possibilities.
             </p>
             <p>

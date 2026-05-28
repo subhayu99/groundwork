@@ -93,15 +93,16 @@ export const slidingWindowVariableSteps: DerivationStep[] = [
               this stretch is the longest you&rsquo;ve seen.
             </p>
             <p>
-              <strong>Already in?</strong> The window has lost its invariant. Move <code>L</code>{" "}
+              <strong>Already in?</strong> The window has broken its 'no repeats' rule. Move <code>L</code>{" "}
               forward until the duplicate is just out of bounds. With a hash map of{" "}
               <em>character → last seen index</em>, we can jump <code>L</code> straight there in{" "}
               <code>O(1)</code>.
             </p>
             <div className="mt-3 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The principle:</strong> the window maintains an <em>invariant</em> &mdash;
-              &ldquo;all characters unique.&rdquo; <code>R</code> tries to expand while keeping it.
-              <code>L</code> contracts the minimum needed to restore it.
+              <strong>The principle:</strong> the window keeps a rule alive &mdash; &ldquo;every
+              letter inside is unique.&rdquo; <code>R</code> grows the window as long as the rule
+              still holds. <code>L</code> shrinks it the smallest amount needed to bring the rule
+              back.
             </div>
           </>
         ),
@@ -140,11 +141,11 @@ export const slidingWindowVariableSteps: DerivationStep[] = [
     cards: [
       {
         label: "The generalization",
-        title: "Any predicate that's monotone in window size.",
+        title: "Any yes/no rule that holds for small windows and breaks past a point.",
         body: (
           <>
             <p>
-              The trick works whenever the window has an <em>invariant that breaks gracefully</em>:
+              The trick works whenever the window has a <em>rule that breaks cleanly the moment you cross a line</em>:
             </p>
             <p>
               &ldquo;Smallest window containing every character of <code>pattern</code>&rdquo; &mdash;
@@ -153,7 +154,7 @@ export const slidingWindowVariableSteps: DerivationStep[] = [
             </p>
             <p>
               &ldquo;Longest subarray with at most <code>k</code> distinct values&rdquo; &mdash;
-              same template; the invariant is &ldquo;count of distinct ≤ k.&rdquo;
+              same template; the rule is &ldquo;at most k different items in the window.&rdquo;
             </p>
             <p>
               &ldquo;Maximum sum subarray with non-negative values and length at most <code>k</code>&rdquo;
@@ -184,7 +185,7 @@ export const slidingWindowVariableSteps: DerivationStep[] = [
               <li>&ldquo;Longest / shortest substring (or subarray) such that ...&rdquo;</li>
               <li>&ldquo;At most k of X&rdquo; / &ldquo;at least k of X&rdquo;</li>
               <li>&ldquo;Smallest window containing all of Y&rdquo;</li>
-              <li>Any monotone &ldquo;valid / invalid&rdquo; predicate on a contiguous range</li>
+              <li>Any &ldquo;works / doesn't work&rdquo; rule that flips once on a contiguous range</li>
             </ul>
           </>
         ),
