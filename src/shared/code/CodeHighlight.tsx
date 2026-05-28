@@ -15,7 +15,19 @@ export function CodeHighlight({ code, highlightedLines = [], filename }: CodeHig
   const lines = code.split("\n");
 
   const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(code);
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch {
+      // Fallback for contexts without clipboard permission (older browsers, embeds, headless)
+      const ta = document.createElement("textarea");
+      ta.value = code;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch { /* give up silently */ }
+      document.body.removeChild(ta);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };

@@ -37,22 +37,27 @@ function NaiveViz({ step }: { step: number }) {
   const [ops, setOps] = useState(K);
   const [recompFlash, setRecompFlash] = useState<number[]>([]);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const startRef = useRef(0);
+  const flashTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const maxStart = ARR.length - K;
 
+  // Side effects live outside any state-updater callback so React StrictMode's
+  // double-invocation of updaters doesn't double-apply them.
   const stepForward = useCallback(() => {
-    setStart((prev) => {
-      if (prev >= maxStart) {
-        setPlaying(false);
-        return prev;
-      }
-      const next = prev + 1;
-      const flash: number[] = [];
-      for (let i = next; i < next + K; i++) flash.push(i);
-      setRecompFlash(flash);
-      setOps((o) => o + K);
-      setTimeout(() => setRecompFlash([]), 520);
-      return next;
-    });
+    const cur = startRef.current;
+    if (cur >= maxStart) {
+      setPlaying(false);
+      return;
+    }
+    const next = cur + 1;
+    startRef.current = next;
+    setStart(next);
+    setOps((o) => o + K);
+    const flash: number[] = [];
+    for (let i = next; i < next + K; i++) flash.push(i);
+    setRecompFlash(flash);
+    if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+    flashTimeoutRef.current = setTimeout(() => setRecompFlash([]), 520);
   }, [maxStart]);
 
   useEffect(() => {
@@ -64,6 +69,7 @@ function NaiveViz({ step }: { step: number }) {
   }, [playing, stepForward]);
 
   const reset = () => {
+    startRef.current = 0;
     setStart(0);
     setOps(K);
     setRecompFlash([]);
@@ -86,7 +92,7 @@ function NaiveViz({ step }: { step: number }) {
 
       <div className="relative pt-6">
         <ArrayViz values={ARR} highlightedIndices={highlighted} recomputedIndices={recompFlash} />
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-x-0 top-6 pointer-events-none">
           <WindowOverlay start={start} k={K} total={ARR.length} cellSize={CELL} cellGap={GAP} label={`window · k=${K}`} />
         </div>
       </div>
@@ -150,7 +156,7 @@ function WedgeViz({ onInteraction }: { onInteraction?: () => void }) {
 
       <div className="relative pt-6">
         <ArrayViz values={ARR} highlightedIndices={highlighted} />
-        <div className="absolute inset-0">
+        <div className="absolute inset-x-0 top-6">
           <WindowOverlay
             start={start}
             k={K}
@@ -185,37 +191,42 @@ function DerivedViz() {
   const [recompFlash, setRecompFlash] = useState<number[]>([]);
   const [playing, setPlaying] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const startRef = useRef(0);
+  const flashTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const maxStart = ARR.length - K;
   const isNaive = mode === "naive";
 
+  // Side effects live outside any state-updater callback so React StrictMode's
+  // double-invocation of updaters doesn't double-apply them.
   const stepForward = useCallback(() => {
-    setStart((prev) => {
-      if (prev >= maxStart) {
-        setPlaying(false);
-        return prev;
-      }
-      const next = prev + 1;
-      if (isNaive) {
-        const flash: number[] = [];
-        for (let i = next; i < next + K; i++) flash.push(i);
-        setRecompFlash(flash);
-        setWindowSum(ARR.slice(next, next + K).reduce((a, b) => a + b, 0));
-        setOps((o) => o + K);
-        setTimeout(() => setRecompFlash([]), 520);
-      } else {
-        const leavingIdx = prev;
-        const enteringIdx = prev + K;
-        setLeaving([leavingIdx]);
-        setEntering([enteringIdx]);
-        setWindowSum((s) => s - ARR[leavingIdx] + ARR[enteringIdx]);
-        setOps((o) => o + 2);
-        setTimeout(() => {
-          setLeaving([]);
-          setEntering([]);
-        }, 520);
-      }
-      return next;
-    });
+    const cur = startRef.current;
+    if (cur >= maxStart) {
+      setPlaying(false);
+      return;
+    }
+    const next = cur + 1;
+    startRef.current = next;
+    setStart(next);
+    if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+    if (isNaive) {
+      const flash: number[] = [];
+      for (let i = next; i < next + K; i++) flash.push(i);
+      setRecompFlash(flash);
+      setWindowSum(ARR.slice(next, next + K).reduce((a, b) => a + b, 0));
+      setOps((o) => o + K);
+      flashTimeoutRef.current = setTimeout(() => setRecompFlash([]), 520);
+    } else {
+      const leavingIdx = cur;
+      const enteringIdx = cur + K;
+      setLeaving([leavingIdx]);
+      setEntering([enteringIdx]);
+      setWindowSum((s) => s - ARR[leavingIdx] + ARR[enteringIdx]);
+      setOps((o) => o + 2);
+      flashTimeoutRef.current = setTimeout(() => {
+        setLeaving([]);
+        setEntering([]);
+      }, 520);
+    }
   }, [maxStart, isNaive]);
 
   useEffect(() => {
@@ -227,6 +238,7 @@ function DerivedViz() {
   }, [playing, stepForward]);
 
   const reset = useCallback(() => {
+    startRef.current = 0;
     setStart(0);
     setWindowSum(ARR.slice(0, K).reduce((a, b) => a + b, 0));
     setOps(K);
@@ -239,6 +251,7 @@ function DerivedViz() {
   // Reset when switching modes so the counter comparison is clean
   const switchMode = (next: "naive" | "derived") => {
     setMode(next);
+    startRef.current = 0;
     setStart(0);
     setWindowSum(ARR.slice(0, K).reduce((a, b) => a + b, 0));
     setOps(K);
@@ -285,7 +298,7 @@ function DerivedViz() {
           leavingIndices={leaving}
           recomputedIndices={recompFlash}
         />
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-x-0 top-6 pointer-events-none">
           <WindowOverlay start={start} k={K} total={ARR.length} cellSize={CELL} cellGap={GAP} label={`window_sum  ${windowSum}`} />
         </div>
       </div>
