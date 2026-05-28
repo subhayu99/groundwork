@@ -30,6 +30,12 @@ import { hashMapsSteps } from "./hash-maps/derivation";
 import { HashMapsVisualizer } from "./hash-maps/visualizer";
 import hashMapsPy from "./hash-maps/algorithm.py";
 
+// Sets & Tuples
+import { meta as setsTuplesMeta } from "./sets-tuples/meta";
+import { setsTuplesSteps } from "./sets-tuples/derivation";
+import { SetsTuplesVisualizer } from "./sets-tuples/visualizer";
+import setsTuplesPy from "./sets-tuples/algorithm.py";
+
 const dataStructureBundles: Record<string, TopicBundle> = {
   arrays: {
     meta: arraysMeta,
@@ -84,6 +90,17 @@ const dataStructureBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Type a name first",
       enabledLabel: "Compute the address",
+    },
+  },
+  "sets-tuples": {
+    meta: setsTuplesMeta,
+    steps: setsTuplesSteps,
+    Visualizer: SetsTuplesVisualizer,
+    pythonCode: setsTuplesPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Try the set or tuple first",
+      enabledLabel: "Identity vs grouping",
     },
   },
 };
