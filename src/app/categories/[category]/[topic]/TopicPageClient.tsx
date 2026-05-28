@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Chrome } from "@/shared/layout/Chrome";
 import { TopicLayout } from "@/shared/layout/TopicLayout";
@@ -33,7 +34,8 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
 
   if (!cat || !bundle) notFound();
 
-  const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep } = bundle;
+  const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, problems } = bundle;
+  const problemCount = problems?.length ?? 0;
   const unlockAt = unlockCodeAtStep ?? steps.length;
 
   const stepGating = wedgeStep && wedgeGating
@@ -75,8 +77,16 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
                     </span>
                   ))}
                 </div>
-                <div className="mt-2 text-[10px] font-mono text-[var(--text-faint)]">
-                  ~{topic.estimatedMinutes} min derivation
+                <div className="mt-2 text-[10px] font-mono text-[var(--text-faint)] flex items-center gap-3 flex-wrap">
+                  <span>~{topic.estimatedMinutes} min derivation</span>
+                  {problemCount > 0 && (
+                    <Link
+                      href={`/categories/${categoryKey}/${topicKey}/practice`}
+                      className="text-[var(--accent-ink)] hover:underline"
+                    >
+                      · {problemCount} practice problem{problemCount === 1 ? "" : "s"} →
+                    </Link>
+                  )}
                 </div>
               </div>
               <DerivationEngine

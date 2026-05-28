@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { DerivationStep, TopicMeta } from "@/shared/derivation/types";
+import type { PracticeProblem } from "@/shared/practice/types";
 
 export interface TopicBundle {
   meta: TopicMeta;
@@ -11,6 +12,8 @@ export interface TopicBundle {
   /** Step that triggers the wedge gating mechanism. 0 disables. */
   wedgeStep?: number;
   wedgeGating?: { disabledLabel: string; enabledLabel: string };
+  /** Practice problems for this topic. Optional — topics opt in. */
+  problems?: PracticeProblem[];
 }
 
 // Sliding Window (fixed)
@@ -18,12 +21,14 @@ import { meta as slidingWindowMeta } from "./sliding-window/meta";
 import { slidingWindowSteps } from "./sliding-window/derivation";
 import { SlidingWindowVisualizer } from "./sliding-window/visualizer";
 import slidingWindowPy from "./sliding-window/algorithm.py";
+import { slidingWindowProblems } from "./sliding-window/problems";
 
 // Two Pointers
 import { meta as twoPointersMeta } from "./two-pointers/meta";
 import { twoPointersSteps } from "./two-pointers/derivation";
 import { TwoPointersVisualizer } from "./two-pointers/visualizer";
 import twoPointersPy from "./two-pointers/algorithm.py";
+import { twoPointersProblems } from "./two-pointers/problems";
 
 // Binary Search
 import { meta as binarySearchMeta } from "./binary-search/meta";
@@ -72,6 +77,7 @@ import { meta as dp1dMeta } from "./dp-1d/meta";
 import { dp1dSteps } from "./dp-1d/derivation";
 import { Dp1dVisualizer } from "./dp-1d/visualizer";
 import dp1dPy from "./dp-1d/algorithm.py";
+import { dp1dProblems } from "./dp-1d/problems";
 
 // Backtracking
 import { meta as backtrackingMeta } from "./backtracking/meta";
@@ -96,6 +102,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Move the pointers first",
       enabledLabel: "I see the pattern",
     },
+    problems: twoPointersProblems,
   },
   "binary-search": {
     meta: binarySearchMeta,
@@ -118,6 +125,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Drag the window first",
       enabledLabel: "I think I see it",
     },
+    problems: slidingWindowProblems,
   },
   "sliding-window-variable": {
     meta: slidingWindowVariableMeta,
@@ -195,6 +203,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Toggle remembering first",
       enabledLabel: "Write it down once",
     },
+    problems: dp1dProblems,
   },
   backtracking: {
     meta: backtrackingMeta,

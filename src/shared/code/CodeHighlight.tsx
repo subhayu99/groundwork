@@ -1,10 +1,14 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 interface CodeHighlightProps {
   code: string;
   language?: "python";
   /** Lines (1-indexed) to highlight as the "active" step */
   highlightedLines?: number[];
+  /** Optional header rendered inside the same border (used by practice CodeBlock). */
+  header?: ReactNode;
 }
 
 // Token kinds → color tokens. Stay inside our OKLCH palette so the code
@@ -176,11 +180,12 @@ function tokenizeLine(line: string): Token[] {
   return tokens;
 }
 
-export function CodeHighlight({ code, highlightedLines = [] }: CodeHighlightProps) {
+export function CodeHighlight({ code, highlightedLines = [], header }: CodeHighlightProps) {
   const lines = code.split("\n");
 
   return (
     <div className="rounded-xl border border-[var(--line-faint)] bg-[var(--bg-inset)] overflow-hidden font-mono text-[13px]">
+      {header}
       <pre className="overflow-x-auto py-3 leading-[1.65]">
         {lines.map((line, i) => {
           const lineNo = i + 1;
