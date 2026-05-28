@@ -31,6 +31,12 @@ import { binarySearchSteps } from "./binary-search/derivation";
 import { BinarySearchVisualizer } from "./binary-search/visualizer";
 import binarySearchPy from "./binary-search/algorithm.py";
 
+// Sliding Window (Variable)
+import { meta as slidingWindowVariableMeta } from "./sliding-window-variable/meta";
+import { slidingWindowVariableSteps } from "./sliding-window-variable/derivation";
+import { SlidingWindowVariableVisualizer } from "./sliding-window-variable/visualizer";
+import slidingWindowVariablePy from "./sliding-window-variable/algorithm.py";
+
 const algorithmBundles: Record<string, TopicBundle> = {
   "two-pointers": {
     meta: twoPointersMeta,
@@ -63,6 +69,17 @@ const algorithmBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Drag the window first",
       enabledLabel: "I think I see it",
+    },
+  },
+  "sliding-window-variable": {
+    meta: slidingWindowVariableMeta,
+    steps: slidingWindowVariableSteps,
+    Visualizer: SlidingWindowVariableVisualizer,
+    pythonCode: slidingWindowVariablePy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Expand or contract first",
+      enabledLabel: "Two motions, one rule",
     },
   },
 };

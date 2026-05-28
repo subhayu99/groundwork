@@ -17,6 +17,7 @@ import { meta as graphsMeta } from "./data-structures/topics/graphs/meta";
 import { meta as slidingWindowMeta } from "./algorithms/topics/sliding-window/meta";
 import { meta as twoPointersMeta } from "./algorithms/topics/two-pointers/meta";
 import { meta as binarySearchMeta } from "./algorithms/topics/binary-search/meta";
+import { meta as slidingWindowVariableMeta } from "./algorithms/topics/sliding-window-variable/meta";
 
 const categories: CategoryMeta[] = [dataStructuresMeta, algorithmsMeta];
 
@@ -34,6 +35,7 @@ const topics: TopicMeta[] = [
   twoPointersMeta,
   binarySearchMeta,
   slidingWindowMeta,
+  slidingWindowVariableMeta,
 ];
 
 export function listCategories(): CategoryMeta[] {
