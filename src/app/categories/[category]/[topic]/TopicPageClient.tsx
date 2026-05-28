@@ -91,8 +91,9 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
           visualization={
             <Visualizer step={currentStep} onWedgeInteraction={() => setWedgeInteracted(true)} />
           }
-          codeDrawer={<CodeHighlight code={pythonCode} filename="algorithm.py" />}
+          codeDrawer={<CodeHighlight code={pythonCode} />}
           codeDrawerLocked={!everCompleted && currentStep < unlockAt}
+          codeFilename={`${topicKey.replaceAll("-", "_")}.py`}
         />
       </div>
     </AccessGate>

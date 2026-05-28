@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
-
 interface CodeHighlightProps {
   code: string;
   language?: "python";
   /** Lines (1-indexed) to highlight as the "active" step */
   highlightedLines?: number[];
-  filename?: string;
 }
 
 // Token kinds → color tokens. Stay inside our OKLCH palette so the code
@@ -27,17 +24,17 @@ type TokenKind =
   | "text";
 
 const COLORS: Record<TokenKind, string> = {
-  keyword:     "var(--accent-pink)",
-  builtin:     "var(--accent-indigo)",
-  string:      "var(--diff-easy)",
+  keyword:     "var(--text)",
+  builtin:     "var(--accent-sky)",
+  string:      "var(--text-muted)",
   number:      "var(--accent-sky)",
   comment:     "var(--text-faint)",
   def:         "var(--accent-sky)",
-  self:        "var(--accent-indigo)",
-  decorator:   "var(--accent-pink)",
-  operator:    "var(--text-muted)",
-  punctuation: "var(--text-muted)",
-  type:        "var(--accent-indigo)",
+  self:        "var(--accent-sky)",
+  decorator:   "var(--accent-sky)",
+  operator:    "var(--text)",
+  punctuation: "var(--text)",
+  type:        "var(--accent-sky)",
   text:        "var(--text)",
 };
 
@@ -179,47 +176,11 @@ function tokenizeLine(line: string): Token[] {
   return tokens;
 }
 
-export function CodeHighlight({ code, highlightedLines = [], filename }: CodeHighlightProps) {
-  const [copied, setCopied] = useState(false);
+export function CodeHighlight({ code, highlightedLines = [] }: CodeHighlightProps) {
   const lines = code.split("\n");
 
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-    } catch {
-      const ta = document.createElement("textarea");
-      ta.value = code;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand("copy"); } catch { /* give up silently */ }
-      document.body.removeChild(ta);
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
-
   return (
-    <div className="rounded-xl border border-[var(--line-faint)] bg-[var(--bg-inset)] overflow-hidden font-mono text-[13px] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.6)]">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--line-faint)] text-[var(--text-muted)] text-[11px] bg-[color-mix(in_oklab,var(--bg-inset)_70%,var(--bg-card))]">
-        <div className="flex items-center gap-2">
-          <span className="flex gap-1">
-            <span className="w-2 h-2 rounded-full bg-[color-mix(in_oklab,var(--diff-hard)_70%,transparent)]" />
-            <span className="w-2 h-2 rounded-full bg-[color-mix(in_oklab,var(--diff-med)_70%,transparent)]" />
-            <span className="w-2 h-2 rounded-full bg-[color-mix(in_oklab,var(--diff-easy)_70%,transparent)]" />
-          </span>
-          <span className="text-[var(--text-muted)] tracking-wider uppercase text-[10px]">
-            {filename ?? "python"}
-          </span>
-        </div>
-        <button
-          onClick={copyToClipboard}
-          className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md border border-[var(--line)] hover:border-[var(--line-strong)] hover:text-[var(--text)] transition-colors"
-        >
-          {copied ? "copied" : "copy"}
-        </button>
-      </div>
+    <div className="rounded-xl border border-[var(--line-faint)] bg-[var(--bg-inset)] overflow-hidden font-mono text-[13px]">
       <pre className="overflow-x-auto py-3 leading-[1.65]">
         {lines.map((line, i) => {
           const lineNo = i + 1;
@@ -242,7 +203,10 @@ export function CodeHighlight({ code, highlightedLines = [], filename }: CodeHig
                   <span> </span>
                 ) : (
                   tokens.map((t, k) => (
-                    <span key={k} style={{ color: COLORS[t.kind] }}>
+                    <span
+                      key={k}
+                      style={{ color: COLORS[t.kind], fontStyle: t.kind === "comment" ? "italic" : undefined }}
+                    >
                       {t.text}
                     </span>
                   ))

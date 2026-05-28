@@ -8,9 +8,10 @@ interface TopicLayoutProps {
   visualization: ReactNode;
   codeDrawer?: ReactNode;
   codeDrawerLocked?: boolean;
+  codeFilename?: string;
 }
 
-export function TopicLayout({ cards, visualization, codeDrawer, codeDrawerLocked }: TopicLayoutProps) {
+export function TopicLayout({ cards, visualization, codeDrawer, codeDrawerLocked, codeFilename }: TopicLayoutProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -41,7 +42,7 @@ export function TopicLayout({ cards, visualization, codeDrawer, codeDrawerLocked
                 codeDrawerLocked ? "text-[var(--text-faint)] cursor-not-allowed" : "text-[var(--text-muted)] hover:text-[var(--text)]"
               }`}
             >
-              <span>python · algorithm.py</span>
+              <span>python · {codeFilename ?? "algorithm.py"}</span>
               <span>{codeDrawerLocked ? "unlocks after step 6" : drawerOpen ? "▼ hide" : "▲ show"}</span>
             </button>
             {drawerOpen && !codeDrawerLocked && (
