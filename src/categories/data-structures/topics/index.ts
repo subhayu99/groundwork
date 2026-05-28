@@ -18,6 +18,12 @@ import { stacksQueuesSteps } from "./stacks-queues/derivation";
 import { StacksQueuesVisualizer } from "./stacks-queues/visualizer";
 import stacksQueuesPy from "./stacks-queues/algorithm.py";
 
+// Linked Lists
+import { meta as linkedListsMeta } from "./linked-lists/meta";
+import { linkedListsSteps } from "./linked-lists/derivation";
+import { LinkedListsVisualizer } from "./linked-lists/visualizer";
+import linkedListsPy from "./linked-lists/algorithm.py";
+
 const dataStructureBundles: Record<string, TopicBundle> = {
   arrays: {
     meta: arraysMeta,
@@ -50,6 +56,17 @@ const dataStructureBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Push or enqueue something first",
       enabledLabel: "Restrict, then optimize",
+    },
+  },
+  "linked-lists": {
+    meta: linkedListsMeta,
+    steps: linkedListsSteps,
+    Visualizer: LinkedListsVisualizer,
+    pythonCode: linkedListsPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Insert or remove something first",
+      enabledLabel: "Pointers are the trick",
     },
   },
 };
