@@ -49,6 +49,24 @@ import { activitySelectionSteps } from "./activity-selection/derivation";
 import { ActivitySelectionVisualizer } from "./activity-selection/visualizer";
 import activitySelectionPy from "./activity-selection/algorithm.py";
 
+// Recursion
+import { meta as recursionMeta } from "./recursion/meta";
+import { recursionSteps } from "./recursion/derivation";
+import { RecursionVisualizer } from "./recursion/visualizer";
+import recursionPy from "./recursion/algorithm.py";
+
+// Depth-First Search
+import { meta as dfsMeta } from "./dfs/meta";
+import { dfsSteps } from "./dfs/derivation";
+import { DfsVisualizer } from "./dfs/visualizer";
+import dfsPy from "./dfs/algorithm.py";
+
+// Breadth-First Search
+import { meta as bfsMeta } from "./bfs/meta";
+import { bfsSteps } from "./bfs/derivation";
+import { BfsVisualizer } from "./bfs/visualizer";
+import bfsPy from "./bfs/algorithm.py";
+
 const algorithmBundles: Record<string, TopicBundle> = {
   "two-pointers": {
     meta: twoPointersMeta,
@@ -114,6 +132,39 @@ const algorithmBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Sort by end first",
       enabledLabel: "Take the earliest finish",
+    },
+  },
+  recursion: {
+    meta: recursionMeta,
+    steps: recursionSteps,
+    Visualizer: RecursionVisualizer,
+    pythonCode: recursionPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Ask a folder first",
+      enabledLabel: "Smaller version, same shape",
+    },
+  },
+  dfs: {
+    meta: dfsMeta,
+    steps: dfsSteps,
+    Visualizer: DfsVisualizer,
+    pythonCode: dfsPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Take a step first",
+      enabledLabel: "Deep, then back up",
+    },
+  },
+  bfs: {
+    meta: bfsMeta,
+    steps: bfsSteps,
+    Visualizer: BfsVisualizer,
+    pythonCode: bfsPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Spread a ring first",
+      enabledLabel: "Closest first wins",
     },
   },
 };

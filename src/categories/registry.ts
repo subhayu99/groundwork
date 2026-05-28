@@ -20,6 +20,9 @@ import { meta as binarySearchMeta } from "./algorithms/topics/binary-search/meta
 import { meta as slidingWindowVariableMeta } from "./algorithms/topics/sliding-window-variable/meta";
 import { meta as monotonicStackMeta } from "./algorithms/topics/monotonic-stack/meta";
 import { meta as activitySelectionMeta } from "./algorithms/topics/activity-selection/meta";
+import { meta as recursionMeta } from "./algorithms/topics/recursion/meta";
+import { meta as dfsMeta } from "./algorithms/topics/dfs/meta";
+import { meta as bfsMeta } from "./algorithms/topics/bfs/meta";
 
 const categories: CategoryMeta[] = [dataStructuresMeta, algorithmsMeta];
 
@@ -40,6 +43,9 @@ const topics: TopicMeta[] = [
   slidingWindowVariableMeta,
   monotonicStackMeta,
   activitySelectionMeta,
+  recursionMeta,
+  dfsMeta,
+  bfsMeta,
 ];
 
 export function listCategories(): CategoryMeta[] {
