@@ -24,6 +24,12 @@ import { linkedListsSteps } from "./linked-lists/derivation";
 import { LinkedListsVisualizer } from "./linked-lists/visualizer";
 import linkedListsPy from "./linked-lists/algorithm.py";
 
+// Hash Maps
+import { meta as hashMapsMeta } from "./hash-maps/meta";
+import { hashMapsSteps } from "./hash-maps/derivation";
+import { HashMapsVisualizer } from "./hash-maps/visualizer";
+import hashMapsPy from "./hash-maps/algorithm.py";
+
 const dataStructureBundles: Record<string, TopicBundle> = {
   arrays: {
     meta: arraysMeta,
@@ -67,6 +73,17 @@ const dataStructureBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Insert or remove something first",
       enabledLabel: "Pointers are the trick",
+    },
+  },
+  "hash-maps": {
+    meta: hashMapsMeta,
+    steps: hashMapsSteps,
+    Visualizer: HashMapsVisualizer,
+    pythonCode: hashMapsPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Type a name first",
+      enabledLabel: "Compute the address",
     },
   },
 };
