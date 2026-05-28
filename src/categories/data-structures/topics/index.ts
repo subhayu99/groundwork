@@ -42,6 +42,12 @@ import { treesSteps } from "./trees/derivation";
 import { TreesVisualizer } from "./trees/visualizer";
 import treesPy from "./trees/algorithm.py";
 
+// Graphs
+import { meta as graphsMeta } from "./graphs/meta";
+import { graphsSteps } from "./graphs/derivation";
+import { GraphsVisualizer } from "./graphs/visualizer";
+import graphsPy from "./graphs/algorithm.py";
+
 const dataStructureBundles: Record<string, TopicBundle> = {
   arrays: {
     meta: arraysMeta,
@@ -118,6 +124,17 @@ const dataStructureBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Click a node first",
       enabledLabel: "Each node points to its kids",
+    },
+  },
+  graphs: {
+    meta: graphsMeta,
+    steps: graphsSteps,
+    Visualizer: GraphsVisualizer,
+    pythonCode: graphsPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Click a person first",
+      enabledLabel: "Nodes plus edges",
     },
   },
 };
