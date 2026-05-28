@@ -1,26 +1,110 @@
 @import "tailwindcss";
 
+/* =============================================================
+   first-principles · design tokens
+   Soft minimal dark · sky/indigo/pink accents · Inter + JetBrains Mono
+   ============================================================= */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surfaces — cool, soft, almost paper-in-the-dark */
+  --bg:            oklch(0.165 0.008 250);
+  --bg-elevated:   oklch(0.205 0.009 250);
+  --bg-card:       oklch(0.230 0.010 250);
+  --bg-card-hi:    oklch(0.260 0.011 250);
+  --bg-inset:      oklch(0.145 0.008 250);
+
+  /* Borders */
+  --line:          oklch(0.290 0.012 250);
+  --line-strong:   oklch(0.380 0.014 250);
+  --line-faint:    oklch(0.235 0.010 250);
+
+  /* Text */
+  --text:          oklch(0.965 0.004 250);
+  --text-muted:    oklch(0.720 0.010 250);
+  --text-subtle:   oklch(0.520 0.010 250);
+  --text-faint:    oklch(0.400 0.010 250);
+
+  /* Accents — sky / indigo / pink palette */
+  --accent-sky:    #7dd3fc;
+  --accent-indigo: #a5b4fc;
+  --accent-pink:   #f0abfc;
+
+  --accent:        var(--accent-sky);
+  --accent-soft:   color-mix(in oklab, var(--accent) 18%, transparent);
+  --accent-line:   color-mix(in oklab, var(--accent) 45%, transparent);
+  --accent-ink:    color-mix(in oklab, var(--accent) 92%, white 8%);
+
+  /* Difficulty */
+  --diff-easy:     #86efac;
+  --diff-med:      #fcd34d;
+  --diff-hard:     #fda4af;
+
+  /* Motion */
+  --t-fast: 180ms;
+  --t-med:  320ms;
+  --t-slow: 520ms;
+  --ease:   cubic-bezier(0.22, 0.65, 0.30, 1.00);
+  --motion-scale: 1;
+
+  /* Cells */
+  --cell-size: 56px;
+  --cell-gap: 8px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-card: var(--bg-card);
+  --color-bg-card-hi: var(--bg-card-hi);
+  --color-bg-inset: var(--bg-inset);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-line-faint: var(--line-faint);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-text-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-sky: var(--accent-sky);
+  --color-accent-indigo: var(--accent-indigo);
+  --color-accent-pink: var(--accent-pink);
+  --color-diff-easy: var(--diff-easy);
+  --color-diff-med: var(--diff-med);
+  --color-diff-hard: var(--diff-hard);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* { box-sizing: border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+/* Soft ambient gradient — keeps dark surface from feeling flat */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 800px at 18% -10%, color-mix(in oklab, var(--accent-sky) 6%, transparent), transparent 60%),
+    radial-gradient(1000px 700px at 100% 100%, color-mix(in oklab, var(--accent-pink) 4%, transparent), transparent 55%);
+  z-index: 0;
+}
+
+#__next, main, .app-root {
+  position: relative;
+  z-index: 1;
 }
