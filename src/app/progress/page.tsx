@@ -51,7 +51,7 @@ export default function ProgressPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Chrome breadcrumb={[{ label: "Progress" }]} />
+      <Chrome breadcrumb={[{ label: "Home", href: "/" }, { label: "Progress" }]} />
 
       <main className="flex-1 max-w-4xl mx-auto px-8 py-12 w-full">
         <h1 className="text-3xl font-semibold text-[var(--text)] mb-2">Your progress</h1>

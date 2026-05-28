@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type CardState = "upcoming" | "active" | "done";
 
@@ -19,6 +19,17 @@ interface CardProps {
 
 export function Card({ step, label, title, state, body, expand, action, onRevisit }: CardProps) {
   const [showExpand, setShowExpand] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // When this card becomes active, scroll it fully into view so the action button is reachable
+  useEffect(() => {
+    if (state === "active") {
+      const id = window.setTimeout(() => {
+        ref.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      }, 360);
+      return () => window.clearTimeout(id);
+    }
+  }, [state]);
 
   const handleClick = (e: React.MouseEvent) => {
     if (state !== "done" || !onRevisit) return;
@@ -31,6 +42,7 @@ export function Card({ step, label, title, state, body, expand, action, onRevisi
 
   return (
     <motion.div
+      ref={ref}
       layout
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}

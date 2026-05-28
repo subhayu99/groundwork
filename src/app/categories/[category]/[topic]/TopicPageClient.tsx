@@ -11,6 +11,7 @@ import { slidingWindowSteps } from "@/categories/algorithms/topics/sliding-windo
 import { SlidingWindowVisualizer } from "@/categories/algorithms/topics/sliding-window/visualizer";
 import slidingWindowPy from "@/categories/algorithms/topics/sliding-window/algorithm.py";
 import { emitEvent } from "@/shared/analytics/events";
+import { useProgress } from "@/shared/progress/useProgress";
 
 interface Props {
   categoryKey: string;
@@ -22,6 +23,9 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   const topic = getTopic(categoryKey, topicKey)!;
   const [currentStep, setCurrentStep] = useState(1);
   const [wedgeInteracted, setWedgeInteracted] = useState(false);
+  const { getTopic: getTopicProgress } = useProgress();
+  const topicProgress = getTopicProgress(categoryKey, topicKey);
+  const everCompleted = topicProgress.derivation.completed;
 
   useEffect(() => {
     emitEvent({ type: "topic_opened", category: categoryKey, topic: topicKey });
@@ -86,7 +90,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
             <Visualizer step={currentStep} onWedgeInteraction={() => setWedgeInteracted(true)} />
           }
           codeDrawer={<CodeHighlight code={pythonCode} filename="algorithm.py" />}
-          codeDrawerLocked={currentStep < 7}
+          codeDrawerLocked={!everCompleted && currentStep < 7}
         />
       </div>
     </AccessGate>

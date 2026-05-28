@@ -59,9 +59,9 @@ export default function Home() {
                           {t.principles.map((p) => (
                             <span
                               key={p}
-                              className="text-[10px] font-mono text-[var(--text-faint)]"
+                              className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--accent-ink)]"
                             >
-                              · {p.replaceAll("-", " ")}
+                              {p.replaceAll("-", " ")}
                             </span>
                           ))}
                         </div>

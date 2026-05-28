@@ -12,18 +12,25 @@ interface ChromeProps {
   difficulty?: "foundation" | "easy" | "medium" | "hard";
   stepCount?: number;
   currentStep?: number;
+  /** Show a "Progress" link in the right-side actions. Defaults to true on most pages. */
+  showProgressLink?: boolean;
 }
 
-export function Chrome({ breadcrumb, difficulty, stepCount, currentStep }: ChromeProps) {
+export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showProgressLink }: ChromeProps) {
+  // Default: show the progress link only on pages that don't already have a breadcrumb leading there
+  const shouldShowProgressLink = showProgressLink ?? !breadcrumb;
   return (
     <header className="relative z-10 flex items-center justify-between px-8 py-4 border-b border-[var(--line-faint)] backdrop-blur-md bg-[color-mix(in_oklab,var(--bg)_80%,transparent)]">
-      <Link href="/" className="flex items-center gap-2.5 font-mono text-xs tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]">
+      <Link href="/" className="flex items-center gap-2.5 font-mono text-xs tracking-wider text-[var(--text-muted)] hover:text-[var(--text)] leading-tight">
         <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
-        first<br />principles
+        <span className="flex flex-col">
+          <span>first</span>
+          <span>principles</span>
+        </span>
       </Link>
 
       {breadcrumb && (
-        <nav className="flex items-center gap-2 font-mono text-xs text-[var(--text-muted)]">
+        <nav className="flex items-center gap-2 font-mono text-xs text-[var(--text-muted)] whitespace-nowrap overflow-hidden">
           {breadcrumb.map((item, i) => (
             <span key={i} className="flex items-center gap-2">
               {i > 0 && <span className="text-[var(--text-faint)]">/</span>}
@@ -42,6 +49,14 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep }: Chrom
       )}
 
       <div className="flex items-center gap-4">
+        {shouldShowProgressLink && (
+          <Link
+            href="/progress"
+            className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]"
+          >
+            progress
+          </Link>
+        )}
         {difficulty && (
           <span
             className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border"
