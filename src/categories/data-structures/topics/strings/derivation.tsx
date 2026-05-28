@@ -120,8 +120,7 @@ export const stringsSteps: DerivationStep[] = [
               halves copied.
             </p>
             <p>
-              <strong>The gotcha:</strong> building a string by repeated <code>+=</code> inside a
-              loop is <code>O(n²)</code>, because each step copies the entire prefix. Use a list and{" "}
+              <strong>The gotcha:</strong> sticking new letters onto a string with <code>+=</code> inside a loop quietly explodes — every step copies everything you&rsquo;ve built so far. For a long loop, the cost grows like the square of the length. Use a list and{" "}
               <code>&quot;&quot;.join(...)</code> instead.
             </p>
           </>

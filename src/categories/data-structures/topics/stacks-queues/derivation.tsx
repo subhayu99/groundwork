@@ -35,12 +35,11 @@ export const stacksQueuesSteps: DerivationStep[] = [
         body: (
           <>
             <p>
-              We already know how arrays cost. Add at the end: <code>O(1)</code>. Remove from the
-              end: <code>O(1)</code>. Beautiful.
+              We already know how arrays cost. Adding at the end is instant — one move, no matter how long the list is. Removing from the end, same thing. Beautiful.
             </p>
             <p>
               But for the barista, the next customer is at the <em>front</em>. Removing the front of
-              an array is <code>O(n)</code> &mdash; every other order shifts left by one. After a
+              an array means every other order shifts left by one — the cost grows with how many orders are waiting. After a
               busy morning that&rsquo;s a lot of shifting.
             </p>
             <p>

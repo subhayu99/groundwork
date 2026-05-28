@@ -37,8 +37,7 @@ export const linkedListsSteps: DerivationStep[] = [
               has to be Dana, index 4 has to be Eli, index 5 has to be Frank, and so on.
             </p>
             <p>
-              Every name after Charlie has to physically move. <code>O(n)</code> copies for one
-              insertion. The information itself didn&rsquo;t change &mdash; the <em>positions</em>{" "}
+              Every name after Charlie has to physically move. n shoves for one insertion — the more friends after Charlie, the more shoves. The information itself didn&rsquo;t change &mdash; the <em>positions</em>{" "}
               forced the work.
             </p>
             <p>
