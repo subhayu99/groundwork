@@ -88,9 +88,13 @@ export function DerivationEngine({
   const isTopicCompleted = topicProgress.derivation.completed;
 
   const renderCardState = (stepNumber: number): CardState => {
-    if (isTopicCompleted) return "done";
-    if (stepNumber < activeStep) return "done";
+    // The currently-focused step is always active (expanded), even on a
+    // completed topic — that's how a user revisits a card and reads it.
     if (stepNumber === activeStep) return "active";
+    if (stepNumber < activeStep) return "done";
+    // After completion, future steps are visible but collapsed so the
+    // user can click any one to expand it. Before completion they stay hidden.
+    if (isTopicCompleted) return "done";
     return "upcoming";
   };
 
