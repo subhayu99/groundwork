@@ -60,7 +60,7 @@ function LinearScanViz() {
   return (
     <div className="flex flex-col items-center gap-8 max-w-[720px]">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        linear scan · target {TARGET}
+        page numbers · find page {TARGET}
       </div>
 
       <div className="overflow-x-auto max-w-full">
@@ -120,7 +120,7 @@ function ClickToHalveViz({ onInteraction }: { onInteraction?: () => void }) {
   return (
     <div className="flex flex-col items-center gap-8 max-w-[720px]">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        click any cell · target {TARGET}
+        click any page · find {TARGET}
       </div>
 
       <div className="overflow-x-auto max-w-full">
@@ -244,7 +244,7 @@ function BinarySearchAnimatedViz() {
   return (
     <div className="flex flex-col items-center gap-8 max-w-[760px]">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        derived · O(log n) · target {TARGET}
+        binary search · find page {TARGET}
       </div>
 
       <div className="overflow-x-auto max-w-full">
