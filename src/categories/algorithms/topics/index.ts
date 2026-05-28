@@ -67,6 +67,24 @@ import { bfsSteps } from "./bfs/derivation";
 import { BfsVisualizer } from "./bfs/visualizer";
 import bfsPy from "./bfs/algorithm.py";
 
+// Dynamic Programming (1D)
+import { meta as dp1dMeta } from "./dp-1d/meta";
+import { dp1dSteps } from "./dp-1d/derivation";
+import { Dp1dVisualizer } from "./dp-1d/visualizer";
+import dp1dPy from "./dp-1d/algorithm.py";
+
+// Backtracking
+import { meta as backtrackingMeta } from "./backtracking/meta";
+import { backtrackingSteps } from "./backtracking/derivation";
+import { BacktrackingVisualizer } from "./backtracking/visualizer";
+import backtrackingPy from "./backtracking/algorithm.py";
+
+// Mergesort
+import { meta as mergesortMeta } from "./mergesort/meta";
+import { mergesortSteps } from "./mergesort/derivation";
+import { MergesortVisualizer } from "./mergesort/visualizer";
+import mergesortPy from "./mergesort/algorithm.py";
+
 const algorithmBundles: Record<string, TopicBundle> = {
   "two-pointers": {
     meta: twoPointersMeta,
@@ -165,6 +183,39 @@ const algorithmBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Spread a ring first",
       enabledLabel: "Closest first wins",
+    },
+  },
+  "dp-1d": {
+    meta: dp1dMeta,
+    steps: dp1dSteps,
+    Visualizer: Dp1dVisualizer,
+    pythonCode: dp1dPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Toggle remembering first",
+      enabledLabel: "Write it down once",
+    },
+  },
+  backtracking: {
+    meta: backtrackingMeta,
+    steps: backtrackingSteps,
+    Visualizer: BacktrackingVisualizer,
+    pythonCode: backtrackingPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Place a queen first",
+      enabledLabel: "Check, then choose",
+    },
+  },
+  mergesort: {
+    meta: mergesortMeta,
+    steps: mergesortSteps,
+    Visualizer: MergesortVisualizer,
+    pythonCode: mergesortPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Split or merge first",
+      enabledLabel: "Halves, then merge",
     },
   },
 };

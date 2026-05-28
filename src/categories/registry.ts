@@ -23,6 +23,9 @@ import { meta as activitySelectionMeta } from "./algorithms/topics/activity-sele
 import { meta as recursionMeta } from "./algorithms/topics/recursion/meta";
 import { meta as dfsMeta } from "./algorithms/topics/dfs/meta";
 import { meta as bfsMeta } from "./algorithms/topics/bfs/meta";
+import { meta as dp1dMeta } from "./algorithms/topics/dp-1d/meta";
+import { meta as backtrackingMeta } from "./algorithms/topics/backtracking/meta";
+import { meta as mergesortMeta } from "./algorithms/topics/mergesort/meta";
 
 const categories: CategoryMeta[] = [dataStructuresMeta, algorithmsMeta];
 
@@ -46,6 +49,9 @@ const topics: TopicMeta[] = [
   recursionMeta,
   dfsMeta,
   bfsMeta,
+  dp1dMeta,
+  backtrackingMeta,
+  mergesortMeta,
 ];
 
 export function listCategories(): CategoryMeta[] {
