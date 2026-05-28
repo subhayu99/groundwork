@@ -6,6 +6,12 @@ import { arraysSteps } from "./arrays/derivation";
 import { ArraysVisualizer } from "./arrays/visualizer";
 import arraysPy from "./arrays/algorithm.py";
 
+// Strings
+import { meta as stringsMeta } from "./strings/meta";
+import { stringsSteps } from "./strings/derivation";
+import { StringsVisualizer } from "./strings/visualizer";
+import stringsPy from "./strings/algorithm.py";
+
 const dataStructureBundles: Record<string, TopicBundle> = {
   arrays: {
     meta: arraysMeta,
@@ -16,6 +22,17 @@ const dataStructureBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Move the slider first",
       enabledLabel: "Storage decides speed",
+    },
+  },
+  strings: {
+    meta: stringsMeta,
+    steps: stringsSteps,
+    Visualizer: StringsVisualizer,
+    pythonCode: stringsPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Slide the highlight first",
+      enabledLabel: "Same machinery, different content",
     },
   },
 };
