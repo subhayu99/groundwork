@@ -6,6 +6,7 @@ import { meta as dataStructuresMeta } from "./data-structures/meta";
 // Data Structures
 import { meta as arraysMeta } from "./data-structures/topics/arrays/meta";
 import { meta as stringsMeta } from "./data-structures/topics/strings/meta";
+import { meta as stacksQueuesMeta } from "./data-structures/topics/stacks-queues/meta";
 
 // Algorithms
 import { meta as slidingWindowMeta } from "./algorithms/topics/sliding-window/meta";
@@ -17,6 +18,7 @@ const topics: TopicMeta[] = [
   // Data Structures (foundations)
   arraysMeta,
   stringsMeta,
+  stacksQueuesMeta,
   // Algorithms
   twoPointersMeta,
   slidingWindowMeta,
