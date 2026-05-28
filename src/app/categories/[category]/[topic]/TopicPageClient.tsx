@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { Chrome } from "@/shared/layout/Chrome";
 import { TopicLayout } from "@/shared/layout/TopicLayout";
 import { DerivationEngine } from "@/shared/derivation/DerivationEngine";
-import { CodeHighlight } from "@/shared/code/CodeHighlight";
 import { AccessGate } from "@/shared/access/AccessGate";
 import { getCategory } from "@/categories/registry";
 import { getPrinciple } from "@/principles/registry";
@@ -101,7 +100,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
           visualization={
             <Visualizer step={currentStep} onWedgeInteraction={() => setWedgeInteracted(true)} />
           }
-          codeDrawer={<CodeHighlight code={pythonCode} />}
+          code={pythonCode}
           codeDrawerLocked={!everCompleted && currentStep < unlockAt}
           codeFilename={`${topicKey.replaceAll("-", "_")}.py`}
         />

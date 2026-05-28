@@ -2,16 +2,18 @@
 
 import { ReactNode, useState } from "react";
 import { CollapsiblePanel } from "./CollapsiblePanel";
+import { ScrubbableCode } from "@/shared/code/ScrubbableCode";
 
 interface TopicLayoutProps {
   cards: ReactNode;
   visualization: ReactNode;
-  codeDrawer?: ReactNode;
+  /** Raw Python source. When present, the drawer renders a scrubbable code viewer. */
+  code?: string;
   codeDrawerLocked?: boolean;
   codeFilename?: string;
 }
 
-export function TopicLayout({ cards, visualization, codeDrawer, codeDrawerLocked, codeFilename }: TopicLayoutProps) {
+export function TopicLayout({ cards, visualization, code, codeDrawerLocked, codeFilename }: TopicLayoutProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -33,7 +35,7 @@ export function TopicLayout({ cards, visualization, codeDrawer, codeDrawerLocked
           {visualization}
         </main>
 
-        {codeDrawer && (
+        {code && (
           <div className="border-t border-[var(--line-faint)] bg-[var(--bg-elevated)]">
             <button
               disabled={codeDrawerLocked}
@@ -46,7 +48,9 @@ export function TopicLayout({ cards, visualization, codeDrawer, codeDrawerLocked
               <span>{codeDrawerLocked ? "unlocks after step 6" : drawerOpen ? "▼ hide" : "▲ show"}</span>
             </button>
             {drawerOpen && !codeDrawerLocked && (
-              <div className="max-h-[60vh] overflow-auto px-4 pb-5">{codeDrawer}</div>
+              <div className="max-h-[60vh] overflow-auto px-4 pb-5">
+                <ScrubbableCode code={code} filename={codeFilename} />
+              </div>
             )}
           </div>
         )}
