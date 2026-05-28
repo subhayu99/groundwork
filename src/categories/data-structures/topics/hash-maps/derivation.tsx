@@ -115,7 +115,7 @@ export const hashMapsSteps: DerivationStep[] = [
         body: (
           <>
             <p>
-              <strong>Insert, lookup, delete:</strong> <code>O(1)</code> average.
+              <strong>Insert, lookup, delete:</strong> <code>O(1)</code> average &mdash; the cost stays the same whether the table holds ten keys or ten million.
             </p>
             <p>
               Two real-world wrinkles to know about:

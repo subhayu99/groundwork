@@ -112,7 +112,7 @@ export const graphsSteps: DerivationStep[] = [
           <>
             <p>
               <strong>BFS &mdash; breadth-first search:</strong> visit closer neighbors first.
-              Finds shortest paths in unweighted graphs in <code>O(V + E)</code>.
+              Finds shortest paths in unweighted graphs in <code>O(V + E)</code> (cost grows with how many nodes plus how many connections there are).
             </p>
             <p>
               <strong>DFS &mdash; depth-first search:</strong> dive deep along one path before

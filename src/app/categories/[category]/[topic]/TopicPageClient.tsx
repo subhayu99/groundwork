@@ -7,6 +7,7 @@ import { DerivationEngine } from "@/shared/derivation/DerivationEngine";
 import { CodeHighlight } from "@/shared/code/CodeHighlight";
 import { AccessGate } from "@/shared/access/AccessGate";
 import { getCategory } from "@/categories/registry";
+import { getPrinciple } from "@/principles/registry";
 import { getTopicBundle } from "@/categories/topic-registry";
 import { emitEvent } from "@/shared/analytics/events";
 import { useProgress } from "@/shared/progress/useProgress";
@@ -70,7 +71,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
                       key={p}
                       className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--accent-ink)]"
                     >
-                      {p.replaceAll("-", " ")}
+                      {getPrinciple(p)?.displayName ?? p.replaceAll("-", " ")}
                     </span>
                   ))}
                 </div>

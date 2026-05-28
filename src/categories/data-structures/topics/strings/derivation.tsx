@@ -109,14 +109,14 @@ export const stringsSteps: DerivationStep[] = [
         body: (
           <>
             <p>
-              <strong>Read character at i:</strong> <code>O(1)</code>.
+              <strong>Read character at i:</strong> <code>O(1)</code> (instant &mdash; same cost no matter how long the string is).
             </p>
             <p>
               <strong>Slice <code>s[i:j]</code>:</strong> <code>O(j &minus; i)</code> &mdash; a new
               string of that length is allocated and the characters are copied.
             </p>
             <p>
-              <strong>Concatenate two strings:</strong> <code>O(n + m)</code>. New string, both
+              <strong>Concatenate two strings:</strong> <code>O(n + m)</code> (cost grows with the lengths of both strings added together). New string, both
               halves copied.
             </p>
             <p>

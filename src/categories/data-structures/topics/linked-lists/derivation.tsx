@@ -110,7 +110,7 @@ export const linkedListsSteps: DerivationStep[] = [
         body: (
           <>
             <p>
-              <strong>Insert after a known node:</strong> <code>O(1)</code>. Two pointer
+              <strong>Insert after a known node:</strong> <code>O(1)</code> (instant &mdash; same cost no matter how long the list is). Two pointer
               reassignments and the new node is in.
             </p>
             <p>
@@ -118,7 +118,7 @@ export const linkedListsSteps: DerivationStep[] = [
               pointer reassigned. The orphan gets collected.
             </p>
             <p>
-              <strong>Find a value:</strong> <code>O(n)</code>. You have to walk from the head.
+              <strong>Find a value:</strong> <code>O(n)</code> (cost grows in step with how long the list is). You have to walk from the head.
               There&rsquo;s no shortcut.
             </p>
             <p>

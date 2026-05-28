@@ -121,13 +121,13 @@ export const slidingWindowVariableSteps: DerivationStep[] = [
             <p>
               Each letter enters the window at most once (when <code>R</code> passes it) and exits
               at most once (when <code>L</code> passes it). That&rsquo;s <code>2n</code>{" "}
-              operations total &mdash; <code>O(n)</code>.
+              operations total &mdash; <code>O(n)</code> (cost grows in step with how long the string is).
             </p>
             <p>
               Naive on a thousand-letter string is half a million checks. This is two thousand.
             </p>
             <p>
-              The hash map adds <code>O(1)</code> per step. Memory is at most one entry per distinct
+              The hash map adds <code>O(1)</code> per step (instant &mdash; same cost no matter how big the map gets). Memory is at most one entry per distinct
               character &mdash; for English text that&rsquo;s ~26.
             </p>
           </>

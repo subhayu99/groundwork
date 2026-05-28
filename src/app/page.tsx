@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Chrome } from "@/shared/layout/Chrome";
 import { listCategories, listTopicsInCategory } from "@/categories/registry";
+import { getPrinciple } from "@/principles/registry";
 
 export default function Home() {
   const categories = listCategories();
@@ -61,7 +62,7 @@ export default function Home() {
                               key={p}
                               className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--accent-ink)]"
                             >
-                              {p.replaceAll("-", " ")}
+                              {getPrinciple(p)?.displayName ?? p.replaceAll("-", " ")}
                             </span>
                           ))}
                         </div>

@@ -114,13 +114,13 @@ export const setsTuplesSteps: DerivationStep[] = [
         body: (
           <>
             <p>
-              <strong>Set:</strong> add, remove, <code>in</code> are all <code>O(1)</code> average.
+              <strong>Set:</strong> add, remove, <code>in</code> are all <code>O(1)</code> average (instant &mdash; same cost no matter how many items the set holds).
               Union, intersection, difference are <code>O(min(|A|, |B|))</code> on average. No
               ordering, no <code>set[i]</code>.
             </p>
             <p>
               <strong>Tuple:</strong> access by index is <code>O(1)</code>. Iteration is{" "}
-              <code>O(n)</code>. There&rsquo;s no mutation API at all. Crucially, because
+              <code>O(n)</code> (cost grows in step with how many items there are). There&rsquo;s no mutation API at all. Crucially, because
               they&rsquo;re immutable, tuples can be used as <strong>keys in hash maps</strong> or{" "}
               <strong>elements of sets</strong>. Lists cannot.
             </p>

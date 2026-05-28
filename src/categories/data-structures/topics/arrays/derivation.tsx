@@ -107,14 +107,14 @@ export const arraysSteps: DerivationStep[] = [
         body: (
           <>
             <p>
-              <strong>Read or write by index:</strong> <code>O(1)</code>. The address math.
+              <strong>Read or write by index:</strong> <code>O(1)</code> (instant &mdash; same cost no matter how big the list is). The address math.
             </p>
             <p>
               <strong>Append at the end:</strong> <code>O(1)</code> on average (dynamic arrays
               occasionally reallocate). You stay right next to the last element.
             </p>
             <p>
-              <strong>Insert in the middle:</strong> <code>O(n)</code>. Every element after the
+              <strong>Insert in the middle:</strong> <code>O(n)</code> (cost grows in step with the size of the list). Every element after the
               insertion point has to shift right by one slot to make room.
             </p>
             <p>

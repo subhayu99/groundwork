@@ -114,7 +114,7 @@ export const stacksQueuesSteps: DerivationStep[] = [
           <>
             <p>
               <strong>Stack:</strong> <code>push</code> and <code>pop</code> are both{" "}
-              <code>O(1)</code>. <code>peek</code> (look at the top without removing) is{" "}
+              <code>O(1)</code> (instant &mdash; same cost no matter how tall the stack gets). <code>peek</code> (look at the top without removing) is{" "}
               <code>O(1)</code>. There&rsquo;s no &ldquo;random access&rdquo; in a stack &mdash; if
               you need to look inside, it&rsquo;s the wrong structure.
             </p>
@@ -122,7 +122,7 @@ export const stacksQueuesSteps: DerivationStep[] = [
               <strong>Queue:</strong> <code>enqueue</code> at the back and <code>dequeue</code> from
               the front are both <code>O(1)</code>. Python&rsquo;s <code>collections.deque</code> is
               the right tool &mdash; a plain list&rsquo;s <code>pop(0)</code> looks innocent but is{" "}
-              <code>O(n)</code>.
+              <code>O(n)</code> (cost grows in step with how many items are in the queue).
             </p>
           </>
         ),

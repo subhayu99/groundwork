@@ -112,17 +112,17 @@ export const treesSteps: DerivationStep[] = [
             <p>
               <strong>Traversal:</strong> visit every node. <em>Depth-first</em> goes down a branch
               before returning, <em>breadth-first</em> visits level by level. Both are{" "}
-              <code>O(n)</code> because you touch each node once.
+              <code>O(n)</code> (cost grows in step with the number of nodes) because you touch each node once.
             </p>
             <p>
               <strong>Binary Search Tree:</strong> store values such that everything in the left
               subtree is smaller and everything on the right is larger. Now lookups are a sequence of
-              left/right decisions &mdash; <code>O(log n)</code> if the tree is balanced. (When
+              left/right decisions &mdash; <code>O(log n)</code> (cost grows very slowly; doubling the size of the tree only adds one more step) if the tree is balanced. (When
               it&rsquo;s not, balance keepers like AVL or red-black trees rebalance after each
               insert.)
             </p>
             <p>
-              <strong>The catch:</strong> hash maps do <code>O(1)</code> lookups, so we only reach
+              <strong>The catch:</strong> hash maps do <code>O(1)</code> (instant) lookups, so we only reach
               for a BST when we need <em>ordering</em> &mdash; e.g., range queries, next-larger
               lookups, sorted iteration.
             </p>
