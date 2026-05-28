@@ -16,6 +16,7 @@ import { meta as graphsMeta } from "./data-structures/topics/graphs/meta";
 // Algorithms
 import { meta as slidingWindowMeta } from "./algorithms/topics/sliding-window/meta";
 import { meta as twoPointersMeta } from "./algorithms/topics/two-pointers/meta";
+import { meta as binarySearchMeta } from "./algorithms/topics/binary-search/meta";
 
 const categories: CategoryMeta[] = [dataStructuresMeta, algorithmsMeta];
 
@@ -31,6 +32,7 @@ const topics: TopicMeta[] = [
   graphsMeta,
   // Algorithms
   twoPointersMeta,
+  binarySearchMeta,
   slidingWindowMeta,
 ];
 

@@ -25,6 +25,12 @@ import { twoPointersSteps } from "./two-pointers/derivation";
 import { TwoPointersVisualizer } from "./two-pointers/visualizer";
 import twoPointersPy from "./two-pointers/algorithm.py";
 
+// Binary Search
+import { meta as binarySearchMeta } from "./binary-search/meta";
+import { binarySearchSteps } from "./binary-search/derivation";
+import { BinarySearchVisualizer } from "./binary-search/visualizer";
+import binarySearchPy from "./binary-search/algorithm.py";
+
 const algorithmBundles: Record<string, TopicBundle> = {
   "two-pointers": {
     meta: twoPointersMeta,
@@ -35,6 +41,17 @@ const algorithmBundles: Record<string, TopicBundle> = {
     wedgeGating: {
       disabledLabel: "Move the pointers first",
       enabledLabel: "I see the pattern",
+    },
+  },
+  "binary-search": {
+    meta: binarySearchMeta,
+    steps: binarySearchSteps,
+    Visualizer: BinarySearchVisualizer,
+    pythonCode: binarySearchPy,
+    wedgeStep: 3,
+    wedgeGating: {
+      disabledLabel: "Click a cell first",
+      enabledLabel: "Halve, then halve again",
     },
   },
   "sliding-window": {
