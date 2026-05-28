@@ -136,18 +136,12 @@ function WedgeViz({ onInteraction }: { onInteraction?: () => void }) {
   const [r, setR] = useState(ARR.length - 1);
 
   const moveL = (dir: 1 | -1) => {
-    setL((cur) => {
-      const next = Math.max(0, Math.min(r - 1, cur + dir));
-      onInteraction?.();
-      return next;
-    });
+    setL((cur) => Math.max(0, Math.min(r - 1, cur + dir)));
+    onInteraction?.();
   };
   const moveR = (dir: 1 | -1) => {
-    setR((cur) => {
-      const next = Math.min(ARR.length - 1, Math.max(l + 1, cur + dir));
-      onInteraction?.();
-      return next;
-    });
+    setR((cur) => Math.min(ARR.length - 1, Math.max(l + 1, cur + dir)));
+    onInteraction?.();
   };
 
   const sum = ARR[l] + ARR[r];

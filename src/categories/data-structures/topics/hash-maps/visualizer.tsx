@@ -40,7 +40,7 @@ export function HashMapsVisualizer({ step, onWedgeInteraction }: VisualizerProps
 
 /* Step 1-2 — linear scan animation */
 function LinearScanViz() {
-  const TARGET = "harper";
+  const TARGET = "alice";
   const [cursor, setCursor] = useState(-1);
   const [comparisons, setComparisons] = useState(0);
   const [found, setFound] = useState(false);
@@ -130,7 +130,7 @@ function LinearScanViz() {
 /* Step 3 — type a name, see the hash function spit out a slot */
 function HashLookupViz({ onInteraction }: { onInteraction?: () => void }) {
   const BUCKETS = 16;
-  const [input, setInput] = useState("alice");
+  const [input, setInput] = useState("");
 
   const slot = hash(input, BUCKETS);
   const inBook = PHONE_BOOK.find((p) => p.name === input.toLowerCase());
