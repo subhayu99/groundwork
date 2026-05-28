@@ -3,6 +3,9 @@ import { CategoryMeta, TopicMeta } from "@/shared/derivation/types";
 import { meta as algorithmsMeta } from "./algorithms/meta";
 import { meta as dataStructuresMeta } from "./data-structures/meta";
 
+// Data Structures
+import { meta as arraysMeta } from "./data-structures/topics/arrays/meta";
+
 // Algorithms
 import { meta as slidingWindowMeta } from "./algorithms/topics/sliding-window/meta";
 import { meta as twoPointersMeta } from "./algorithms/topics/two-pointers/meta";
@@ -10,7 +13,8 @@ import { meta as twoPointersMeta } from "./algorithms/topics/two-pointers/meta";
 const categories: CategoryMeta[] = [dataStructuresMeta, algorithmsMeta];
 
 const topics: TopicMeta[] = [
-  // Data Structures (foundations) — registered as they're built
+  // Data Structures (foundations)
+  arraysMeta,
   // Algorithms
   twoPointersMeta,
   slidingWindowMeta,
