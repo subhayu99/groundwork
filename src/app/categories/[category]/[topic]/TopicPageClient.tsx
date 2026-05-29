@@ -25,6 +25,10 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   const bundle = getTopicBundle(categoryKey, topicKey);
   const [currentStep, setCurrentStep] = useState(1);
   const [wedgeInteracted, setWedgeInteracted] = useState(false);
+  // Live code line(s) emitted by the visualizer as it animates / on interaction.
+  // Overrides the coarse step→line map; reset when the step changes.
+  const [liveLines, setLiveLines] = useState<number[] | null>(null);
+  useEffect(() => setLiveLines(null), [currentStep]);
   const { getTopic: getTopicProgress } = useProgress();
   const topicProgress = getTopicProgress(categoryKey, topicKey);
   const everCompleted = topicProgress.derivation.completed;
@@ -196,12 +200,16 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
             </>
           }
           visualization={
-            <Visualizer step={currentStep} onWedgeInteraction={() => setWedgeInteracted(true)} />
+            <Visualizer
+              step={currentStep}
+              onWedgeInteraction={() => setWedgeInteracted(true)}
+              onActiveLine={setLiveLines}
+            />
           }
           code={pythonCode}
           codeDrawerLocked={false}
           codeFilename={`${topicKey.replaceAll("-", "_")}.py`}
-          codeActiveLines={stepCodeLines?.[Math.min(currentStep, steps.length)]}
+          codeActiveLines={liveLines ?? stepCodeLines?.[Math.min(currentStep, steps.length)]}
           codeRevealedLines={codeRevealedLines}
         />
       </div>

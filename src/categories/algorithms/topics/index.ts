@@ -6,7 +6,13 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export interface TopicBundle {
   meta: TopicMeta;
   steps: DerivationStep[];
-  Visualizer: ComponentType<{ step: number; onWedgeInteraction?: () => void }>;
+  Visualizer: ComponentType<{
+    step: number;
+    onWedgeInteraction?: () => void;
+    /** Emit the algorithm.py line(s) the current operation maps to, for live
+     *  frame-by-frame code highlighting. Optional per visualizer. */
+    onActiveLine?: (lines: number[]) => void;
+  }>;
   pythonCode: string;
   /** Step at which the code drawer unlocks. Defaults to last step. */
   unlockCodeAtStep?: number;
