@@ -44,8 +44,15 @@ capabilities the next domains need.
     announces the running line ("Now running: mid = (lo + hi) // 2 …") as the active line changes.
     Centralized → every topic for free. Verified: binary-search autoplay emitted 10 in-lockstep
     announcements. ✅ (Future: richer per-operation narration of the *visual* state, not just the code.)
-  - **Remaining a11y (next):** contrast + 24px target-size audit; confirm no other interaction
-    pointer-gates progress (nodes + window slider both keyboard-OK now).
+  - **Target-size (WCAG 2.2) audited** across binary-search/graphs/arrays: playback buttons already
+    `min-h-[36px]`; the only non-exempt control under 24px was the code scrubber range input (`h-5`→
+    now `h-6` = 24px). All other sub-24px hits are inline text links (breadcrumbs, "2 practice
+    problems →", topic nav chips) — exempt under the inline-links-in-text exception. ✅
+  - **Contrast: NOT yet auto-verified.** Planned axe-core/Lighthouse run was blocked (won't fetch
+    remote audit code in this env). TODO: run Lighthouse a11y / axe locally (`npx @axe-core/cli` or
+    Chrome DevTools) against the dark + light themes; the OKLCH tokens *look* compliant but this is
+    unverified — don't claim it until measured.
+  - Pointer-gating closed: both interactive gates (Scene nodes, window slider) are keyboard-operable.
 
 ## 4. Content work
 - **Gaps:** hash-maps "bucket" concept is only commented pseudo-code (add real bucket code);

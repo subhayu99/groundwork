@@ -84,7 +84,7 @@ export function ScrubBar({
           value={currentLine}
           onChange={(e) => onLineChange(parseInt(e.target.value, 10))}
           aria-label="scrub through code lines"
-          className="flex-1 min-w-0 sm:flex-none sm:w-32 h-5 accent-[var(--accent)]"
+          className="flex-1 min-w-0 sm:flex-none sm:w-32 h-6 accent-[var(--accent)] cursor-pointer"
         />
         <span className="text-[var(--text)] whitespace-nowrap">
           line <span className="text-[var(--accent)]">{currentLine}</span> / {totalLines}
