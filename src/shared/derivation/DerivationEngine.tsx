@@ -59,6 +59,10 @@ export function DerivationEngine({
       }));
       emitEvent({ type: "topic_completed", category: categoryKey, topic: topicKey });
       onComplete?.();
+      // Collapse the last card to "done" (currentStep stays put, so the sync
+      // effect won't reopen it) — clear feedback that completion registered,
+      // alongside the Next Steps panel the lesson page now reveals.
+      setActiveStep(steps.length + 1);
       return;
     }
 

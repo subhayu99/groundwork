@@ -8,6 +8,22 @@ import {
 const STORAGE_KEY = "fp-progress-v1";
 
 export class ProgressStore {
+  private listeners = new Set<() => void>();
+
+  /** Subscribe to any save; returns an unsubscribe fn. Lets every useProgress
+   *  instance stay in sync (e.g. the lesson page reacts when the derivation
+   *  engine marks a topic complete). */
+  subscribe(cb: () => void): () => void {
+    this.listeners.add(cb);
+    return () => {
+      this.listeners.delete(cb);
+    };
+  }
+
+  private notify(): void {
+    for (const cb of this.listeners) cb();
+  }
+
   load(): ProgressState {
     if (typeof window === "undefined") return emptyProgressState();
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -25,6 +41,7 @@ export class ProgressStore {
     if (typeof window === "undefined") return;
     state.lastUpdated = new Date().toISOString();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    this.notify();
   }
 
   exportJson(): string {
