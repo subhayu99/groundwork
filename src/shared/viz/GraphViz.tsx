@@ -1,6 +1,7 @@
 "use client";
 
-import { Tone, toneStyle } from "./tones";
+import { Tone } from "./tones";
+import { Scene, SceneNode, SceneEdge } from "./Scene";
 
 export interface GraphVizNode {
   id: string;
@@ -35,10 +36,11 @@ interface Props {
 }
 
 /**
- * SVG renderer for node-and-edge graphs with caller-supplied positions.
- * Extracted from the bespoke GraphSVG in the graphs topic so graph algorithms
- * (BFS/DFS/Dijkstra/Union-Find, later) can share one renderer. Edges can be
- * dashed and tone-colored (e.g. "lost" tree edges shown red/dashed).
+ * Node-and-edge graph renderer. Now a thin adapter over the shared {@link Scene}
+ * primitive, so graph algorithms (BFS/DFS/Dijkstra/Union-Find) and the future
+ * systems-design diagrams share one engine. Edges can be dashed and tone-colored
+ * (e.g. "lost" tree edges shown red/dashed); clickable nodes are keyboard
+ * operable for free via Scene.
  */
 export function GraphViz({
   nodes,
@@ -50,62 +52,29 @@ export function GraphViz({
   nodeRadius = 26,
   onNodeClick,
 }: Props) {
-  const byId = new Map(nodes.map((n) => [n.id, n]));
-  const vbW = viewBoxWidth ?? width;
-  const vbH = viewBoxHeight ?? height;
+  const sceneNodes: SceneNode[] = nodes.map((n) => ({
+    id: n.id,
+    x: n.x,
+    y: n.y,
+    label: n.label,
+    tone: n.tone,
+    onClick: onNodeClick ? () => onNodeClick(n.id) : undefined,
+  }));
+  const sceneEdges: SceneEdge[] = edges.map((e) => ({
+    from: e.a,
+    to: e.b,
+    tone: e.tone,
+    dashed: e.dashed,
+  }));
   return (
-    <svg
+    <Scene
+      nodes={sceneNodes}
+      edges={sceneEdges}
       width={width}
       height={height}
-      viewBox={`0 0 ${vbW} ${vbH}`}
-      className="overflow-visible"
-    >
-      {edges.map((e, i) => {
-        const a = byId.get(e.a);
-        const b = byId.get(e.b);
-        if (!a || !b) return null;
-        return (
-          <line
-            key={`e${i}`}
-            x1={a.x}
-            y1={a.y}
-            x2={b.x}
-            y2={b.y}
-            style={{ stroke: e.tone ? toneStyle[e.tone].border : "var(--line)", transition: "stroke 0.2s" }}
-            strokeWidth={2}
-            strokeDasharray={e.dashed ? "5 4" : undefined}
-          />
-        );
-      })}
-      {nodes.map((n) => {
-        const { bg, border } = toneStyle[n.tone ?? "idle"];
-        const clickable = Boolean(onNodeClick);
-        return (
-          <g
-            key={n.id}
-            onClick={clickable ? () => onNodeClick?.(n.id) : undefined}
-            style={{ cursor: clickable ? "pointer" : "default" }}
-          >
-            <circle
-              cx={n.x}
-              cy={n.y}
-              r={nodeRadius}
-              style={{ fill: bg, stroke: border, transition: "fill 0.2s, stroke 0.2s" }}
-              strokeWidth={2}
-            />
-            <text
-              x={n.x}
-              y={n.y}
-              textAnchor="middle"
-              dominantBaseline="central"
-              className="font-mono pointer-events-none select-none"
-              style={{ fontSize: 11, fill: "var(--text)" }}
-            >
-              {n.label}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+      viewBoxWidth={viewBoxWidth}
+      viewBoxHeight={viewBoxHeight}
+      nodeRadius={nodeRadius}
+    />
   );
 }
