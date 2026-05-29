@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Chrome } from "@/shared/layout/Chrome";
+import { ConceptMapHome } from "./ConceptMapHome";
 import { listCategories, listTopicsInCategory } from "@/categories/registry";
 import { getPrinciple } from "@/principles/registry";
 
@@ -19,7 +20,12 @@ export default function Home() {
           never memorize a name without understanding what it&rsquo;s made of.
         </p>
 
-        <div className="space-y-12">
+        {/* Desktop: force-directed concept map. Mobile: the topic grid below. */}
+        <div className="hidden md:block">
+          <ConceptMapHome />
+        </div>
+
+        <div className="space-y-12 md:hidden">
           {categories.map((cat) => {
             const topics = listTopicsInCategory(cat.key);
             return (
