@@ -97,13 +97,13 @@ export const dp1dSteps: DerivationStep[] = [
         body: (
           <>
             <p>
-              <strong>Top-down (memoization).</strong> Write the recursive rule as it sits. Add a
+              <strong>Top-down (remember as you go).</strong> Write the recursive rule as it sits. Add a
               dictionary: before doing the work, check if the answer&rsquo;s already in the
               dictionary; if it is, return it. After the work, store it. Each subproblem is solved
               at most once.
             </p>
             <p>
-              <strong>Bottom-up (tabulation).</strong> Drop the recursion entirely. Build a table
+              <strong>Bottom-up (fill a table).</strong> Drop the recursion entirely. Build a table
               from the smallest case upward. Set <code>dp[0] = 1</code>, <code>dp[1] = 1</code>,
               then loop: <code>dp[i] = dp[i - 1] + dp[i - 2]</code>. By the time you reach{" "}
               <code>dp[n]</code>, the two values you need are already in the table.
@@ -136,7 +136,7 @@ export const dp1dSteps: DerivationStep[] = [
               <code> ways(40)</code> calls itself a billion times &mdash; minutes of compute.
             </p>
             <p>
-              <strong>Memoized / tabulated:</strong> each <code>i</code> from 0 to <code>n</code>{" "}
+              <strong>Either way (remember-as-you-go, or fill the table):</strong> each <code>i</code> from 0 to <code>n</code>{" "}
               is computed exactly once, with one addition. That&rsquo;s <code>O(n)</code> (cost
               grows in step with how many stairs there are).
             </p>

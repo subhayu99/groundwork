@@ -169,7 +169,7 @@ export const arraysSteps: DerivationStep[] = [
               are everywhere.
             </p>
             <p>
-              Open the drawer below to see the operations you&rsquo;ll use day-to-day.
+              Open the Code panel to see the operations you&rsquo;ll use day-to-day.
             </p>
           </>
         ),

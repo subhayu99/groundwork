@@ -181,7 +181,7 @@ export const slidingWindowSteps: DerivationStep[] = [
               <li>&ldquo;Number of substrings with property Y&rdquo;</li>
             </ul>
             <p>
-              The code drawer below has the Python. The next-steps section has problems to try.
+              The Code panel has the Python.
             </p>
           </>
         ),

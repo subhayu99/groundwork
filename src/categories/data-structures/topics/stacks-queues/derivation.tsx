@@ -96,7 +96,7 @@ export const stacksQueuesSteps: DerivationStep[] = [
             </p>
             <p>
               That&rsquo;s the entire idea. The restriction isn&rsquo;t a limitation &mdash;
-              it&rsquo;s how we make both operations <code>O(1)</code>.
+              it&rsquo;s how we make both operations instant.
             </p>
           </>
         ),

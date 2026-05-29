@@ -172,7 +172,7 @@ export const treesSteps: DerivationStep[] = [
               child pointers, rooted at the top.
             </p>
             <p>
-              Open the drawer below for two tiny Python sketches &mdash; a general tree and a binary
+              Open the Code panel for two tiny Python sketches &mdash; a general tree and a binary
               search tree.
             </p>
           </>

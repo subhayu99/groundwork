@@ -129,13 +129,13 @@ export const monotonicStackSteps: DerivationStep[] = [
             <p>
               But every pop is paid for by a push that already happened. The total pushes plus
               pops across the whole array is at most <code>2n</code> &mdash; that&rsquo;s{" "}
-              <code>O(n)</code> (cost grows in step with how many days there are) total work, or{" "}
-              <code>O(1) amortized</code> (instant per day on average &mdash; the rare expensive
-              days are paid for by all the cheap ones) per day.
+              <code>O(n)</code> total work (cost grows in step with how many days there are). Spread
+              over the days, that works out to a flat, instant cost per day on average.
             </p>
             <p>
-              That word <em>amortized</em> is the whole pitch: pay a little extra sometimes, save
-              on average. The expensive steps are rare and pre-paid.
+              That&rsquo;s the whole pitch: pay a little extra sometimes, save on average. The
+              expensive steps are rare and pre-paid &mdash; and there&rsquo;s a name for that idea,
+              coming in a moment.
             </p>
           </>
         ),
@@ -185,6 +185,10 @@ export const monotonicStackSteps: DerivationStep[] = [
               the top. The moment a new value would break that order, you pop until it holds again.
             </p>
             <p>
+              And that cost trick &mdash; cheap on average because the rare expensive steps are
+              pre-paid by all the cheap ones &mdash; has a name too: <strong>amortized</strong> cost.
+            </p>
+            <p>
               <strong>Pattern signals:</strong>
             </p>
             <ul className="list-disc pl-5 space-y-1">
@@ -194,7 +198,7 @@ export const monotonicStackSteps: DerivationStep[] = [
               <li>One pass and total work bounded by a few times the length</li>
             </ul>
             <p>
-              Open the drawer below to see the Python. Each line maps to one of the rules above.
+              Open the Code panel to see the Python. Each line maps to one of the rules above.
             </p>
           </>
         ),

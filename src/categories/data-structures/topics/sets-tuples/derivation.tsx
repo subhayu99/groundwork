@@ -95,7 +95,7 @@ export const setsTuplesSteps: DerivationStep[] = [
             </p>
             <p>
               A <strong>tuple</strong> is the opposite kind of container. It&rsquo;s an
-              <em> ordered, fixed-size, immutable</em> sequence. You can&rsquo;t change a field, can&rsquo;t
+              <em> ordered, fixed-size</em> sequence that can&rsquo;t be changed once you make it. You can&rsquo;t change a field, can&rsquo;t
               add a fourth element. The fields are positional &mdash; the first one is always the
               date, the second is always the latitude.
             </p>
@@ -120,8 +120,8 @@ export const setsTuplesSteps: DerivationStep[] = [
             </p>
             <p>
               <strong>Tuple:</strong> access by index is <code>O(1)</code>. Iteration is{" "}
-              <code>O(n)</code> (cost grows in step with how many items there are). There&rsquo;s no mutation API at all. Crucially, because
-              they&rsquo;re immutable, tuples can be used as <strong>keys in hash maps</strong> or{" "}
+              <code>O(n)</code> (cost grows in step with how many items there are). There&rsquo;s no way to change one at all. Crucially, because
+              they can&rsquo;t change, tuples can be used as <strong>keys in hash maps</strong> or{" "}
               <strong>elements of sets</strong>. Lists cannot.
             </p>
           </>

@@ -184,7 +184,7 @@ export const twoPointersSteps: DerivationStep[] = [
               <li>&ldquo;Container with most&rdquo; / &ldquo;trap rainwater&rdquo;</li>
             </ul>
             <p>
-              Open the code drawer below to see how it looks in Python.
+              Open the Code panel to see how it looks in Python.
             </p>
           </>
         ),

@@ -89,7 +89,7 @@ export const hashMapsSteps: DerivationStep[] = [
             </p>
             <p>
               One: an array of slots called <em>buckets</em>. Just a normal array &mdash; we already
-              know its <code>arr[i]</code> is <code>O(1)</code>.
+              know that jumping straight to <code>arr[i]</code> is instant, however big the array gets.
             </p>
             <p>
               Two: a <em>hash function</em>. It chews on the key &mdash; a string, an integer,

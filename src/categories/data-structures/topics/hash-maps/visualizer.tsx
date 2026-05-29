@@ -3,20 +3,24 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Deliberately unsorted (a real phone book you haven't organized), with the
+// person we search for — "alice" — near the very end, so the Step 1-2 linear
+// scan visibly grinds through everyone else before finding her. Sorting it is
+// exactly the binary-search alternative the Step 2 card mentions.
 const PHONE_BOOK: { name: string; number: string }[] = [
-  { name: "alice",   number: "+1-555-0102" },
-  { name: "bob",     number: "+1-555-0118" },
-  { name: "cara",    number: "+1-555-0144" },
-  { name: "dan",     number: "+1-555-0150" },
-  { name: "eli",     number: "+1-555-0167" },
-  { name: "fawn",    number: "+1-555-0173" },
-  { name: "grace",   number: "+1-555-0189" },
   { name: "harper",  number: "+1-555-0194" },
-  { name: "ivy",     number: "+1-555-0201" },
-  { name: "june",    number: "+1-555-0215" },
-  { name: "kai",     number: "+1-555-0229" },
-  { name: "leo",     number: "+1-555-0233" },
+  { name: "dan",     number: "+1-555-0150" },
   { name: "maya",    number: "+1-555-0241" },
+  { name: "cara",    number: "+1-555-0144" },
+  { name: "leo",     number: "+1-555-0233" },
+  { name: "bob",     number: "+1-555-0118" },
+  { name: "ivy",     number: "+1-555-0201" },
+  { name: "fawn",    number: "+1-555-0173" },
+  { name: "kai",     number: "+1-555-0229" },
+  { name: "grace",   number: "+1-555-0189" },
+  { name: "eli",     number: "+1-555-0167" },
+  { name: "june",    number: "+1-555-0215" },
+  { name: "alice",   number: "+1-555-0102" },
 ];
 
 // Simple hash: sum of char codes mod buckets

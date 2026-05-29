@@ -345,7 +345,7 @@ function PatternViz() {
         pattern · sliding window
       </div>
       <p className="text-sm text-[var(--text-muted)] max-w-md text-center">
-        Open the code drawer below to see the Python.
+        Open the Code panel to see the Python.
       </p>
       <ArrayViz values={ARR} />
     </div>

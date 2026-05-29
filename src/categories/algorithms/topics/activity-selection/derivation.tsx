@@ -196,7 +196,7 @@ export const activitySelectionSteps: DerivationStep[] = [
               <li>Anywhere the locally best choice provably can&rsquo;t block the global best</li>
             </ul>
             <p>
-              Open the drawer below to see the Python. Five lines of real work; one line of sort.
+              Open the Code panel to see the Python. Five lines of real work; one line of sort.
             </p>
           </>
         ),

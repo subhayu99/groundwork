@@ -89,10 +89,10 @@ export const stringsSteps: DerivationStep[] = [
               you already learned for arrays applies.
             </p>
             <p>
-              The one twist worth knowing: in many languages (Python, Java, JavaScript), strings are{" "}
-              <strong>immutable</strong>. <code>s[0] = &apos;T&apos;</code> isn&rsquo;t a thing. To
-              change a string you build a new one. That has cost implications when you concatenate a
-              lot.
+              The one twist worth knowing: in many languages (Python, Java, JavaScript), a string
+              can&rsquo;t be edited in place once it&rsquo;s made. <code>s[0] = &apos;T&apos;</code> isn&rsquo;t a thing. To
+              change a string you build a new one. That has cost implications when you stitch a lot
+              of pieces together.
             </p>
           </>
         ),

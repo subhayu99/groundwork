@@ -95,8 +95,8 @@ export const slidingWindowVariableSteps: DerivationStep[] = [
             <p>
               <strong>Already in?</strong> The window has broken its 'no repeats' rule. Move <code>L</code>{" "}
               forward until the duplicate is just out of bounds. With a hash map of{" "}
-              <em>character → last seen index</em>, we can jump <code>L</code> straight there in{" "}
-              <code>O(1)</code>.
+              <em>character → last seen index</em>, we can jump <code>L</code> straight there in one
+              move.
             </p>
             <div className="mt-3 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
               <strong>The principle:</strong> the window keeps a rule alive &mdash; &ldquo;every
@@ -153,11 +153,11 @@ export const slidingWindowVariableSteps: DerivationStep[] = [
               covers.
             </p>
             <p>
-              &ldquo;Longest subarray with at most <code>k</code> distinct values&rdquo; &mdash;
+              &ldquo;Longest stretch with at most <code>k</code> different values&rdquo; &mdash;
               same template; the rule is &ldquo;at most k different items in the window.&rdquo;
             </p>
             <p>
-              &ldquo;Maximum sum subarray with non-negative values and length at most <code>k</code>&rdquo;
+              &ldquo;Maximum-sum stretch with non-negative values and length at most <code>k</code>&rdquo;
               &mdash; same. The condition changes; the dance is the same.
             </p>
           </>
