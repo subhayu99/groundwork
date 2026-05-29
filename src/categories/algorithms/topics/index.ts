@@ -108,6 +108,17 @@ import { dp1dNextSteps } from "./dp-1d/next-steps";
 import { backtrackingNextSteps } from "./backtracking/next-steps";
 import { mergesortNextSteps } from "./mergesort/next-steps";
 
+// Practice problems (the topics that ship them)
+import { binarySearchProblems } from "./binary-search/problems";
+import { slidingWindowVariableProblems } from "./sliding-window-variable/problems";
+import { monotonicStackProblems } from "./monotonic-stack/problems";
+import { activitySelectionProblems } from "./activity-selection/problems";
+import { recursionProblems } from "./recursion/problems";
+import { dfsProblems } from "./dfs/problems";
+import { bfsProblems } from "./bfs/problems";
+import { backtrackingProblems } from "./backtracking/problems";
+import { mergesortProblems } from "./mergesort/problems";
+
 const algorithmBundles: Record<string, TopicBundle> = {
   "two-pointers": {
     meta: twoPointersMeta,
@@ -133,6 +144,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "Halve, then halve again",
     },
     nextSteps: binarySearchNextSteps,
+    problems: binarySearchProblems,
   },
   "sliding-window": {
     meta: slidingWindowMeta,
@@ -158,6 +170,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "Two motions, one rule",
     },
     nextSteps: slidingWindowVariableNextSteps,
+    problems: slidingWindowVariableProblems,
   },
   "monotonic-stack": {
     meta: monotonicStackMeta,
@@ -170,6 +183,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "The stack does the work",
     },
     nextSteps: monotonicStackNextSteps,
+    problems: monotonicStackProblems,
   },
   "activity-selection": {
     meta: activitySelectionMeta,
@@ -182,6 +196,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "Take the earliest finish",
     },
     nextSteps: activitySelectionNextSteps,
+    problems: activitySelectionProblems,
   },
   recursion: {
     meta: recursionMeta,
@@ -194,6 +209,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "Smaller version, same shape",
     },
     nextSteps: recursionNextSteps,
+    problems: recursionProblems,
   },
   dfs: {
     meta: dfsMeta,
@@ -206,6 +222,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "Deep, then back up",
     },
     nextSteps: dfsNextSteps,
+    problems: dfsProblems,
   },
   bfs: {
     meta: bfsMeta,
@@ -218,6 +235,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "Closest first wins",
     },
     nextSteps: bfsNextSteps,
+    problems: bfsProblems,
   },
   "dp-1d": {
     meta: dp1dMeta,
@@ -243,6 +261,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "Check, then choose",
     },
     nextSteps: backtrackingNextSteps,
+    problems: backtrackingProblems,
   },
   mergesort: {
     meta: mergesortMeta,
@@ -255,6 +274,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "Halves, then merge",
     },
     nextSteps: mergesortNextSteps,
+    problems: mergesortProblems,
   },
 };
 

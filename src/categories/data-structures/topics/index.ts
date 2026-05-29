@@ -58,6 +58,16 @@ import { setsTuplesNextSteps } from "./sets-tuples/next-steps";
 import { treesNextSteps } from "./trees/next-steps";
 import { graphsNextSteps } from "./graphs/next-steps";
 
+// Practice problems
+import { arraysProblems } from "./arrays/problems";
+import { stringsProblems } from "./strings/problems";
+import { stacksQueuesProblems } from "./stacks-queues/problems";
+import { linkedListsProblems } from "./linked-lists/problems";
+import { hashMapsProblems } from "./hash-maps/problems";
+import { setsTuplesProblems } from "./sets-tuples/problems";
+import { treesProblems } from "./trees/problems";
+import { graphsProblems } from "./graphs/problems";
+
 const dataStructureBundles: Record<string, TopicBundle> = {
   arrays: {
     meta: arraysMeta,
@@ -70,6 +80,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       enabledLabel: "Storage decides speed",
     },
     nextSteps: arraysNextSteps,
+    problems: arraysProblems,
   },
   strings: {
     meta: stringsMeta,
@@ -82,6 +93,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       enabledLabel: "Same machinery, different content",
     },
     nextSteps: stringsNextSteps,
+    problems: stringsProblems,
   },
   "stacks-queues": {
     meta: stacksQueuesMeta,
@@ -94,6 +106,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       enabledLabel: "Restrict, then optimize",
     },
     nextSteps: stacksQueuesNextSteps,
+    problems: stacksQueuesProblems,
   },
   "linked-lists": {
     meta: linkedListsMeta,
@@ -106,6 +119,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       enabledLabel: "Pointers are the trick",
     },
     nextSteps: linkedListsNextSteps,
+    problems: linkedListsProblems,
   },
   "hash-maps": {
     meta: hashMapsMeta,
@@ -118,6 +132,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       enabledLabel: "Compute the address",
     },
     nextSteps: hashMapsNextSteps,
+    problems: hashMapsProblems,
   },
   "sets-tuples": {
     meta: setsTuplesMeta,
@@ -130,6 +145,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       enabledLabel: "Identity vs grouping",
     },
     nextSteps: setsTuplesNextSteps,
+    problems: setsTuplesProblems,
   },
   trees: {
     meta: treesMeta,
@@ -142,6 +158,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       enabledLabel: "Each node points to its kids",
     },
     nextSteps: treesNextSteps,
+    problems: treesProblems,
   },
   graphs: {
     meta: graphsMeta,
@@ -154,6 +171,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       enabledLabel: "Nodes plus edges",
     },
     nextSteps: graphsNextSteps,
+    problems: graphsProblems,
   },
 };
 
