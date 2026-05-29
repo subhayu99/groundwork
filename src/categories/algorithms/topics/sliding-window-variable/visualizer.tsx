@@ -4,11 +4,11 @@ import { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 const S = "abracadabra";
 const CELL = 38;
 const GAP = 4;
-const STRIDE = CELL + GAP;
 
 interface VisualizerProps {
   step: number;
@@ -32,9 +32,13 @@ function CharCells({
   l: number;
   r: number;
 }) {
+  const isMobile = useIsMobile();
+  const cell = isMobile ? 24 : CELL;
+  const gap = isMobile ? 3 : GAP;
+  const stride = cell + gap;
   return (
-    <div className="relative" style={{ width: s.length * STRIDE }}>
-      <div className="flex items-center gap-1 select-none">
+    <div className="relative" style={{ width: s.length * stride }}>
+      <div className="flex items-center select-none" style={{ gap }}>
         {Array.from(s).map((ch, i) => {
           const isIn = inWindow.has(i);
           return (
@@ -48,18 +52,18 @@ function CharCells({
                 opacity: isIn ? 1 : 0.5,
               }}
               transition={{ duration: 0.22 }}
-              className="rounded-md border-2 flex items-center justify-center font-mono text-base text-[var(--text)]"
-              style={{ width: CELL, height: CELL }}
+              className="rounded-md border-2 flex items-center justify-center font-mono text-[var(--text)]"
+              style={{ width: cell, height: cell, fontSize: Math.round(cell * 0.42) }}
             >
               {ch}
             </motion.div>
           );
         })}
       </div>
-      <motion.div animate={{ x: l * STRIDE + CELL / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
+      <motion.div animate={{ x: l * stride + cell / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
         <span className="font-mono text-[10px] text-[var(--accent-ink)] bg-[var(--accent-soft)] border border-[var(--accent-line)] rounded-md px-1.5">L</span>
       </motion.div>
-      <motion.div animate={{ x: r * STRIDE + CELL / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
+      <motion.div animate={{ x: r * stride + cell / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
         <span className="font-mono text-[10px] text-[var(--accent-ink)] bg-[var(--accent-soft)] border border-[var(--accent-line)] rounded-md px-1.5">R</span>
       </motion.div>
     </div>
@@ -257,7 +261,7 @@ function DerivedViz() {
           </span>
         </div>
 
-        <div className="font-mono text-[11px] text-[var(--text-muted)] max-w-[420px] text-center">
+        <div className="font-mono text-[11px] text-[var(--text-muted)] max-w-full md:max-w-[420px] text-center break-all md:break-normal">
           last_seen: {Object.keys(seen).length === 0 ? "{}" : `{${Object.entries(seen).map(([k, v]) => `${k}:${v}`).join(", ")}}`}
         </div>
 
