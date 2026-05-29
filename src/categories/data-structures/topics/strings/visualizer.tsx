@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { usePlayback } from "@/shared/viz/usePlayback";
+import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 
 const SENTENCE = "the quick brown fox";
 const PATTERN = "brown";
@@ -83,15 +85,22 @@ function NaiveSearchViz() {
   const [start, setStart] = useState(0);
   const [comparisons, setComparisons] = useState(0);
   const [found, setFound] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startRef = useRef(0);
+  const foundRef = useRef(false);
   const maxStart = SENTENCE.length - PATTERN.length;
+
+  const done = startRef.current > maxStart || found;
+
+  const pb = usePlayback({
+    onTick: () => stepForward(),
+    isDone: () => startRef.current > maxStart || foundRef.current,
+    intervalMs: 350,
+  });
 
   const stepForward = useCallback(() => {
     const cur = startRef.current;
-    if (cur > maxStart || found) {
-      setPlaying(false);
+    if (cur > maxStart || foundRef.current) {
+      pb.stop();
       return;
     }
     // check pattern at cur
@@ -102,28 +111,22 @@ function NaiveSearchViz() {
     }
     setComparisons((c) => c + matches);
     if (matches === PATTERN.length) {
+      foundRef.current = true;
       setFound(true);
-      setPlaying(false);
+      pb.stop();
       return;
     }
     startRef.current = cur + 1;
     setStart(startRef.current);
-  }, [maxStart, found]);
-
-  useEffect(() => {
-    if (!playing) return;
-    intervalRef.current = setInterval(stepForward, 350);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [playing, stepForward]);
+  }, [maxStart, pb]);
 
   const reset = () => {
     startRef.current = 0;
+    foundRef.current = false;
     setStart(0);
     setComparisons(0);
     setFound(false);
-    setPlaying(false);
+    pb.stop();
   };
 
   const matched = found ? Array.from({ length: PATTERN.length }, (_, i) => start + i) : [];
@@ -150,13 +153,14 @@ function NaiveSearchViz() {
             <span className="text-2xl" style={{ color: found ? "var(--diff-easy)" : "var(--diff-med)" }}>{comparisons}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-          <button onClick={() => setPlaying((p) => !p)} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)]">
-            {playing ? "Pause" : "Play through"}
-          </button>
-          <button onClick={stepForward} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">→</button>
-        </div>
+        <PlaybackControls
+          playing={pb.playing}
+          onToggle={pb.toggle}
+          onReset={reset}
+          onStep={pb.stepOnce}
+          atEnd={done}
+          playLabel="Play through"
+        />
       </div>
     </div>
   );

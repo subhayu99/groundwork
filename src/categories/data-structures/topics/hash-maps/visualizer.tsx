@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePlayback } from "@/shared/viz/usePlayback";
+import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 
 // Deliberately unsorted (a real phone book you haven't organized), with the
 // person we search for — "alice" — near the very end, so the Step 1-2 linear
@@ -48,39 +50,36 @@ function LinearScanViz() {
   const [cursor, setCursor] = useState(-1);
   const [comparisons, setComparisons] = useState(0);
   const [found, setFound] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef(-1);
+  const foundRef = useRef(false);
 
   const stepForward = useCallback(() => {
     const next = cursorRef.current + 1;
-    if (next >= PHONE_BOOK.length) {
-      setPlaying(false);
-      return;
-    }
+    if (next >= PHONE_BOOK.length) return;
     cursorRef.current = next;
     setCursor(next);
     setComparisons((c) => c + 1);
     if (PHONE_BOOK[next].name === TARGET) {
+      foundRef.current = true;
       setFound(true);
-      setPlaying(false);
     }
   }, []);
 
-  useEffect(() => {
-    if (!playing) return;
-    intervalRef.current = setInterval(stepForward, 180);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [playing, stepForward]);
+  const end = cursor >= PHONE_BOOK.length - 1;
+
+  const pb = usePlayback({
+    onTick: () => stepForward(),
+    isDone: () => foundRef.current || cursorRef.current >= PHONE_BOOK.length - 1,
+    intervalMs: 180,
+  });
 
   const reset = () => {
+    pb.stop();
     cursorRef.current = -1;
+    foundRef.current = false;
     setCursor(-1);
     setComparisons(0);
     setFound(false);
-    setPlaying(false);
   };
 
   return (
@@ -119,13 +118,14 @@ function LinearScanViz() {
           <span className={found ? "text-[var(--diff-easy)]" : "text-[var(--diff-med)]"}>{comparisons}</span>
           {found && <span className="text-[var(--diff-easy)] ml-3">✓ found</span>}
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-          <button onClick={() => setPlaying((p) => !p)} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)]">
-            {playing ? "Pause" : "Play through"}
-          </button>
-          <button onClick={stepForward} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">→</button>
-        </div>
+        <PlaybackControls
+          playing={pb.playing}
+          onToggle={pb.toggle}
+          onReset={reset}
+          onStep={pb.stepOnce}
+          atEnd={found || end}
+          playLabel="Play through"
+        />
       </div>
     </div>
   );
