@@ -40,8 +40,12 @@ capabilities the next domains need.
     (`role`/`tabindex`/Arrow/Home/End, `aria-valuemin/now/max`). Verified: keyboard slides the window
     AND clears the previously drag-only step-3 wedge gate. ✅
   - `▶` active-line marker already `aria-hidden`. ✅
-  - **Remaining a11y (next):** viz `aria-live` narration of the current operation; a contrast + 24px
-    target-size audit; confirm no other interaction pointer-gates progress.
+  - **Viz `aria-live` narration** — `CodeHighlight` now renders a polite `role=status` live region that
+    announces the running line ("Now running: mid = (lo + hi) // 2 …") as the active line changes.
+    Centralized → every topic for free. Verified: binary-search autoplay emitted 10 in-lockstep
+    announcements. ✅ (Future: richer per-operation narration of the *visual* state, not just the code.)
+  - **Remaining a11y (next):** contrast + 24px target-size audit; confirm no other interaction
+    pointer-gates progress (nodes + window slider both keyboard-OK now).
 
 ## 4. Content work
 - **Gaps:** hash-maps "bucket" concept is only commented pseudo-code (add real bucket code);

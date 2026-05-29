@@ -187,8 +187,20 @@ export function CodeHighlight({ code, highlightedLines = [], revealedLines, head
   const lines = code.split("\n");
   const revealSet = revealedLines ? new Set(revealedLines) : null;
 
+  // Screen-reader narration: when the active line(s) change (the visualization
+  // stepping in lockstep with the code), announce the running line's text so a
+  // non-sighted learner can follow the execution. Centralized here so every
+  // topic gets it for free — no per-visualizer narration strings needed.
+  const activeText = highlightedLines
+    .map((n) => lines[n - 1]?.trim())
+    .filter((t): t is string => Boolean(t))
+    .join("; ");
+
   return (
     <div className="rounded-xl border border-[var(--line-faint)] bg-[var(--bg-inset)] overflow-hidden font-mono text-[13px]">
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {activeText ? `Now running: ${activeText}` : ""}
+      </div>
       {header}
       <pre className="overflow-x-auto py-3 leading-[1.65]">
         {lines.map((line, i) => {
