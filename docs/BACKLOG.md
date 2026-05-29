@@ -25,13 +25,23 @@ wrappers (the SVG node-and-edge family). Array/grid/stack stay HTML (Motion layo
 — the SVG node-graph family is what unified. Directed/labeled edges + rect nodes + a11y are the new
 capabilities the next domains need.
 
-## 3. Cross-cutting
-- **Jargon gating:** `O(1)/O(n)…` and CS terms (hash, bucket, pointer, node, immutable, LIFO/FIFO…)
-  appear in early steps before they're explained — gate to ~step 5+ everywhere (code comments, viz
-  button labels, card copy).
-- **Accessibility:** clickable SVG nodes (trees/graphs) + sliders aren't keyboard-operable and the
-  step-3 wedge gate can hard-block keyboard/SR users — add `role`/`tabindex`/keydown, don't pointer-gate
-  progress, add a viz `aria-live` narration, `aria-hidden` the ▶ marker, audit contrast + 24px targets.
+## 3. Cross-cutting — IN PROGRESS (2026-05-30)
+- **Jargon gating — AUDITED, already substantially compliant ✅.** A line→step scan of all 20
+  `derivation.tsx` (`/tmp/jargon-step-audit.mjs`) found **zero `O(...)` in steps 1–4** — authors placed
+  all complexity discussion in the step-5 "what's cheap, what's not" card. The only steps-1–4 hits are
+  LIFO/FIFO at stacks-queues step 4 (defined inline: "LIFO — last in, first out") and bfs step 4 ("the
+  queue is FIFO"). `meta.ts`: no Big-O. Viz `O(...)` lives in cost tables / op-labels (summary phases),
+  paired with plain words. Conclusion: no broad gating churn needed; revisit bfs-step-4 FIFO if desired.
+- **Accessibility — keyboard operability landed centrally:**
+  - SVG nodes (trees/graphs) keyboard-operable for free via the B6 `Scene` primitive
+    (`role=button`/`tabindex`/Enter+Space → `onNodeClick`). Verified: graphs step-3 nodes activate by
+    keyboard. ✅
+  - `WindowOverlay` (sliding-window/array window) was **drag-only** → now an ARIA `slider`
+    (`role`/`tabindex`/Arrow/Home/End, `aria-valuemin/now/max`). Verified: keyboard slides the window
+    AND clears the previously drag-only step-3 wedge gate. ✅
+  - `▶` active-line marker already `aria-hidden`. ✅
+  - **Remaining a11y (next):** viz `aria-live` narration of the current operation; a contrast + 24px
+    target-size audit; confirm no other interaction pointer-gates progress.
 
 ## 4. Content work
 - **Gaps:** hash-maps "bucket" concept is only commented pseudo-code (add real bucket code);
