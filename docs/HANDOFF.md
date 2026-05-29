@@ -7,8 +7,15 @@ Live: https://subhayu.in/groundwork/ · auto-deploys on push to `main` (GitHub A
 2. **Left↔right sync.** The card and the visualizer must show the SAME example (same target/names/numbers). Mismatch = bug.
 3. **Code drawer = real syntax-highlighted viewer.**
 
-## Round 4 — Live code↔visualization sync + always-open progressive code panel — IN PROGRESS
-Full plan: `/Users/subhayu/.claude/plans/effervescent-snacking-treasure.md`. Resume point: commit `3766f87` (pushed; deploy auto-runs).
+## Round 4 — Live code↔visualization sync + always-open progressive code panel — COMPLETE
+Full plan: `/Users/subhayu/.claude/plans/effervescent-snacking-treasure.md`.
+
+**Phase 3 — robustness + verify — DONE:**
+- **Line-range guard test** (`src/tests/code-maps.test.ts`): asserts (a) every registered topic has a `codeMaps` entry (20/20), (b) no mapped line exceeds its `algorithm.py` length, (c) every topic maps all steps 1–7. 18/18 tests pass; protects against silent drift when a `.py` changes.
+- **Runtime verification (Playwright, desktop 1440 + mobile 390, 0 console errors):**
+  - *Phase 1* — all **20/20** topics: code panel open + unlocked at step 1 (no "finish to unlock") with unreached-step lines dimmed; mobile code block opens + unlocked too.
+  - *Phase 2 live emit* — confirmed across every interaction modality: binary-search cell-click (`[9,10]→[13,14]`), stacks-queues buttons (push→`[7]`, enqueue→`[20]`), hash-maps input-type (`[27,31]→[27,28]`), dfs grid-candidate click (`→[20,27]`), sliding-window step-4 autoplay (`→[14]`). Live emits override the coarse step→line fallback as designed.
+  - *No regression* — wedge gate still blocks advancing past step 3 until the user interacts, then opens; topic completion still registers (`completed=true`) and reveals Step 08.
 
 **DONE & deployed (Phases 1–2):**
 - **Phase 1 — always-open, unlocked, progressive code panel.** Code panel is no longer locked until completion: open by default below the viz, unlocked from step 1. Lines for steps not yet reached render **dimmed** (`opacity-30 blur-[0.4px]`); reaching/revisiting reveals more; completion reveals all. Wiring: `CodeHighlight.tsx` gained a `revealedLines` tier (per-line dim, additive); threaded `TopicPageClient → TopicLayout → ScrubbableCode → CodeHighlight`. `TopicLayout` drawer `useState(true)`; `TopicPageClient` passes `codeDrawerLocked={false}` + computes `codeRevealedLines` = ∪ `codeMaps[step]` for steps ≤ furthest reached.
