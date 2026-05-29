@@ -102,6 +102,25 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
                     </Link>
                   )}
                 </div>
+                {topic.prerequisites.length > 0 && (
+                  <div className="mt-3 flex items-center gap-2 flex-wrap">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+                      builds on
+                    </span>
+                    {topic.prerequisites.map((key) => {
+                      const pre = allTopics.find((t) => t.key === key);
+                      return pre ? (
+                        <Link
+                          key={key}
+                          href={`/categories/${pre.category}/${pre.key}`}
+                          className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[var(--bg-card)] border border-[var(--line-faint)] text-[var(--text-muted)] hover:border-[var(--line-strong)] hover:text-[var(--text)] transition-colors"
+                        >
+                          {pre.name}
+                        </Link>
+                      ) : null;
+                    })}
+                  </div>
+                )}
               </div>
               <DerivationEngine
                 categoryKey={categoryKey}
