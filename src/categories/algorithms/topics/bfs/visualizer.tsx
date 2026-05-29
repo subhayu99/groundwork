@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { GridViz } from "@/shared/viz/GridViz";
 import { StackPanel } from "@/shared/viz/StackPanel";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 import type { Tone } from "@/shared/viz/tones";
 
 type Cell = [number, number];
@@ -35,7 +36,9 @@ function cellKey(r: number, c: number): string {
 }
 
 /* @sync labels — resolved against bfs/algorithm.py (single source of truth) */
+const LINE_INIT_QUEUE = "init_queue"; // queue = deque([(start, 0)]) — the starting frame
 const LINE_DEQUEUE = "dequeue"; // (r, c), d = queue.popleft() — pull from front + read distance d
+const LINE_GOAL = ["visit", "found"]; // (r, c) == end → return d (first sighting is shortest)
 const LINE_MARK_VISITED = "mark"; // visited.add((nr, nc))
 const LINE_ENQUEUE = "enqueue"; // queue.append(((nr, nc), d + 1)) — push neighbour + distance d + 1
 
@@ -260,20 +263,27 @@ function initBfs(): BfsState {
   };
 }
 
-/** Advances one BFS step. `lines` (if given) is filled with the algorithm.py
- *  @sync labels this step exercised, for live code-sync emission. */
-function bfsStep(state: BfsState, lines?: (number | string)[]): BfsState {
-  if (state.done) return state;
-  if (state.queue.length === 0) return { ...state, done: true, active: null };
+/** Pure reducer: one BFS operation (dequeue → goal-check → push unvisited
+ *  neighbours) per frame. Returns the next state plus the algorithm.py @sync
+ *  labels this step exercised; the wrapper emits them post-commit (no setState
+ *  or onActiveLine side-effects here). */
+function bfsStep(state: BfsState): AlgoFrame<BfsState> {
+  if (state.queue.length === 0) {
+    return { state: { ...state, done: true, active: null }, active: [LINE_DEQUEUE], done: true };
+  }
   const [head, ...rest] = state.queue;
-  lines?.push(LINE_DEQUEUE); // popleft: read cell + distance d from the front
   const [r, c] = head.cell;
   if (r === GOAL[0] && c === GOAL[1]) {
-    return { ...state, active: head.cell, reachedGoalAt: head.d, done: true };
+    return {
+      state: { ...state, active: head.cell, reachedGoalAt: head.d, done: true },
+      active: LINE_GOAL,
+      done: true,
+    };
   }
   const newQueue = [...rest];
   const visited = new Set(state.visited);
   const distances = { ...state.distances };
+  const lines: (number | string)[] = [LINE_DEQUEUE]; // popleft: read cell + distance d from the front
   for (const [dr, dc] of DIRS) {
     const nr = r + dr;
     const nc = c + dc;
@@ -286,94 +296,74 @@ function bfsStep(state: BfsState, lines?: (number | string)[]): BfsState {
       !visited.has(cellKey(nr, nc))
     ) {
       visited.add(cellKey(nr, nc));
-      lines?.push(LINE_MARK_VISITED); // visited.add(...)
+      lines.push(LINE_MARK_VISITED); // visited.add(...)
       distances[cellKey(nr, nc)] = head.d + 1;
       newQueue.push({ cell: [nr, nc], d: head.d + 1 });
-      lines?.push(LINE_ENQUEUE); // append neighbour with distance d + 1
+      lines.push(LINE_ENQUEUE); // append neighbour with distance d + 1
     }
   }
   return {
-    ...state,
-    queue: newQueue,
-    visited,
-    distances,
-    active: head.cell,
+    state: {
+      ...state,
+      queue: newQueue,
+      visited,
+      distances,
+      active: head.cell,
+      done: false,
+    },
+    active: [...new Set(lines)],
     done: false,
   };
 }
 
 /* Steps 4-7 — BFS with visible queue */
 function DerivedBfsViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
-  const [state, setState] = useState<BfsState>(initBfs());
-  const stateRef = useRef<BfsState>(state);
-  stateRef.current = state;
-
-  // Compute the next step from a ref (never from the updater arg) so the parent's
-  // onActiveLine fires from the event handler, not during React's render/commit
-  // of the setState updater — which was the setState-in-render warning + frozen
-  // highlight (the emitted lines never reached the parent on the first tick).
-  const advance = useCallback(() => {
-    const lines: (number | string)[] = [];
-    const next = bfsStep(stateRef.current, lines);
-    setState(next);
-    if (lines.length > 0) onActiveLine?.([...new Set(lines)]);
-  }, [onActiveLine]);
-
-  const pb = usePlayback({
-    onTick: advance,
-    isDone: () => state.done,
-    intervalMs: 380,
-  });
-
-  const reset = () => {
-    setState(initBfs());
-    pb.stop();
-  };
-
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        pull from front · push neighbours to back · distances grow only up
-      </div>
-      <div className="flex flex-row gap-6 items-start">
-        <MazeWithDistances
-          distances={state.distances}
-          active={state.active}
-          showDistances
-        />
-        <StackPanel
-          title="queue · front on top"
-          topOnTop={false}
-          widthPx={180}
-          minHeightPx={140}
-          emptyLabel="empty"
-          items={state.queue.slice(0, 7).map((q, i) => ({
-            key: `${cellKey(q.cell[0], q.cell[1])}-${i}`,
-            label: `(${q.cell[0]},${q.cell[1]})`,
-            sub: `d=${q.d}`,
-            tone: "accent" as Tone,
-          }))}
-          footer={
-            state.queue.length > 7 ? `+${state.queue.length - 7} more` : undefined
-          }
-        />
-      </div>
-      <div className="font-mono text-xs text-[var(--text-muted)]">
-        visited: <span className="text-[var(--accent)]">{state.visited.size}</span>
-        {state.reachedGoalAt !== null && (
-          <span className="text-[var(--diff-easy)] ml-3">
-            ✓ shortest distance {state.reachedGoalAt}
-          </span>
-        )}
-      </div>
-      <PlaybackControls
-        playing={pb.playing}
-        onToggle={pb.toggle}
-        onReset={reset}
-        onStep={advance}
-        atEnd={state.done}
-        playLabel="Play through"
-      />
-    </div>
+    <AnimatedAlgorithmView<BfsState>
+      initial={initBfs}
+      step={bfsStep}
+      onActiveLine={onActiveLine}
+      initialActive={[LINE_INIT_QUEUE]}
+      intervalMs={380}
+      playLabel="Play through"
+      render={(state) => (
+        <div className="flex flex-col items-center gap-6">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+            pull from front · push neighbours to back · distances grow only up
+          </div>
+          <div className="flex flex-row gap-6 items-start">
+            <MazeWithDistances
+              distances={state.distances}
+              active={state.active}
+              showDistances
+            />
+            <StackPanel
+              title="queue · front on top"
+              topOnTop={false}
+              widthPx={180}
+              minHeightPx={140}
+              emptyLabel="empty"
+              items={state.queue.slice(0, 7).map((q, i) => ({
+                key: `${cellKey(q.cell[0], q.cell[1])}-${i}`,
+                label: `(${q.cell[0]},${q.cell[1]})`,
+                sub: `d=${q.d}`,
+                tone: "accent" as Tone,
+              }))}
+              footer={
+                state.queue.length > 7 ? `+${state.queue.length - 7} more` : undefined
+              }
+            />
+          </div>
+          <div className="font-mono text-xs text-[var(--text-muted)]">
+            visited: <span className="text-[var(--accent)]">{state.visited.size}</span>
+            {state.reachedGoalAt !== null && (
+              <span className="text-[var(--diff-easy)] ml-3">
+                ✓ shortest distance {state.reachedGoalAt}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+    />
   );
 }

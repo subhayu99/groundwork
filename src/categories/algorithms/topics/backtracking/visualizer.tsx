@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { GridViz } from "@/shared/viz/GridViz";
-import { usePlayback } from "@/shared/viz/usePlayback";
-import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 import type { Tone } from "@/shared/viz/tones";
 
 const N = 6;
@@ -200,130 +199,102 @@ function ManualPlaceViz({
   );
 }
 
+// One frame of the backtracking search. `phase` makes the reducer emit a
+// distinct code label per frame so the highlight marches:
+//   "scan"   → walk the cursor (state.nextCol) over candidate columns testing
+//              safety   → emits LINE_SAFE_CHECK (["loop","is_safe"])
+//   "act"    → commit the scan result: place+recurse, backtrack, or record.
 interface BtState {
   placed: number[];
-  nextCol: number;
+  nextCol: number; // cursor over candidate columns in the current row
   attempts: number;
   solutions: number[][];
+  phase: "scan" | "act";
   done: boolean;
 }
 
-function btStep(state: BtState): BtState {
-  if (state.done) return state;
-  const row = state.placed.length;
-
-  if (row === N) {
-    // Solution. Record and backtrack.
-    const solutions = [...state.solutions, [...state.placed]];
-    const lastCol = state.placed[state.placed.length - 1];
-    return {
-      ...state,
-      placed: state.placed.slice(0, -1),
-      nextCol: lastCol + 1,
-      solutions,
-    };
-  }
-
-  let col = state.nextCol;
-  while (col < N && !safe(state.placed, row, col)) col++;
-
-  if (col >= N) {
-    // No safe column left in this row. Backtrack.
-    if (state.placed.length === 0) {
-      return { ...state, done: true };
-    }
-    const lastCol = state.placed[state.placed.length - 1];
-    return {
-      ...state,
-      placed: state.placed.slice(0, -1),
-      nextCol: lastCol + 1,
-      attempts: state.attempts + 1,
-    };
-  }
-
-  return {
-    ...state,
-    placed: [...state.placed, col],
-    nextCol: 0,
-    attempts: state.attempts + 1,
-  };
+function initialBt(): BtState {
+  return { placed: [], nextCol: 0, attempts: 0, solutions: [], phase: "scan", done: false };
 }
 
-// Classify a single backtracking transition into the algorithm.py lines it
-// exercised, so the code drawer can highlight the place / recurse / undo /
-// record-solution motion live as the stepper runs.
-function linesForTransition(prev: BtState, next: BtState): (number | string)[] {
-  if (next.solutions.length > prev.solutions.length) return LINE_RECORD_SOLUTION;
-  if (next.placed.length > prev.placed.length) {
-    // A safe column was found and the queen was placed; recursing deeper.
-    return ["is_safe", LINE_PLACE, LINE_RECURSE];
+// Pure reducer: one backtracking operation per frame, no setState/emit. The
+// `active` labels returned drive the live code highlight.
+function btStep(s: BtState): AlgoFrame<BtState> {
+  if (s.done) return { state: s, done: true };
+  const row = s.placed.length;
+
+  // A full board → record the solution, then backtrack to explore further.
+  if (row === N) {
+    const solutions = [...s.solutions, [...s.placed]];
+    const lastCol = s.placed[s.placed.length - 1];
+    return {
+      state: { ...s, placed: s.placed.slice(0, -1), nextCol: lastCol + 1, solutions, phase: "act" },
+      active: LINE_RECORD_SOLUTION,
+    };
   }
-  if (next.placed.length < prev.placed.length) return [LINE_UNDO];
-  return LINE_SAFE_CHECK;
+
+  // SCAN: advance the cursor over candidate columns, checking safety.
+  if (s.phase === "scan") {
+    let col = s.nextCol;
+    while (col < N && !safe(s.placed, row, col)) col++;
+    return { state: { ...s, nextCol: col, phase: "act" }, active: LINE_SAFE_CHECK };
+  }
+
+  // ACT: the cursor (nextCol) now points past any unsafe columns.
+  const col = s.nextCol;
+  if (col >= N) {
+    // No safe column left in this row → backtrack (undo last queen).
+    if (s.placed.length === 0) return { state: { ...s, done: true }, done: true };
+    const lastCol = s.placed[s.placed.length - 1];
+    return {
+      state: {
+        ...s,
+        placed: s.placed.slice(0, -1),
+        nextCol: lastCol + 1,
+        attempts: s.attempts + 1,
+        phase: "act",
+      },
+      active: [LINE_UNDO],
+    };
+  }
+
+  // A safe column was found → place the queen and recurse one row deeper.
+  return {
+    state: { ...s, placed: [...s.placed, col], nextCol: 0, attempts: s.attempts + 1, phase: "scan" },
+    active: [LINE_PLACE, LINE_RECURSE],
+  };
 }
 
 /* Steps 4-7 — auto backtracking sweep */
 function AutoBacktrackViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
-  const [state, setState] = useState<BtState>({
-    placed: [],
-    nextCol: 0,
-    attempts: 0,
-    solutions: [],
-    done: false,
-  });
-
-  // Emit the active code lines from an effect that observes the committed
-  // state transition — never from inside the setState updater (that would be
-  // calling the parent's setState during this component's render, the
-  // "Cannot update a component while rendering a different component" error).
-  const prevStateRef = useRef(state);
-  useEffect(() => {
-    const prev = prevStateRef.current;
-    if (prev !== state) {
-      onActiveLine?.(linesForTransition(prev, state));
-      prevStateRef.current = state;
-    }
-  }, [state, onActiveLine]);
-
-  const btStepOnce = () =>
-    setState((cur) => (cur.done ? cur : btStep(cur)));
-
-  const pb = usePlayback({
-    onTick: btStepOnce,
-    isDone: () => state.done,
-    intervalMs: 220,
-  });
-
-  const reset = () => {
-    setState({ placed: [], nextCol: 0, attempts: 0, solutions: [], done: false });
-    pb.stop();
-  };
-
-  const activeRow = state.done ? null : state.placed.length;
-  const activeCol = state.done ? null : state.nextCol;
-
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        place row by row · prune dead branches · count solutions
-      </div>
-      <Board placed={state.placed} activeRow={activeRow} activeCol={activeCol} showAttacks />
-      <div className="font-mono text-xs text-[var(--text-muted)]">
-        placed: <span className="text-[var(--accent)]">{state.placed.length}</span>
-        <span className="mx-3">·</span>
-        attempts: <span className="text-[var(--text)]">{state.attempts}</span>
-        <span className="mx-3">·</span>
-        solutions: <span className="text-[var(--diff-easy)]">{state.solutions.length}</span>
-        {state.done && <span className="text-[var(--diff-easy)] ml-3">✓ done</span>}
-      </div>
-      <PlaybackControls
-        playing={pb.playing}
-        onToggle={pb.toggle}
-        onReset={reset}
-        onStep={pb.stepOnce}
-        atEnd={state.done}
-        playLabel="Play through"
-      />
-    </div>
+    <AnimatedAlgorithmView<BtState>
+      initial={initialBt}
+      step={btStep}
+      onActiveLine={onActiveLine}
+      initialActive={LINE_SAFE_CHECK}
+      intervalMs={220}
+      playLabel="Play through"
+      render={(state, { done }) => {
+        const activeRow = done ? null : state.placed.length < N ? state.placed.length : null;
+        const activeCol = done || state.phase !== "scan" ? null : state.nextCol < N ? state.nextCol : null;
+        return (
+          <div className="flex flex-col items-center gap-6">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+              place row by row · prune dead branches · count solutions
+            </div>
+            <Board placed={state.placed} activeRow={activeRow} activeCol={activeCol} showAttacks />
+            <div className="font-mono text-xs text-[var(--text-muted)]">
+              placed: <span className="text-[var(--accent)]">{state.placed.length}</span>
+              <span className="mx-3">·</span>
+              attempts: <span className="text-[var(--text)]">{state.attempts}</span>
+              <span className="mx-3">·</span>
+              solutions: <span className="text-[var(--diff-easy)]">{state.solutions.length}</span>
+              {done && <span className="text-[var(--diff-easy)] ml-3">✓ done</span>}
+            </div>
+          </div>
+        );
+      }}
+    />
   );
 }

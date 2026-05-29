@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { GraphViz, GraphVizNode, GraphVizEdge } from "@/shared/viz/GraphViz";
-import { usePlayback } from "@/shared/viz/usePlayback";
-import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 // GraphViz coordinate space the node x/y above are authored in.
@@ -171,125 +170,159 @@ function ClickableGraphViz({ onInteraction, onActiveLine }: { onInteraction?: ()
 }
 
 /* Step 4-5 — BFS / DFS traversal animation */
-function TraversalViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
-  const [mode, setMode] = useState<"bfs" | "dfs">("bfs");
-  const [order, setOrder] = useState<string[]>([]);
-  const [cursor, setCursor] = useState(0);
+const START = "alice";
 
-  const start = "alice";
+type Mode = "bfs" | "dfs";
 
-  const buildOrder = useCallback((m: "bfs" | "dfs"): string[] => {
-    const seen = new Set<string>();
-    const out: string[] = [];
-    if (m === "bfs") {
-      const q: string[] = [start];
-      seen.add(start);
-      while (q.length) {
-        const n = q.shift()!;
-        out.push(n);
-        for (const nb of neighbors(n)) {
-          if (!seen.has(nb)) {
-            seen.add(nb);
-            q.push(nb);
-          }
-        }
+// One frame of the traversal. The `mode` lives in state so the pure reducer can
+// branch on it (BFS dequeues the FRONT of `frontier`, DFS pops the BACK) and
+// emit the matching @sync labels — never the other function's.
+interface TraversalState {
+  mode: Mode;
+  /** Pending nodes: a queue (BFS) or stack (DFS) — same array, different end. */
+  frontier: string[];
+  visited: string[];
+  /** Visit order so far (what lights up + the "order:" trail). */
+  order: string[];
+  /** Node visited on the frame that produced this state (null = start frame). */
+  current: string | null;
+}
+
+// Per-mode @sync labels. A frame emits ONLY the running mode's labels, so the
+// code viewer lights up the ONE function that is actually animating (never
+// bfs+dfs at once — that was the old WIDE-SPAN double-highlight bug).
+const BFS_LABELS = [BFS_SEEN, BFS_APPEND, BFS_NEIGHBORS];
+const DFS_LABELS = [DFS_SEEN, DFS_APPEND, DFS_NEIGHBORS];
+
+function initialFor(mode: Mode): TraversalState {
+  // BFS marks the start as seen up front (it's enqueued before the loop, .py
+  // mirrors this). DFS marks on pop, so its `visited` starts empty — matching
+  // the recursive pre-order the .py shows.
+  return {
+    mode,
+    frontier: [START],
+    visited: mode === "bfs" ? [START] : [],
+    order: [],
+    current: null,
+  };
+}
+
+// PURE reducer: one VISIT per frame. No setState / no emit — the wrapper
+// reports `active` post-commit.
+//
+//   BFS: dequeue the FRONT; neighbors are marked-seen on discovery and enqueued.
+//   DFS: pop the BACK (mark-on-pop, push neighbors reversed) so the order is the
+//        exact recursive pre-order the .py walks; dead pops (already seen) are
+//        skipped within the same frame so every frame is a real visit.
+function step(s: TraversalState): AlgoFrame<TraversalState> {
+  const labels = s.mode === "bfs" ? BFS_LABELS : DFS_LABELS;
+  const frontier = [...s.frontier];
+  const visited = new Set(s.visited);
+
+  if (s.mode === "bfs") {
+    if (frontier.length === 0) return { state: { ...s, current: null }, active: labels, done: true };
+    const node = frontier.shift()!;
+    for (const nb of neighbors(node)) {
+      if (!visited.has(nb)) {
+        visited.add(nb);
+        frontier.push(nb);
       }
-    } else {
-      const visit = (n: string) => {
-        if (seen.has(n)) return;
-        seen.add(n);
-        out.push(n);
-        for (const nb of neighbors(n)) visit(nb);
-      };
-      visit(start);
     }
-    return out;
-  }, []);
+    return {
+      state: { mode: "bfs", frontier, visited: [...visited], order: [...s.order, node], current: node },
+      active: labels,
+      done: frontier.length === 0,
+    };
+  }
 
-  const stepForward = useCallback(() => {
-    setCursor((c) => (c >= order.length ? c : c + 1));
-  }, [order.length]);
+  // DFS: pop until we find an unvisited node (skip stale duplicates).
+  let node: string | undefined;
+  while (frontier.length > 0) {
+    const top = frontier.pop()!;
+    if (!visited.has(top)) { node = top; break; }
+  }
+  if (node === undefined) return { state: { ...s, frontier, current: null }, active: labels, done: true };
+  visited.add(node);
+  const ns = neighbors(node);
+  for (let i = ns.length - 1; i >= 0; i--) frontier.push(ns[i]);
+  // Done once nothing unvisited remains in the stack.
+  const more = frontier.some((id) => !visited.has(id));
+  return {
+    state: { mode: "dfs", frontier, visited: [...visited], order: [...s.order, node], current: node },
+    active: labels,
+    done: !more,
+  };
+}
 
-  const playback = usePlayback({
-    onTick: stepForward,
-    isDone: () => cursor >= order.length,
-  });
-  const { stop } = playback;
+// Thin wrapper: holds `mode` and re-mounts AnimatedAlgorithmView via `key={mode}`
+// so toggling the mode restarts the animation cleanly in the chosen mode.
+function TraversalViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
+  const [mode, setMode] = useState<Mode>("bfs");
 
-  useEffect(() => {
-    setOrder(buildOrder(mode));
-    setCursor(0);
-    stop();
-  }, [mode, buildOrder, stop]);
+  const toggle = (
+    <div className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+      <button
+        onClick={() => setMode("bfs")}
+        className={`px-2 py-1 rounded-md transition-colors ${
+          mode === "bfs"
+            ? "text-[var(--accent-ink)] border border-[var(--accent-line)] bg-[var(--accent-soft)]"
+            : "text-[var(--text-faint)] border border-[var(--line)]"
+        }`}
+      >
+        bfs
+      </button>
+      <span>↔</span>
+      <button
+        onClick={() => setMode("dfs")}
+        className={`px-2 py-1 rounded-md transition-colors ${
+          mode === "dfs"
+            ? "text-[var(--accent-ink)] border border-[var(--accent-line)] bg-[var(--accent-soft)]"
+            : "text-[var(--text-faint)] border border-[var(--line)]"
+        }`}
+      >
+        dfs
+      </button>
+      <span className="text-[var(--text-faint)] ml-2">starting from {START}</span>
+    </div>
+  );
 
-  const visited = new Set(order.slice(0, cursor));
-  const cur = cursor > 0 ? order[cursor - 1] : null;
+  return (
+    <AnimatedAlgorithmView<TraversalState>
+      key={mode}
+      initial={() => initialFor(mode)}
+      step={step}
+      onActiveLine={onActiveLine}
+      initialActive={mode === "bfs" ? BFS_LABELS : DFS_LABELS}
+      aside={toggle}
+      render={(s) => <TraversalFrame state={s} />}
+    />
+  );
+}
 
-  // Emit the algorithm.py labels for the current traversal step: mark visited,
-  // record it in order, then iterate its neighbors. The labels are per-mode, so
-  // only the ONE function that is actually animating lights up (never bfs+dfs at
-  // once — that was the old WIDE-SPAN double-highlight bug).
-  useEffect(() => {
-    if (cur == null) { onActiveLine?.([]); return; }
-    onActiveLine?.(
-      mode === "bfs"
-        ? [BFS_SEEN, BFS_APPEND, BFS_NEIGHBORS]
-        : [DFS_SEEN, DFS_APPEND, DFS_NEIGHBORS],
-    );
-  }, [cur, mode, onActiveLine]);
+function TraversalFrame({ state }: { state: TraversalState }) {
+  // `order` = nodes actually emitted so far. Matches the old `visited` set
+  // (order.slice(0, cursor)) used for both node + edge highlighting — the
+  // frontier/discovery set is intentionally NOT lit yet.
+  const traversed = new Set(state.order);
+  const cur = state.current;
+  const size = useGraphSize();
 
   const nodes = vizNodes((id) => {
     if (id === cur) return "active";
-    if (visited.has(id)) return "visited";
+    if (traversed.has(id)) return "visited";
     return "idle";
   });
   const edges: GraphVizEdge[] = EDGES.map((e) => ({
     a: e.a,
     b: e.b,
-    tone: visited.has(e.a) && visited.has(e.b) ? ("active" as const) : undefined,
+    tone: traversed.has(e.a) && traversed.has(e.b) ? ("active" as const) : undefined,
   }));
-  const size = useGraphSize();
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        <button
-          onClick={() => setMode("bfs")}
-          className={`px-2 py-1 rounded-md transition-colors ${
-            mode === "bfs"
-              ? "text-[var(--accent-ink)] border border-[var(--accent-line)] bg-[var(--accent-soft)]"
-              : "text-[var(--text-faint)] border border-[var(--line)]"
-          }`}
-        >
-          bfs
-        </button>
-        <span>↔</span>
-        <button
-          onClick={() => setMode("dfs")}
-          className={`px-2 py-1 rounded-md transition-colors ${
-            mode === "dfs"
-              ? "text-[var(--accent-ink)] border border-[var(--accent-line)] bg-[var(--accent-soft)]"
-              : "text-[var(--text-faint)] border border-[var(--line)]"
-          }`}
-        >
-          dfs
-        </button>
-        <span className="text-[var(--text-faint)] ml-2">starting from {start}</span>
-      </div>
-
       <GraphViz nodes={nodes} edges={edges} {...size} />
-
-      <div className="flex flex-col items-center gap-3">
-        <div className="font-mono text-xs text-[var(--text-muted)] max-w-[420px] text-center break-words">
-          order: <span className="text-[var(--accent)]">{order.slice(0, cursor).join(" → ") || "—"}</span>
-        </div>
-        <PlaybackControls
-          playing={playback.playing}
-          onToggle={playback.toggle}
-          onReset={() => { setCursor(0); playback.stop(); }}
-          onStep={playback.stepOnce}
-          atEnd={cursor >= order.length}
-        />
+      <div className="font-mono text-xs text-[var(--text-muted)] max-w-[420px] text-center break-words">
+        order: <span className="text-[var(--accent)]">{state.order.join(" → ") || "—"}</span>
       </div>
     </div>
   );

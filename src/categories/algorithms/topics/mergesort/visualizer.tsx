@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 
 const ARR = [5, 2, 4, 7, 1, 3, 8, 6];
 const CARD = 38;
@@ -14,6 +15,12 @@ const GAP = 4;
    Each emit set comes from ONE function so the highlight never spans two. */
 const SPLIT_LINES = ["split", "recurse_left", "recurse_right"]; // mergesort()
 const MERGE_LINES = ["merge_loop", "merge_compare", "merge_take"]; // merge()
+
+/* Per-frame labels: a split frame cycles through mergesort()'s cut+recurse
+   lines; a merge frame cycles through merge()'s loop body. One function per
+   frame so the highlight never spans two functions. */
+const SPLIT_STEP_LABELS: string[][] = [["split"], ["recurse_left"], ["recurse_right"]];
+const MERGE_STEP_LABELS: string[][] = [["merge_loop"], ["merge_compare"], ["merge_take"], ["merge_tail"]];
 
 interface VisualizerProps {
   step: number;
@@ -268,77 +275,85 @@ function SplitMergeViz({
   );
 }
 
-/* Steps 4-7 — autoplay split-all-the-way-down then merge-all-the-way-up */
+/* Steps 4-7 — autoplay split-all-the-way-down then merge-all-the-way-up.
+   One frame = one level snapshot. The reducer advances a whole level per
+   tick (same model as before) and returns the per-frame `active` label so
+   the highlighted code line marches: split levels walk mergesort()'s
+   split→recurse_left→recurse_right lines, merge levels walk merge()'s
+   loop→compare→take→tail lines — one function's labels per frame. */
+interface AutoState {
+  history: Segment[][];
+  phase: "splitting" | "merging" | "done";
+  /** Counts split (and separately merge) frames so labels cycle each tick. */
+  splitFrames: number;
+  mergeFrames: number;
+}
+
 function AutoMergesortViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
-  const [history, setHistory] = useState<Segment[][]>([startSegments()]);
-  const [phase, setPhase] = useState<"splitting" | "merging" | "done">("splitting");
-
-  // Highlight the code region for the current phase. Split lines live in
-  // mergesort(), merge lines in merge() — never mixed across functions.
-  useEffect(() => {
-    if (phase === "splitting") onActiveLine?.(SPLIT_LINES);
-    else if (phase === "merging") onActiveLine?.(MERGE_LINES);
-  }, [phase, onActiveLine]);
-
-  const advance = () => {
-    setHistory((h) => {
-      const cur = h[h.length - 1];
-      if (phase === "splitting") {
-        const next = splitAll(cur);
-        if (allAtomic(next)) setPhase("merging");
-        return [...h, next];
-      }
-      if (phase === "merging") {
-        const next = mergeOneLevel(cur);
-        if (next.length === 1 && next[0].sorted) setPhase("done");
-        return [...h, next];
-      }
-      return h;
-    });
-  };
-
-  const pb = usePlayback({
-    onTick: () => advance(),
-    isDone: () => phase === "done",
-    intervalMs: 620,
+  const initial = (): AutoState => ({
+    history: [startSegments()],
+    phase: "splitting",
+    splitFrames: 0,
+    mergeFrames: 0,
   });
 
-  const reset = () => {
-    setHistory([startSegments()]);
-    setPhase("splitting");
-    pb.stop();
+  const step = (s: AutoState): AlgoFrame<AutoState> => {
+    const cur = s.history[s.history.length - 1];
+    if (s.phase === "splitting") {
+      const next = splitAll(cur);
+      const phase = allAtomic(next) ? "merging" : "splitting";
+      const active = SPLIT_STEP_LABELS[s.splitFrames % SPLIT_STEP_LABELS.length];
+      return {
+        state: { ...s, history: [...s.history, next], phase, splitFrames: s.splitFrames + 1 },
+        active,
+      };
+    }
+    if (s.phase === "merging") {
+      const next = mergeOneLevel(cur);
+      const sorted = next.length === 1 && next[0].sorted;
+      const phase = sorted ? "done" : "merging";
+      const active = MERGE_STEP_LABELS[s.mergeFrames % MERGE_STEP_LABELS.length];
+      return {
+        state: { ...s, history: [...s.history, next], phase, mergeFrames: s.mergeFrames + 1 },
+        active,
+        done: sorted,
+      };
+    }
+    return { state: s, done: true };
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        each level is a snapshot · split down, merge up
-      </div>
-      <div className="flex flex-col gap-2 items-center max-h-[280px] overflow-auto">
-        {history.map((row, idx) => (
-          <div
-            key={idx}
-            className="opacity-100 transition-opacity"
-            style={{ opacity: idx === history.length - 1 ? 1 : 0.5 }}
-          >
-            <SegmentRow segs={row} />
+    <AnimatedAlgorithmView<AutoState>
+      initial={initial}
+      step={step}
+      onActiveLine={onActiveLine}
+      initialActive={SPLIT_STEP_LABELS[0]}
+      intervalMs={620}
+      playLabel="Play through"
+      render={({ history, phase }, { done }) => (
+        <div className="flex flex-col items-center gap-4">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+            each level is a snapshot · split down, merge up
           </div>
-        ))}
-      </div>
-      <div className="font-mono text-xs text-[var(--text-muted)]">
-        levels seen: <span className="text-[var(--accent)]">{history.length}</span>
-        <span className="mx-3">·</span>
-        phase: <span className="text-[var(--text)]">{phase}</span>
-        {phase === "done" && <span className="text-[var(--diff-easy)] ml-3">✓ sorted</span>}
-      </div>
-      <PlaybackControls
-        playing={pb.playing}
-        onToggle={pb.toggle}
-        onReset={reset}
-        onStep={pb.stepOnce}
-        atEnd={phase === "done"}
-        playLabel="Play through"
-      />
-    </div>
+          <div className="flex flex-col gap-2 items-center max-h-[280px] overflow-auto">
+            {history.map((row, idx) => (
+              <div
+                key={idx}
+                className="opacity-100 transition-opacity"
+                style={{ opacity: idx === history.length - 1 ? 1 : 0.5 }}
+              >
+                <SegmentRow segs={row} />
+              </div>
+            ))}
+          </div>
+          <div className="font-mono text-xs text-[var(--text-muted)]">
+            levels seen: <span className="text-[var(--accent)]">{history.length}</span>
+            <span className="mx-3">·</span>
+            phase: <span className="text-[var(--text)]">{phase}</span>
+            {(done || phase === "done") && <span className="text-[var(--diff-easy)] ml-3">✓ sorted</span>}
+          </div>
+        </div>
+      )}
+    />
   );
 }

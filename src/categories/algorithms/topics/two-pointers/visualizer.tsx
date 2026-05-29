@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrayViz } from "@/shared/viz/ArrayViz";
 import { StatsPanel } from "@/shared/viz/StatsPanel";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 
 const ARR = [1, 3, 5, 7, 9, 10, 12, 15, 18, 20];
 const TARGET = 17;
@@ -195,109 +196,79 @@ function WedgeViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-7 — derived: run the algorithm */
+interface TPState {
+  l: number;
+  r: number;
+  comparisons: number;
+  found: boolean;
+}
+
 function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
-  const [l, setL] = useState(0);
-  const [r, setR] = useState(ARR.length - 1);
-  const [comparisons, setComparisons] = useState(0);
-  const [found, setFound] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const lRef = useRef(0);
-  const rRef = useRef(ARR.length - 1);
+  const initial = (): TPState => ({ l: 0, r: ARR.length - 1, comparisons: 0, found: false });
 
-  const stepForward = useCallback(() => {
-    if (found) return;
-    const cl = lRef.current;
-    const cr = rRef.current;
-    if (cl >= cr) {
-      setPlaying(false);
-      return;
-    }
-    const sum = ARR[cl] + ARR[cr];
-    setComparisons((c) => c + 1);
-    onActiveLine?.([LINE_COMPARE]); // comparing the pair sum
-    if (sum === TARGET) {
-      setFound(true);
-      setPlaying(false);
-      onActiveLine?.([LINE_RETURN]); // match → return the pair
-      return;
-    }
-    if (sum < TARGET) {
-      lRef.current = cl + 1;
-      onActiveLine?.([LINE_MOVE_LEFT]); // move left pointer inward
-    } else {
-      rRef.current = cr - 1;
-      onActiveLine?.([LINE_MOVE_RIGHT]); // move right pointer inward
-    }
-    setL(lRef.current);
-    setR(rRef.current);
-  }, [found, onActiveLine]);
-
-  useEffect(() => {
-    if (!playing) return;
-    intervalRef.current = setInterval(stepForward, 700);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [playing, stepForward]);
-
-  const reset = () => {
-    lRef.current = 0;
-    rRef.current = ARR.length - 1;
-    setL(0);
-    setR(ARR.length - 1);
-    setComparisons(0);
-    setFound(false);
-    setPlaying(false);
+  // Pure reducer: one pointer move per frame. The `active` labels returned per
+  // frame make the highlighted code line march compute → branch as the window
+  // narrows (move_left vs move_right vs found).
+  const step = (s: TPState): AlgoFrame<TPState> => {
+    if (s.l >= s.r) return { state: s, done: true };
+    const sum = ARR[s.l] + ARR[s.r];
+    const comparisons = s.comparisons + 1;
+    if (sum === TARGET)
+      return { state: { ...s, comparisons, found: true }, active: [LINE_COMPARE, LINE_RETURN], done: true };
+    if (sum < TARGET)
+      return { state: { ...s, comparisons, l: s.l + 1 }, active: [LINE_MOVE_LEFT] };
+    return { state: { ...s, comparisons, r: s.r - 1 }, active: [LINE_MOVE_RIGHT] };
   };
 
-  const sum = ARR[l] + ARR[r];
-
   return (
-    <div className="flex flex-col items-center gap-8">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        two pointers · target {TARGET}
-      </div>
+    <AnimatedAlgorithmView<TPState>
+      initial={initial}
+      step={step}
+      onActiveLine={onActiveLine}
+      initialActive={[LINE_COMPARE]}
+      intervalMs={700}
+      render={({ l, r, comparisons, found }) => {
+        const sum = ARR[l] + ARR[r];
+        return (
+          <div className="flex flex-col items-center gap-8">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+              two pointers · target {TARGET}
+            </div>
 
-      <div className="relative pt-6">
-        <ArrayViz values={ARR} highlightedIndices={[l, r]} />
-        <Pointer index={l} label="L" />
-        <Pointer index={r} label="R" />
-      </div>
+            <div className="relative pt-6">
+              <ArrayViz values={ARR} highlightedIndices={[l, r]} />
+              <Pointer index={l} label="L" />
+              <Pointer index={r} label="R" />
+            </div>
 
-      <div className="flex flex-col items-center gap-4 mt-16">
-        <div className="font-mono text-sm">
-          <span className="text-[var(--text-muted)]">{ARR[l]} + {ARR[r]} = </span>
-          <span
-            className={
-              found || sum === TARGET
-                ? "text-[var(--diff-easy)]"
-                : sum < TARGET
-                ? "text-[var(--accent-sky)]"
-                : "text-[var(--diff-hard)]"
-            }
-          >
-            {sum}
-          </span>
-          {found && <span className="text-[var(--diff-easy)] ml-2">✓ found</span>}
-        </div>
+            <div className="flex flex-col items-center gap-4 mt-16">
+              <div className="font-mono text-sm">
+                <span className="text-[var(--text-muted)]">{ARR[l]} + {ARR[r]} = </span>
+                <span
+                  className={
+                    found || sum === TARGET
+                      ? "text-[var(--diff-easy)]"
+                      : sum < TARGET
+                      ? "text-[var(--accent-sky)]"
+                      : "text-[var(--diff-hard)]"
+                  }
+                >
+                  {sum}
+                </span>
+                {found && <span className="text-[var(--diff-easy)] ml-2">✓ found</span>}
+              </div>
 
-        <StatsPanel
-          stats={[
-            { label: "L / R", value: `${l} / ${r}` },
-            { label: "Comparisons", value: comparisons, emphasis: "good" },
-          ]}
-        />
-
-        <div className="flex items-center gap-2">
-          <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-          <button onClick={() => setPlaying((p) => !p)} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)]">
-            {playing ? "Pause" : "Play through"}
-          </button>
-          <button onClick={stepForward} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">→</button>
-        </div>
-      </div>
-    </div>
+              <StatsPanel
+                stats={[
+                  { label: "L / R", value: `${l} / ${r}` },
+                  { label: "Comparisons", value: comparisons, emphasis: "good" },
+                ]}
+              />
+            </div>
+          </div>
+        );
+      }}
+    />
   );
 }
 

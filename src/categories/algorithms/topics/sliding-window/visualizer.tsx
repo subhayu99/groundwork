@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrayViz } from "@/shared/viz/ArrayViz";
 import { WindowOverlay } from "@/shared/viz/WindowOverlay";
 import { StatsPanel } from "@/shared/viz/StatsPanel";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 
 const ARR = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3];
 const K = 3;
@@ -215,162 +216,162 @@ function WedgeViz({ onInteraction }: { onInteraction?: () => void }) {
   );
 }
 
-/* Step 4-6 — derived: with naive ↔ derived toggle */
+/* Step 4-6 — derived: with naive ↔ derived toggle.
+   The final-algorithm slide is now driven by the shared <AnimatedAlgorithmView>:
+   one pure `step` reducer slides the window one position per frame and returns
+   the @sync labels for that operation; no local loop / refs / buttons / emit. */
+
+/** One frame of the fixed-window slide. */
+interface SWState {
+  /** Window start index (the marching position). */
+  start: number;
+  /** Running sum of arr[start .. start+K-1]. */
+  windowSum: number;
+  /** Sums recorded so far — results.append(window_sum). */
+  results: number[];
+  /** Total operations counter (drives the naive↔derived comparison). */
+  ops: number;
+  /** Cells entering / leaving on the most recent slide (derived mode). */
+  entering: number[];
+  leaving: number[];
+  /** Cells re-summed from scratch on the most recent slide (naive mode). */
+  recompFlash: number[];
+}
+
+const MAX_START = ARR.length - K;
+const INITIAL_SUM = ARR.slice(0, K).reduce((a, b) => a + b, 0);
+
+function makeInitial(): SWState {
+  return {
+    start: 0,
+    windowSum: INITIAL_SUM,
+    results: [INITIAL_SUM],
+    ops: K,
+    entering: [],
+    leaving: [],
+    recompFlash: [],
+  };
+}
+
 function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [mode, setMode] = useState<"naive" | "derived">("derived");
-  const [start, setStart] = useState(0);
-  const [windowSum, setWindowSum] = useState(ARR.slice(0, K).reduce((a, b) => a + b, 0));
-  const [ops, setOps] = useState(K);
-  const [entering, setEntering] = useState<number[]>([]);
-  const [leaving, setLeaving] = useState<number[]>([]);
-  const [recompFlash, setRecompFlash] = useState<number[]>([]);
-  const [playing, setPlaying] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const startRef = useRef(0);
-  const flashTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const maxStart = ARR.length - K;
   const isNaive = mode === "naive";
 
-  // Side effects live outside any state-updater callback so React StrictMode's
-  // double-invocation of updaters doesn't double-apply them.
-  const stepForward = useCallback(() => {
-    const cur = startRef.current;
-    if (cur >= maxStart) {
-      setPlaying(false);
-      return;
+  // PURE reducer: slide the window one position per frame. No setState/emit.
+  // The window position changes every frame, so the visual marches even though
+  // the derived-mode labels (slide/record) repeat each step.
+  const step = (s: SWState): AlgoFrame<SWState> => {
+    if (s.start >= MAX_START) {
+      return { state: s, done: true };
     }
-    const next = cur + 1;
-    startRef.current = next;
-    setStart(next);
-    if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+    const next = s.start + 1;
     if (isNaive) {
-      const flash: number[] = [];
-      for (let i = next; i < next + K; i++) flash.push(i);
-      setRecompFlash(flash);
-      setWindowSum(ARR.slice(next, next + K).reduce((a, b) => a + b, 0));
-      setOps((o) => o + K);
-      flashTimeoutRef.current = setTimeout(() => setRecompFlash([]), 520);
-    } else {
-      const leavingIdx = cur;
-      const enteringIdx = cur + K;
-      setLeaving([leavingIdx]);
-      setEntering([enteringIdx]);
-      setWindowSum((s) => s - ARR[leavingIdx] + ARR[enteringIdx]);
-      setOps((o) => o + 2);
-      // Final-algorithm slide: subtract leaver + add newcomer (line 14), then record (line 15).
-      onActiveLine?.([LINE_SLIDE_UPDATE, LINE_RECORD]);
-      flashTimeoutRef.current = setTimeout(() => {
-        setLeaving([]);
-        setEntering([]);
-      }, 520);
+      const windowSum = ARR.slice(next, next + K).reduce((a, b) => a + b, 0);
+      const recompFlash = Array.from({ length: K }, (_, i) => next + i);
+      return {
+        state: {
+          ...s,
+          start: next,
+          windowSum,
+          results: [...s.results, windowSum],
+          ops: s.ops + K,
+          recompFlash,
+          entering: [],
+          leaving: [],
+        },
+        // Naive mode re-sums from scratch; still the slide+record operation.
+        active: [LINE_SLIDE_UPDATE, LINE_RECORD],
+        done: next >= MAX_START,
+      };
     }
-  }, [maxStart, isNaive, onActiveLine]);
-
-  useEffect(() => {
-    if (!playing) return;
-    intervalRef.current = setInterval(stepForward, 900);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+    const leavingIdx = s.start;
+    const enteringIdx = s.start + K;
+    // window_sum = window_sum - arr[i - k] + arr[i]; results.append(...)
+    const windowSum = s.windowSum - ARR[leavingIdx] + ARR[enteringIdx];
+    return {
+      state: {
+        ...s,
+        start: next,
+        windowSum,
+        results: [...s.results, windowSum],
+        ops: s.ops + 2,
+        entering: [enteringIdx],
+        leaving: [leavingIdx],
+        recompFlash: [],
+      },
+      active: [LINE_SLIDE_UPDATE, LINE_RECORD],
+      done: next >= MAX_START,
     };
-  }, [playing, stepForward]);
-
-  const reset = useCallback(() => {
-    startRef.current = 0;
-    setStart(0);
-    setWindowSum(ARR.slice(0, K).reduce((a, b) => a + b, 0));
-    setOps(K);
-    setEntering([]);
-    setLeaving([]);
-    setRecompFlash([]);
-    setPlaying(false);
-  }, []);
-
-  // Reset when switching modes so the counter comparison is clean
-  const switchMode = (next: "naive" | "derived") => {
-    setMode(next);
-    startRef.current = 0;
-    setStart(0);
-    setWindowSum(ARR.slice(0, K).reduce((a, b) => a + b, 0));
-    setOps(K);
-    setEntering([]);
-    setLeaving([]);
-    setRecompFlash([]);
-    setPlaying(false);
   };
 
-  const highlighted = Array.from({ length: K }, (_, i) => start + i);
-  const perSlide = start === 0 ? "—" : isNaive ? `+${K}` : "+2";
-
-  return (
-    <div className="flex flex-col items-center gap-8">
-      <div className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        <button
-          onClick={() => switchMode("naive")}
-          className={`px-2 py-1 rounded-md transition-colors ${
-            isNaive
-              ? "text-[var(--diff-med)] border border-[color-mix(in_oklab,var(--diff-med)_50%,transparent)] bg-[color-mix(in_oklab,var(--diff-med)_12%,transparent)]"
-              : "text-[var(--text-faint)] border border-[var(--line)] hover:text-[var(--text-muted)]"
-          }`}
-        >
-          the obvious way · re-adding everything
-        </button>
-        <span>↔</span>
-        <button
-          onClick={() => switchMode("derived")}
-          className={`px-2 py-1 rounded-md transition-colors ${
-            !isNaive
-              ? "text-[var(--diff-easy)] border border-[color-mix(in_oklab,var(--diff-easy)_50%,transparent)] bg-[color-mix(in_oklab,var(--diff-easy)_12%,transparent)]"
-              : "text-[var(--text-faint)] border border-[var(--line)] hover:text-[var(--text-muted)]"
-          }`}
-        >
-          the wedge way · two ops per slide
-        </button>
-      </div>
-
-      <div className="relative pt-6">
-        <ArrayViz
-          values={ARR}
-          highlightedIndices={highlighted}
-          enteringIndices={entering}
-          leavingIndices={leaving}
-          recomputedIndices={recompFlash}
-        />
-        <div className="absolute inset-x-0 top-6 pointer-events-none">
-          <WindowOverlay start={start} k={K} total={ARR.length} cellSize={CELL} cellGap={GAP} label={`window_sum  ${windowSum}`} />
-        </div>
-      </div>
-
-      <div className="flex flex-col items-center gap-4 mt-12">
-        <StatsPanel
-          stats={[
-            { label: "Window pos", value: `${start} / ${maxStart}` },
-            { label: "Total ops", value: ops, emphasis: isNaive ? "warning" : "good" },
-            { label: "This slide", value: perSlide, emphasis: isNaive ? "warning" : "good" },
-          ]}
-        />
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={reset}
-            className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]"
-          >
-            ↺
-          </button>
-          <button
-            onClick={() => setPlaying((p) => !p)}
-            className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)]"
-          >
-            {playing ? "Pause" : "Play through"}
-          </button>
-          <button
-            onClick={stepForward}
-            className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]"
-          >
-            →
-          </button>
-        </div>
-      </div>
+  const toggle = (
+    <div className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+      <button
+        onClick={() => setMode("naive")}
+        className={`px-2 py-1 rounded-md transition-colors ${
+          isNaive
+            ? "text-[var(--diff-med)] border border-[color-mix(in_oklab,var(--diff-med)_50%,transparent)] bg-[color-mix(in_oklab,var(--diff-med)_12%,transparent)]"
+            : "text-[var(--text-faint)] border border-[var(--line)] hover:text-[var(--text-muted)]"
+        }`}
+      >
+        the obvious way · re-adding everything
+      </button>
+      <span>↔</span>
+      <button
+        onClick={() => setMode("derived")}
+        className={`px-2 py-1 rounded-md transition-colors ${
+          !isNaive
+            ? "text-[var(--diff-easy)] border border-[color-mix(in_oklab,var(--diff-easy)_50%,transparent)] bg-[color-mix(in_oklab,var(--diff-easy)_12%,transparent)]"
+            : "text-[var(--text-faint)] border border-[var(--line)] hover:text-[var(--text-muted)]"
+        }`}
+      >
+        the wedge way · two ops per slide
+      </button>
     </div>
+  );
+
+  // Remount on mode switch so the counter comparison starts clean
+  // (replaces the old hand-rolled switchMode reset).
+  return (
+    <AnimatedAlgorithmView<SWState>
+      key={mode}
+      initial={makeInitial}
+      step={step}
+      onActiveLine={onActiveLine}
+      initialActive={["init_window"]}
+      intervalMs={900}
+      aside={toggle}
+      render={({ start, windowSum, ops, entering, leaving, recompFlash }) => {
+        const highlighted = Array.from({ length: K }, (_, i) => start + i);
+        const perSlide = start === 0 ? "—" : isNaive ? `+${K}` : "+2";
+        return (
+          <div className="flex flex-col items-center gap-8">
+            <div className="relative pt-6">
+              <ArrayViz
+                values={ARR}
+                highlightedIndices={highlighted}
+                enteringIndices={entering}
+                leavingIndices={leaving}
+                recomputedIndices={recompFlash}
+              />
+              <div className="absolute inset-x-0 top-6 pointer-events-none">
+                <WindowOverlay start={start} k={K} total={ARR.length} cellSize={CELL} cellGap={GAP} label={`window_sum  ${windowSum}`} />
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 mt-12">
+              <StatsPanel
+                stats={[
+                  { label: "Window pos", value: `${start} / ${MAX_START}` },
+                  { label: "Total ops", value: ops, emphasis: isNaive ? "warning" : "good" },
+                  { label: "This slide", value: perSlide, emphasis: isNaive ? "warning" : "good" },
+                ]}
+              />
+            </div>
+          </div>
+        );
+      }}
+    />
   );
 }
 

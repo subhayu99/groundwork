@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { TreeViz } from "@/shared/viz/TreeViz";
 import type { Tone } from "@/shared/viz/tones";
-import { usePlayback } from "@/shared/viz/usePlayback";
-import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 
 const N = 8;
 
 // @sync labels — resolved against algorithm.py (single source of truth).
 const LINE_TABLE_INIT = "init_table"; // a, b = 1, 1  (dp base values)
+const LINE_LOOP = "loop"; // for _ in range(2, n + 1)  (boundary of the iteration)
 const LINE_RECURRENCE = "recurrence"; // a, b = b, a + b  (dp[i] = dp[i-1] + dp[i-2])
 const LINE_READ_ANSWER = "answer"; // return b
 
@@ -178,84 +178,88 @@ function RecursionTreeViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Steps 4-7 — bottom-up tabulation */
+// Precompute the full dp table once: only ever need dp[0..N].
+const DP_VALUES = (() => {
+  const arr = [1, 1];
+  for (let i = 2; i <= N; i++) arr[i] = arr[i - 1] + arr[i - 2];
+  return arr;
+})();
+
+// One frame = how far the dp table is filled. dp[0] and dp[1] are the base
+// values, so we start at filledTo = 1 (both base cells shown).
+interface TabState {
+  filledTo: number;
+}
+
 function TabulationViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
-  const [filledTo, setFilledTo] = useState(1);
-  const done = filledTo >= N;
+  const initial = (): TabState => ({ filledTo: 1 });
 
-  // Emit the line under "execution" as cells fill: the table-init line while
-  // only the base values are shown, the recurrence line as each cell is
-  // computed, and the read-answer line once the final cell lands.
-  useEffect(() => {
-    if (!onActiveLine) return;
-    if (filledTo <= 1) onActiveLine([LINE_TABLE_INIT]);
-    else if (filledTo >= N) onActiveLine([LINE_READ_ANSWER]);
-    else onActiveLine([LINE_RECURRENCE]);
-  }, [filledTo, onActiveLine]);
-
-  const stepOnce = () => setFilledTo((c) => Math.min(c + 1, N));
-  const pb = usePlayback({ onTick: () => stepOnce(), isDone: () => done, intervalMs: 480 });
-
-  const reset = () => {
-    setFilledTo(1);
-    pb.stop();
+  // Pure reducer: fill exactly one table cell per frame (a, b = b, a + b). The
+  // `active` labels make the highlighted code line march from the loop boundary
+  // through the recurrence and land on the read-answer line as the table fills.
+  const step = (s: TabState): AlgoFrame<TabState> => {
+    const filledTo = Math.min(s.filledTo + 1, N);
+    const done = filledTo >= N;
+    const active = done
+      ? [LINE_READ_ANSWER]
+      : filledTo <= 1
+      ? [LINE_TABLE_INIT, LINE_LOOP]
+      : [LINE_RECURRENCE];
+    return { state: { filledTo }, active, done };
   };
 
-  const values = useMemo(() => {
-    const arr = [1, 1];
-    for (let i = 2; i <= N; i++) arr[i] = arr[i - 1] + arr[i - 2];
-    return arr;
-  }, []);
-
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        bottom-up · fill dp[i] = dp[i-1] + dp[i-2]
-      </div>
-      <div className="flex items-end gap-1.5">
-        {Array.from({ length: N + 1 }, (_, i) => {
-          const filled = i <= filledTo;
-          const isJust = i === filledTo;
-          return (
-            <div key={i} className="flex flex-col items-center" style={{ width: 48 }}>
-              <motion.div
-                animate={{
-                  backgroundColor: isJust
-                    ? "color-mix(in oklab, var(--accent-sky) 32%, var(--bg-card))"
-                    : filled
-                    ? "color-mix(in oklab, var(--diff-easy) 16%, var(--bg-card))"
-                    : "var(--bg-card)",
-                  borderColor: isJust
-                    ? "var(--accent-line)"
-                    : filled
-                    ? "var(--diff-easy)"
-                    : "var(--line)",
-                }}
-                transition={{ duration: 0.2 }}
-                className="rounded-md border-2 flex items-center justify-center font-mono text-sm"
-                style={{ width: 48, height: 48, color: "var(--text)" }}
-              >
-                {filled ? values[i] : "·"}
-              </motion.div>
-              <span className="font-mono text-[10px] text-[var(--text-faint)] mt-1">
-                dp[{i}]
-              </span>
-            </div>
-          );
-        })}
-      </div>
-      <div className="font-mono text-xs text-[var(--text-muted)]">
-        ways to climb <span className="text-[var(--text)]">{filledTo}</span> stairs ={" "}
-        <span className="text-[var(--diff-easy)]">{values[filledTo]}</span>
-        {filledTo === N && <span className="text-[var(--diff-easy)] ml-3">✓</span>}
-      </div>
-      <PlaybackControls
-        playing={pb.playing}
-        onToggle={pb.toggle}
-        onReset={reset}
-        onStep={pb.stepOnce}
-        atEnd={done}
-        playLabel="Play through"
-      />
-    </div>
+    <AnimatedAlgorithmView<TabState>
+      initial={initial}
+      step={step}
+      onActiveLine={onActiveLine}
+      initialActive={[LINE_TABLE_INIT]}
+      intervalMs={480}
+      playLabel="Play through"
+      render={({ filledTo }, { done }) => (
+        <div className="flex flex-col items-center gap-6">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+            bottom-up · fill dp[i] = dp[i-1] + dp[i-2]
+          </div>
+          <div className="flex items-end gap-1.5">
+            {Array.from({ length: N + 1 }, (_, i) => {
+              const filled = i <= filledTo;
+              const isJust = i === filledTo;
+              return (
+                <div key={i} className="flex flex-col items-center" style={{ width: 48 }}>
+                  <motion.div
+                    animate={{
+                      backgroundColor: isJust
+                        ? "color-mix(in oklab, var(--accent-sky) 32%, var(--bg-card))"
+                        : filled
+                        ? "color-mix(in oklab, var(--diff-easy) 16%, var(--bg-card))"
+                        : "var(--bg-card)",
+                      borderColor: isJust
+                        ? "var(--accent-line)"
+                        : filled
+                        ? "var(--diff-easy)"
+                        : "var(--line)",
+                    }}
+                    transition={{ duration: 0.2 }}
+                    className="rounded-md border-2 flex items-center justify-center font-mono text-sm"
+                    style={{ width: 48, height: 48, color: "var(--text)" }}
+                  >
+                    {filled ? DP_VALUES[i] : "·"}
+                  </motion.div>
+                  <span className="font-mono text-[10px] text-[var(--text-faint)] mt-1">
+                    dp[{i}]
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="font-mono text-xs text-[var(--text-muted)]">
+            ways to climb <span className="text-[var(--text)]">{filledTo}</span> stairs ={" "}
+            <span className="text-[var(--diff-easy)]">{DP_VALUES[filledTo]}</span>
+            {done && <span className="text-[var(--diff-easy)] ml-3">✓</span>}
+          </div>
+        </div>
+      )}
+    />
   );
 }

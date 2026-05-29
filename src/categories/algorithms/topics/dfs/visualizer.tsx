@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { GridViz, type CellSpec } from "@/shared/viz/GridViz";
-import { usePlayback } from "@/shared/viz/usePlayback";
-import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 
 type Cell = [number, number];
 
@@ -275,71 +274,55 @@ function lineForStep(prev: DfsState, next: DfsState): (number | string)[] | null
 
 /* Steps 4-7 — auto-play DFS with backtracking */
 function AutoDfsViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
-  const [dfs, setDfs] = useState<DfsState>(initDfs());
-  // Lines the latest transition produced, emitted from an effect (never from
-  // inside the setDfs updater — that runs during render and setState-in-render
-  // of the parent throws "Cannot update a component while rendering …").
-  const pendingLines = useRef<(number | string)[] | null>(null);
-
-  const stepForward = () =>
-    setDfs((cur) => {
-      if (cur.done) return cur;
-      const next = dfsStep(cur);
-      pendingLines.current = lineForStep(cur, next);
-      return next;
-    });
-
-  useEffect(() => {
-    if (pendingLines.current) {
-      onActiveLine?.(pendingLines.current);
-      pendingLines.current = null;
-    }
-  }, [dfs, onActiveLine]);
-
-  const pb = usePlayback({
-    onTick: stepForward,
-    isDone: () => dfs.done,
-    intervalMs: 300,
-  });
-
-  const reset = () => {
-    setDfs(initDfs());
-    pb.setPlaying(false);
+  // Pure reducer: one DFS operation per frame. `dfsStep` advances the search and
+  // `lineForStep` classifies the transition into the algorithm.py @sync label it
+  // executed — recurse/visit when descending, backtrack when popping, found at the
+  // goal — so the highlighted code line marches in lockstep with the animation.
+  const step = (s: DfsState): AlgoFrame<DfsState> => {
+    const next = dfsStep(s);
+    return {
+      state: next,
+      active: lineForStep(s, next) ?? [],
+      done: next.done,
+    };
   };
 
-  const current = dfs.stack.length > 0 ? dfs.stack[dfs.stack.length - 1].cell : null;
-  const trailSet = new Set(dfs.trail.map(([r, c]) => cellKey(r, c)));
-
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        dive deep · back up when stuck
-      </div>
-      <GridViz
-        rows={ROWS}
-        cols={COLS}
-        cellPx={CELL_PX}
-        gap={GAP}
-        cell={(r, c) => mazeCell(r, c, current, dfs.visited, trailSet)}
-      />
-      <div className="font-mono text-xs text-[var(--text-muted)]">
-        stack depth: <span className="text-[var(--accent)]">{dfs.stack.length}</span>
-        <span className="mx-3">·</span>
-        visited: <span className="text-[var(--text)]">{dfs.visited.size}</span>
-        {dfs.found && (
-          <span className="text-[var(--diff-easy)] ml-3">
-            ✓ trail length {dfs.trail.length - 1}
-          </span>
-        )}
-      </div>
-      <PlaybackControls
-        playing={pb.playing}
-        onToggle={pb.toggle}
-        onReset={reset}
-        onStep={pb.stepOnce}
-        atEnd={dfs.done}
-        playLabel="Play through"
-      />
-    </div>
+    <AnimatedAlgorithmView<DfsState>
+      initial={initDfs}
+      step={step}
+      onActiveLine={onActiveLine}
+      initialActive={[LINE_VISIT]}
+      intervalMs={300}
+      playLabel="Play through"
+      render={(dfs) => {
+        const current = dfs.stack.length > 0 ? dfs.stack[dfs.stack.length - 1].cell : null;
+        const trailSet = new Set(dfs.trail.map(([r, c]) => cellKey(r, c)));
+        return (
+          <div className="flex flex-col items-center gap-6">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+              dive deep · back up when stuck
+            </div>
+            <GridViz
+              rows={ROWS}
+              cols={COLS}
+              cellPx={CELL_PX}
+              gap={GAP}
+              cell={(r, c) => mazeCell(r, c, current, dfs.visited, trailSet)}
+            />
+            <div className="font-mono text-xs text-[var(--text-muted)]">
+              stack depth: <span className="text-[var(--accent)]">{dfs.stack.length}</span>
+              <span className="mx-3">·</span>
+              visited: <span className="text-[var(--text)]">{dfs.visited.size}</span>
+              {dfs.found && (
+                <span className="text-[var(--diff-easy)] ml-3">
+                  ✓ trail length {dfs.trail.length - 1}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      }}
+    />
   );
 }

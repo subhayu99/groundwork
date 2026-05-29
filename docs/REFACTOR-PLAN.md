@@ -32,10 +32,16 @@ Fix the contract + provide the shared blocks, and the bug classes become impossi
 - Author/generator supplies a reducer + renderer: `initialState`, `step(state) → {state, active: Label[],
   done}`, `render(state)`. No visualizer touches `setInterval` or writes a Play/↺/→ row again.
 
-### B3 — `PhasedVisualizer` + declarative `phases`. *Kills the 20× hand-rolled `if (step<=2)…` dispatch; fixes "naïve step highlights contradicting line".*
-- Declarative `{ naive: s<=2, explore: s===3, final: s>=4 }`. The **naive phase suppresses live emits by
-  default** (so the crawl/scan demos stop highlighting the final-algorithm line that contradicts them);
-  optionally shows the panel fully dimmed with a "this is the slow way — real code next" banner.
+### B3 — naive-phase suppression. *Fixes "naïve step highlights contradicting line".* ✅ DONE
+- Achieved CENTRALLY (no per-visualizer churn): `TopicBundle.naiveThroughStep` (default 2). In
+  `TopicPageClient`, steps ≤ naiveThrough drop the coarse step→line fallback; `ScrubbableCode` gains
+  `suppressActive` so the panel shows NO bright line while idle in the naive phase (a manual scrub still
+  highlights), with a "Deriving the real approach — the code lights up as you build it" note in the drawer.
+- **`PhasedVisualizer` dispatch-dedup: evaluated, intentionally NOT built.** After B1+B2 removed the
+  substantial duplication, each visualizer's top-level dispatch is ~4 readable lines that vary meaningfully
+  per topic (different sub-phases). A generic phase-config would add indirection without simplifying, and
+  re-churning 20 stabilized files is poor risk/reward. The behavioral goal was met centrally. (If/when B5
+  consolidates the contract for AI-generated pages, a declarative phase descriptor can be revisited there.)
 
 ### B4 — Tone-driven viz primitives. *Kills inline `color-mix`/`lab()` (animation warnings) + unifies the visual language.*
 - `ArrayViz`/`GridViz`/`TreeViz`/`GraphViz`/`StackPanel` accept a `Tone` per element (active/visited/

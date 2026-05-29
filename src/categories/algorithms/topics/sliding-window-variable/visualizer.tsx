@@ -4,16 +4,19 @@ import { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 const S = "abracadabra";
 const CELL = 38;
 const GAP = 4;
 
-/* @sync labels — resolved against algorithm.py (single source of truth) */
-const LINE_EXPAND = "record"; // last_seen[ch] = right  — right edge advances
-const LINE_SHRINK = "contract"; // left = last_seen[ch] + 1 — repeat forces left in
-const LINE_BEST = "update"; // best = max(best, right - left + 1) — best updated
+/* @sync labels — resolved against algorithm.py (single source of truth).
+ * Grouped by the operation a frame performs so consecutive frames emit
+ * DIFFERENT label sets and the live highlight marches per-op. */
+const LINE_EXPAND = ["expand"]; // for right, ch in enumerate(s) — right edge advances
+const LINE_SHRINK = ["check", "contract"]; // repeat inside window → jump left past it
+const LINE_BEST = ["record", "update"]; // last_seen[ch] = right; best = max(...)
 
 interface VisualizerProps {
   step: number;
@@ -192,94 +195,91 @@ function ManualWindowViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-7 — animated derived algorithm */
+interface SWState {
+  l: number;
+  r: number;
+  seen: Record<string, number>;
+  best: number;
+  bestRange: [number, number];
+}
+
 function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
-  const [l, setL] = useState(0);
-  const [r, setR] = useState(-1);
-  const [best, setBest] = useState(0);
-  const [bestRange, setBestRange] = useState<[number, number]>([0, 0]);
-  const [seen, setSeen] = useState<Record<string, number>>({});
-  const [done, setDone] = useState(false);
-  const lRef = useRef(0);
-  const rRef = useRef(-1);
-  const seenRef = useRef<Record<string, number>>({});
-  const bestRef = useRef(0);
+  const initial = (): SWState => ({ l: 0, r: -1, seen: {}, best: 0, bestRange: [0, 0] });
 
-  const stepForward = useCallback(() => {
-    const nextR = rRef.current + 1;
-    if (nextR >= S.length) {
-      setDone(true);
-      pb.stop();
-      return;
-    }
-    const lines: (number | string)[] = [];
+  // Pure reducer: advance the right pointer one char per frame. The `active`
+  // labels it returns depend on the operation taken this frame (expand vs
+  // contract vs record/update), so consecutive frames emit DIFFERENT labels
+  // and the live highlight marches (fixes the frozen trio).
+  const step = (s: SWState): AlgoFrame<SWState> => {
+    const nextR = s.r + 1;
+    if (nextR >= S.length) return { state: s, done: true };
+
     const ch = S[nextR];
-    const prev = seenRef.current[ch];
-    if (prev !== undefined && prev >= lRef.current) {
-      lRef.current = prev + 1;
-      setL(lRef.current);
-      lines.push(LINE_SHRINK);
-    }
-    seenRef.current = { ...seenRef.current, [ch]: nextR };
-    rRef.current = nextR;
-    setR(nextR);
-    setSeen({ ...seenRef.current });
-    lines.push(LINE_EXPAND);
-    const len = nextR - lRef.current + 1;
-    if (len > bestRef.current) {
-      bestRef.current = len;
-      setBest(len);
-      setBestRange([lRef.current, nextR]);
-      lines.push(LINE_BEST);
-    }
-    onActiveLine?.(lines);
-  }, [onActiveLine]);
+    const prev = s.seen[ch];
 
-  const pb = usePlayback({ onTick: () => stepForward(), isDone: () => done, intervalMs: 650 });
+    // Repeat inside the window → contract: jump left past the previous occurrence.
+    if (prev !== undefined && prev >= s.l) {
+      return {
+        state: { ...s, l: prev + 1 },
+        active: LINE_SHRINK,
+      };
+    }
 
-  const reset = () => {
-    lRef.current = 0;
-    rRef.current = -1;
-    seenRef.current = {};
-    bestRef.current = 0;
-    setL(0);
-    setR(-1);
-    setSeen({});
-    setBest(0);
-    setBestRange([0, 0]);
-    pb.stop();
-    setDone(false);
+    // No contraction needed this frame → expand the right edge,
+    // record last_seen, and update best.
+    const seen = { ...s.seen, [ch]: nextR };
+    const len = nextR - s.l + 1;
+    if (len > s.best) {
+      return {
+        state: { ...s, r: nextR, seen, best: len, bestRange: [s.l, nextR] },
+        active: LINE_BEST,
+      };
+    }
+    return {
+      state: { ...s, r: nextR, seen },
+      active: LINE_EXPAND,
+    };
   };
 
-  const inWindow = new Set<number>();
-  if (r >= l) for (let i = l; i <= r; i++) inWindow.add(i);
-
   return (
-    <div className="flex flex-col items-center gap-8">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        the breathing window · longest stretch with no repeats
-      </div>
-      <CharCells s={S} inWindow={inWindow} l={l} r={Math.max(0, r)} />
+    <AnimatedAlgorithmView<SWState>
+      initial={initial}
+      step={step}
+      onActiveLine={onActiveLine}
+      initialActive={LINE_EXPAND}
+      intervalMs={650}
+      playLabel="Play through"
+      render={({ l, r, seen, best, bestRange }, { done }) => {
+        const inWindow = new Set<number>();
+        if (r >= l) for (let i = l; i <= r; i++) inWindow.add(i);
+        return (
+          <div className="flex flex-col items-center gap-8">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+              the breathing window · longest stretch with no repeats
+            </div>
+            <CharCells s={S} inWindow={inWindow} l={l} r={Math.max(0, r)} />
 
-      <div className="flex flex-col items-center gap-3 mt-6">
-        <div className="font-mono text-sm flex items-center gap-3">
-          <span>
-            window: &ldquo;<span className="text-[var(--accent)]">{r >= l ? S.slice(l, r + 1) : ""}</span>&rdquo;
-          </span>
-          <span className="text-[var(--text-muted)]">·</span>
-          <span>
-            best so far: <span className="text-[var(--diff-easy)]">{best}</span>
-            {best > 0 && <span className="text-[var(--text-muted)]"> (&ldquo;{S.slice(bestRange[0], bestRange[1] + 1)}&rdquo;)</span>}
-          </span>
-        </div>
+            <div className="flex flex-col items-center gap-3 mt-6">
+              <div className="font-mono text-sm flex items-center gap-3">
+                <span>
+                  window: &ldquo;<span className="text-[var(--accent)]">{r >= l ? S.slice(l, r + 1) : ""}</span>&rdquo;
+                </span>
+                <span className="text-[var(--text-muted)]">·</span>
+                <span>
+                  best so far: <span className="text-[var(--diff-easy)]">{best}</span>
+                  {best > 0 && <span className="text-[var(--text-muted)]"> (&ldquo;{S.slice(bestRange[0], bestRange[1] + 1)}&rdquo;)</span>}
+                </span>
+              </div>
 
-        <div className="font-mono text-[11px] text-[var(--text-muted)] max-w-full md:max-w-[420px] text-center break-all md:break-normal">
-          last_seen: {Object.keys(seen).length === 0 ? "{}" : `{${Object.entries(seen).map(([k, v]) => `${k}:${v}`).join(", ")}}`}
-        </div>
+              <div className="font-mono text-[11px] text-[var(--text-muted)] max-w-full md:max-w-[420px] text-center break-all md:break-normal">
+                last_seen: {Object.keys(seen).length === 0 ? "{}" : `{${Object.entries(seen).map(([k, v]) => `${k}:${v}`).join(", ")}}`}
+              </div>
 
-        {done && <div className="font-mono text-xs text-[var(--diff-easy)]">done · longest = {best}</div>}
-
-        <PlaybackControls playing={pb.playing} onToggle={pb.toggle} onReset={reset} onStep={pb.stepOnce} atEnd={done} playLabel="Play through" />
-      </div>
-    </div>
+              {done && <div className="font-mono text-xs text-[var(--diff-easy)]">done · longest = {best}</div>}
+            </div>
+          </div>
+        );
+      }}
+    />
   );
 }

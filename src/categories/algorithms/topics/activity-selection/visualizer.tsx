@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 interface Meeting {
@@ -58,7 +59,7 @@ interface VisualizerProps {
 export function ActivitySelectionVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <RawTimelineViz />;
   if (step === 3) return <SortAndPickViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  return <DerivedViz />;
+  return <DerivedViz onActiveLine={onActiveLine} />;
 }
 
 function HourAxis({ dims }: { dims: Dims }) {
@@ -338,72 +339,82 @@ function SortAndPickViz({
 }
 
 /* Steps 4-7 — auto-play with sorted order pre-shown */
-function DerivedViz() {
+
+// Pure reducer: examine one meeting per frame. The compatibility check always
+// fires (["compatible"]); when the meeting fits we also accept + update the
+// free-at marker (["compatible","select","update"]). Returns the algorithm.py
+// labels per frame so the highlighted code line marches with the scan.
+function derivedStep(prev: PickState): AlgoFrame<PickState> {
+  const next = pickStep(prev);
+  const accepted = next.accepted.length > prev.accepted.length;
+  return {
+    state: next,
+    active: accepted
+      ? [LINE_COMPAT_CHECK, LINE_ACCEPT, LINE_UPDATE_LAST_END]
+      : [LINE_COMPAT_CHECK],
+    done: next.i >= MEETINGS.length,
+  };
+}
+
+function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const dims = useDims();
   const { HOUR_PX, ROW_H, ROW_GAP, LABEL_W } = dims;
   const order = useMemo(() => sortedMeetings(), []);
-  const [pick, setPick] = useState<PickState>({
+
+  const initial = (): PickState => ({
     sorted: true,
     i: 0,
     accepted: [],
     skipped: [],
     lastEnd: -Infinity,
   });
-  const done = pick.i >= MEETINGS.length;
-
-  const pb = usePlayback({
-    onTick: () => setPick((cur) => pickStep(cur)),
-    isDone: () => done,
-    intervalMs: 650,
-  });
-
-  const reset = () => {
-    setPick({ sorted: true, i: 0, accepted: [], skipped: [], lastEnd: -Infinity });
-    pb.stop();
-  };
-
-  const activeId = pick.i < order.length ? order[pick.i].id : null;
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        sorted by end · greedy walks once
-      </div>
-      <div
-        className="relative"
-        style={{
-          width: LABEL_W + (HOUR_END - HOUR_START) * HOUR_PX,
-          height: MEETINGS.length * (ROW_H + ROW_GAP),
-        }}
-      >
-        {order.map((m, i) => (
-          <MeetingBar key={m.id} m={m} row={i} state={meetingState(m.id, pick, activeId)} dims={dims} />
-        ))}
-        {pick.lastEnd > -Infinity && (
-          <motion.div
-            animate={{ left: LABEL_W + (pick.lastEnd - HOUR_START) * HOUR_PX }}
-            transition={{ duration: 0.3 }}
-            className="absolute top-0 bottom-0 border-l-2 border-dashed border-[var(--diff-easy)] pointer-events-none"
-          >
-            <div className="absolute -top-3 -translate-x-1/2 text-[9px] font-mono text-[var(--diff-easy)] bg-[var(--bg-elevated)] px-1">
-              free at {pick.lastEnd}
+    <AnimatedAlgorithmView<PickState>
+      initial={initial}
+      step={derivedStep}
+      onActiveLine={onActiveLine}
+      initialActive={[LINE_SORT_BY_END]}
+      intervalMs={650}
+      playLabel="Play through"
+      render={(pick, { done }) => {
+        const activeId = pick.i < order.length ? order[pick.i].id : null;
+        return (
+          <div className="flex flex-col items-center gap-6">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+              sorted by end · greedy walks once
             </div>
-          </motion.div>
-        )}
-      </div>
-      <HourAxis dims={dims} />
-      <div className="font-mono text-xs text-[var(--text-muted)]">
-        kept <span className="text-[var(--diff-easy)]">{pick.accepted.length}</span> of{" "}
-        {MEETINGS.length}
-        {done && <span className="text-[var(--diff-easy)] ml-3">✓ done</span>}
-      </div>
-      <PlaybackControls
-        playing={pb.playing}
-        onToggle={pb.toggle}
-        onReset={reset}
-        atEnd={done}
-        playLabel="Play through"
-      />
-    </div>
+            <div
+              className="relative"
+              style={{
+                width: LABEL_W + (HOUR_END - HOUR_START) * HOUR_PX,
+                height: MEETINGS.length * (ROW_H + ROW_GAP),
+              }}
+            >
+              {order.map((m, i) => (
+                <MeetingBar key={m.id} m={m} row={i} state={meetingState(m.id, pick, activeId)} dims={dims} />
+              ))}
+              {pick.lastEnd > -Infinity && (
+                <motion.div
+                  animate={{ left: LABEL_W + (pick.lastEnd - HOUR_START) * HOUR_PX }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute top-0 bottom-0 border-l-2 border-dashed border-[var(--diff-easy)] pointer-events-none"
+                >
+                  <div className="absolute -top-3 -translate-x-1/2 text-[9px] font-mono text-[var(--diff-easy)] bg-[var(--bg-elevated)] px-1">
+                    free at {pick.lastEnd}
+                  </div>
+                </motion.div>
+              )}
+            </div>
+            <HourAxis dims={dims} />
+            <div className="font-mono text-xs text-[var(--text-muted)]">
+              kept <span className="text-[var(--diff-easy)]">{pick.accepted.length}</span> of{" "}
+              {MEETINGS.length}
+              {done && <span className="text-[var(--diff-easy)] ml-3">✓ done</span>}
+            </div>
+          </div>
+        );
+      }}
+    />
   );
 }

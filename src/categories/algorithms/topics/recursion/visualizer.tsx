@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { StackPanel } from "@/shared/viz/StackPanel";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 
 type Node =
   | { type: "file"; name: string; size: number }
@@ -57,10 +58,12 @@ function totalSize(node: Node): number {
 const TOTAL = totalSize(TREE);
 
 /* @sync labels — resolved against algorithm.py (single source of truth) */
+const LINE_BASE_CASE = "base_case"; // `if node["type"] == "file"` — we reached a leaf file
 const LINE_BASE_CASE_RETURN = "base_return"; // `return node["size"]` — a file returns its own size
 const LINE_RECURSIVE_CALL = "recursive_call"; // `folder_size(child)` — descend into a child
 const LINE_AGGREGATE_SUM = "aggregate"; // `sum(...)` — combine children's sizes
 const LINE_FOLDER_RETURN = "folder_return"; // returning a folder's summed total up the stack
+const LINE_SIG = "sig"; // function signature — shown on the initial/reset frame
 
 interface VisualizerProps {
   step: number;
@@ -357,9 +360,12 @@ function runOneStep(state: RecursionState): RecursionState {
 
 /* Steps 4-7 — animated recursion */
 // Classify a single recursion transition into the algorithm.py lines it maps to.
+// We pick the MOST meaningful label per frame so the highlight changes as the
+// walk visits leaves (base_*) vs. descends into / sums folders (recursive_call /
+// aggregate / folder_return) — instead of being pinned to one line for the run.
 function linesForStep(before: RecursionState, after: RecursionState): (number | string)[] {
-  // A file hit its base case and returned its own size up the stack.
-  if (after.ranBaseCase) return [LINE_BASE_CASE_RETURN];
+  // A file hit its base case: we tested `type == "file"` and returned its size.
+  if (after.ranBaseCase) return [LINE_BASE_CASE, LINE_BASE_CASE_RETURN];
   // Stack grew: a folder descended into one of its children (recursive call).
   if (after.stack.length > before.stack.length) return [LINE_RECURSIVE_CALL];
   // Stack shrank (and no base case): a folder finished — sum children, return up.
@@ -368,85 +374,80 @@ function linesForStep(before: RecursionState, after: RecursionState): (number | 
   return [];
 }
 
+interface RecursionFrameState extends RecursionState {
+  done: boolean;
+}
+
 function RecursiveComputeViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
-  const [state, setState] = useState<RecursionState>({
+  const initial = (): RecursionFrameState => ({
     stack: [],
     finished: {},
     active: null,
     ranBaseCase: false,
-  });
-  const done = state.finished[TREE.name] !== undefined;
-
-  const advance = useCallback(() => {
-    // Compute the transition (and its emitted lines) OUTSIDE the state updater
-    // so onActiveLine — which triggers a parent setState — never runs during
-    // render or inside another component's state-updater (setState-in-render).
-    const next = runOneStep(state);
-    const lines = linesForStep(state, next);
-    setState(next);
-    if (lines.length > 0) onActiveLine?.(lines);
-  }, [state, onActiveLine]);
-
-  const pb = usePlayback({
-    onTick: advance,
-    isDone: () => state.finished[TREE.name] !== undefined,
-    intervalMs: 520,
+    done: false,
   });
 
-  const reset = () => {
-    pb.stop();
-    setState({ stack: [], finished: {}, active: null, ranBaseCase: false });
+  // Pure reducer: one recursion visit per frame. Reuses the existing walk
+  // (`runOneStep`) and classifies the transition into @sync labels via
+  // `linesForStep`. No setState / emit here — the wrapper emits post-commit.
+  const step = (s: RecursionFrameState): AlgoFrame<RecursionFrameState> => {
+    const next = runOneStep(s);
+    const active = linesForStep(s, next);
+    const done = next.finished[TREE.name] !== undefined;
+    return { state: { ...next, done }, active, done };
   };
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        recurse in · return up · stack drains
-      </div>
-      <div className="flex flex-row gap-6 items-start">
-        <div className="flex flex-col gap-1 w-[300px]">
-          {FLAT.map((f) => {
-            const isActive = state.active === f.path;
-            const value = state.finished[f.path];
-            const isOnStack = state.stack.some((s) => s.path === f.path);
-            return (
-              <NodeRow
-                key={f.path}
-                flat={f}
-                state={
-                  isActive ? "active" : value !== undefined ? "done" : isOnStack ? "active" : "idle"
-                }
-                computed={value !== undefined ? value : null}
-              />
-            );
-          })}
-        </div>
-        <StackPanel
-          title="call stack"
-          items={state.stack.map((frame) => ({
-            key: frame.path,
-            label: frame.path.split("/").slice(-1)[0],
-            sub: `partial: ${frame.partial}MB`,
-            tone: "accent" as const,
-          }))}
-          emptyLabel="empty"
-          topOnTop={true}
-          widthPx={200}
-        />
-      </div>
-      {done && (
-        <div className="font-mono text-xs text-[var(--diff-easy)]">
-          ✓ {state.finished[TREE.name]}MB total
+    <AnimatedAlgorithmView<RecursionFrameState>
+      initial={initial}
+      step={step}
+      onActiveLine={onActiveLine}
+      initialActive={[LINE_SIG]}
+      intervalMs={520}
+      playLabel="Play through"
+      render={(state, { done }) => (
+        <div className="flex flex-col items-center gap-6">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+            recurse in · return up · stack drains
+          </div>
+          <div className="flex flex-row gap-6 items-start">
+            <div className="flex flex-col gap-1 w-[300px]">
+              {FLAT.map((f) => {
+                const isActive = state.active === f.path;
+                const value = state.finished[f.path];
+                const isOnStack = state.stack.some((s) => s.path === f.path);
+                return (
+                  <NodeRow
+                    key={f.path}
+                    flat={f}
+                    state={
+                      isActive ? "active" : value !== undefined ? "done" : isOnStack ? "active" : "idle"
+                    }
+                    computed={value !== undefined ? value : null}
+                  />
+                );
+              })}
+            </div>
+            <StackPanel
+              title="call stack"
+              items={state.stack.map((frame) => ({
+                key: frame.path,
+                label: frame.path.split("/").slice(-1)[0],
+                sub: `partial: ${frame.partial}MB`,
+                tone: "accent" as const,
+              }))}
+              emptyLabel="empty"
+              topOnTop={true}
+              widthPx={200}
+            />
+          </div>
+          {done && (
+            <div className="font-mono text-xs text-[var(--diff-easy)]">
+              ✓ {state.finished[TREE.name]}MB total
+            </div>
+          )}
         </div>
       )}
-      <PlaybackControls
-        playing={pb.playing}
-        onToggle={pb.toggle}
-        onReset={reset}
-        onStep={pb.stepOnce}
-        atEnd={done}
-        playLabel="Play through"
-      />
-    </div>
+    />
   );
 }

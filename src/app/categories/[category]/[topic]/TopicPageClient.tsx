@@ -41,7 +41,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
 
   if (!cat || !bundle) notFound();
 
-  const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, problems, nextSteps } = bundle;
+  const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, naiveThroughStep, problems, nextSteps } = bundle;
   const problemCount = problems?.length ?? 0;
   const unlockAt = unlockCodeAtStep ?? steps.length;
 
@@ -49,6 +49,16 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   // of truth = the .py). Resolution is tolerant of legacy raw line numbers.
   const { code: displayCode, labelToLine } = prepareCode(pythonCode);
   const stepCodeLines = codeMaps[`${categoryKey}/${topicKey}`];
+
+  // Naive phase: steps that show a brute-force demo NOT in the final code. There
+  // we suppress the coarse step→line fallback so the panel never highlights a
+  // line that contradicts the slow demo on screen (e.g. a crawl "lighting up"
+  // the direct-index line). A live emit, if any, still wins.
+  const naiveThrough = naiveThroughStep ?? 2;
+  const inNaivePhase = currentStep <= naiveThrough;
+  const codeFallback = inNaivePhase
+    ? undefined
+    : stepCodeLines?.[Math.min(currentStep, steps.length)];
 
   // Progressive reveal: dim lines for steps not yet reached. A completed topic
   // reveals everything; otherwise reveal up to the furthest step reached.
@@ -213,11 +223,9 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
           code={displayCode}
           codeDrawerLocked={false}
           codeFilename={`${topicKey.replaceAll("-", "_")}.py`}
-          codeActiveLines={resolveLines(
-            liveLines ?? stepCodeLines?.[Math.min(currentStep, steps.length)],
-            labelToLine,
-          )}
+          codeActiveLines={resolveLines(liveLines ?? codeFallback, labelToLine)}
           codeRevealedLines={codeRevealedLines}
+          codeHint={inNaivePhase && !liveLines ? "Deriving the real approach — the code lights up as you build it" : undefined}
         />
       </div>
     </AccessGate>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrayViz } from "@/shared/viz/ArrayViz";
 import { StatsPanel } from "@/shared/viz/StatsPanel";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 const ARR = [3, 7, 11, 14, 19, 23, 27, 32, 38, 44, 51, 59, 68, 74, 81];
@@ -195,153 +196,114 @@ function ClickToHalveViz({ onInteraction, onActiveLine }: { onInteraction?: () =
 }
 
 /* Step 4-7 — animated binary search */
+interface BSState {
+  lo: number;
+  hi: number;
+  mid: number | null;
+  comparisons: number;
+  found: boolean;
+}
+
 function BinarySearchAnimatedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const isMobile = useIsMobile();
   const cell = isMobile ? 22 : 40;
   const gap = isMobile ? 3 : 6;
   const stride = cell + gap;
-  const [lo, setLo] = useState(0);
-  const [hi, setHi] = useState(ARR.length - 1);
-  const [mid, setMid] = useState<number | null>(null);
-  const [comparisons, setComparisons] = useState(0);
-  const [found, setFound] = useState(false);
-  const [done, setDone] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const loRef = useRef(0);
-  const hiRef = useRef(ARR.length - 1);
 
-  const stepForward = useCallback(() => {
-    if (done) {
-      setPlaying(false);
-      return;
-    }
-    if (loRef.current > hiRef.current) {
-      setDone(true);
-      setPlaying(false);
-      return;
-    }
-    const m = Math.floor((loRef.current + hiRef.current) / 2);
-    setMid(m);
-    onActiveLine?.([LINE_MID]);
-    setComparisons((c) => c + 1);
-    if (ARR[m] === TARGET) {
-      onActiveLine?.(LINE_COMPARE_RETURN);
-      setFound(true);
-      setDone(true);
-      setPlaying(false);
-      return;
-    }
-    if (ARR[m] < TARGET) {
-      onActiveLine?.(LINE_LO_UPDATE);
-      loRef.current = m + 1;
-      setLo(loRef.current);
-    } else {
-      onActiveLine?.(LINE_HI_UPDATE);
-      hiRef.current = m - 1;
-      setHi(hiRef.current);
-    }
-  }, [done, onActiveLine]);
+  const initial = (): BSState => ({ lo: 0, hi: ARR.length - 1, mid: null, comparisons: 0, found: false });
 
-  useEffect(() => {
-    if (!playing) return;
-    intervalRef.current = setInterval(stepForward, 720);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [playing, stepForward]);
-
-  const reset = () => {
-    loRef.current = 0;
-    hiRef.current = ARR.length - 1;
-    setLo(0);
-    setHi(ARR.length - 1);
-    setMid(null);
-    setComparisons(0);
-    setFound(false);
-    setDone(false);
-    setPlaying(false);
+  // Pure reducer: one comparison per frame. The `active` labels it returns make
+  // the highlighted code line march mid → branch as the search narrows.
+  const step = (s: BSState): AlgoFrame<BSState> => {
+    if (s.lo > s.hi) return { state: { ...s, mid: null }, active: ["notfound"], done: true };
+    const m = Math.floor((s.lo + s.hi) / 2);
+    const comparisons = s.comparisons + 1;
+    if (ARR[m] === TARGET) return { state: { ...s, mid: m, comparisons, found: true }, active: LINE_COMPARE_RETURN, done: true };
+    if (ARR[m] < TARGET) return { state: { ...s, mid: m, comparisons, lo: m + 1 }, active: LINE_LO_UPDATE };
+    return { state: { ...s, mid: m, comparisons, hi: m - 1 }, active: LINE_HI_UPDATE };
   };
 
   return (
-    <div className="flex flex-col items-center gap-8 max-w-[760px]">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        halve and halve again · find page {TARGET}
-      </div>
-
-      <div className="overflow-x-auto max-w-full">
-        <div className="relative" style={{ width: ARR.length * stride }}>
-          <div className="flex items-center select-none" style={{ gap }}>
-            {ARR.map((v, i) => {
-              const inRange = i >= lo && i <= hi;
-              const isMid = i === mid;
-              const isFoundAt = found && isMid;
-              return (
-                <motion.div
-                  key={i}
-                  animate={{
-                    opacity: inRange ? 1 : 0.16,
-                    backgroundColor: isFoundAt
-                      ? "color-mix(in oklab, var(--diff-easy) 28%, var(--bg-card))"
-                      : isMid
-                      ? "color-mix(in oklab, var(--accent-sky) 18%, var(--bg-card))"
-                      : "var(--bg-card)",
-                    borderColor: isFoundAt ? "var(--diff-easy)" : isMid ? "var(--accent)" : "var(--line)",
-                  }}
-                  transition={{ duration: 0.28 }}
-                  className={`rounded-md border-2 font-mono ${isMobile ? "text-[11px]" : "text-sm"} text-[var(--text)] flex items-center justify-center`}
-                  style={{ width: cell, height: cell }}
-                >
-                  {v}
-                </motion.div>
-              );
-            })}
+    <AnimatedAlgorithmView<BSState>
+      initial={initial}
+      step={step}
+      onActiveLine={onActiveLine}
+      initialActive={[LINE_MID]}
+      intervalMs={720}
+      render={({ lo, hi, mid, comparisons, found }) => (
+        <div className="flex flex-col items-center gap-8 max-w-[760px]">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+            halve and halve again · find page {TARGET}
           </div>
-          {/* lo/hi/mid markers */}
-          {lo <= hi && (
-            <>
-              <motion.div animate={{ x: lo * stride + cell / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
-                <span className="font-mono text-[10px] text-[var(--accent-ink)] bg-[var(--accent-soft)] border border-[var(--accent-line)] rounded-md px-1.5">lo</span>
-              </motion.div>
-              <motion.div animate={{ x: hi * stride + cell / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
-                <span className="font-mono text-[10px] text-[var(--accent-ink)] bg-[var(--accent-soft)] border border-[var(--accent-line)] rounded-md px-1.5">hi</span>
-              </motion.div>
-            </>
-          )}
-        </div>
-      </div>
 
-      <div className="flex flex-col items-center gap-4 mt-6">
-        <div className="font-mono text-sm">
-          {mid !== null ? (
-            <>
-              arr[<span className="text-[var(--accent)]">{mid}</span>] = {ARR[mid]}
-              {ARR[mid] === TARGET ? (
-                <span className="text-[var(--diff-easy)] ml-2">= {TARGET} ✓</span>
-              ) : ARR[mid] < TARGET ? (
-                <span className="text-[var(--accent-sky)] ml-2">&lt; {TARGET}, lo = mid + 1</span>
-              ) : (
-                <span className="text-[var(--diff-hard)] ml-2">&gt; {TARGET}, hi = mid − 1</span>
+          <div className="overflow-x-auto max-w-full">
+            <div className="relative" style={{ width: ARR.length * stride }}>
+              <div className="flex items-center select-none" style={{ gap }}>
+                {ARR.map((v, i) => {
+                  const inRange = i >= lo && i <= hi;
+                  const isMid = i === mid;
+                  const isFoundAt = found && isMid;
+                  return (
+                    <motion.div
+                      key={i}
+                      animate={{
+                        opacity: inRange ? 1 : 0.16,
+                        backgroundColor: isFoundAt
+                          ? "color-mix(in oklab, var(--diff-easy) 28%, var(--bg-card))"
+                          : isMid
+                          ? "color-mix(in oklab, var(--accent-sky) 18%, var(--bg-card))"
+                          : "var(--bg-card)",
+                        borderColor: isFoundAt ? "var(--diff-easy)" : isMid ? "var(--accent)" : "var(--line)",
+                      }}
+                      transition={{ duration: 0.28 }}
+                      className={`rounded-md border-2 font-mono ${isMobile ? "text-[11px]" : "text-sm"} text-[var(--text)] flex items-center justify-center`}
+                      style={{ width: cell, height: cell }}
+                    >
+                      {v}
+                    </motion.div>
+                  );
+                })}
+              </div>
+              {/* lo/hi markers */}
+              {lo <= hi && (
+                <>
+                  <motion.div animate={{ x: lo * stride + cell / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
+                    <span className="font-mono text-[10px] text-[var(--accent-ink)] bg-[var(--accent-soft)] border border-[var(--accent-line)] rounded-md px-1.5">lo</span>
+                  </motion.div>
+                  <motion.div animate={{ x: hi * stride + cell / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
+                    <span className="font-mono text-[10px] text-[var(--accent-ink)] bg-[var(--accent-soft)] border border-[var(--accent-line)] rounded-md px-1.5">hi</span>
+                  </motion.div>
+                </>
               )}
-            </>
-          ) : (
-            <span className="text-[var(--text-faint)]">press play</span>
-          )}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center gap-4 mt-6">
+            <div className="font-mono text-sm">
+              {mid !== null ? (
+                <>
+                  arr[<span className="text-[var(--accent)]">{mid}</span>] = {ARR[mid]}
+                  {ARR[mid] === TARGET ? (
+                    <span className="text-[var(--diff-easy)] ml-2">= {TARGET} ✓</span>
+                  ) : ARR[mid] < TARGET ? (
+                    <span className="text-[var(--accent-sky)] ml-2">&lt; {TARGET}, lo = mid + 1</span>
+                  ) : (
+                    <span className="text-[var(--diff-hard)] ml-2">&gt; {TARGET}, hi = mid − 1</span>
+                  )}
+                </>
+              ) : (
+                <span className="text-[var(--text-faint)]">press play</span>
+              )}
+            </div>
+            <StatsPanel
+              stats={[
+                { label: "Range", value: `[${lo}, ${hi}]` },
+                { label: "Comparisons", value: comparisons, emphasis: "good" },
+              ]}
+            />
+          </div>
         </div>
-        <StatsPanel
-          stats={[
-            { label: "Range", value: `[${lo}, ${hi}]` },
-            { label: "Comparisons", value: comparisons, emphasis: "good" },
-          ]}
-        />
-        <div className="flex items-center gap-2">
-          <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-          <button onClick={() => setPlaying((p) => !p)} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)]">
-            {playing ? "Pause" : "Play through"}
-          </button>
-          <button onClick={stepForward} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">→</button>
-        </div>
-      </div>
-    </div>
+      )}
+    />
   );
 }

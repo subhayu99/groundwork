@@ -18,6 +18,10 @@ export interface TopicBundle {
   pythonCode: string;
   /** Step at which the code drawer unlocks. Defaults to last step. */
   unlockCodeAtStep?: number;
+  /** Steps ≤ this show a NAIVE/brute-force demo that isn't in the final code,
+   *  so the code panel shows no "running" line there (avoids highlighting a
+   *  line that contradicts the slow demo). Defaults to 2. */
+  naiveThroughStep?: number;
   /** Step that triggers the wedge gating mechanism. 0 disables. */
   wedgeStep?: number;
   wedgeGating?: { disabledLabel: string; enabledLabel: string };

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { StackPanel } from "@/shared/viz/StackPanel";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 
 const TEMPS = [73, 74, 75, 71, 69, 72, 76, 73];
 const CELL = 44;
@@ -317,73 +318,71 @@ function ManualWalkViz({
   );
 }
 
-/* Steps 4-7 — auto-play */
+/* Steps 4-7 — auto-play, driven by the shared AnimatedAlgorithmView wrapper */
+interface DerivedState extends Snapshot {
+  totalOps: number;
+}
+
 function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
-  const [snap, setSnap] = useState<Snapshot>({
+  const initial = (): DerivedState => ({
     i: 0,
     stack: [],
     answer: emptyAnswer(),
     popsThisStep: 0,
-  });
-  const [totalOps, setTotalOps] = useState(0);
-
-  const done = snap.i >= TEMPS.length;
-
-  const stepOnce = () => {
-    if (snap.i >= TEMPS.length) return;
-    const next = stepOne(snap);
-    // Emit the highlight + counters from the tick/handler, never from
-    // inside setSnap's updater (that runs during render → setState-in-render).
-    onActiveLine?.(linesForStep(snap));
-    // count: one push always, plus pops
-    setTotalOps((ops) => ops + 1 + next.popsThisStep);
-    setSnap(next);
-  };
-
-  const pb = usePlayback({
-    onTick: () => stepOnce(),
-    isDone: () => done,
-    intervalMs: 550,
+    totalOps: 0,
   });
 
-  const reset = () => {
-    pb.stop();
-    setSnap({ i: 0, stack: [], answer: emptyAnswer(), popsThisStep: 0 });
-    setTotalOps(0);
+  // Pure reducer: one outer-loop step per frame. Pop+record everyone cooler
+  // than today, then push today, then advance the index. The `active` labels
+  // it returns (reusing linesForStep's selection) make the highlighted code
+  // line march: while_pop/record on pop frames, push on every frame.
+  const step = (s: DerivedState): AlgoFrame<DerivedState> => {
+    const next = stepOne(s);
+    const active = linesForStep(s);
+    const totalOps = s.totalOps + 1 + next.popsThisStep; // one push + pops
+    return {
+      state: { ...next, totalOps },
+      active,
+      done: next.i >= TEMPS.length,
+    };
   };
-
-  const activeIdx = Math.min(snap.i, TEMPS.length - 1);
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-        one pass · stack grows and drains
-      </div>
-      <div className="flex items-end gap-1.5">
-        {TEMPS.map((t, i) => {
-          let state: "idle" | "active" | "waiting" | "answered" | "compare" = "idle";
-          if (!done && i === activeIdx) state = "active";
-          else if (snap.stack.includes(i)) state = "waiting";
-          else if (snap.answer[i] !== null) state = "answered";
-          return <TempBar key={i} t={t} i={i} state={state} />;
-        })}
-      </div>
-      <AnswerRow answer={snap.answer} />
-      <WaitingStack stack={snap.stack} popsThisStep={snap.popsThisStep} />
-      <div className="font-mono text-xs text-[var(--text-muted)]">
-        total pushes + pops:{" "}
-        <span className="text-[var(--diff-easy)]">{totalOps}</span>
-        <span className="mx-3">·</span>
-        cap: <span className="text-[var(--diff-easy)]">{2 * TEMPS.length}</span>
-        {done && <span className="text-[var(--diff-easy)] ml-3">✓ done</span>}
-      </div>
-      <PlaybackControls
-        playing={pb.playing}
-        onToggle={pb.toggle}
-        onReset={reset}
-        atEnd={done}
-        playLabel="Play through"
-      />
-    </div>
+    <AnimatedAlgorithmView<DerivedState>
+      initial={initial}
+      step={step}
+      onActiveLine={onActiveLine}
+      initialActive={[LINE_PUSH]}
+      intervalMs={550}
+      playLabel="Play through"
+      render={({ i, stack, answer, popsThisStep, totalOps }, { done }) => {
+        const activeIdx = Math.min(i, TEMPS.length - 1);
+        return (
+          <div className="flex flex-col items-center gap-6">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
+              one pass · stack grows and drains
+            </div>
+            <div className="flex items-end gap-1.5">
+              {TEMPS.map((t, idx) => {
+                let cellState: "idle" | "active" | "waiting" | "answered" | "compare" = "idle";
+                if (!done && idx === activeIdx) cellState = "active";
+                else if (stack.includes(idx)) cellState = "waiting";
+                else if (answer[idx] !== null) cellState = "answered";
+                return <TempBar key={idx} t={t} i={idx} state={cellState} />;
+              })}
+            </div>
+            <AnswerRow answer={answer} />
+            <WaitingStack stack={stack} popsThisStep={popsThisStep} />
+            <div className="font-mono text-xs text-[var(--text-muted)]">
+              total pushes + pops:{" "}
+              <span className="text-[var(--diff-easy)]">{totalOps}</span>
+              <span className="mx-3">·</span>
+              cap: <span className="text-[var(--diff-easy)]">{2 * TEMPS.length}</span>
+              {done && <span className="text-[var(--diff-easy)] ml-3">✓ done</span>}
+            </div>
+          </div>
+        );
+      }}
+    />
   );
 }

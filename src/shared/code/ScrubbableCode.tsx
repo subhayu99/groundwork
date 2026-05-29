@@ -14,6 +14,9 @@ interface Props {
   activeLines?: number[];
   /** Lines the reader has reached; others render dimmed (progressive reveal). */
   revealedLines?: number[];
+  /** Naive/derivation phase: show NO active line while idle (the on-screen demo
+   *  isn't in this code yet). A manual scrub still highlights the user's line. */
+  suppressActive?: boolean;
 }
 
 /**
@@ -22,7 +25,7 @@ interface Props {
  * current step (synced to the visualization); manual scrubbing temporarily
  * takes over until the step changes again.
  */
-export function ScrubbableCode({ code, filename = "algorithm.py", activeLines, revealedLines }: Props) {
+export function ScrubbableCode({ code, filename = "algorithm.py", activeLines, revealedLines, suppressActive }: Props) {
   const lines = useMemo(() => code.replace(/\n$/, "").split("\n"), [code]);
   const total = lines.length;
 
@@ -60,7 +63,8 @@ export function ScrubbableCode({ code, filename = "algorithm.py", activeLines, r
     setCurrent(next ?? lastStop);
   };
 
-  const highlighted = synced ? activeLines! : [current];
+  // While idle in the naive phase, show no bright line; a manual scrub still does.
+  const highlighted = synced ? activeLines! : suppressActive && !manual ? [] : [current];
 
   const header = (
     <ScrubBar

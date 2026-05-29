@@ -16,6 +16,8 @@ interface TopicLayoutProps {
   codeActiveLines?: number[];
   /** Lines reached so far — others render dimmed (progressive reveal). */
   codeRevealedLines?: number[];
+  /** Optional note shown above the code (e.g. during the naive/derivation phase). */
+  codeHint?: string;
 }
 
 /**
@@ -31,7 +33,7 @@ interface TopicLayoutProps {
  * collapsed to reclaim reading room; the code is a collapsible block at the end
  * of the lesson. (Flex `order` swaps the two regions between the layouts.)
  */
-export function TopicLayout({ cards, visualization, code, codeDrawerLocked, codeFilename, codeActiveLines, codeRevealedLines }: TopicLayoutProps) {
+export function TopicLayout({ cards, visualization, code, codeDrawerLocked, codeFilename, codeActiveLines, codeRevealedLines, codeHint }: TopicLayoutProps) {
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [mobileCodeOpen, setMobileCodeOpen] = useState(false);
   const [cardsCollapsed, setCardsCollapsed] = useState(false);
@@ -75,7 +77,12 @@ export function TopicLayout({ cards, visualization, code, codeDrawerLocked, code
             </button>
             {drawerOpen && !codeDrawerLocked && (
               <div className="max-h-[60vh] overflow-auto px-4 pb-5">
-                <ScrubbableCode code={code} filename={codeFilename} activeLines={codeActiveLines} revealedLines={codeRevealedLines} />
+                {codeHint && (
+                  <div className="mb-2 text-[10px] font-mono text-[var(--text-faint)] flex items-center gap-1.5">
+                    <span className="opacity-70">⋯</span> {codeHint}
+                  </div>
+                )}
+                <ScrubbableCode code={code} filename={codeFilename} activeLines={codeActiveLines} revealedLines={codeRevealedLines} suppressActive={!!codeHint} />
               </div>
             )}
           </div>
@@ -123,7 +130,12 @@ export function TopicLayout({ cards, visualization, code, codeDrawerLocked, code
               </button>
               {mobileCodeOpen && !codeDrawerLocked && (
                 <div className="mt-3">
-                  <ScrubbableCode code={code} filename={codeFilename} activeLines={codeActiveLines} revealedLines={codeRevealedLines} />
+                  {codeHint && (
+                    <div className="mb-2 text-[10px] font-mono text-[var(--text-faint)] flex items-center gap-1.5">
+                      <span className="opacity-70">⋯</span> {codeHint}
+                    </div>
+                  )}
+                  <ScrubbableCode code={code} filename={codeFilename} activeLines={codeActiveLines} revealedLines={codeRevealedLines} suppressActive={!!codeHint} />
                 </div>
               )}
             </div>
