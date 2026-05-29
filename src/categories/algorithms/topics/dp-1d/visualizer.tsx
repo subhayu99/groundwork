@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { TreeViz } from "@/shared/viz/TreeViz";
+import type { Tone } from "@/shared/viz/tones";
+import { usePlayback } from "@/shared/viz/usePlayback";
+import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 
 const N = 8;
 
@@ -119,6 +123,23 @@ function RecursionTreeViz({ onInteraction }: { onInteraction?: () => void }) {
   const H = (maxDepth + 1) * 64 + 30;
   const nodeCount = flat.length;
 
+  // Node center positions (the old absolute layout placed 40px circles at
+  // left/top = col*56+20 / depth*64+20, so centers are +20 from there).
+  const cx = (col: number) => col * 56 + 40;
+  const cy = (depth: number) => depth * 64 + 40;
+
+  const vizNodes = flat.map(({ node, depth, col }) => ({
+    id: node.id,
+    x: cx(col),
+    y: cy(depth),
+    label: node.n,
+    tone: (node.isReused ? "good" : "idle") as Tone,
+  }));
+
+  const vizEdges = flat.flatMap(({ node }) =>
+    node.children.map((c) => ({ from: node.id, to: c.id })),
+  );
+
   const toggle = () => {
     onInteraction?.();
     setMemoize((m) => !m);
@@ -130,48 +151,7 @@ function RecursionTreeViz({ onInteraction }: { onInteraction?: () => void }) {
         recursion tree for ways(6)
       </div>
       <div className="relative" style={{ width: W, height: H }}>
-        {/* edges first */}
-        <svg className="absolute inset-0 pointer-events-none" width={W} height={H}>
-          {flat.map(({ node, depth, col }) =>
-            node.children.map((c) => {
-              const cFlat = flat.find((x) => x.node === c);
-              if (!cFlat) return null;
-              return (
-                <line
-                  key={`${node.id}-${c.id}`}
-                  x1={col * 56 + 26 + 20}
-                  y1={depth * 64 + 26 + 20}
-                  x2={cFlat.col * 56 + 26 + 20}
-                  y2={cFlat.depth * 64 + 26 + 20}
-                  stroke="var(--line)"
-                  strokeWidth={1}
-                />
-              );
-            }),
-          )}
-        </svg>
-        {flat.map(({ node, depth, col }) => (
-          <motion.div
-            key={node.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.18 }}
-            className="absolute rounded-full border-2 flex items-center justify-center font-mono text-[10px]"
-            style={{
-              left: col * 56 + 20,
-              top: depth * 64 + 20,
-              width: 40,
-              height: 40,
-              backgroundColor: node.isReused
-                ? "color-mix(in oklab, var(--diff-easy) 18%, var(--bg-card))"
-                : "var(--bg-card)",
-              borderColor: node.isReused ? "var(--diff-easy)" : "var(--line)",
-              color: "var(--text)",
-            }}
-          >
-            {node.n}
-          </motion.div>
-        ))}
+        <TreeViz nodes={vizNodes} edges={vizEdges} width={W} height={H} radius={20} />
       </div>
       <div className="font-mono text-xs text-[var(--text-muted)]">
         nodes computed:{" "}
@@ -194,27 +174,15 @@ function RecursionTreeViz({ onInteraction }: { onInteraction?: () => void }) {
 /* Steps 4-7 — bottom-up tabulation */
 function TabulationViz() {
   const [filledTo, setFilledTo] = useState(1);
-  const [playing, setPlaying] = useState(false);
+  const done = filledTo >= N;
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(() => {
-      setFilledTo((cur) => {
-        if (cur >= N) {
-          setPlaying(false);
-          return cur;
-        }
-        return cur + 1;
-      });
-    }, 480);
-    return () => clearInterval(id);
-  }, [playing]);
+  const stepOnce = () => setFilledTo((c) => Math.min(c + 1, N));
+  const pb = usePlayback({ onTick: () => stepOnce(), isDone: () => done, intervalMs: 480 });
 
   const reset = () => {
     setFilledTo(1);
-    setPlaying(false);
+    pb.stop();
   };
-  const stepOnce = () => setFilledTo((c) => Math.min(c + 1, N));
 
   const values = useMemo(() => {
     const arr = [1, 1];
@@ -264,28 +232,14 @@ function TabulationViz() {
         <span className="text-[var(--diff-easy)]">{values[filledTo]}</span>
         {filledTo === N && <span className="text-[var(--diff-easy)] ml-3">✓</span>}
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={reset}
-          className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]"
-        >
-          ↺
-        </button>
-        <button
-          onClick={() => setPlaying((p) => !p)}
-          disabled={filledTo >= N}
-          className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40"
-        >
-          {playing ? "Pause" : "Play through"}
-        </button>
-        <button
-          onClick={stepOnce}
-          disabled={filledTo >= N}
-          className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40"
-        >
-          →
-        </button>
-      </div>
+      <PlaybackControls
+        playing={pb.playing}
+        onToggle={pb.toggle}
+        onReset={reset}
+        onStep={pb.stepOnce}
+        atEnd={done}
+        playLabel="Play through"
+      />
     </div>
   );
 }

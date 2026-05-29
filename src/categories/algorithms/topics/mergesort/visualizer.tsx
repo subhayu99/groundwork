@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { usePlayback } from "@/shared/viz/usePlayback";
+import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 
 const ARR = [5, 2, 4, 7, 1, 3, 8, 6];
 const CARD = 38;
@@ -58,7 +60,6 @@ function NaiveSwapViz() {
   const [arr, setArr] = useState<number[]>([...ARR]);
   const [iIdx, setIIdx] = useState(-1);
   const [swaps, setSwaps] = useState(0);
-  const [playing, setPlaying] = useState(false);
   const [pass, setPass] = useState(0);
   const [done, setDone] = useState(false);
 
@@ -71,7 +72,7 @@ function NaiveSwapViz() {
         // End of this pass.
         if (pass + 1 >= next.length - 1) {
           setDone(true);
-          setPlaying(false);
+          pb.stop();
           setIIdx(-1);
           return next;
         }
@@ -88,17 +89,13 @@ function NaiveSwapViz() {
     });
   };
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(stepForward, 120);
-    return () => clearInterval(id);
-  }, [playing, iIdx, pass, done]);
+  const pb = usePlayback({ onTick: () => stepForward(), isDone: () => done, intervalMs: 120 });
 
   const reset = () => {
     setArr([...ARR]);
     setIIdx(-1);
     setSwaps(0);
-    setPlaying(false);
+    pb.stop();
     setPass(0);
     setDone(false);
   };
@@ -123,12 +120,13 @@ function NaiveSwapViz() {
         pass: <span className="text-[var(--text)]">{pass}</span>
         {done && <span className="text-[var(--diff-easy)] ml-3">✓ sorted</span>}
       </div>
-      <div className="flex items-center gap-2">
-        <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-        <button onClick={() => setPlaying((p) => !p)} disabled={done} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40">
-          {playing ? "Pause" : "Play through"}
-        </button>
-      </div>
+      <PlaybackControls
+        playing={pb.playing}
+        onToggle={pb.toggle}
+        onReset={reset}
+        atEnd={done}
+        playLabel="Play through"
+      />
     </div>
   );
 }
@@ -257,7 +255,6 @@ function SplitMergeViz({ onInteraction }: { onInteraction?: () => void }) {
 function AutoMergesortViz() {
   const [history, setHistory] = useState<Segment[][]>([startSegments()]);
   const [phase, setPhase] = useState<"splitting" | "merging" | "done">("splitting");
-  const [playing, setPlaying] = useState(false);
 
   const advance = () => {
     setHistory((h) => {
@@ -276,22 +273,16 @@ function AutoMergesortViz() {
     });
   };
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(() => {
-      if (phase === "done") {
-        setPlaying(false);
-        return;
-      }
-      advance();
-    }, 620);
-    return () => clearInterval(id);
-  }, [playing, phase]);
+  const pb = usePlayback({
+    onTick: () => advance(),
+    isDone: () => phase === "done",
+    intervalMs: 620,
+  });
 
   const reset = () => {
     setHistory([startSegments()]);
     setPhase("splitting");
-    setPlaying(false);
+    pb.stop();
   };
 
   return (
@@ -316,13 +307,14 @@ function AutoMergesortViz() {
         phase: <span className="text-[var(--text)]">{phase}</span>
         {phase === "done" && <span className="text-[var(--diff-easy)] ml-3">✓ sorted</span>}
       </div>
-      <div className="flex items-center gap-2">
-        <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-        <button onClick={() => setPlaying((p) => !p)} disabled={phase === "done"} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40">
-          {playing ? "Pause" : "Play through"}
-        </button>
-        <button onClick={advance} disabled={phase === "done"} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40">→</button>
-      </div>
+      <PlaybackControls
+        playing={pb.playing}
+        onToggle={pb.toggle}
+        onReset={reset}
+        onStep={pb.stepOnce}
+        atEnd={phase === "done"}
+        playLabel="Play through"
+      />
     </div>
   );
 }

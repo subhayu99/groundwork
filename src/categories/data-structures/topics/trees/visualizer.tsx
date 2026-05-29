@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { TreeViz, TreeVizNode, TreeVizEdge } from "@/shared/viz/TreeViz";
 
 interface TNode {
   id: string;
@@ -287,54 +287,52 @@ function TreeSVG({
   const allNodes = collectNodes(laid);
   const edges = collectEdges(laid);
 
+  const hasHighlight = !!highlightedIds && highlightedIds.size > 0;
+
+  const vizNodes: TreeVizNode[] = allNodes.map((n) => {
+    const isHi = highlightedIds?.has(n.id);
+    return {
+      id: n.id,
+      x: n.x + PAD,
+      y: n.y + PAD,
+      label: n.label,
+      tone: isHi ? "active" : hasHighlight ? "muted" : "idle",
+    };
+  });
+
+  const vizEdges: TreeVizEdge[] = edges.map((e) => {
+    const isHi = highlightedIds?.has(e.from.id) && highlightedIds?.has(e.to.id);
+    return { from: e.from.id, to: e.to.id, tone: isHi ? "active" : undefined };
+  });
+
   return (
-    <svg width={width + PAD * 2} height={height + PAD * 2} className="overflow-visible">
-      <g transform={`translate(${PAD}, ${PAD})`}>
-        {edges.map((e, i) => {
-          const isHi = highlightedIds?.has(e.from.id) && highlightedIds?.has(e.to.id);
-          return (
-            <line
-              key={i}
-              x1={e.from.x}
-              y1={e.from.y}
-              x2={e.to.x}
-              y2={e.to.y}
-              stroke={isHi ? "var(--accent)" : "var(--line)"}
-              strokeWidth={isHi ? 2 : 1.2}
-            />
-          );
-        })}
-        {allNodes.map((n) => {
-          const isHi = highlightedIds?.has(n.id);
-          return (
-            <motion.g
+    <div className="relative" style={{ width: width + PAD * 2, height: height + PAD * 2 }}>
+      <TreeViz
+        nodes={vizNodes}
+        edges={vizEdges}
+        width={width + PAD * 2}
+        height={height + PAD * 2}
+        radius={NODE_R}
+      />
+      {onClickNode && (
+        <svg
+          width={width + PAD * 2}
+          height={height + PAD * 2}
+          className="absolute inset-0 overflow-visible"
+        >
+          {vizNodes.map((n) => (
+            <circle
               key={n.id}
-              animate={{ opacity: highlightedIds && highlightedIds.size > 0 && !isHi ? 0.4 : 1 }}
-              transition={{ duration: 0.22 }}
-              style={{ cursor: onClickNode ? "pointer" : "default" }}
-              onClick={() => onClickNode?.(n.id)}
-            >
-              <circle
-                cx={n.x}
-                cy={n.y}
-                r={NODE_R}
-                fill={isHi ? "color-mix(in oklab, var(--accent-sky) 22%, var(--bg-card))" : "var(--bg-card)"}
-                stroke={isHi ? "var(--accent)" : "var(--line-strong)"}
-                strokeWidth={isHi ? 2 : 1.2}
-              />
-              <text
-                x={n.x}
-                y={n.y + 4}
-                textAnchor="middle"
-                className="font-mono text-[11px] pointer-events-none select-none"
-                fill={isHi ? "var(--accent-ink)" : "var(--text)"}
-              >
-                {n.label}
-              </text>
-            </motion.g>
-          );
-        })}
-      </g>
-    </svg>
+              cx={n.x}
+              cy={n.y}
+              r={NODE_R}
+              fill="transparent"
+              style={{ cursor: "pointer" }}
+              onClick={() => onClickNode(n.id)}
+            />
+          ))}
+        </svg>
+      )}
+    </div>
   );
 }

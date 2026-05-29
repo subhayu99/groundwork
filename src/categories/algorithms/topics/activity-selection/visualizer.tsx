@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { usePlayback } from "@/shared/viz/usePlayback";
+import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 
 interface Meeting {
   id: string;
@@ -191,26 +193,16 @@ function meetingState(
 /* Step 3 — sort button + step/play */
 function SortAndPickViz({ onInteraction }: { onInteraction?: () => void }) {
   const [pick, setPick] = useState<PickState>(initialPick());
-  const [playing, setPlaying] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const order = useMemo(() => (pick.sorted ? sortedMeetings() : MEETINGS), [pick.sorted]);
 
-  useEffect(() => {
-    if (!playing) return;
-    intervalRef.current = setInterval(() => {
-      setPick((cur) => {
-        if (cur.i >= MEETINGS.length) {
-          setPlaying(false);
-          return cur;
-        }
-        return pickStep(cur);
-      });
-    }, 700);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [playing]);
+  const done = pick.i >= MEETINGS.length;
+
+  const pb = usePlayback({
+    onTick: () => setPick((cur) => pickStep(cur)),
+    isDone: () => done,
+    intervalMs: 700,
+  });
 
   const sort = () => {
     onInteraction?.();
@@ -218,16 +210,15 @@ function SortAndPickViz({ onInteraction }: { onInteraction?: () => void }) {
   };
   const next = () => {
     onInteraction?.();
-    setPick((cur) => pickStep(cur));
+    pb.stepOnce();
   };
   const reset = () => {
     setPick(initialPick());
-    setPlaying(false);
+    pb.stop();
   };
 
   const order_ids = order.map((m) => m.id);
   const activeId = pick.sorted && pick.i < order_ids.length ? order_ids[pick.i] : null;
-  const done = pick.i >= MEETINGS.length;
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -263,39 +254,31 @@ function SortAndPickViz({ onInteraction }: { onInteraction?: () => void }) {
         skipped: <span className="text-[var(--diff-hard)]">{pick.skipped.length}</span>
         {done && <span className="text-[var(--diff-easy)] ml-3">✓ done</span>}
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={reset}
-          className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]"
-        >
-          ↺
-        </button>
-        {!pick.sorted ? (
+      {!pick.sorted ? (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={reset}
+            className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]"
+          >
+            ↺
+          </button>
           <button
             onClick={sort}
             className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)]"
           >
             sort by end →
           </button>
-        ) : (
-          <>
-            <button
-              onClick={() => setPlaying((p) => !p)}
-              disabled={done}
-              className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40"
-            >
-              {playing ? "Pause" : "Play through"}
-            </button>
-            <button
-              onClick={next}
-              disabled={done}
-              className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40"
-            >
-              →
-            </button>
-          </>
-        )}
-      </div>
+        </div>
+      ) : (
+        <PlaybackControls
+          playing={pb.playing}
+          onToggle={pb.toggle}
+          onReset={reset}
+          onStep={next}
+          atEnd={done}
+          playLabel="Play through"
+        />
+      )}
     </div>
   );
 }
@@ -310,29 +293,20 @@ function DerivedViz() {
     skipped: [],
     lastEnd: -Infinity,
   });
-  const [playing, setPlaying] = useState(false);
+  const done = pick.i >= MEETINGS.length;
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(() => {
-      setPick((cur) => {
-        if (cur.i >= MEETINGS.length) {
-          setPlaying(false);
-          return cur;
-        }
-        return pickStep(cur);
-      });
-    }, 650);
-    return () => clearInterval(id);
-  }, [playing]);
+  const pb = usePlayback({
+    onTick: () => setPick((cur) => pickStep(cur)),
+    isDone: () => done,
+    intervalMs: 650,
+  });
 
   const reset = () => {
     setPick({ sorted: true, i: 0, accepted: [], skipped: [], lastEnd: -Infinity });
-    setPlaying(false);
+    pb.stop();
   };
 
   const activeId = pick.i < order.length ? order[pick.i].id : null;
-  const done = pick.i >= MEETINGS.length;
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -367,21 +341,13 @@ function DerivedViz() {
         {MEETINGS.length}
         {done && <span className="text-[var(--diff-easy)] ml-3">✓ done</span>}
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={reset}
-          className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]"
-        >
-          ↺
-        </button>
-        <button
-          onClick={() => setPlaying((p) => !p)}
-          disabled={done}
-          className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40"
-        >
-          {playing ? "Pause" : "Play through"}
-        </button>
-      </div>
+      <PlaybackControls
+        playing={pb.playing}
+        onToggle={pb.toggle}
+        onReset={reset}
+        atEnd={done}
+        playLabel="Play through"
+      />
     </div>
   );
 }

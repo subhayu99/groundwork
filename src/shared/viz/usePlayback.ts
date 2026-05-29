@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface PlaybackOptions {
   /** Advance the animation by one step. Called on each tick while playing. */
@@ -39,15 +39,14 @@ export function usePlayback({ onTick, isDone, intervalMs = 420 }: PlaybackOption
     return () => clearInterval(id);
   }, [playing, intervalMs]);
 
-  return {
-    playing,
-    setPlaying,
-    toggle: () => setPlaying((p) => !p),
-    stop: () => setPlaying(false),
-    /** Run a single step now (for the → button). Respects isDone. */
-    stepOnce: () => {
-      if (isDoneRef.current?.()) return;
-      onTickRef.current();
-    },
-  };
+  // Stable identities so callers can safely list these in effect deps.
+  const toggle = useCallback(() => setPlaying((p) => !p), []);
+  const stop = useCallback(() => setPlaying(false), []);
+  /** Run a single step now (for the → button). Respects isDone. */
+  const stepOnce = useCallback(() => {
+    if (isDoneRef.current?.()) return;
+    onTickRef.current();
+  }, []);
+
+  return { playing, setPlaying, toggle, stop, stepOnce };
 }
