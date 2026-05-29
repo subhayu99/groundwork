@@ -68,12 +68,13 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
                 <h1 className="text-3xl font-semibold text-[var(--text)]">{topic.name}</h1>
                 <div className="mt-2 flex gap-2 flex-wrap">
                   {topic.principles.map((p) => (
-                    <span
+                    <Link
                       key={p}
-                      className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--accent-ink)]"
+                      href={`/principles/${p}`}
+                      className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--accent-ink)] hover:border-[var(--line-strong)] transition-colors"
                     >
                       {getPrinciple(p)?.displayName ?? p.replaceAll("-", " ")}
-                    </span>
+                    </Link>
                   ))}
                 </div>
                 <div className="mt-2 text-[10px] font-mono text-[var(--text-faint)] flex items-center gap-3 flex-wrap">
