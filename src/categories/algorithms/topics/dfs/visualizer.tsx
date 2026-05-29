@@ -7,6 +7,15 @@ import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 
 type Cell = [number, number];
 
+/**
+ * algorithm.py line numbers, mirrored here so the live visualizer can emit the
+ * exact source lines it is "executing". Kept in sync with code-maps.ts.
+ */
+const LINE_VISIT = 20; // visited.add((r, c))
+const LINE_RECURSE = 27; // explore(nr, nc, trail + [(nr, nc)]) — descend into neighbour
+const LINE_BACKTRACK = 34; // return None — dead end, back up to caller
+const LINE_FOUND = 17; // if (r, c) == end: return trail
+
 const GRID: number[][] = [
   [0, 0, 0, 0, 1],
   [1, 1, 0, 1, 0],
@@ -31,12 +40,13 @@ const DIRS: Cell[] = [
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function DfsVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function DfsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <MazeStaticViz />;
-  if (step === 3) return <ManualWalkViz onInteraction={onWedgeInteraction} />;
-  return <AutoDfsViz />;
+  if (step === 3) return <ManualWalkViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
+  return <AutoDfsViz onActiveLine={onActiveLine} />;
 }
 
 function cellKey(r: number, c: number): string {
@@ -118,7 +128,13 @@ function openAndUnvisited(r: number, c: number, visited: Set<string>): boolean {
 }
 
 /* Step 3 — manual: click an open adjacent cell to step there. */
-function ManualWalkViz({ onInteraction }: { onInteraction?: () => void }) {
+function ManualWalkViz({
+  onInteraction,
+  onActiveLine,
+}: {
+  onInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
+}) {
   const [walk, setWalk] = useState<WalkState>(startWalk());
 
   const tryStep = (r: number, c: number) => {
@@ -131,6 +147,8 @@ function ManualWalkViz({ onInteraction }: { onInteraction?: () => void }) {
     const visited = new Set(walk.visited);
     visited.add(key);
     const done = r === GOAL[0] && c === GOAL[1];
+    // Stepping into a neighbour = recurse, then mark it visited; goal = return.
+    onActiveLine?.(done ? [LINE_FOUND] : [LINE_RECURSE, LINE_VISIT]);
     setWalk({ current: [r, c], trail, visited, done });
   };
 
@@ -139,6 +157,7 @@ function ManualWalkViz({ onInteraction }: { onInteraction?: () => void }) {
     if (walk.trail.length <= 1) return;
     const trail = walk.trail.slice(0, -1);
     const current = trail[trail.length - 1];
+    onActiveLine?.([LINE_BACKTRACK]);
     setWalk({ ...walk, current, trail });
   };
 
@@ -241,11 +260,30 @@ function dfsStep(state: DfsState): DfsState {
   return { ...state, stack: newStackHead };
 }
 
+/**
+ * Classify what a single dfsStep does to its state, mapping it to the
+ * algorithm.py line that the step represents. Mirrors dfsStep's branches.
+ */
+function lineForStep(prev: DfsState, next: DfsState): number[] | null {
+  if (prev.done) return null;
+  if (next.found) return [LINE_FOUND]; // reached goal → return trail
+  if (next.stack.length < prev.stack.length) return [LINE_BACKTRACK]; // popped → back up
+  if (next.trail.length > prev.trail.length) return [LINE_RECURSE, LINE_VISIT]; // descended → mark visited
+  return null; // advanced dirIdx without moving — no source line of interest
+}
+
 /* Steps 4-7 — auto-play DFS with backtracking */
-function AutoDfsViz() {
+function AutoDfsViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [dfs, setDfs] = useState<DfsState>(initDfs());
 
-  const stepForward = () => setDfs((cur) => (cur.done ? cur : dfsStep(cur)));
+  const stepForward = () =>
+    setDfs((cur) => {
+      if (cur.done) return cur;
+      const next = dfsStep(cur);
+      const lines = lineForStep(cur, next);
+      if (lines) onActiveLine?.(lines);
+      return next;
+    });
 
   const pb = usePlayback({
     onTick: stepForward,

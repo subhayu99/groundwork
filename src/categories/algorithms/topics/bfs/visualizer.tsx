@@ -34,15 +34,21 @@ function cellKey(r: number, c: number): string {
   return `${r},${c}`;
 }
 
+/* Live-emit line numbers — keyed to bfs/algorithm.py, mirrors codeMaps["algorithms/bfs"]. */
+const LINE_DEQUEUE = 23; // (r, c), d = queue.popleft()  — pull from front + read distance d
+const LINE_MARK_VISITED = 32; // visited.add((nr, nc))
+const LINE_ENQUEUE = 33; // queue.append(((nr, nc), d + 1)) — push neighbour + distance handling
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function BfsVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function BfsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <ContrastViz />;
   if (step === 3) return <RippleViz onInteraction={onWedgeInteraction} />;
-  return <DerivedBfsViz />;
+  return <DerivedBfsViz onActiveLine={onActiveLine} />;
 }
 
 function MazeWithDistances({
@@ -254,10 +260,13 @@ function initBfs(): BfsState {
   };
 }
 
-function bfsStep(state: BfsState): BfsState {
+/** Advances one BFS step. `lines` (if given) is filled with the algorithm.py
+ *  line numbers this step exercised, for live code-sync emission. */
+function bfsStep(state: BfsState, lines?: number[]): BfsState {
   if (state.done) return state;
   if (state.queue.length === 0) return { ...state, done: true, active: null };
   const [head, ...rest] = state.queue;
+  lines?.push(LINE_DEQUEUE); // popleft: read cell + distance d from the front
   const [r, c] = head.cell;
   if (r === GOAL[0] && c === GOAL[1]) {
     return { ...state, active: head.cell, reachedGoalAt: head.d, done: true };
@@ -277,8 +286,10 @@ function bfsStep(state: BfsState): BfsState {
       !visited.has(cellKey(nr, nc))
     ) {
       visited.add(cellKey(nr, nc));
+      lines?.push(LINE_MARK_VISITED); // visited.add(...)
       distances[cellKey(nr, nc)] = head.d + 1;
       newQueue.push({ cell: [nr, nc], d: head.d + 1 });
+      lines?.push(LINE_ENQUEUE); // append neighbour with distance d + 1
     }
   }
   return {
@@ -292,11 +303,19 @@ function bfsStep(state: BfsState): BfsState {
 }
 
 /* Steps 4-7 — BFS with visible queue */
-function DerivedBfsViz() {
+function DerivedBfsViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [state, setState] = useState<BfsState>(initBfs());
 
+  const advance = () =>
+    setState((cur) => {
+      const lines: number[] = [];
+      const next = bfsStep(cur, lines);
+      if (lines.length > 0) onActiveLine?.([...new Set(lines)]);
+      return next;
+    });
+
   const pb = usePlayback({
-    onTick: () => setState((cur) => bfsStep(cur)),
+    onTick: advance,
     isDone: () => state.done,
     intervalMs: 380,
   });
@@ -346,7 +365,7 @@ function DerivedBfsViz() {
         playing={pb.playing}
         onToggle={pb.toggle}
         onReset={reset}
-        onStep={pb.stepOnce}
+        onStep={advance}
         atEnd={state.done}
         playLabel="Play through"
       />

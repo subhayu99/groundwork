@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { TreeViz } from "@/shared/viz/TreeViz";
 import type { Tone } from "@/shared/viz/tones";
@@ -9,15 +9,21 @@ import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 
 const N = 8;
 
+// Lines of `algorithm.py` the tabulation view emits as it runs.
+const LINE_TABLE_INIT = 15; // a, b = 1, 1  (dp base values)
+const LINE_RECURRENCE = 17; // a, b = b, a + b  (dp[i] = dp[i-1] + dp[i-2])
+const LINE_READ_ANSWER = 18; // return b
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function Dp1dVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function Dp1dVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <StaircaseViz />;
   if (step === 3) return <RecursionTreeViz onInteraction={onWedgeInteraction} />;
-  return <TabulationViz />;
+  return <TabulationViz onActiveLine={onActiveLine} />;
 }
 
 function waysTrue(n: number): number {
@@ -172,9 +178,19 @@ function RecursionTreeViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Steps 4-7 — bottom-up tabulation */
-function TabulationViz() {
+function TabulationViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [filledTo, setFilledTo] = useState(1);
   const done = filledTo >= N;
+
+  // Emit the line under "execution" as cells fill: the table-init line while
+  // only the base values are shown, the recurrence line as each cell is
+  // computed, and the read-answer line once the final cell lands.
+  useEffect(() => {
+    if (!onActiveLine) return;
+    if (filledTo <= 1) onActiveLine([LINE_TABLE_INIT]);
+    else if (filledTo >= N) onActiveLine([LINE_READ_ANSWER]);
+    else onActiveLine([LINE_RECURRENCE]);
+  }, [filledTo, onActiveLine]);
 
   const stepOnce = () => setFilledTo((c) => Math.min(c + 1, N));
   const pb = usePlayback({ onTick: () => stepOnce(), isDone: () => done, intervalMs: 480 });

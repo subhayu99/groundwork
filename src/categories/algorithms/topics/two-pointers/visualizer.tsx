@@ -11,15 +11,22 @@ const CELL = 56;
 const GAP = 8;
 const STRIDE = CELL + GAP;
 
+/* algorithm.py line numbers (1-indexed) for the final two-pointers algorithm */
+const LINE_COMPARE = 11; // s = arr[left] + arr[right]
+const LINE_RETURN = 13; // return (left, right)
+const LINE_MOVE_LEFT = 15; // left += 1
+const LINE_MOVE_RIGHT = 17; // right -= 1
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function TwoPointersVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function TwoPointersVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <NaiveViz />;
   if (step === 3) return <WedgeViz onInteraction={onWedgeInteraction} />;
-  return <DerivedViz />;
+  return <DerivedViz onActiveLine={onActiveLine} />;
 }
 
 /* Step 2 — naive: show every pair being checked */
@@ -188,7 +195,7 @@ function WedgeViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-7 — derived: run the algorithm */
-function DerivedViz() {
+function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [l, setL] = useState(0);
   const [r, setR] = useState(ARR.length - 1);
   const [comparisons, setComparisons] = useState(0);
@@ -208,19 +215,23 @@ function DerivedViz() {
     }
     const sum = ARR[cl] + ARR[cr];
     setComparisons((c) => c + 1);
+    onActiveLine?.([LINE_COMPARE]); // comparing the pair sum
     if (sum === TARGET) {
       setFound(true);
       setPlaying(false);
+      onActiveLine?.([LINE_RETURN]); // match → return the pair
       return;
     }
     if (sum < TARGET) {
       lRef.current = cl + 1;
+      onActiveLine?.([LINE_MOVE_LEFT]); // move left pointer inward
     } else {
       rRef.current = cr - 1;
+      onActiveLine?.([LINE_MOVE_RIGHT]); // move right pointer inward
     }
     setL(lRef.current);
     setR(rRef.current);
-  }, [found]);
+  }, [found, onActiveLine]);
 
   useEffect(() => {
     if (!playing) return;

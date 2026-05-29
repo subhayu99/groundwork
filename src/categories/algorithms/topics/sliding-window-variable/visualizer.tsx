@@ -10,15 +10,21 @@ const S = "abracadabra";
 const CELL = 38;
 const GAP = 4;
 
+// algorithm.py line numbers the DerivedViz stepper maps onto (1-indexed).
+const LINE_EXPAND = 19; // last_seen[ch] = right  — right edge advances
+const LINE_SHRINK = 17; // left = last_seen[ch] + 1 — repeat forces left in
+const LINE_BEST = 20; // best = max(best, right - left + 1) — best updated
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function SlidingWindowVariableVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function SlidingWindowVariableVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <NaiveScanViz />;
   if (step === 3) return <ManualWindowViz onInteraction={onWedgeInteraction} />;
-  return <DerivedViz />;
+  return <DerivedViz onActiveLine={onActiveLine} />;
 }
 
 function CharCells({
@@ -186,7 +192,7 @@ function ManualWindowViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-7 — animated derived algorithm */
-function DerivedViz() {
+function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [l, setL] = useState(0);
   const [r, setR] = useState(-1);
   const [best, setBest] = useState(0);
@@ -205,23 +211,28 @@ function DerivedViz() {
       pb.stop();
       return;
     }
+    const lines: number[] = [];
     const ch = S[nextR];
     const prev = seenRef.current[ch];
     if (prev !== undefined && prev >= lRef.current) {
       lRef.current = prev + 1;
       setL(lRef.current);
+      lines.push(LINE_SHRINK);
     }
     seenRef.current = { ...seenRef.current, [ch]: nextR };
     rRef.current = nextR;
     setR(nextR);
     setSeen({ ...seenRef.current });
+    lines.push(LINE_EXPAND);
     const len = nextR - lRef.current + 1;
     if (len > bestRef.current) {
       bestRef.current = len;
       setBest(len);
       setBestRange([lRef.current, nextR]);
+      lines.push(LINE_BEST);
     }
-  }, []);
+    onActiveLine?.(lines);
+  }, [onActiveLine]);
 
   const pb = usePlayback({ onTick: () => stepForward(), isDone: () => done, intervalMs: 650 });
 

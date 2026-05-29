@@ -10,14 +10,21 @@ const K = 3;
 const CELL = 56;
 const GAP = 8;
 
+// algorithm.py line numbers for the final (sliding) algorithm — kept in sync
+// with codeMaps["algorithms/sliding-window"] step 7 ([10, 14, 15]).
+const LINE_SLIDE_UPDATE = 14; // window_sum = window_sum - arr[i - k] + arr[i]
+const LINE_RECORD = 15; // results.append(window_sum)
+
 interface VisualizerProps {
   /** Current derivation step (1-7) controls which viz mode renders */
   step: number;
   /** Notified when user interacts with the window in Step 3 */
   onWedgeInteraction?: () => void;
+  /** Emits the algorithm.py line(s) the current animation maps to (final algorithm only) */
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function SlidingWindowVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function SlidingWindowVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) {
     return <NaiveViz step={step} />;
   }
@@ -25,7 +32,7 @@ export function SlidingWindowVisualizer({ step, onWedgeInteraction }: Visualizer
     return <WedgeViz onInteraction={onWedgeInteraction} />;
   }
   if (step >= 4 && step <= 6) {
-    return <DerivedViz />;
+    return <DerivedViz onActiveLine={onActiveLine} />;
   }
   return <PatternViz />;
 }
@@ -209,7 +216,7 @@ function WedgeViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-6 — derived: with naive ↔ derived toggle */
-function DerivedViz() {
+function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [mode, setMode] = useState<"naive" | "derived">("derived");
   const [start, setStart] = useState(0);
   const [windowSum, setWindowSum] = useState(ARR.slice(0, K).reduce((a, b) => a + b, 0));
@@ -250,12 +257,14 @@ function DerivedViz() {
       setEntering([enteringIdx]);
       setWindowSum((s) => s - ARR[leavingIdx] + ARR[enteringIdx]);
       setOps((o) => o + 2);
+      // Final-algorithm slide: subtract leaver + add newcomer (line 14), then record (line 15).
+      onActiveLine?.([LINE_SLIDE_UPDATE, LINE_RECORD]);
       flashTimeoutRef.current = setTimeout(() => {
         setLeaving([]);
         setEntering([]);
       }, 520);
     }
-  }, [maxStart, isNaive]);
+  }, [maxStart, isNaive, onActiveLine]);
 
   useEffect(() => {
     if (!playing) return;

@@ -43,14 +43,21 @@ function useDims(): Dims {
   return isMobile ? MOBILE_DIMS : DESKTOP_DIMS;
 }
 
+// algorithm.py line numbers the greedy walk emits as it runs.
+const LINE_SORT_BY_END = 8; // by_end = sorted(meetings, key=lambda m: m[1])
+const LINE_COMPAT_CHECK = 14; // if start >= last_end:
+const LINE_ACCEPT = 15; // chosen.append((start, end))
+const LINE_UPDATE_LAST_END = 16; // last_end = end
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function ActivitySelectionVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function ActivitySelectionVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <RawTimelineViz />;
-  if (step === 3) return <SortAndPickViz onInteraction={onWedgeInteraction} />;
+  if (step === 3) return <SortAndPickViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
   return <DerivedViz />;
 }
 
@@ -212,7 +219,13 @@ function meetingState(
 }
 
 /* Step 3 — sort button + step/play */
-function SortAndPickViz({ onInteraction }: { onInteraction?: () => void }) {
+function SortAndPickViz({
+  onInteraction,
+  onActiveLine,
+}: {
+  onInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
+}) {
   const dims = useDims();
   const { HOUR_PX, ROW_H, ROW_GAP, LABEL_W } = dims;
   const [pick, setPick] = useState<PickState>(initialPick());
@@ -221,14 +234,32 @@ function SortAndPickViz({ onInteraction }: { onInteraction?: () => void }) {
 
   const done = pick.i >= MEETINGS.length;
 
+  // Advance one greedy step, emitting the algorithm.py lines that the move
+  // corresponds to: the compatibility check always fires; accept + update
+  // fire only when the meeting fits.
+  const advance = () => {
+    setPick((cur) => {
+      const next = pickStep(cur);
+      if (next === cur) return cur; // walk finished, nothing to emit
+      const accepted = next.accepted.length > cur.accepted.length;
+      onActiveLine?.(
+        accepted
+          ? [LINE_COMPAT_CHECK, LINE_ACCEPT, LINE_UPDATE_LAST_END]
+          : [LINE_COMPAT_CHECK],
+      );
+      return next;
+    });
+  };
+
   const pb = usePlayback({
-    onTick: () => setPick((cur) => pickStep(cur)),
+    onTick: advance,
     isDone: () => done,
     intervalMs: 700,
   });
 
   const sort = () => {
     onInteraction?.();
+    onActiveLine?.([LINE_SORT_BY_END]);
     setPick({ sorted: true, i: 0, accepted: [], skipped: [], lastEnd: -Infinity });
   };
   const next = () => {

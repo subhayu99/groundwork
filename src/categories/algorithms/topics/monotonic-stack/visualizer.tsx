@@ -13,15 +13,22 @@ const STRIDE = CELL + GAP;
 const MIN_T = 65;
 const MAX_T = 78;
 
+// 1-indexed line numbers in this topic's algorithm.py that each
+// stack operation corresponds to (kept in sync with codeMaps).
+const LINE_POP_CONDITION = 15; // `while waiting and temps[waiting[-1]] < t:`
+const LINE_ANSWER_ASSIGN = 17; // `answer[j] = i - j`
+const LINE_PUSH = 18; // `waiting.append(i)`
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function MonotonicStackVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function MonotonicStackVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <NaiveScanViz />;
-  if (step === 3) return <ManualWalkViz onInteraction={onWedgeInteraction} />;
-  return <DerivedViz />;
+  if (step === 3) return <ManualWalkViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
+  return <DerivedViz onActiveLine={onActiveLine} />;
 }
 
 function barHeight(t: number): number {
@@ -188,6 +195,18 @@ function stepOne(prev: Snapshot): Snapshot {
   return { i: i + 1, stack, answer, popsThisStep: pops };
 }
 
+// Lines of algorithm.py touched by advancing from `prev` by one outer step:
+// the pop-condition + answer-assignment when any day pops, plus the push
+// that always runs. Used to drive the synced code highlight.
+function linesForStep(prev: Snapshot): number[] {
+  if (prev.i >= TEMPS.length) return [];
+  const next = stepOne(prev);
+  const lines: number[] = [];
+  if (next.popsThisStep > 0) lines.push(LINE_POP_CONDITION, LINE_ANSWER_ASSIGN);
+  lines.push(LINE_PUSH);
+  return lines;
+}
+
 function WaitingStack({ stack, popsThisStep }: { stack: number[]; popsThisStep: number }) {
   return (
     <StackPanel
@@ -234,7 +253,13 @@ function AnswerRow({ answer }: { answer: (number | null)[] }) {
 }
 
 /* Step 3 — manual step-through */
-function ManualWalkViz({ onInteraction }: { onInteraction?: () => void }) {
+function ManualWalkViz({
+  onInteraction,
+  onActiveLine,
+}: {
+  onInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
+}) {
   const [snap, setSnap] = useState<Snapshot>({
     i: 0,
     stack: [],
@@ -244,7 +269,10 @@ function ManualWalkViz({ onInteraction }: { onInteraction?: () => void }) {
 
   const next = () => {
     onInteraction?.();
-    setSnap((cur) => stepOne(cur));
+    setSnap((cur) => {
+      onActiveLine?.(linesForStep(cur));
+      return stepOne(cur);
+    });
   };
   const reset = () => {
     setSnap({ i: 0, stack: [], answer: emptyAnswer(), popsThisStep: 0 });
@@ -291,7 +319,7 @@ function ManualWalkViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Steps 4-7 — auto-play */
-function DerivedViz() {
+function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [snap, setSnap] = useState<Snapshot>({
     i: 0,
     stack: [],
@@ -306,6 +334,7 @@ function DerivedViz() {
     setSnap((cur) => {
       if (cur.i >= TEMPS.length) return cur;
       const next = stepOne(cur);
+      onActiveLine?.(linesForStep(cur));
       // count: one push always, plus pops
       setTotalOps((ops) => ops + 1 + next.popsThisStep);
       return next;

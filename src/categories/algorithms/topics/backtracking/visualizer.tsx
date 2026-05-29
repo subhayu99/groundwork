@@ -10,15 +10,23 @@ const N = 6;
 const CELL = 44;
 const GAP = 4;
 
+// algorithm.py line numbers, kept in sync with codeMaps["algorithms/backtracking"].
+const LINE_SAFE_CHECK = 29; // `if safe(placed, col):` — validity / safety prune
+const LINE_PLACE = 30; // `placed.append(col)` — choose / place the queen
+const LINE_RECURSE = 31; // `place(placed)` — recurse one row deeper
+const LINE_UNDO = 32; // `placed.pop()` — undo / backtrack
+const LINE_RECORD_SOLUTION = [21, 22]; // `if len(placed) == n:` + `solutions.append(...)`
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function BacktrackingVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function BacktrackingVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <EmptyBoardViz />;
-  if (step === 3) return <ManualPlaceViz onInteraction={onWedgeInteraction} />;
-  return <AutoBacktrackViz />;
+  if (step === 3) return <ManualPlaceViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
+  return <AutoBacktrackViz onActiveLine={onActiveLine} />;
 }
 
 function safe(placed: number[], row: number, col: number): boolean {
@@ -103,7 +111,13 @@ function EmptyBoardViz() {
 }
 
 /* Step 3 — manual placement with attack overlay */
-function ManualPlaceViz({ onInteraction }: { onInteraction?: () => void }) {
+function ManualPlaceViz({
+  onInteraction,
+  onActiveLine,
+}: {
+  onInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
+}) {
   const [placed, setPlaced] = useState<number[]>([]);
   const [showAttacks, setShowAttacks] = useState(true);
 
@@ -116,12 +130,20 @@ function ManualPlaceViz({ onInteraction }: { onInteraction?: () => void }) {
   const tryPlace = (col: number) => {
     onInteraction?.();
     if (nextRow >= N) return;
+    // Validity / safety check — clicking an attacked square is rejected.
+    onActiveLine?.([LINE_SAFE_CHECK]);
     if (attacks.has(`${nextRow},${col}`)) return;
-    setPlaced([...placed, col]);
+    // Choose / place the queen in the next row.
+    const next = [...placed, col];
+    setPlaced(next);
+    if (next.length === N) onActiveLine?.(LINE_RECORD_SOLUTION);
+    else onActiveLine?.([LINE_PLACE]);
   };
 
   const undo = () => {
     onInteraction?.();
+    // Undo / backtrack — remove the last queen.
+    onActiveLine?.([LINE_UNDO]);
     setPlaced(placed.slice(0, -1));
   };
 
@@ -227,8 +249,21 @@ function btStep(state: BtState): BtState {
   };
 }
 
+// Classify a single backtracking transition into the algorithm.py lines it
+// exercised, so the code drawer can highlight the place / recurse / undo /
+// record-solution motion live as the stepper runs.
+function linesForTransition(prev: BtState, next: BtState): number[] {
+  if (next.solutions.length > prev.solutions.length) return LINE_RECORD_SOLUTION;
+  if (next.placed.length > prev.placed.length) {
+    // A safe column was found and the queen was placed; recursing deeper.
+    return [LINE_SAFE_CHECK, LINE_PLACE, LINE_RECURSE];
+  }
+  if (next.placed.length < prev.placed.length) return [LINE_UNDO];
+  return [LINE_SAFE_CHECK];
+}
+
 /* Steps 4-7 — auto backtracking sweep */
-function AutoBacktrackViz() {
+function AutoBacktrackViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [state, setState] = useState<BtState>({
     placed: [],
     nextCol: 0,
@@ -237,7 +272,13 @@ function AutoBacktrackViz() {
     done: false,
   });
 
-  const btStepOnce = () => setState((cur) => (cur.done ? cur : btStep(cur)));
+  const btStepOnce = () =>
+    setState((cur) => {
+      if (cur.done) return cur;
+      const next = btStep(cur);
+      onActiveLine?.(linesForTransition(cur, next));
+      return next;
+    });
 
   const pb = usePlayback({
     onTick: btStepOnce,

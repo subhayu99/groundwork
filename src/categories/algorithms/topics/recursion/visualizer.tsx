@@ -39,11 +39,6 @@ const TREE: Node = {
   ],
 };
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-}
-
 // Build a flat list of (node, depth, path) for rendering, in DFS order.
 type FlatNode = { node: Node; depth: number; path: string };
 function flatten(node: Node, depth = 0, path = ""): FlatNode[] {
@@ -61,10 +56,23 @@ function totalSize(node: Node): number {
 
 const TOTAL = totalSize(TREE);
 
-export function RecursionVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+// algorithm.py line numbers (1-indexed) for live code-sync emits.
+const LINE_BASE_CASE_RETURN = 11; // `return node["size"]` — a file returns its own size
+const LINE_RECURSIVE_CALL = 15; // `folder_size(child)` — descend into a child
+const LINE_AGGREGATE_SUM = 15; // `sum(...)` — combine children's sizes
+const LINE_FOLDER_RETURN = 15; // returning a folder's summed total up the stack
+
+interface VisualizerProps {
+  step: number;
+  onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
+}
+
+export function RecursionVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <NaiveCountViz />;
-  if (step === 3) return <ManualExploreViz onInteraction={onWedgeInteraction} />;
-  return <RecursiveComputeViz />;
+  if (step === 3)
+    return <ManualExploreViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
+  return <RecursiveComputeViz onActiveLine={onActiveLine} />;
 }
 
 function NodeRow({
@@ -198,7 +206,13 @@ function NaiveCountViz() {
 }
 
 /* Step 3 — manually click each folder to "ask" for its size */
-function ManualExploreViz({ onInteraction }: { onInteraction?: () => void }) {
+function ManualExploreViz({
+  onInteraction,
+  onActiveLine,
+}: {
+  onInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
+}) {
   const [computed, setComputed] = useState<Record<string, number>>({});
 
   const askFolder = (path: string) => {
@@ -206,6 +220,8 @@ function ManualExploreViz({ onInteraction }: { onInteraction?: () => void }) {
     const fl = FLAT.find((f) => f.path === path);
     if (!fl) return;
     const size = totalSize(fl.node);
+    // Asking a folder recurses into its children and sums their sizes.
+    onActiveLine?.([LINE_RECURSIVE_CALL, LINE_AGGREGATE_SUM]);
     setComputed((cur) => ({ ...cur, [path]: size }));
   };
 
@@ -340,7 +356,19 @@ function runOneStep(state: RecursionState): RecursionState {
 }
 
 /* Steps 4-7 — animated recursion */
-function RecursiveComputeViz() {
+// Classify a single recursion transition into the algorithm.py lines it maps to.
+function linesForStep(before: RecursionState, after: RecursionState): number[] {
+  // A file hit its base case and returned its own size up the stack.
+  if (after.ranBaseCase) return [LINE_BASE_CASE_RETURN];
+  // Stack grew: a folder descended into one of its children (recursive call).
+  if (after.stack.length > before.stack.length) return [LINE_RECURSIVE_CALL];
+  // Stack shrank (and no base case): a folder finished — sum children, return up.
+  if (after.stack.length < before.stack.length || after.active === null)
+    return [LINE_AGGREGATE_SUM, LINE_FOLDER_RETURN];
+  return [];
+}
+
+function RecursiveComputeViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [state, setState] = useState<RecursionState>({
     stack: [],
     finished: {},
@@ -350,7 +378,13 @@ function RecursiveComputeViz() {
   const done = state.finished[TREE.name] !== undefined;
 
   const pb = usePlayback({
-    onTick: () => setState((cur) => runOneStep(cur)),
+    onTick: () =>
+      setState((cur) => {
+        const next = runOneStep(cur);
+        const lines = linesForStep(cur, next);
+        if (lines.length > 0) onActiveLine?.(lines);
+        return next;
+      }),
     isDone: () => state.finished[TREE.name] !== undefined,
     intervalMs: 520,
   });

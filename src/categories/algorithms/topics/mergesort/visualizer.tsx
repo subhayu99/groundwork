@@ -9,14 +9,26 @@ const ARR = [5, 2, 4, 7, 1, 3, 8, 6];
 const CARD = 38;
 const GAP = 4;
 
+// Lines in this topic's algorithm.py (1-indexed), kept in sync with
+// codeMaps["algorithms/mergesort"] in src/categories/code-maps.ts.
+const LINE_MID = 12; // `mid = len(nums) // 2`
+const LINE_SORT_LEFT = 13; // `left = mergesort(nums[:mid])`
+const LINE_SORT_RIGHT = 14; // `right = mergesort(nums[mid:])`
+const LINE_MERGE_COMPARE = 30; // `if left[i] <= right[j]:`
+const LINE_MERGE_APPEND = 31; // `out.append(left[i])`
+
+const SPLIT_LINES = [LINE_MID, LINE_SORT_LEFT, LINE_SORT_RIGHT];
+const MERGE_LINES = [LINE_MERGE_COMPARE, LINE_MERGE_APPEND];
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function MergesortVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function MergesortVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <NaiveSwapViz />;
-  if (step === 3) return <SplitMergeViz onInteraction={onWedgeInteraction} />;
+  if (step === 3) return <SplitMergeViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
   return <AutoMergesortViz />;
 }
 
@@ -198,12 +210,20 @@ function SegmentRow({ segs }: { segs: Segment[] }) {
 }
 
 /* Step 3 — manual split/merge */
-function SplitMergeViz({ onInteraction }: { onInteraction?: () => void }) {
+function SplitMergeViz({
+  onInteraction,
+  onActiveLine,
+}: {
+  onInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
+}) {
   const [segs, setSegs] = useState<Segment[]>(startSegments());
   const [phase, setPhase] = useState<"splitting" | "merging">("splitting");
 
   const doSplit = () => {
     onInteraction?.();
+    // Dividing: highlight the mid cut and the two recursive-sort lines.
+    onActiveLine?.(SPLIT_LINES);
     setSegs((cur) => {
       const next = splitAll(cur);
       if (allAtomic(next)) setPhase("merging");
@@ -213,6 +233,8 @@ function SplitMergeViz({ onInteraction }: { onInteraction?: () => void }) {
 
   const doMerge = () => {
     onInteraction?.();
+    // Merging: highlight the compare and append lines of merge().
+    onActiveLine?.(MERGE_LINES);
     setSegs((cur) => mergeOneLevel(cur));
   };
 
