@@ -6,9 +6,15 @@ import type { NextConfig } from "next";
 const isProd = process.env.NODE_ENV === "production";
 const repo = "groundwork";
 
+const basePath = isProd ? `/${repo}` : "";
+
 const nextConfig: NextConfig = {
   output: "export",
-  basePath: isProd ? `/${repo}` : "",
+  basePath,
+  // Exposed to the client so the PWA wiring (manifest link, apple-touch icon,
+  // service-worker registration + scope) targets the right prefix in both
+  // `next dev` (bare root) and the GitHub Pages deploy (/groundwork).
+  env: { NEXT_PUBLIC_BASE_PATH: basePath },
   // Emit a folder-with-index.html per route so GitHub Pages resolves
   // /categories/algorithms/sliding-window/ reliably.
   trailingSlash: true,
