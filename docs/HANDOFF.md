@@ -7,6 +7,20 @@ Live: https://subhayu.in/groundwork/ · auto-deploys on push to `main` (GitHub A
 2. **Left↔right sync.** The card and the visualizer must show the SAME example (same target/names/numbers). Mismatch = bug.
 3. **Code drawer = real syntax-highlighted viewer.**
 
+## Round 4 — Live code↔visualization sync + always-open progressive code panel — IN PROGRESS
+Full plan: `/Users/subhayu/.claude/plans/effervescent-snacking-treasure.md`. Resume point: commit `3766f87` (pushed; deploy auto-runs).
+
+**DONE & deployed (Phases 1–2):**
+- **Phase 1 — always-open, unlocked, progressive code panel.** Code panel is no longer locked until completion: open by default below the viz, unlocked from step 1. Lines for steps not yet reached render **dimmed** (`opacity-30 blur-[0.4px]`); reaching/revisiting reveals more; completion reveals all. Wiring: `CodeHighlight.tsx` gained a `revealedLines` tier (per-line dim, additive); threaded `TopicPageClient → TopicLayout → ScrubbableCode → CodeHighlight`. `TopicLayout` drawer `useState(true)`; `TopicPageClient` passes `codeDrawerLocked={false}` + computes `codeRevealedLines` = ∪ `codeMaps[step]` for steps ≤ furthest reached.
+- **Phase 2 — live frame-by-frame sync (ALL 20 topics).** Visualizer contract gained `onActiveLine?: (lines:number[]) => void` (in `Visualizer` type in `src/categories/algorithms/topics/index.ts`). `TopicPageClient` holds `liveLines` (reset on step change) and uses `codeActiveLines = liveLines ?? stepCodeLines?.[min(currentStep, steps.length)]`. Each topic's **final/interactive view** calls `onActiveLine([...])` at each operation, using named `LINE_*` constants = actual `algorithm.py` lines (same source as `src/categories/code-maps.ts`). Naive/setup views (steps 1–2) intentionally DON'T emit → fall back to the step map. Verified live on binary-search (playback walks mid→narrow-left→narrow-right); tsc clean, 15/15 tests, build 92 pages, 0 console errors.
+
+**REMAINING (Phase 3 — robustness + verify; NOT done):**
+1. **Line-range guard test** (new vitest, e.g. `src/categories/code-maps.test.ts`): assert every `codeMaps` line number is within its `algorithm.py` line count AND all 20 topics have a map entry. NOTE: the per-visualizer `LINE_*` emit constants are NOT covered by this — consider extending the test or moving them into `code-maps` for coverage.
+2. **Broader Playwright runtime verification**: only Phase 1 + binary-search frame-by-frame were exercised at runtime; the other 19 topics' live emits are confirmed by tsc + subagent self-reports only. Spot-check archetypes — a grid/click (dfs), a drag (sliding-window), an input (hash-maps), a node-click (trees/graphs) — confirm the highlight changes with the action; plus a completion/Step-08 + wedge no-regression pass; 0 console errors; desktop + mobile.
+3. **Confirm the latest deploy went green** (`gh run watch`) and smoke the live site.
+
+**How to resume:** read the plan file + this section. The feature is functionally complete; Phase 3 is verification + the guard test. Dev server runs on :3000. Playwright executor: `cd ~/.claude/plugins/cache/playwright-skill/playwright-skill/4.1.0/skills/playwright-skill && node run.js <inline-or-/tmp-script>`. To detect a highlighted line in the DOM: `pre div.bg-\[var\(--accent-soft\)\]`; dimmed lines: `pre div.opacity-30`. Push gotcha: `git push` may 403 (wrong cached cred) → `gh auth setup-git`; token lacks `workflow` scope so don't touch `.github/`.
+
 ## Round 3 — Features, content & bug fixes — COMPLETE (2 items deferred)
 - **Practice problems for all 20 topics** — every topic now ships `problems.tsx` (2 problems each: prompt, examples, hints, Python solution + walkthrough). Build is 92 static pages.
 - **Settings** (`/settings`) — theme System/Light/Dark (full light OKLCH palette in `globals.css` `[data-theme="light"]`), motion System/Reduce, progress export/import/reset. Applied app-wide by `src/app/MotionProvider.tsx` (reads saved prefs: `data-theme` + `html.reduce-motion` class + `MotionConfig`). `useProgress` gained `updateSettings`/`resetProgress`.
