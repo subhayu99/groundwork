@@ -4,6 +4,7 @@ import { useState } from "react";
 import { GraphViz, GraphVizNode, GraphVizEdge } from "@/shared/viz/GraphViz";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 // GraphViz coordinate space the node x/y above are authored in.
 const BASE_W = 480;
@@ -76,18 +77,12 @@ function neighbors(id: string): string[] {
 const vizNodes = (tone?: (id: string) => GraphVizNode["tone"]): GraphVizNode[] =>
   NODES.map((n) => ({ id: n.id, label: n.label, x: n.x, y: n.y, tone: tone?.(n.id) }));
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function GraphsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <ForcedTreeViz />;
-  if (step === 3) return <ClickableGraphViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  if (step >= 4 && step <= 5) return <TraversalViz onActiveLine={onActiveLine} />;
-  return <SummaryGraphViz />;
-}
+export const GraphsVisualizer = phasedVisualizer([
+  { until: 2, render: () => <ForcedTreeViz /> },
+  { until: 3, render: (p) => <ClickableGraphViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { until: 5, render: (p) => <TraversalViz onActiveLine={p.onActiveLine} /> },
+  { render: () => <SummaryGraphViz /> },
+]);
 
 /* Step 1-2 — try to force into a tree, lose edges */
 function ForcedTreeViz() {

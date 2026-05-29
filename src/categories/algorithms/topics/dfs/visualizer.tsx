@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GridViz, type CellSpec } from "@/shared/viz/GridViz";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 type Cell = [number, number];
 
@@ -37,17 +38,11 @@ const DIRS: Cell[] = [
   [-1, 0], // up
 ];
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function DfsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <MazeStaticViz />;
-  if (step === 3) return <ManualWalkViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  return <AutoDfsViz onActiveLine={onActiveLine} />;
-}
+export const DfsVisualizer = phasedVisualizer([
+  { until: 2, render: () => <MazeStaticViz /> },
+  { until: 3, render: (p) => <ManualWalkViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { render: (p) => <AutoDfsViz onActiveLine={p.onActiveLine} /> },
+]);
 
 function cellKey(r: number, c: number): string {
   return `${r},${c}`;

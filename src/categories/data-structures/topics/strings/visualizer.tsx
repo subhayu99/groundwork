@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 const SENTENCE = "the quick brown fox";
 const PATTERN = "brown";
@@ -23,18 +24,12 @@ const LINE_FIND = "find"; // i = s.find("brown") — substring search
 const LINE_CONCAT = "concat"; // hello = "hi " + s — concatenation, O(n + m)
 const LINE_REBUILD = "rebuild"; // caps = s.upper() — can't mutate, build a new string
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function StringsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <NaiveSearchViz />;
-  if (step === 3) return <SliderViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  if (step >= 4 && step <= 5) return <ImmutabilityViz onActiveLine={onActiveLine} />;
-  return <SummaryViz />;
-}
+export const StringsVisualizer = phasedVisualizer([
+  { until: 2, render: () => <NaiveSearchViz /> },
+  { until: 3, render: (p) => <SliderViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { until: 5, render: (p) => <ImmutabilityViz onActiveLine={p.onActiveLine} /> },
+  { render: () => <SummaryViz /> },
+]);
 
 function CharRow({
   text,

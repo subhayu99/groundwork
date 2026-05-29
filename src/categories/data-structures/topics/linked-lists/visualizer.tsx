@@ -3,23 +3,18 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrayViz } from "@/shared/viz/ArrayViz";
-
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 /* @sync labels — resolved against linked-lists/algorithm.py (single source of truth) */
 const LINE_INSERT_RELINK = ["insert_new", "insert_relink"]; // new_node = Node(..., next=node.next); node.next = new_node
 const LINE_REMOVE_RELINK = ["remove_relink"]; // node.next = removed.next
 
-export function LinkedListsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <ArrayShiftViz />;
-  if (step === 3) return <LinkedListViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  if (step >= 4 && step <= 5) return <LinkedListViz onInteraction={undefined} onActiveLine={onActiveLine} expanded />;
-  return <SummaryViz />;
-}
+export const LinkedListsVisualizer = phasedVisualizer([
+  { until: 2, render: () => <ArrayShiftViz /> },
+  { until: 3, render: (p) => <LinkedListViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { until: 5, render: (p) => <LinkedListViz onInteraction={undefined} onActiveLine={p.onActiveLine} expanded /> },
+  { render: () => <SummaryViz /> },
+]);
 
 interface NodeItem { id: number; value: number }
 

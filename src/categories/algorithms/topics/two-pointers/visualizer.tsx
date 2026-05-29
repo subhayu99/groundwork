@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrayViz } from "@/shared/viz/ArrayViz";
 import { StatsPanel } from "@/shared/viz/StatsPanel";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 const ARR = [1, 3, 5, 7, 9, 10, 12, 15, 18, 20];
 const TARGET = 17;
@@ -18,17 +19,11 @@ const LINE_RETURN = "found"; // return (left, right)
 const LINE_MOVE_LEFT = "move_left"; // left += 1
 const LINE_MOVE_RIGHT = "move_right"; // right -= 1
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function TwoPointersVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <NaiveViz />;
-  if (step === 3) return <WedgeViz onInteraction={onWedgeInteraction} />;
-  return <DerivedViz onActiveLine={onActiveLine} />;
-}
+export const TwoPointersVisualizer = phasedVisualizer([
+  { until: 2, render: () => <NaiveViz /> },
+  { until: 3, render: (p) => <WedgeViz onInteraction={p.onWedgeInteraction} /> },
+  { render: (p) => <DerivedViz onActiveLine={p.onActiveLine} /> },
+]);
 
 /* Step 2 — naive: show every pair being checked */
 function NaiveViz() {

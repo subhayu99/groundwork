@@ -2,19 +2,12 @@ import type { ComponentType } from "react";
 import type { DerivationStep, TopicMeta } from "@/shared/derivation/types";
 import type { PracticeProblem } from "@/shared/practice/types";
 import type { NextStepsContent } from "@/shared/next-steps/types";
+import type { VisualizerProps } from "@/shared/viz/phasedVisualizer";
 
 export interface TopicBundle {
   meta: TopicMeta;
   steps: DerivationStep[];
-  Visualizer: ComponentType<{
-    step: number;
-    onWedgeInteraction?: () => void;
-    /** Emit the code line(s) the current operation maps to, for live
-     *  frame-by-frame highlighting. Prefer `@sync:` LABELS (strings) resolved
-     *  against algorithm.py — never hand-maintained line numbers. Raw numbers
-     *  are still accepted during migration. Optional per visualizer. */
-    onActiveLine?: (lines: (number | string)[]) => void;
-  }>;
+  Visualizer: ComponentType<VisualizerProps>;
   pythonCode: string;
   /** Step at which the code drawer unlocks. Defaults to last step. */
   unlockCodeAtStep?: number;

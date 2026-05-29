@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrayViz } from "@/shared/viz/ArrayViz";
 import { StatsPanel } from "@/shared/viz/StatsPanel";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 const VALUES = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3];
 const CELL = 56;
@@ -17,18 +18,12 @@ const LINE_APPEND = "append"; // books.append("Frame")  — append at end
 const LINE_INSERT = "insert_mid"; // books.insert(2, ...)   — insert in the middle
 const LINE_DELETE = "delete"; // del books[1]           — delete at index
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function ArraysVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <PileViz onActiveLine={onActiveLine} />;
-  if (step === 3) return <SliderViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  if (step >= 4 && step <= 5) return <OperationsViz onActiveLine={onActiveLine} />;
-  return <SummaryViz />;
-}
+export const ArraysVisualizer = phasedVisualizer([
+  { until: 2, render: (p) => <PileViz onActiveLine={p.onActiveLine} /> },
+  { until: 3, render: (p) => <SliderViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { until: 5, render: (p) => <OperationsViz onActiveLine={p.onActiveLine} /> },
+  { render: () => <SummaryViz /> },
+]);
 
 /* Steps 1-2 — pile of books: linear count */
 function PileViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {

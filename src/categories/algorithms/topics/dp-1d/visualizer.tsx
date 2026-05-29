@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { TreeViz } from "@/shared/viz/TreeViz";
 import type { Tone } from "@/shared/viz/tones";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 const N = 8;
 
@@ -14,17 +15,11 @@ const LINE_LOOP = "loop"; // for _ in range(2, n + 1)  (boundary of the iteratio
 const LINE_RECURRENCE = "recurrence"; // a, b = b, a + b  (dp[i] = dp[i-1] + dp[i-2])
 const LINE_READ_ANSWER = "answer"; // return b
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function Dp1dVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <StaircaseViz />;
-  if (step === 3) return <RecursionTreeViz onInteraction={onWedgeInteraction} />;
-  return <TabulationViz onActiveLine={onActiveLine} />;
-}
+export const Dp1dVisualizer = phasedVisualizer([
+  { until: 2, render: () => <StaircaseViz /> },
+  { until: 3, render: (p) => <RecursionTreeViz onInteraction={p.onWedgeInteraction} /> },
+  { render: (p) => <TabulationViz onActiveLine={p.onActiveLine} /> },
+]);
 
 function waysTrue(n: number): number {
   let a = 1, b = 1;

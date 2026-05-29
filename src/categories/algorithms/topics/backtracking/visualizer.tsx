@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { GridViz } from "@/shared/viz/GridViz";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 import type { Tone } from "@/shared/viz/tones";
 
 const N = 6;
@@ -16,17 +17,11 @@ const LINE_RECURSE = "recurse"; // `place(placed)` — recurse one row deeper
 const LINE_UNDO = "backtrack"; // `placed.pop()` — undo / backtrack
 const LINE_RECORD_SOLUTION: (number | string)[] = ["record_solution", "record_append"];
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function BacktrackingVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <EmptyBoardViz />;
-  if (step === 3) return <ManualPlaceViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  return <AutoBacktrackViz onActiveLine={onActiveLine} />;
-}
+export const BacktrackingVisualizer = phasedVisualizer([
+  { until: 2, render: () => <EmptyBoardViz /> },
+  { until: 3, render: (p) => <ManualPlaceViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { render: (p) => <AutoBacktrackViz onActiveLine={p.onActiveLine} /> },
+]);
 
 function safe(placed: number[], row: number, col: number): boolean {
   for (let r = 0; r < placed.length; r++) {

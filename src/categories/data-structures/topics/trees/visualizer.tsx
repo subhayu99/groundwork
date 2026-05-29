@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { TreeViz, TreeVizNode, TreeVizEdge } from "@/shared/viz/TreeViz";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 /* @sync labels — resolved against algorithm.py (single source of truth).
  * dfs_* belong to the general-tree dfs(); bst_* belong to bst_contains(). */
@@ -44,18 +45,12 @@ const ORG_CHART: TNode = {
   ],
 };
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function TreesVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <FlatListViz />;
-  if (step === 3) return <ClickableTreeViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  if (step >= 4 && step <= 5) return <BSTViz onActiveLine={onActiveLine} />;
-  return <SummaryTreeViz />;
-}
+export const TreesVisualizer = phasedVisualizer([
+  { until: 2, render: () => <FlatListViz /> },
+  { until: 3, render: (p) => <ClickableTreeViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { until: 5, render: (p) => <BSTViz onActiveLine={p.onActiveLine} /> },
+  { render: () => <SummaryTreeViz /> },
+]);
 
 /* Step 1-2 — flat list view (loses hierarchy) */
 function FlatListViz() {

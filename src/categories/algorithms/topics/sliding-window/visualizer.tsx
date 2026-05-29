@@ -5,6 +5,7 @@ import { ArrayViz } from "@/shared/viz/ArrayViz";
 import { WindowOverlay } from "@/shared/viz/WindowOverlay";
 import { StatsPanel } from "@/shared/viz/StatsPanel";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 const ARR = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3];
 const K = 3;
@@ -16,27 +17,12 @@ const GAP = 8;
 const LINE_SLIDE_UPDATE = "slide"; // window_sum = window_sum - arr[i - k] + arr[i]
 const LINE_RECORD = "record"; // results.append(window_sum)
 
-interface VisualizerProps {
-  /** Current derivation step (1-7) controls which viz mode renders */
-  step: number;
-  /** Notified when user interacts with the window in Step 3 */
-  onWedgeInteraction?: () => void;
-  /** Emits the algorithm.py line(s) the current animation maps to (final algorithm only) */
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function SlidingWindowVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) {
-    return <NaiveViz step={step} />;
-  }
-  if (step === 3) {
-    return <WedgeViz onInteraction={onWedgeInteraction} />;
-  }
-  if (step >= 4 && step <= 6) {
-    return <DerivedViz onActiveLine={onActiveLine} />;
-  }
-  return <PatternViz />;
-}
+export const SlidingWindowVisualizer = phasedVisualizer([
+  { until: 2, render: (p) => <NaiveViz step={p.step} /> },
+  { until: 3, render: (p) => <WedgeViz onInteraction={p.onWedgeInteraction} /> },
+  { until: 6, render: (p) => <DerivedViz onActiveLine={p.onActiveLine} /> },
+  { render: () => <PatternViz /> },
+]);
 
 /* Step 2 — naive: highlight redundant additions */
 function NaiveViz({ step }: { step: number }) {

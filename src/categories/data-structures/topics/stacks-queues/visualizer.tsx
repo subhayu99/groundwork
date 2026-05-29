@@ -3,12 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
-
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 /* @sync labels — resolved against algorithm.py (single source of truth) */
 const LINE_PUSH = "push"; // history.append("home")  — push
@@ -16,15 +11,17 @@ const LINE_POP = "pop"; // history.pop()           — pop
 const LINE_ENQUEUE = "enqueue"; // orders.append("latte")  — enqueue
 const LINE_DEQUEUE = "dequeue"; // orders.popleft()        — dequeue
 
-export function StacksQueuesVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <NaiveArrayViz />;
-  return (
-    <StackQueueViz
-      onInteraction={step === 3 ? onWedgeInteraction : undefined}
-      onActiveLine={onActiveLine}
-    />
-  );
-}
+export const StacksQueuesVisualizer = phasedVisualizer([
+  { until: 2, render: () => <NaiveArrayViz /> },
+  {
+    render: (p) => (
+      <StackQueueViz
+        onInteraction={p.step === 3 ? p.onWedgeInteraction : undefined}
+        onActiveLine={p.onActiveLine}
+      />
+    ),
+  },
+]);
 
 const POOL = ["home", "inbox", "draft", "sent", "page", "post", "feed", "stats"];
 

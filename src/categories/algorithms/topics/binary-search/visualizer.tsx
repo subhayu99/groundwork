@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrayViz } from "@/shared/viz/ArrayViz";
 import { StatsPanel } from "@/shared/viz/StatsPanel";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 const ARR = [3, 7, 11, 14, 19, 23, 27, 32, 38, 44, 51, 59, 68, 74, 81];
@@ -16,17 +17,11 @@ const LINE_COMPARE_RETURN = ["compare", "found"];
 const LINE_LO_UPDATE = ["less", "lo_update"];
 const LINE_HI_UPDATE = ["greater", "hi_update"];
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function BinarySearchVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <LinearScanViz />;
-  if (step === 3) return <ClickToHalveViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  return <BinarySearchAnimatedViz onActiveLine={onActiveLine} />;
-}
+export const BinarySearchVisualizer = phasedVisualizer([
+  { until: 2, render: () => <LinearScanViz /> },
+  { until: 3, render: (p) => <ClickToHalveViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { render: (p) => <BinarySearchAnimatedViz onActiveLine={p.onActiveLine} /> },
+]);
 
 /* Step 1-2 — linear scan animation */
 function LinearScanViz() {

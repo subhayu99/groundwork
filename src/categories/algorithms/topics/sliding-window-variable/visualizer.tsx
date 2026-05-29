@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 const S = "abracadabra";
@@ -18,17 +19,11 @@ const LINE_EXPAND = ["expand"]; // for right, ch in enumerate(s) — right edge 
 const LINE_SHRINK = ["check", "contract"]; // repeat inside window → jump left past it
 const LINE_BEST = ["record", "update"]; // last_seen[ch] = right; best = max(...)
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function SlidingWindowVariableVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <NaiveScanViz />;
-  if (step === 3) return <ManualWindowViz onInteraction={onWedgeInteraction} />;
-  return <DerivedViz onActiveLine={onActiveLine} />;
-}
+export const SlidingWindowVariableVisualizer = phasedVisualizer([
+  { until: 2, render: () => <NaiveScanViz /> },
+  { until: 3, render: (p) => <ManualWindowViz onInteraction={p.onWedgeInteraction} /> },
+  { render: (p) => <DerivedViz onActiveLine={p.onActiveLine} /> },
+]);
 
 function CharCells({
   s,

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 interface Meeting {
@@ -50,17 +51,11 @@ const LINE_COMPAT_CHECK = "compatible"; // if start >= last_end:
 const LINE_ACCEPT = "select"; // chosen.append((start, end))
 const LINE_UPDATE_LAST_END = "update"; // last_end = end
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function ActivitySelectionVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <RawTimelineViz />;
-  if (step === 3) return <SortAndPickViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  return <DerivedViz onActiveLine={onActiveLine} />;
-}
+export const ActivitySelectionVisualizer = phasedVisualizer([
+  { until: 2, render: () => <RawTimelineViz /> },
+  { until: 3, render: (p) => <SortAndPickViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { render: (p) => <DerivedViz onActiveLine={p.onActiveLine} /> },
+]);
 
 function HourAxis({ dims }: { dims: Dims }) {
   const { HOUR_PX, LABEL_W } = dims;

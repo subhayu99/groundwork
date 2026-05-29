@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 const ARR = [5, 2, 4, 7, 1, 3, 8, 6];
 const CARD = 38;
@@ -22,17 +23,11 @@ const MERGE_LINES = ["merge_loop", "merge_compare", "merge_take"]; // merge()
 const SPLIT_STEP_LABELS: string[][] = [["split"], ["recurse_left"], ["recurse_right"]];
 const MERGE_STEP_LABELS: string[][] = [["merge_loop"], ["merge_compare"], ["merge_take"], ["merge_tail"]];
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function MergesortVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <NaiveSwapViz />;
-  if (step === 3) return <SplitMergeViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  return <AutoMergesortViz onActiveLine={onActiveLine} />;
-}
+export const MergesortVisualizer = phasedVisualizer([
+  { until: 2, render: () => <NaiveSwapViz /> },
+  { until: 3, render: (p) => <SplitMergeViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { render: (p) => <AutoMergesortViz onActiveLine={p.onActiveLine} /> },
+]);
 
 function Card({
   value,

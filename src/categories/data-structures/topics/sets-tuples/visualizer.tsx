@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 const NAME_POOL = ["alice", "bob", "cara", "dan", "eli", "fawn"];
 
@@ -11,16 +12,10 @@ const SET_ADD_DEDUP = "set_add_dup"; // logged_in.add("alice")  # silently ignor
 const SET_MEMBERSHIP = "set_in"; // print("alice" in logged_in)  # True — O(1) average
 const SET_DISCARD = "set_discard"; // logged_in.discard("bob")  # O(1), no error if missing
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function SetsTuplesVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <ListScanViz />;
-  return <SetTupleViz onInteraction={step === 3 ? onWedgeInteraction : undefined} onActiveLine={onActiveLine} />;
-}
+export const SetsTuplesVisualizer = phasedVisualizer([
+  { until: 2, render: () => <ListScanViz /> },
+  { render: (p) => <SetTupleViz onInteraction={p.step === 3 ? p.onWedgeInteraction : undefined} onActiveLine={p.onActiveLine} /> },
+]);
 
 /* Step 1-2 — list-based membership = scan */
 function ListScanViz() {

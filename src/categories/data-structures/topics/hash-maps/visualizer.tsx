@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 // Deliberately unsorted (a real phone book you haven't organized), with the
 // person we search for — "alice" — near the very end, so the Step 1-2 linear
@@ -32,18 +33,12 @@ function hash(s: string, buckets: number): number {
   return h % buckets;
 }
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function HashMapsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <LinearScanViz />;
-  if (step === 3) return <HashLookupViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  if (step >= 4 && step <= 5) return <BucketsViz />;
-  return <SummaryViz />;
-}
+export const HashMapsVisualizer = phasedVisualizer([
+  { until: 2, render: () => <LinearScanViz /> },
+  { until: 3, render: (p) => <HashLookupViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { until: 5, render: () => <BucketsViz /> },
+  { render: () => <SummaryViz /> },
+]);
 
 /* Step 1-2 — linear scan animation */
 function LinearScanViz() {

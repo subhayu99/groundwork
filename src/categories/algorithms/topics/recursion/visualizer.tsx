@@ -6,6 +6,7 @@ import { StackPanel } from "@/shared/viz/StackPanel";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 type Node =
   | { type: "file"; name: string; size: number }
@@ -65,18 +66,11 @@ const LINE_AGGREGATE_SUM = "aggregate"; // `sum(...)` — combine children's siz
 const LINE_FOLDER_RETURN = "folder_return"; // returning a folder's summed total up the stack
 const LINE_SIG = "sig"; // function signature — shown on the initial/reset frame
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function RecursionVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <NaiveCountViz />;
-  if (step === 3)
-    return <ManualExploreViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  return <RecursiveComputeViz onActiveLine={onActiveLine} />;
-}
+export const RecursionVisualizer = phasedVisualizer([
+  { until: 2, render: () => <NaiveCountViz /> },
+  { until: 3, render: (p) => <ManualExploreViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { render: (p) => <RecursiveComputeViz onActiveLine={p.onActiveLine} /> },
+]);
 
 function NodeRow({
   flat,

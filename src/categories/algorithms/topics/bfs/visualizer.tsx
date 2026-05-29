@@ -6,6 +6,7 @@ import { StackPanel } from "@/shared/viz/StackPanel";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 import type { Tone } from "@/shared/viz/tones";
 
 type Cell = [number, number];
@@ -42,17 +43,11 @@ const LINE_GOAL = ["visit", "found"]; // (r, c) == end → return d (first sight
 const LINE_MARK_VISITED = "mark"; // visited.add((nr, nc))
 const LINE_ENQUEUE = "enqueue"; // queue.append(((nr, nc), d + 1)) — push neighbour + distance d + 1
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function BfsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <ContrastViz />;
-  if (step === 3) return <RippleViz onInteraction={onWedgeInteraction} />;
-  return <DerivedBfsViz onActiveLine={onActiveLine} />;
-}
+export const BfsVisualizer = phasedVisualizer([
+  { until: 2, render: () => <ContrastViz /> },
+  { until: 3, render: (p) => <RippleViz onInteraction={p.onWedgeInteraction} /> },
+  { render: (p) => <DerivedBfsViz onActiveLine={p.onActiveLine} /> },
+]);
 
 function MazeWithDistances({
   distances,

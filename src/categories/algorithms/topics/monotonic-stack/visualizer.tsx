@@ -6,6 +6,7 @@ import { StackPanel } from "@/shared/viz/StackPanel";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
+import { phasedVisualizer } from "@/shared/viz/phasedVisualizer";
 
 const TEMPS = [73, 74, 75, 71, 69, 72, 76, 73];
 const CELL = 44;
@@ -19,17 +20,11 @@ const LINE_POP_CONDITION = "while_pop"; // `while waiting and temps[waiting[-1]]
 const LINE_ANSWER_ASSIGN = "record"; // `answer[j] = i - j`
 const LINE_PUSH = "push"; // `waiting.append(i)`
 
-interface VisualizerProps {
-  step: number;
-  onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: (number | string)[]) => void;
-}
-
-export function MonotonicStackVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
-  if (step <= 2) return <NaiveScanViz />;
-  if (step === 3) return <ManualWalkViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  return <DerivedViz onActiveLine={onActiveLine} />;
-}
+export const MonotonicStackVisualizer = phasedVisualizer([
+  { until: 2, render: () => <NaiveScanViz /> },
+  { until: 3, render: (p) => <ManualWalkViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
+  { render: (p) => <DerivedViz onActiveLine={p.onActiveLine} /> },
+]);
 
 function barHeight(t: number): number {
   const norm = (t - MIN_T) / (MAX_T - MIN_T);
