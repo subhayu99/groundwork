@@ -51,11 +51,20 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
       ? allTopics[currentIndex + 1]
       : null;
 
+  // The wedge counts as passed if the user just interacted, OR if they've
+  // already cleared it before (the topic is complete, or this step is recorded
+  // as completed). Without this, revisiting/reloading a finished topic re-locks
+  // the gate and demands the interaction again.
+  const wedgePassed =
+    wedgeInteracted ||
+    everCompleted ||
+    (wedgeStep ? topicProgress.derivation.completedSteps.includes(wedgeStep) : false);
+
   const stepGating = wedgeStep && wedgeGating
     ? {
         [wedgeStep]: {
-          disabled: !wedgeInteracted,
-          label: wedgeInteracted ? wedgeGating.enabledLabel : wedgeGating.disabledLabel,
+          disabled: !wedgePassed,
+          label: wedgePassed ? wedgeGating.enabledLabel : wedgeGating.disabledLabel,
         },
       }
     : undefined;
@@ -177,7 +186,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
           code={pythonCode}
           codeDrawerLocked={!everCompleted && currentStep < unlockAt}
           codeFilename={`${topicKey.replaceAll("-", "_")}.py`}
-          codeActiveLines={stepCodeLines?.[currentStep]}
+          codeActiveLines={stepCodeLines?.[Math.min(currentStep, steps.length)]}
         />
       </div>
     </AccessGate>

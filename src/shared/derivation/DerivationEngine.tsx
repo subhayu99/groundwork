@@ -34,12 +34,22 @@ export function DerivationEngine({
 }: DerivationEngineProps) {
   const { getTopic, updateTopic } = useProgress();
   const topicProgress = getTopic(categoryKey, topicKey);
-  const [activeStep, setActiveStep] = useState(topicProgress.derivation.currentStep);
+  // On a completed topic, start with NO card auto-expanded (all render "done"),
+  // so the final step isn't re-opened with a live "Mark complete" button on
+  // reload. Mid-lesson, mirror the saved currentStep as the active card.
+  const [activeStep, setActiveStep] = useState(
+    topicProgress.derivation.completed ? steps.length + 1 : topicProgress.derivation.currentStep,
+  );
   const [activeCardIndex, setActiveCardIndex] = useState(0);
 
+  const completed = topicProgress.derivation.completed;
+  const currentStep = topicProgress.derivation.currentStep;
   useEffect(() => {
-    setActiveStep(topicProgress.derivation.currentStep);
-  }, [topicProgress.derivation.currentStep]);
+    // Once progress loads: a completed topic opens with NO card auto-expanded
+    // (all "done"); an in-progress topic mirrors the saved step. Revisiting a
+    // card (setActiveStep) sticks because these deps don't change on revisit.
+    setActiveStep(completed ? steps.length + 1 : currentStep);
+  }, [currentStep, completed, steps.length]);
 
   useEffect(() => {
     onStepChange?.(activeStep);
