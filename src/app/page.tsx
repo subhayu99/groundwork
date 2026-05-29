@@ -25,12 +25,11 @@ export default function Home() {
           <ResumeBanner />
         </div>
 
-        {/* Desktop: force-directed concept map. Mobile: the topic grid below. */}
-        <div className="hidden md:block">
-          <ConceptMapHome />
-        </div>
+        {/* Concept map (now touch-friendly: tap to trace, tap again to open).
+            Shown on every size; the readable topic grid stays below on mobile. */}
+        <ConceptMapHome />
 
-        <div className="space-y-12 md:hidden">
+        <div className="space-y-12 md:hidden mt-12">
           {categories.map((cat) => {
             const topics = listTopicsInCategory(cat.key);
             return (

@@ -224,7 +224,7 @@ export function ConceptMapHome() {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="xMidYMid meet"
-          className="w-full h-[600px]"
+          className="w-full h-[380px] md:h-[600px]"
           role="group"
           aria-label="Concept map of principles, categories, and topics"
         >
@@ -294,7 +294,13 @@ export function ConceptMapHome() {
                   style={{ cursor: "pointer", transition: "opacity 160ms" }}
                   onMouseEnter={() => setHoverId(n.id)}
                   onMouseLeave={() => setHoverId((h) => (h === n.id ? null : h))}
-                  onClick={() => go(n.href)}
+                  onClick={() => {
+                    // Works for mouse AND touch: a mouse hover pre-sets hoverId so
+                    // the click opens immediately; on touch (no hover) the first
+                    // tap traces the neighborhood and the second tap opens.
+                    if (hoverId === n.id) go(n.href);
+                    else setHoverId(n.id);
+                  }}
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
@@ -352,7 +358,7 @@ export function ConceptMapHome() {
           <span className="inline-block w-3 h-3 rounded-full bg-[var(--bg-card)] border border-[var(--line)]" />
           topic to explore
         </span>
-        <span className="ml-auto text-[var(--text-faint)]">hover to trace · click to open</span>
+        <span className="ml-auto text-[var(--text-faint)]">tap to trace · tap again to open</span>
       </div>
     </div>
   );
