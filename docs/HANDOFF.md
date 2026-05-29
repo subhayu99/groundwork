@@ -15,11 +15,12 @@ Full audit + plan: `/Users/subhayu/.claude/plans/effervescent-snacking-treasure.
 - **Phase 2a — shared viz primitives** (the spec's missing layer) in `src/shared/viz/`: `tones.ts`, `usePlayback`, `PlaybackControls`, `GridViz`, `StackPanel`, `TreeViz`, `GraphViz`.
 - **Phase 2b (partial) — 10/20 visualizers migrated** to compose primitives: dfs/bfs/backtracking (GridViz), monotonic-stack/recursion (StackPanel), mergesort/activity-selection/dp-1d (usePlayback+TreeViz), graphs (GraphViz), trees (TreeViz). All tsc-clean, 15/15 tests, zero console errors.
 
+- **Phase 2b — DONE.** All visualizers with a play loop now use `usePlayback`+`PlaybackControls`; grids/trees/graphs/stacks go through the shared primitives. (sets-tuples/stacks-queues/linked-lists have no autoplay loop — interactive only, correctly left.)
+- **Phase 3b — DONE.** `/principles/[principle]` pages live (7, via generateStaticParams); topic-page pills link to them. Home/category grid pills stay spans (nested-anchor constraint).
+
 **REMAINING:**
-- **Phase 2b rest:** migrate the 6 array-family visualizers that still hand-roll play loops/controls → `usePlayback`+`PlaybackControls`: `sliding-window-variable, strings, hash-maps, sets-tuples, stacks-queues, linked-lists`. (arrays/two-pointers/binary-search/sliding-window already use ArrayViz; add shared playback there too.) Pure refactor; pattern proven — dispatch one subagent per file with the primitive APIs, then full tsc + Playwright sweep.
-- **Phase 3a — Step 8 / Next Steps:** build `shared/NextStepsSection` + typed `next-steps` shape; normalize the 2 orphan files (`sliding-window/next-steps.tsx`, `two-pointers/next-steps.ts`); author `next-steps` for all 20 (related + 2-3 practice + real-world + resources, reuse existing `problems.tsx`); render as Step 8 in TopicLayout/DerivationEngine.
-- **Phase 3b — principle pages:** `app/principles/[principle]/page.tsx` (+ generateStaticParams) grouping topics by principle; make pills `<Link>`s in `app/page.tsx`, `categories/[category]/page.tsx`, `TopicPageClient.tsx`.
-- **Phase 3c — D3 concept-map home:** replace static grid in `app/page.tsx` with d3 force-layout (d3 already a dep); responsive grid fallback on mobile.
+- **Phase 3a — Step 8 / Next Steps:** build `shared/NextStepsSection` + typed `next-steps` shape; normalize the 2 orphan files (`sliding-window/next-steps.tsx`, `two-pointers/next-steps.ts`); author `next-steps` for all 20 (related + 2-3 practice + real-world + resources, reuse existing `problems.tsx`); render as Step 8 in TopicLayout/DerivationEngine. (Content-heavy — delegate per-topic authoring to subagents with terse returns.)
+- **Phase 3c — D3 concept-map home:** replace static grid in `app/page.tsx` with d3 force-layout (d3 already a dep); client-only component; responsive grid fallback on mobile below a breakpoint.
 - **Phase 4:** drop unused `StatsPanel`/`WindowOverlay` if subsumed; full verify; update this doc + memory.
 
 ## Out of scope (future): input editors, variants.ts template generator, bridgeFrom rendering.
