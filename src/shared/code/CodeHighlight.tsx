@@ -7,6 +7,9 @@ interface CodeHighlightProps {
   language?: "python";
   /** Lines (1-indexed) to highlight as the "active" step */
   highlightedLines?: number[];
+  /** Lines (1-indexed) the reader has "reached". When provided, every OTHER
+   *  line is dimmed (progressive reveal). Omit to reveal everything. */
+  revealedLines?: number[];
   /** Optional header rendered inside the same border (used by practice CodeBlock). */
   header?: ReactNode;
 }
@@ -180,8 +183,9 @@ function tokenizeLine(line: string): Token[] {
   return tokens;
 }
 
-export function CodeHighlight({ code, highlightedLines = [], header }: CodeHighlightProps) {
+export function CodeHighlight({ code, highlightedLines = [], revealedLines, header }: CodeHighlightProps) {
   const lines = code.split("\n");
+  const revealSet = revealedLines ? new Set(revealedLines) : null;
 
   return (
     <div className="rounded-xl border border-[var(--line-faint)] bg-[var(--bg-inset)] overflow-hidden font-mono text-[13px]">
@@ -190,15 +194,18 @@ export function CodeHighlight({ code, highlightedLines = [], header }: CodeHighl
         {lines.map((line, i) => {
           const lineNo = i + 1;
           const isHighlighted = highlightedLines.includes(lineNo);
+          // A line is "revealed" if no reveal set is given, it's in the set, or
+          // it's the active line (active always implies reached).
+          const isDimmed = revealSet ? !revealSet.has(lineNo) && !isHighlighted : false;
           const tokens = tokenizeLine(line);
           return (
             <div
               key={i}
-              className={`px-4 transition-colors ${
+              className={`px-4 transition-all duration-300 ${
                 isHighlighted
                   ? "bg-[var(--accent-soft)] border-l-2 border-[var(--accent)]"
                   : "border-l-2 border-transparent"
-              }`}
+              } ${isDimmed ? "opacity-30 blur-[0.4px]" : "opacity-100"}`}
             >
               <span className="inline-block w-8 text-right pr-3 text-[var(--text-faint)] select-none opacity-60">
                 {lineNo}

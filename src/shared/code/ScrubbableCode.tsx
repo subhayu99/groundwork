@@ -12,6 +12,8 @@ interface Props {
    *  "code synced to the animation" the lesson promises. The user can still
    *  scrub manually to explore; the next step change re-syncs. */
   activeLines?: number[];
+  /** Lines the reader has reached; others render dimmed (progressive reveal). */
+  revealedLines?: number[];
 }
 
 /**
@@ -20,7 +22,7 @@ interface Props {
  * current step (synced to the visualization); manual scrubbing temporarily
  * takes over until the step changes again.
  */
-export function ScrubbableCode({ code, filename = "algorithm.py", activeLines }: Props) {
+export function ScrubbableCode({ code, filename = "algorithm.py", activeLines, revealedLines }: Props) {
   const lines = useMemo(() => code.replace(/\n$/, "").split("\n"), [code]);
   const total = lines.length;
 
@@ -83,5 +85,5 @@ export function ScrubbableCode({ code, filename = "algorithm.py", activeLines }:
     />
   );
 
-  return <CodeHighlight code={code} highlightedLines={highlighted} header={header} />;
+  return <CodeHighlight code={code} highlightedLines={highlighted} revealedLines={revealedLines} header={header} />;
 }

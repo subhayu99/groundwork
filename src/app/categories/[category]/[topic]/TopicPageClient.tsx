@@ -41,6 +41,21 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
 
   const stepCodeLines = codeMaps[`${categoryKey}/${topicKey}`];
 
+  // Progressive reveal: dim lines for steps not yet reached. A completed topic
+  // reveals everything; otherwise reveal up to the furthest step reached.
+  const revealedThrough = everCompleted
+    ? steps.length
+    : Math.max(currentStep, ...topicProgress.derivation.completedSteps, 1);
+  const codeRevealedLines = stepCodeLines
+    ? Array.from(
+        new Set(
+          Object.entries(stepCodeLines)
+            .filter(([s]) => Number(s) <= revealedThrough)
+            .flatMap(([, ls]) => ls),
+        ),
+      )
+    : undefined;
+
   const allTopics = listAllTopics();
   const currentIndex = allTopics.findIndex(
     (t) => t.category === categoryKey && t.key === topicKey,
@@ -184,9 +199,10 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
             <Visualizer step={currentStep} onWedgeInteraction={() => setWedgeInteracted(true)} />
           }
           code={pythonCode}
-          codeDrawerLocked={!everCompleted && currentStep < unlockAt}
+          codeDrawerLocked={false}
           codeFilename={`${topicKey.replaceAll("-", "_")}.py`}
           codeActiveLines={stepCodeLines?.[Math.min(currentStep, steps.length)]}
+          codeRevealedLines={codeRevealedLines}
         />
       </div>
     </AccessGate>
