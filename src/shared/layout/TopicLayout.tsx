@@ -2,6 +2,7 @@
 
 import { ReactNode, useState } from "react";
 import { ScrubbableCode } from "@/shared/code/ScrubbableCode";
+import { FitViewport } from "./FitViewport";
 
 interface TopicLayoutProps {
   cards: ReactNode;
@@ -96,9 +97,9 @@ export function TopicLayout({ cards, visualization, code, codeDrawerLocked, code
       >
         {/* Visualization */}
         <main
-          className={`${mobileTab === "visual" ? "flex" : "hidden"} md:flex flex-1 items-center justify-center overflow-auto p-6 md:p-8 relative`}
+          className={`${mobileTab === "visual" ? "flex" : "hidden"} md:flex flex-1 items-start md:items-center justify-center overflow-auto p-6 md:p-8 relative`}
         >
-          {visualization}
+          <FitViewport>{visualization}</FitViewport>
         </main>
 
         {/* Code — desktop drawer */}
