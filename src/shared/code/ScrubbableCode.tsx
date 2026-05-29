@@ -1,25 +1,29 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CodeHighlight } from "./CodeHighlight";
 import { ScrubBar } from "./ScrubBar";
 
 interface Props {
   code: string;
   filename?: string;
+  /** Lines (1-indexed) the current derivation step maps to. When provided, the
+   *  highlight follows the visualization/step instead of sitting idle — the
+   *  "code synced to the animation" the lesson promises. The user can still
+   *  scrub manually to explore; the next step change re-syncs. */
+  activeLines?: number[];
 }
 
 /**
- * The code drawer body: a scrub bar that walks an active-line highlight
- * down the file, with the highlighted line shown in CodeHighlight.
- * Lines are 1-indexed. Blank lines are skipped so the active highlight
- * always lands on something readable.
+ * The code drawer body. By default a scrub bar walks an active-line highlight
+ * down the file. When `activeLines` is supplied, the highlight tracks the
+ * current step (synced to the visualization); manual scrubbing temporarily
+ * takes over until the step changes again.
  */
-export function ScrubbableCode({ code, filename = "algorithm.py" }: Props) {
+export function ScrubbableCode({ code, filename = "algorithm.py", activeLines }: Props) {
   const lines = useMemo(() => code.replace(/\n$/, "").split("\n"), [code]);
   const total = lines.length;
 
-  // Lines worth landing on (non-blank). Scrubbing snaps to these.
   const stops = useMemo(
     () =>
       lines
@@ -32,28 +36,52 @@ export function ScrubbableCode({ code, filename = "algorithm.py" }: Props) {
   const lastStop = stops[stops.length - 1] ?? total;
   const [current, setCurrent] = useState(stops[0] ?? 1);
   const [playing, setPlaying] = useState(false);
+  // Whether the user has scrubbed since the last step change. While false, the
+  // highlight follows `activeLines` (synced); a manual scrub flips it true.
+  const [manual, setManual] = useState(false);
 
-  // Snap an arbitrary line to the nearest meaningful stop at or after it.
-  // Past the final stop we clamp to it so Play always terminates.
+  const syncKey = activeLines?.join(",");
+  useEffect(() => {
+    if (activeLines && activeLines.length > 0) {
+      setManual(false);
+      setCurrent(activeLines[0]);
+      setPlaying(false);
+    }
+  }, [syncKey]); // re-sync whenever the step's lines change
+
+  const synced = !manual && !!activeLines && activeLines.length > 0;
+
   const snap = (line: number) => {
+    setManual(true);
     const clamped = Math.max(1, Math.min(total, line));
     const next = stops.find((s) => s >= clamped);
     setCurrent(next ?? lastStop);
   };
 
+  const highlighted = synced ? activeLines! : [current];
+
   const header = (
     <ScrubBar
-      currentLine={current}
+      currentLine={synced ? activeLines![0] : current}
       totalLines={lastStop}
       playing={playing}
       onLineChange={(line) => snap(line)}
-      onPlayToggle={() => setPlaying((p) => !p)}
+      onPlayToggle={() => {
+        setManual(true);
+        setPlaying((p) => !p);
+      }}
       onReset={() => {
         setPlaying(false);
-        setCurrent(stops[0] ?? 1);
+        if (activeLines && activeLines.length > 0) {
+          setManual(false);
+          setCurrent(activeLines[0]);
+        } else {
+          setManual(true);
+          setCurrent(stops[0] ?? 1);
+        }
       }}
     />
   );
 
-  return <CodeHighlight code={code} highlightedLines={[current]} header={header} />;
+  return <CodeHighlight code={code} highlightedLines={highlighted} header={header} />;
 }

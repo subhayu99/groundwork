@@ -10,6 +10,7 @@ import { AccessGate } from "@/shared/access/AccessGate";
 import { getCategory, listAllTopics } from "@/categories/registry";
 import { getPrinciple } from "@/principles/registry";
 import { getTopicBundle } from "@/categories/topic-registry";
+import { codeMaps } from "@/categories/code-maps";
 import { emitEvent } from "@/shared/analytics/events";
 import { useProgress } from "@/shared/progress/useProgress";
 import { notFound } from "next/navigation";
@@ -37,6 +38,8 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, problems, nextSteps } = bundle;
   const problemCount = problems?.length ?? 0;
   const unlockAt = unlockCodeAtStep ?? steps.length;
+
+  const stepCodeLines = codeMaps[`${categoryKey}/${topicKey}`];
 
   const allTopics = listAllTopics();
   const currentIndex = allTopics.findIndex(
@@ -155,6 +158,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
           code={pythonCode}
           codeDrawerLocked={!everCompleted && currentStep < unlockAt}
           codeFilename={`${topicKey.replaceAll("-", "_")}.py`}
+          codeActiveLines={stepCodeLines?.[currentStep]}
         />
       </div>
     </AccessGate>
