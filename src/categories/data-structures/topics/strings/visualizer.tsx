@@ -4,12 +4,18 @@ import { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 const SENTENCE = "the quick brown fox";
 const PATTERN = "brown";
 const CELL = 32;
 const GAP = 4;
 const STRIDE = CELL + GAP;
+
+// Mobile cell sizing — 19 cells + gaps must fit ~340px panel near full scale.
+// 19*15 + 18*2 = 321px.
+const MOBILE_CELL = 15;
+const MOBILE_GAP = 2;
 
 interface VisualizerProps {
   step: number;
@@ -36,8 +42,11 @@ function CharRow({
   mismatchIndices?: number[];
   showIndices?: boolean;
 }) {
+  const isMobile = useIsMobile();
+  const cell = isMobile ? MOBILE_CELL : CELL;
+  const gap = isMobile ? MOBILE_GAP : GAP;
   return (
-    <div className="flex items-end gap-1">
+    <div className="flex items-end" style={{ gap }}>
       {Array.from(text).map((ch, i) => {
         const inHigh = highlightedIndices.includes(i);
         const matched = matchedIndices.includes(i);
@@ -63,8 +72,8 @@ function CharRow({
                   : "var(--line)",
               }}
               transition={{ duration: 0.18 }}
-              className="rounded-md border-2 flex items-center justify-center font-mono text-base"
-              style={{ width: CELL, height: CELL }}
+              className="rounded-md border-2 flex items-center justify-center font-mono"
+              style={{ width: cell, height: cell, fontSize: isMobile ? 10 : 16 }}
             >
               <span className={isSpace ? "text-[var(--text-faint)]" : "text-[var(--text)]"}>
                 {isSpace ? "·" : ch}
@@ -188,7 +197,7 @@ function SliderViz({ onInteraction }: { onInteraction?: () => void }) {
 
       <CharRow text={SENTENCE} highlightedIndices={highlighted} matchedIndices={matched} showIndices />
 
-      <div className="flex flex-col items-center gap-4 mt-6 w-[480px]">
+      <div className="flex flex-col items-center gap-4 mt-6 w-full md:max-w-[480px]">
         <div className="font-mono text-sm">
           s[<span className="text-[var(--accent)]">{start}</span>:<span className="text-[var(--accent)]">{start + PATTERN.length}</span>] = &ldquo;
           <span className={matchesPattern ? "text-[var(--diff-easy)]" : "text-[var(--text)]"}>{candidate}</span>&rdquo;

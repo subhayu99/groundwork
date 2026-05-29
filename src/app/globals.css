@@ -51,6 +51,25 @@
   --cell-gap: 8px;
 }
 
+/* Smaller cells on phones so arrays/grids fit without heavy down-scaling. */
+@media (max-width: 767px) {
+  :root {
+    --cell-size: 34px;
+    --cell-gap: 4px;
+  }
+}
+
+/* Respect the OS "reduce motion" setting: collapse CSS transitions/animations.
+   (Framer Motion components additionally honor it via useReducedMotion.) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-elevated: var(--bg-elevated);

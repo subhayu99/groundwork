@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 interface Meeting {
   id: string;
@@ -24,10 +25,23 @@ const MEETINGS: Meeting[] = [
 
 const HOUR_START = 9;
 const HOUR_END = 17;
-const HOUR_PX = 56;
-const ROW_H = 32;
-const ROW_GAP = 6;
-const LABEL_W = 110;
+
+interface Dims {
+  HOUR_PX: number;
+  ROW_H: number;
+  ROW_GAP: number;
+  LABEL_W: number;
+}
+
+// Desktop / SSR defaults — identical to the original constants.
+const DESKTOP_DIMS: Dims = { HOUR_PX: 56, ROW_H: 32, ROW_GAP: 6, LABEL_W: 110 };
+// Mobile: shrink so 76 + 8*28 = 300px natural width fits a ~340px panel near 1.0 scale.
+const MOBILE_DIMS: Dims = { HOUR_PX: 28, ROW_H: 26, ROW_GAP: 5, LABEL_W: 76 };
+
+function useDims(): Dims {
+  const isMobile = useIsMobile();
+  return isMobile ? MOBILE_DIMS : DESKTOP_DIMS;
+}
 
 interface VisualizerProps {
   step: number;
@@ -40,7 +54,8 @@ export function ActivitySelectionVisualizer({ step, onWedgeInteraction }: Visual
   return <DerivedViz />;
 }
 
-function HourAxis() {
+function HourAxis({ dims }: { dims: Dims }) {
+  const { HOUR_PX, LABEL_W } = dims;
   const ticks = [];
   for (let h = HOUR_START; h <= HOUR_END; h++) ticks.push(h);
   return (
@@ -62,11 +77,15 @@ function MeetingBar({
   m,
   state,
   row,
+  dims,
 }: {
   m: Meeting;
   state: "idle" | "active" | "accepted" | "skipped";
   row: number;
+  dims: Dims;
 }) {
+  const { HOUR_PX, ROW_H, ROW_GAP, LABEL_W } = dims;
+  const compact = HOUR_PX < DESKTOP_DIMS.HOUR_PX; // mobile
   const left = LABEL_W + (m.start - HOUR_START) * HOUR_PX;
   const width = (m.end - m.start) * HOUR_PX - 4;
   const bg =
@@ -90,7 +109,7 @@ function MeetingBar({
       <motion.div
         animate={{ top: row * (ROW_H + ROW_GAP) }}
         transition={{ duration: 0.32 }}
-        className="absolute font-mono text-[10px] text-[var(--text-muted)] text-right pr-2"
+        className={`absolute font-mono ${compact ? "text-[8px] pr-1" : "text-[10px] pr-2"} text-[var(--text-muted)] text-right truncate`}
         style={{ left: 0, width: LABEL_W, height: ROW_H, lineHeight: `${ROW_H}px` }}
       >
         {m.label}
@@ -98,7 +117,7 @@ function MeetingBar({
       <motion.div
         animate={{ top: row * (ROW_H + ROW_GAP), backgroundColor: bg, borderColor: border }}
         transition={{ duration: 0.32 }}
-        className="absolute rounded-md border flex items-center justify-center font-mono text-[10px]"
+        className={`absolute rounded-md border flex items-center justify-center font-mono ${compact ? "text-[8px]" : "text-[10px]"}`}
         style={{ left, width, height: ROW_H, color: "var(--text)" }}
       >
         {m.start}&ndash;{m.end}
@@ -109,6 +128,8 @@ function MeetingBar({
 
 /* Steps 1-2 — original, unsorted, overlaps visible */
 function RawTimelineViz() {
+  const dims = useDims();
+  const { HOUR_PX, ROW_H, ROW_GAP, LABEL_W } = dims;
   // Count overlaps to expose the difficulty.
   const overlaps = useMemo(() => {
     let count = 0;
@@ -135,10 +156,10 @@ function RawTimelineViz() {
         }}
       >
         {MEETINGS.map((m, i) => (
-          <MeetingBar key={m.id} m={m} row={i} state="idle" />
+          <MeetingBar key={m.id} m={m} row={i} state="idle" dims={dims} />
         ))}
       </div>
-      <HourAxis />
+      <HourAxis dims={dims} />
       <div className="font-mono text-xs text-[var(--text-muted)]">
         overlapping pairs: <span className="text-[var(--diff-hard)]">{overlaps}</span>
         <span className="mx-3">·</span>
@@ -192,6 +213,8 @@ function meetingState(
 
 /* Step 3 — sort button + step/play */
 function SortAndPickViz({ onInteraction }: { onInteraction?: () => void }) {
+  const dims = useDims();
+  const { HOUR_PX, ROW_H, ROW_GAP, LABEL_W } = dims;
   const [pick, setPick] = useState<PickState>(initialPick());
 
   const order = useMemo(() => (pick.sorted ? sortedMeetings() : MEETINGS), [pick.sorted]);
@@ -233,7 +256,7 @@ function SortAndPickViz({ onInteraction }: { onInteraction?: () => void }) {
         }}
       >
         {order.map((m, i) => (
-          <MeetingBar key={m.id} m={m} row={i} state={meetingState(m.id, pick, activeId)} />
+          <MeetingBar key={m.id} m={m} row={i} state={meetingState(m.id, pick, activeId)} dims={dims} />
         ))}
         {pick.sorted && pick.lastEnd > -Infinity && (
           <motion.div
@@ -247,7 +270,7 @@ function SortAndPickViz({ onInteraction }: { onInteraction?: () => void }) {
           </motion.div>
         )}
       </div>
-      <HourAxis />
+      <HourAxis dims={dims} />
       <div className="font-mono text-xs text-[var(--text-muted)]">
         accepted: <span className="text-[var(--diff-easy)]">{pick.accepted.length}</span>
         <span className="mx-3">·</span>
@@ -285,6 +308,8 @@ function SortAndPickViz({ onInteraction }: { onInteraction?: () => void }) {
 
 /* Steps 4-7 — auto-play with sorted order pre-shown */
 function DerivedViz() {
+  const dims = useDims();
+  const { HOUR_PX, ROW_H, ROW_GAP, LABEL_W } = dims;
   const order = useMemo(() => sortedMeetings(), []);
   const [pick, setPick] = useState<PickState>({
     sorted: true,
@@ -321,7 +346,7 @@ function DerivedViz() {
         }}
       >
         {order.map((m, i) => (
-          <MeetingBar key={m.id} m={m} row={i} state={meetingState(m.id, pick, activeId)} />
+          <MeetingBar key={m.id} m={m} row={i} state={meetingState(m.id, pick, activeId)} dims={dims} />
         ))}
         {pick.lastEnd > -Infinity && (
           <motion.div
@@ -335,7 +360,7 @@ function DerivedViz() {
           </motion.div>
         )}
       </div>
-      <HourAxis />
+      <HourAxis dims={dims} />
       <div className="font-mono text-xs text-[var(--text-muted)]">
         kept <span className="text-[var(--diff-easy)]">{pick.accepted.length}</span> of{" "}
         {MEETINGS.length}

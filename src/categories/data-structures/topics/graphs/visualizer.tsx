@@ -4,6 +4,27 @@ import { useCallback, useEffect, useState } from "react";
 import { GraphViz, GraphVizNode, GraphVizEdge } from "@/shared/viz/GraphViz";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import { useIsMobile } from "@/shared/layout/useIsMobile";
+
+// GraphViz coordinate space the node x/y above are authored in.
+const BASE_W = 480;
+const BASE_H = 380;
+// Mobile render target (~340px wide, height kept proportional). Desktop/SSR
+// (useIsMobile === false) keeps the default 480×380, byte-for-byte unchanged.
+const MOBILE_W = 340;
+const MOBILE_H = Math.round((MOBILE_W / BASE_W) * BASE_H);
+
+/** Responsive GraphViz sizing: scales the whole drawing via viewBox on mobile. */
+function useGraphSize() {
+  const isMobile = useIsMobile();
+  if (!isMobile) return {};
+  return {
+    width: MOBILE_W,
+    height: MOBILE_H,
+    viewBoxWidth: BASE_W,
+    viewBoxHeight: BASE_H,
+  };
+}
 
 interface GNode { id: string; label: string; x: number; y: number }
 interface GEdge { a: string; b: string }
@@ -75,13 +96,14 @@ function ForcedTreeViz() {
     ...treeOnly.map((e) => ({ a: e.a, b: e.b })),
     ...lostEdges.map((e) => ({ a: e.a, b: e.b, tone: "bad" as const, dashed: true })),
   ];
+  const size = useGraphSize();
 
   return (
     <div className="flex flex-col items-center gap-6">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
         forcing a tree · lost edges shown in red, dashed
       </div>
-      <GraphViz nodes={vizNodes()} edges={edges} />
+      <GraphViz nodes={vizNodes()} edges={edges} {...size} />
       <p className="font-mono text-[10px] text-[var(--text-faint)] max-w-[400px] text-center">
         these <span className="text-[var(--diff-hard)]">{lostEdges.length}</span> friendships exist
         but the tree can&rsquo;t hold them
@@ -106,6 +128,7 @@ function ClickableGraphViz({ onInteraction }: { onInteraction?: () => void }) {
     b: e.b,
     tone: highlighted && highlighted.has(e.a) && highlighted.has(e.b) ? ("accent" as const) : undefined,
   }));
+  const size = useGraphSize();
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -115,6 +138,7 @@ function ClickableGraphViz({ onInteraction }: { onInteraction?: () => void }) {
       <GraphViz
         nodes={nodes}
         edges={edges}
+        {...size}
         onNodeClick={(id) => {
           setActiveId(id === activeId ? null : id);
           onInteraction?.();
@@ -194,6 +218,7 @@ function TraversalViz() {
     b: e.b,
     tone: visited.has(e.a) && visited.has(e.b) ? ("active" as const) : undefined,
   }));
+  const size = useGraphSize();
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -222,7 +247,7 @@ function TraversalViz() {
         <span className="text-[var(--text-faint)] ml-2">starting from {start}</span>
       </div>
 
-      <GraphViz nodes={nodes} edges={edges} />
+      <GraphViz nodes={nodes} edges={edges} {...size} />
 
       <div className="flex flex-col items-center gap-3">
         <div className="font-mono text-xs text-[var(--text-muted)] max-w-[420px] text-center break-words">
@@ -241,12 +266,13 @@ function TraversalViz() {
 }
 
 function SummaryGraphViz() {
+  const size = useGraphSize();
   return (
     <div className="flex flex-col items-center gap-6">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
         graph · nodes + edges
       </div>
-      <GraphViz nodes={vizNodes()} edges={EDGES.map((e) => ({ a: e.a, b: e.b }))} />
+      <GraphViz nodes={vizNodes()} edges={EDGES.map((e) => ({ a: e.a, b: e.b }))} {...size} />
       <div className="font-mono text-xs text-[var(--text-muted)] grid grid-cols-2 gap-x-8 gap-y-1.5">
         <div>add edge</div><div className="text-[var(--diff-easy)]">O(1)</div>
         <div>list neighbors of v</div><div className="text-[var(--diff-easy)]">O(deg(v))</div>

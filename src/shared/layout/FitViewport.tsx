@@ -3,15 +3,25 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 
 /**
- * Scales its child down to fit the available width.
+ * Scales its child to fit the available space.
  *
- * Visualizers are authored at fixed pixel widths (grids, timelines, side-by-side
- * panels) that overflow a phone screen. Rather than make each one responsive, we
- * measure the child's natural width and apply a uniform `scale()` so it always
- * fits the container. It only ever scales DOWN — on desktop, where everything
- * fits, the scale stays 1 and this is a no-op.
+ * Default (desktop): fit by WIDTH only, scale down never up, top-centered, and
+ * collapse the box to the scaled height — a no-op when everything already fits.
+ *
+ * `fitHeight` (mobile sticky visual panel): fill the parent box, fit by BOTH
+ * width and height, and center on both axes. Use this when the parent imposes a
+ * bounded height (e.g. a fixed-height panel) so the visual fills it instead of
+ * being a small strip pinned to the top.
  */
-export function FitViewport({ children, minScale = 0.45 }: { children: ReactNode; minScale?: number }) {
+export function FitViewport({
+  children,
+  minScale = 0.45,
+  fitHeight = false,
+}: {
+  children: ReactNode;
+  minScale?: number;
+  fitHeight?: boolean;
+}) {
   const outerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -23,14 +33,22 @@ export function FitViewport({ children, minScale = 0.45 }: { children: ReactNode
     if (!outer || !inner) return;
 
     const measure = () => {
-      const available = outer.clientWidth;
+      const availW = outer.clientWidth;
+      const availH = outer.clientHeight;
       // Transforms don't affect offset/scroll metrics, so these read the
       // child's *natural* (unscaled) size regardless of the current scale.
-      const natural = inner.scrollWidth;
-      if (!available || !natural) return;
-      const next = natural > available ? Math.max(available / natural, minScale) : 1;
+      const natW = inner.scrollWidth;
+      const natH = inner.offsetHeight;
+      if (!availW || !natW) return;
+
+      let next = natW > availW ? availW / natW : 1;
+      if (fitHeight && availH && natH) {
+        next = Math.min(next, availH / natH);
+      }
+      next = Math.max(Math.min(next, 1), minScale);
+
       setScale((prev) => (Math.abs(prev - next) > 0.005 ? next : prev));
-      setBoxHeight(inner.offsetHeight * next);
+      if (!fitHeight) setBoxHeight(natH * next);
     };
 
     measure();
@@ -38,14 +56,21 @@ export function FitViewport({ children, minScale = 0.45 }: { children: ReactNode
     ro.observe(outer);
     ro.observe(inner);
     return () => ro.disconnect();
-  }, [minScale]);
+  }, [minScale, fitHeight]);
+
+  if (fitHeight) {
+    return (
+      <div ref={outerRef} className="w-full h-full flex items-center justify-center overflow-hidden">
+        <div ref={innerRef} style={{ transform: `scale(${scale})`, transformOrigin: "center center" }}>
+          {children}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={outerRef} className="w-full flex justify-center" style={{ height: boxHeight }}>
-      <div
-        ref={innerRef}
-        style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
-      >
+      <div ref={innerRef} style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}>
         {children}
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 interface VisualizerProps {
   step: number;
@@ -72,8 +73,8 @@ function NaiveArrayViz() {
         plain array — try the same operation at each end
       </div>
 
-      <div className="flex items-center gap-2 min-h-[80px]">
-        <span className="font-mono text-[10px] text-[var(--text-faint)] mr-2">front →</span>
+      <div className="flex items-center gap-1 md:gap-2 min-h-[80px]">
+        <span className="font-mono text-[10px] text-[var(--text-faint)] mr-1 md:mr-2">front →</span>
         <AnimatePresence initial={false}>
           {arr.map((item, i) => (
             <motion.div
@@ -90,7 +91,7 @@ function NaiveArrayViz() {
               }}
               exit={{ opacity: 0, scale: 0.7 }}
               transition={{ duration: 0.28 }}
-              className="rounded-lg border-2 border-[var(--line)] px-4 h-14 flex items-center justify-center font-mono text-sm text-[var(--text)]"
+              className="rounded-lg border-2 border-[var(--line)] px-2 md:px-4 h-12 md:h-14 flex items-center justify-center font-mono text-xs md:text-sm text-[var(--text)]"
             >
               {item.label}
             </motion.div>
@@ -124,6 +125,7 @@ function NaiveArrayViz() {
 
 /* Steps 3-7 — side-by-side Stack and Queue */
 function StackQueueViz({ onInteraction }: { onInteraction?: () => void }) {
+  const isMobile = useIsMobile();
   const [stack, setStack] = useState<Item[]>([]);
   const [queue, setQueue] = useState<Item[]>([]);
   const [lastStackOp, setLastStackOp] = useState<string | null>(null);
@@ -169,11 +171,11 @@ function StackQueueViz({ onInteraction }: { onInteraction?: () => void }) {
         same buttons, two contracts
       </div>
 
-      <div className="grid grid-cols-2 gap-12">
+      <div className={isMobile ? "flex flex-col items-center gap-8" : "grid grid-cols-2 gap-12"}>
         {/* Stack */}
         <div className="flex flex-col items-center gap-3">
           <div className="font-mono text-xs uppercase tracking-wider text-[var(--accent-ink)]">stack · lifo</div>
-          <div className="flex flex-col-reverse items-center gap-1 min-h-[260px] justify-end">
+          <div className={`flex flex-col-reverse items-center gap-1 justify-end ${isMobile ? "min-h-[160px]" : "min-h-[260px]"}`}>
             <span className="font-mono text-[10px] text-[var(--text-faint)]">↑ top</span>
             <AnimatePresence initial={false}>
               {stack.map((item) => (
@@ -207,7 +209,7 @@ function StackQueueViz({ onInteraction }: { onInteraction?: () => void }) {
         {/* Queue */}
         <div className="flex flex-col items-center gap-3">
           <div className="font-mono text-xs uppercase tracking-wider text-[var(--accent-ink)]">queue · fifo</div>
-          <div className="flex items-center justify-center gap-1 min-h-[260px]">
+          <div className={`flex items-center justify-center gap-1 ${isMobile ? "min-h-[120px]" : "min-h-[260px]"}`}>
             <span className="font-mono text-[10px] text-[var(--text-faint)]">front →</span>
             <div className="flex items-center gap-1">
               <AnimatePresence initial={false}>

@@ -23,6 +23,14 @@ interface Props {
   edges: GraphVizEdge[];
   width?: number;
   height?: number;
+  /**
+   * Coordinate space the node x/y are authored in. Defaults to width/height so
+   * existing callers are unaffected. Pass the original (desktop) dimensions here
+   * while shrinking width/height to scale the whole drawing as a unit (nodes
+   * never clip) — used for mobile-responsive sizing.
+   */
+  viewBoxWidth?: number;
+  viewBoxHeight?: number;
   nodeRadius?: number;
   onNodeClick?: (id: string) => void;
 }
@@ -38,12 +46,21 @@ export function GraphViz({
   edges,
   width = 480,
   height = 380,
+  viewBoxWidth,
+  viewBoxHeight,
   nodeRadius = 26,
   onNodeClick,
 }: Props) {
   const byId = new Map(nodes.map((n) => [n.id, n]));
+  const vbW = viewBoxWidth ?? width;
+  const vbH = viewBoxHeight ?? height;
   return (
-    <svg width={width} height={height} className="overflow-visible">
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${vbW} ${vbH}`}
+      className="overflow-visible"
+    >
       {edges.map((e, i) => {
         const a = byId.get(e.a);
         const b = byId.get(e.b);

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 interface ArrayVizProps {
   values: number[];
@@ -28,8 +29,17 @@ export function ArrayViz({
   recomputedIndices = [],
   showIndices = true,
 }: ArrayVizProps) {
+  const isMobile = useIsMobile();
+  const n = values.length;
+  // On mobile, size cells to fit the ~340px visual panel regardless of array
+  // length (so a 15-cell array doesn't get scaled down to an illegible strip),
+  // with a legible floor. Desktop keeps the original 56px / 8px-gap / 18px-font.
+  const gapPx = isMobile ? 4 : 8;
+  const cellPx = isMobile ? Math.max(20, Math.min(40, Math.floor((338 - gapPx * (n - 1)) / n))) : 56;
+  const fontPx = isMobile ? Math.round(cellPx * 0.44) : 18;
+
   return (
-    <div className="flex items-center gap-2 select-none">
+    <div className="flex items-center select-none" style={{ gap: gapPx }}>
       {values.map((v, i) => {
         const inWindow = highlightedIndices.includes(i);
         const isHover = hoverIndex === i;
@@ -62,14 +72,11 @@ export function ArrayViz({
             }}
             transition={{ duration: 0.32, ease: [0.22, 0.65, 0.3, 1] }}
             className="relative flex flex-col items-center"
-            style={{
-              width: "var(--cell-size)",
-              height: "var(--cell-size)",
-            }}
+            style={{ width: cellPx, height: cellPx }}
           >
             <div
-              className="flex items-center justify-center w-full h-full rounded-lg border-2 font-mono text-lg text-[var(--text)]"
-              style={{ borderColor: "inherit", background: "inherit" }}
+              className="flex items-center justify-center w-full h-full rounded-lg border-2 font-mono text-[var(--text)]"
+              style={{ borderColor: "inherit", background: "inherit", fontSize: fontPx }}
             >
               {v}
             </div>

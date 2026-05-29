@@ -3,6 +3,7 @@
 import { ReactNode, useState } from "react";
 import { ScrubbableCode } from "@/shared/code/ScrubbableCode";
 import { FitViewport } from "./FitViewport";
+import { useIsMobile } from "./useIsMobile";
 
 interface TopicLayoutProps {
   cards: ReactNode;
@@ -13,58 +14,75 @@ interface TopicLayoutProps {
   codeFilename?: string;
 }
 
-type MobileTab = "cards" | "visual" | "code";
-
 /**
- * Responsive topic layout.
+ * Responsive topic layout — single DOM, reflowed by breakpoint (the cards and
+ * visualizer mount exactly once; we never duplicate them).
  *
- * Desktop (md+): a fixed cards sidebar (collapsible) on the left and a right
- * column holding the visualization with the code drawer pinned to its bottom.
+ * Desktop (md+): a collapsible cards sidebar on the LEFT and a right column with
+ * the visualization on top and the code drawer pinned to its bottom.
  *
- * Mobile (< md): a single column with a Cards / Visual / Code tab bar. Only the
- * active panel is shown; the cards and visualization stay mounted (hidden via
- * CSS) so their scroll position and animation state survive tab switches.
+ * Mobile (< md): a single column — the visualization is a fixed-height panel at
+ * the TOP (so it stays in view) and the lesson cards scroll BENEATH it, so you
+ * read the card and watch the synced visual together. The visual can be
+ * collapsed to reclaim reading room; the code is a collapsible block at the end
+ * of the lesson. (Flex `order` swaps the two regions between the layouts.)
  */
 export function TopicLayout({ cards, visualization, code, codeDrawerLocked, codeFilename }: TopicLayoutProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mobileCodeOpen, setMobileCodeOpen] = useState(false);
   const [cardsCollapsed, setCardsCollapsed] = useState(false);
-  const [mobileTab, setMobileTab] = useState<MobileTab>("cards");
-
-  const tabs: { key: MobileTab; label: string; show: boolean }[] = [
-    { key: "cards", label: "Lesson", show: true },
-    { key: "visual", label: "Visual", show: true },
-    { key: "code", label: "Code", show: Boolean(code) },
-  ];
+  const [visualCollapsed, setVisualCollapsed] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-      {/* Mobile tab bar */}
-      <div className="md:hidden flex border-b border-[var(--line-faint)] bg-[var(--bg-elevated)]">
-        {tabs
-          .filter((t) => t.show)
-          .map((t) => {
-            const active = mobileTab === t.key;
-            return (
-              <button
-                key={t.key}
-                onClick={() => setMobileTab(t.key)}
-                className={`flex-1 py-3 text-xs font-mono uppercase tracking-wider transition-colors ${
-                  active
-                    ? "text-[var(--text)] border-b-2 border-[var(--accent)] bg-[var(--bg-card)]"
-                    : "text-[var(--text-faint)] border-b-2 border-transparent hover:text-[var(--text-muted)]"
-                }`}
-              >
-                {t.label}
-              </button>
-            );
-          })}
+      {/* VISUAL (+ desktop code drawer) — top on mobile, right column on desktop */}
+      <div className="order-1 md:order-2 flex flex-col md:flex-1 overflow-hidden">
+        <main
+          className={`flex items-center justify-center overflow-hidden relative bg-[var(--bg)] transition-[height] duration-200 p-3 md:p-8 ${
+            visualCollapsed ? "h-0" : "h-[42vh]"
+          } md:h-auto md:flex-1`}
+        >
+          <FitViewport fitHeight={isMobile}>{visualization}</FitViewport>
+        </main>
+
+        {/* Mobile-only: collapse the visual to give the lesson more room */}
+        <button
+          onClick={() => setVisualCollapsed((c) => !c)}
+          className="md:hidden flex items-center justify-center gap-1.5 py-2 text-[11px] font-mono uppercase tracking-wider text-[var(--text-faint)] hover:text-[var(--text-muted)] border-b border-[var(--line-faint)] bg-[var(--bg-elevated)]"
+        >
+          {visualCollapsed ? "▾ show visual" : "▴ hide visual"}
+        </button>
+
+        {/* Code — desktop drawer */}
+        {code && (
+          <div className="hidden md:block border-t border-[var(--line-faint)] bg-[var(--bg-elevated)]">
+            <button
+              disabled={codeDrawerLocked}
+              onClick={() => !codeDrawerLocked && setDrawerOpen(!drawerOpen)}
+              className={`w-full flex items-center justify-between px-6 py-3 text-xs font-mono ${
+                codeDrawerLocked
+                  ? "text-[var(--text-faint)] cursor-not-allowed"
+                  : "text-[var(--text-muted)] hover:text-[var(--text)]"
+              }`}
+            >
+              <span>python · {codeFilename ?? "algorithm.py"}</span>
+              <span>{codeDrawerLocked ? "unlocks when you finish the derivation" : drawerOpen ? "▼ hide" : "▲ show"}</span>
+            </button>
+            {drawerOpen && !codeDrawerLocked && (
+              <div className="max-h-[60vh] overflow-auto px-4 pb-5">
+                <ScrubbableCode code={code} filename={codeFilename} />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Cards / lesson panel */}
+      {/* CARDS / lesson — below the visual on mobile, left sidebar on desktop */}
       <aside
-        className={`${mobileTab === "cards" ? "flex" : "hidden"} md:flex flex-col flex-1 md:flex-none w-full ${
+        className={`order-2 md:order-1 flex flex-col flex-1 md:flex-none w-full ${
           cardsCollapsed ? "md:w-[52px]" : "md:w-[420px]"
-        } md:transition-[width] md:duration-300 relative border-r border-[var(--line-faint)] bg-[var(--bg-elevated)] overflow-hidden`}
+        } md:transition-[width] md:duration-300 relative md:border-r border-[var(--line-faint)] bg-[var(--bg-elevated)] overflow-hidden`}
       >
         {/* Desktop-only collapse toggle */}
         <button
@@ -83,66 +101,31 @@ export function TopicLayout({ cards, visualization, code, codeDrawerLocked, code
           lesson
         </div>
 
-        {/* Cards content */}
-        <div
-          className={`${cardsCollapsed ? "md:hidden" : ""} h-full overflow-y-auto p-6 md:pr-12`}
-        >
+        {/* Cards content (+ mobile code at the end of the lesson) */}
+        <div className={`${cardsCollapsed ? "md:hidden" : ""} flex-1 overflow-y-auto p-5 md:p-6 md:pr-12`}>
           {cards}
+
+          {code && (
+            <div className="md:hidden mt-6 pt-4 border-t border-[var(--line-faint)]">
+              <button
+                disabled={codeDrawerLocked}
+                onClick={() => !codeDrawerLocked && setMobileCodeOpen((o) => !o)}
+                className={`w-full flex items-center justify-between text-xs font-mono py-2 ${
+                  codeDrawerLocked ? "text-[var(--text-faint)] cursor-not-allowed" : "text-[var(--text-muted)]"
+                }`}
+              >
+                <span>python · {codeFilename ?? "algorithm.py"}</span>
+                <span>{codeDrawerLocked ? "🔒 finish to unlock" : mobileCodeOpen ? "▾ hide" : "▸ show code"}</span>
+              </button>
+              {mobileCodeOpen && !codeDrawerLocked && (
+                <div className="mt-3">
+                  <ScrubbableCode code={code} filename={codeFilename} />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </aside>
-
-      {/* Right column: visualization + code */}
-      <div
-        className={`${mobileTab !== "cards" ? "flex" : "hidden"} md:flex flex-1 flex-col overflow-hidden`}
-      >
-        {/* Visualization */}
-        <main
-          className={`${mobileTab === "visual" ? "flex" : "hidden"} md:flex flex-1 items-start md:items-center justify-center overflow-auto p-6 md:p-8 relative`}
-        >
-          <FitViewport>{visualization}</FitViewport>
-        </main>
-
-        {/* Code — desktop drawer */}
-        {code && (
-          <div className="hidden md:block border-t border-[var(--line-faint)] bg-[var(--bg-elevated)]">
-            <button
-              disabled={codeDrawerLocked}
-              onClick={() => !codeDrawerLocked && setDrawerOpen(!drawerOpen)}
-              className={`w-full flex items-center justify-between px-6 py-3 text-xs font-mono ${
-                codeDrawerLocked
-                  ? "text-[var(--text-faint)] cursor-not-allowed"
-                  : "text-[var(--text-muted)] hover:text-[var(--text)]"
-              }`}
-            >
-              <span>python · {codeFilename ?? "algorithm.py"}</span>
-              <span>{codeDrawerLocked ? "unlocks after step 6" : drawerOpen ? "▼ hide" : "▲ show"}</span>
-            </button>
-            {drawerOpen && !codeDrawerLocked && (
-              <div className="max-h-[60vh] overflow-auto px-4 pb-5">
-                <ScrubbableCode code={code} filename={codeFilename} />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Code — mobile full panel (only mounts when the Code tab is active) */}
-        {code && mobileTab === "code" && (
-          <div className="md:hidden flex-1 overflow-auto p-4">
-            {codeDrawerLocked ? (
-              <div className="h-full flex flex-col items-center justify-center text-center gap-2 px-6">
-                <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
-                  locked
-                </span>
-                <p className="text-sm text-[var(--text-muted)]">
-                  The code unlocks after you reach step 6 of the derivation.
-                </p>
-              </div>
-            ) : (
-              <ScrubbableCode code={code} filename={codeFilename} />
-            )}
-          </div>
-        )}
-      </div>
     </div>
   );
 }

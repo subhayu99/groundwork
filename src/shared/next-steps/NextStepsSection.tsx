@@ -64,7 +64,7 @@ export function NextStepsSection({
           {hasInAppPractice && (
             <Link
               href={`/categories/${categoryKey}/${topicKey}/practice`}
-              className="block rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] px-3 py-2 mb-2 text-sm text-[var(--accent-ink)] hover:border-[var(--line-strong)] transition-colors"
+              className="flex items-center min-h-[44px] rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] px-3 py-2.5 mb-2 text-sm text-[var(--accent-ink)] hover:border-[var(--line-strong)] transition-colors"
             >
               Try the guided practice problems in here →
             </Link>
@@ -97,7 +97,7 @@ export function NextStepsSection({
                 </div>
                 {p.hints.length > 0 && (
                   <details className="mt-1.5">
-                    <summary className="text-[11px] font-mono text-[var(--text-faint)] cursor-pointer hover:text-[var(--text-muted)] select-none">
+                    <summary className="inline-flex items-center min-h-[32px] text-xs font-mono text-[var(--text-faint)] cursor-pointer hover:text-[var(--text-muted)] select-none">
                       hints
                     </summary>
                     <ol className="mt-1.5 ml-4 list-decimal space-y-1 text-xs text-[var(--text-muted)] leading-relaxed">
@@ -121,7 +121,7 @@ export function NextStepsSection({
               <Link
                 key={t.href}
                 href={t.href}
-                className="block rounded-lg border border-[var(--line-faint)] bg-[var(--bg-card)] px-3 py-2 hover:border-[var(--line-strong)] transition-colors group"
+                className="block rounded-lg border border-[var(--line-faint)] bg-[var(--bg-card)] px-3 py-2.5 hover:border-[var(--line-strong)] transition-colors group"
               >
                 <span className="text-sm font-medium text-[var(--text)] group-hover:text-[var(--accent-ink)]">
                   {t.name} →

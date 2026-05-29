@@ -4,12 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrayViz } from "@/shared/viz/ArrayViz";
 import { StatsPanel } from "@/shared/viz/StatsPanel";
+import { useIsMobile } from "@/shared/layout/useIsMobile";
 
 const ARR = [3, 7, 11, 14, 19, 23, 27, 32, 38, 44, 51, 59, 68, 74, 81];
 const TARGET = 27;
-const CELL = 40;
-const GAP = 6;
-const STRIDE = CELL + GAP;
 
 interface VisualizerProps {
   step: number;
@@ -91,6 +89,9 @@ function LinearScanViz() {
 
 /* Step 3 — click any cell, half the array goes dark */
 function ClickToHalveViz({ onInteraction }: { onInteraction?: () => void }) {
+  const isMobile = useIsMobile();
+  const cell = isMobile ? 22 : 40;
+  const gap = isMobile ? 3 : 6;
   const [lo, setLo] = useState(0);
   const [hi, setHi] = useState(ARR.length - 1);
   const [last, setLast] = useState<number | null>(null);
@@ -124,7 +125,7 @@ function ClickToHalveViz({ onInteraction }: { onInteraction?: () => void }) {
       </div>
 
       <div className="overflow-x-auto max-w-full">
-        <div className="flex items-center gap-1.5 select-none">
+        <div className="flex items-center select-none" style={{ gap }}>
           {ARR.map((v, i) => {
             const inRange = i >= lo && i <= hi;
             const isLast = i === last;
@@ -144,8 +145,8 @@ function ClickToHalveViz({ onInteraction }: { onInteraction?: () => void }) {
                 }}
                 transition={{ duration: 0.22 }}
                 disabled={!inRange}
-                className="rounded-md border-2 font-mono text-sm text-[var(--text)] flex items-center justify-center disabled:cursor-not-allowed"
-                style={{ width: CELL, height: CELL }}
+                className={`rounded-md border-2 font-mono ${isMobile ? "text-[11px]" : "text-sm"} text-[var(--text)] flex items-center justify-center disabled:cursor-not-allowed`}
+                style={{ width: cell, height: cell }}
               >
                 {v}
               </motion.button>
@@ -182,6 +183,10 @@ function ClickToHalveViz({ onInteraction }: { onInteraction?: () => void }) {
 
 /* Step 4-7 — animated binary search */
 function BinarySearchAnimatedViz() {
+  const isMobile = useIsMobile();
+  const cell = isMobile ? 22 : 40;
+  const gap = isMobile ? 3 : 6;
+  const stride = cell + gap;
   const [lo, setLo] = useState(0);
   const [hi, setHi] = useState(ARR.length - 1);
   const [mid, setMid] = useState<number | null>(null);
@@ -248,8 +253,8 @@ function BinarySearchAnimatedViz() {
       </div>
 
       <div className="overflow-x-auto max-w-full">
-        <div className="relative" style={{ width: ARR.length * STRIDE }}>
-          <div className="flex items-center gap-1.5 select-none">
+        <div className="relative" style={{ width: ARR.length * stride }}>
+          <div className="flex items-center select-none" style={{ gap }}>
             {ARR.map((v, i) => {
               const inRange = i >= lo && i <= hi;
               const isMid = i === mid;
@@ -267,8 +272,8 @@ function BinarySearchAnimatedViz() {
                     borderColor: isFoundAt ? "var(--diff-easy)" : isMid ? "var(--accent)" : "var(--line)",
                   }}
                   transition={{ duration: 0.28 }}
-                  className="rounded-md border-2 font-mono text-sm text-[var(--text)] flex items-center justify-center"
-                  style={{ width: CELL, height: CELL }}
+                  className={`rounded-md border-2 font-mono ${isMobile ? "text-[11px]" : "text-sm"} text-[var(--text)] flex items-center justify-center`}
+                  style={{ width: cell, height: cell }}
                 >
                   {v}
                 </motion.div>
@@ -278,10 +283,10 @@ function BinarySearchAnimatedViz() {
           {/* lo/hi/mid markers */}
           {lo <= hi && (
             <>
-              <motion.div animate={{ x: lo * STRIDE + CELL / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
+              <motion.div animate={{ x: lo * stride + cell / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
                 <span className="font-mono text-[10px] text-[var(--accent-ink)] bg-[var(--accent-soft)] border border-[var(--accent-line)] rounded-md px-1.5">lo</span>
               </motion.div>
-              <motion.div animate={{ x: hi * STRIDE + CELL / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
+              <motion.div animate={{ x: hi * stride + cell / 2 }} transition={{ duration: 0.28 }} className="absolute top-full pt-1 -translate-x-1/2 pointer-events-none">
                 <span className="font-mono text-[10px] text-[var(--accent-ink)] bg-[var(--accent-soft)] border border-[var(--accent-line)] rounded-md px-1.5">hi</span>
               </motion.div>
             </>

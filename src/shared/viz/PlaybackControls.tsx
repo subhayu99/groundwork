@@ -13,9 +13,9 @@ interface Props {
 }
 
 const ghost =
-  "px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40";
+  "min-h-[40px] min-w-[44px] px-3 py-2 inline-flex items-center justify-center rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40";
 const primary =
-  "px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40";
+  "min-h-[40px] px-4 py-2 inline-flex items-center justify-center rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40";
 
 /** The ↺ ← Play → control bar shared by every step-by-step visualizer. */
 export function PlaybackControls({
