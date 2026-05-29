@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import type { DerivationStep, TopicMeta } from "@/shared/derivation/types";
 import type { PracticeProblem } from "@/shared/practice/types";
+import type { NextStepsContent } from "@/shared/next-steps/types";
 
 export interface TopicBundle {
   meta: TopicMeta;
@@ -14,6 +15,8 @@ export interface TopicBundle {
   wedgeGating?: { disabledLabel: string; enabledLabel: string };
   /** Practice problems for this topic. Optional — topics opt in. */
   problems?: PracticeProblem[];
+  /** Step 08 "Next Steps" content, rendered after the derivation completes. */
+  nextSteps?: NextStepsContent;
 }
 
 // Sliding Window (fixed)
@@ -91,6 +94,20 @@ import { mergesortSteps } from "./mergesort/derivation";
 import { MergesortVisualizer } from "./mergesort/visualizer";
 import mergesortPy from "./mergesort/algorithm.py";
 
+// Next-steps (Step 08) content
+import { twoPointersNextSteps } from "./two-pointers/next-steps";
+import { binarySearchNextSteps } from "./binary-search/next-steps";
+import { slidingWindowNextSteps } from "./sliding-window/next-steps";
+import { slidingWindowVariableNextSteps } from "./sliding-window-variable/next-steps";
+import { monotonicStackNextSteps } from "./monotonic-stack/next-steps";
+import { activitySelectionNextSteps } from "./activity-selection/next-steps";
+import { recursionNextSteps } from "./recursion/next-steps";
+import { dfsNextSteps } from "./dfs/next-steps";
+import { bfsNextSteps } from "./bfs/next-steps";
+import { dp1dNextSteps } from "./dp-1d/next-steps";
+import { backtrackingNextSteps } from "./backtracking/next-steps";
+import { mergesortNextSteps } from "./mergesort/next-steps";
+
 const algorithmBundles: Record<string, TopicBundle> = {
   "two-pointers": {
     meta: twoPointersMeta,
@@ -103,6 +120,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "I see the pattern",
     },
     problems: twoPointersProblems,
+    nextSteps: twoPointersNextSteps,
   },
   "binary-search": {
     meta: binarySearchMeta,
@@ -114,6 +132,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Click a cell first",
       enabledLabel: "Halve, then halve again",
     },
+    nextSteps: binarySearchNextSteps,
   },
   "sliding-window": {
     meta: slidingWindowMeta,
@@ -126,6 +145,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "I think I see it",
     },
     problems: slidingWindowProblems,
+    nextSteps: slidingWindowNextSteps,
   },
   "sliding-window-variable": {
     meta: slidingWindowVariableMeta,
@@ -137,6 +157,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Expand or contract first",
       enabledLabel: "Two motions, one rule",
     },
+    nextSteps: slidingWindowVariableNextSteps,
   },
   "monotonic-stack": {
     meta: monotonicStackMeta,
@@ -148,6 +169,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Send a day first",
       enabledLabel: "The stack does the work",
     },
+    nextSteps: monotonicStackNextSteps,
   },
   "activity-selection": {
     meta: activitySelectionMeta,
@@ -159,6 +181,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Sort by end first",
       enabledLabel: "Take the earliest finish",
     },
+    nextSteps: activitySelectionNextSteps,
   },
   recursion: {
     meta: recursionMeta,
@@ -170,6 +193,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Ask a folder first",
       enabledLabel: "Smaller version, same shape",
     },
+    nextSteps: recursionNextSteps,
   },
   dfs: {
     meta: dfsMeta,
@@ -181,6 +205,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Take a step first",
       enabledLabel: "Deep, then back up",
     },
+    nextSteps: dfsNextSteps,
   },
   bfs: {
     meta: bfsMeta,
@@ -192,6 +217,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Spread a ring first",
       enabledLabel: "Closest first wins",
     },
+    nextSteps: bfsNextSteps,
   },
   "dp-1d": {
     meta: dp1dMeta,
@@ -204,6 +230,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       enabledLabel: "Write it down once",
     },
     problems: dp1dProblems,
+    nextSteps: dp1dNextSteps,
   },
   backtracking: {
     meta: backtrackingMeta,
@@ -215,6 +242,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Place a queen first",
       enabledLabel: "Check, then choose",
     },
+    nextSteps: backtrackingNextSteps,
   },
   mergesort: {
     meta: mergesortMeta,
@@ -226,6 +254,7 @@ const algorithmBundles: Record<string, TopicBundle> = {
       disabledLabel: "Split or merge first",
       enabledLabel: "Halves, then merge",
     },
+    nextSteps: mergesortNextSteps,
   },
 };
 

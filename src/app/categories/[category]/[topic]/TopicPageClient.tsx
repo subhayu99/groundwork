@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Chrome } from "@/shared/layout/Chrome";
 import { TopicLayout } from "@/shared/layout/TopicLayout";
 import { DerivationEngine } from "@/shared/derivation/DerivationEngine";
+import { NextStepsSection } from "@/shared/next-steps/NextStepsSection";
 import { AccessGate } from "@/shared/access/AccessGate";
 import { getCategory } from "@/categories/registry";
 import { getPrinciple } from "@/principles/registry";
@@ -33,7 +34,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
 
   if (!cat || !bundle) notFound();
 
-  const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, problems } = bundle;
+  const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, problems, nextSteps } = bundle;
   const problemCount = problems?.length ?? 0;
   const unlockAt = unlockCodeAtStep ?? steps.length;
 
@@ -96,6 +97,14 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
                 onStepChange={setCurrentStep}
                 stepGating={stepGating}
               />
+              {nextSteps && everCompleted && (
+                <NextStepsSection
+                  content={nextSteps}
+                  categoryKey={categoryKey}
+                  topicKey={topicKey}
+                  hasInAppPractice={problemCount > 0}
+                />
+              )}
             </>
           }
           visualization={

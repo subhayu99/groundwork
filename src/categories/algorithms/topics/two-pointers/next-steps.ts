@@ -1,15 +1,17 @@
-import type { NextStepsContent } from "../sliding-window/next-steps";
+import type { NextStepsContent } from "@/shared/next-steps/types";
 
 export const twoPointersNextSteps: NextStepsContent = {
+  recap:
+    "You can now solve in one pass what used to need checking every pair: put one marker at each end (or both at the start) and move them toward each other based on what you see.",
   practiceProblems: [
     {
-      name: "Two Sum II — Input array is sorted",
+      name: "Two Sum II — Input Array Is Sorted",
       difficulty: "easy",
       link: "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/",
       hints: [
-        "Where would the answer be if your sum is too small? Too large?",
-        "Both pointers only move inward — never outward.",
-        "Stop when they cross.",
+        "If your two numbers add up to too little, which marker should move?",
+        "Both markers only ever move inward — never back out.",
+        "Stop when they meet.",
       ],
     },
     {
@@ -17,9 +19,9 @@ export const twoPointersNextSteps: NextStepsContent = {
       difficulty: "easy",
       link: "https://leetcode.com/problems/valid-palindrome/",
       hints: [
-        "Two fingers, one from each end, step inward.",
-        "Skip characters that aren't letters or digits.",
-        "Compare lowercased letters as the pointers move.",
+        "One finger from each end, stepping inward.",
+        "Skip anything that isn't a letter or digit.",
+        "Compare the two letters, ignoring capitals, as the fingers move.",
       ],
     },
     {
@@ -27,36 +29,34 @@ export const twoPointersNextSteps: NextStepsContent = {
       difficulty: "medium",
       link: "https://leetcode.com/problems/container-with-most-water/",
       hints: [
-        "The shorter wall is the bottleneck — moving the taller one can't help.",
-        "Always move the shorter side inward.",
-        "Track the max area you've seen.",
+        "The shorter wall decides how much water fits — moving the taller one can't help.",
+        "So always move the shorter side inward.",
+        "Keep track of the most water you've seen.",
       ],
     },
   ],
   realWorld: [
     {
-      title: "Streaming dedup of sorted IDs",
+      title: "Merging sorted lists",
       description:
-        "When merging sorted ID streams to dedupe, two pointers walk both streams in one pass — the same converging-fingers pattern.",
+        "Combining two already-sorted lists of IDs — like merging contacts — walks both with one marker each in a single pass. Same converging-fingers shape.",
     },
     {
-      title: "Audio waveform clipping",
+      title: "Trimming silence from audio",
       description:
-        "Trim leading and trailing silence from an audio clip: one pointer from the front advances until it hits non-silence, one from the back retreats. Same shape.",
+        "To cut quiet edges off a recording, one marker advances from the front until it hits sound and one retreats from the back. Two pointers, meeting in the middle.",
     },
   ],
   relatedTopics: [
     {
-      name: "Sliding Window (Fixed)",
+      name: "Sliding Window",
       href: "/categories/algorithms/sliding-window",
-      reason:
-        "A sliding window is two pointers that move together at a fixed distance. Same invariant idea, constrained.",
+      reason: "A sliding window is two markers that move together at a fixed distance — the same idea, with the gap locked.",
     },
     {
       name: "Binary Search",
       href: "/categories/algorithms/binary-search",
-      reason:
-        "Also eliminates whole sides of the search space per comparison — but via halving rather than walking.",
+      reason: "Also throws away whole sections of the data each step — but by jumping to the middle rather than walking inward.",
     },
   ],
   resources: [

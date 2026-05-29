@@ -48,6 +48,16 @@ import { graphsSteps } from "./graphs/derivation";
 import { GraphsVisualizer } from "./graphs/visualizer";
 import graphsPy from "./graphs/algorithm.py";
 
+// Next-steps (Step 08) content
+import { arraysNextSteps } from "./arrays/next-steps";
+import { stringsNextSteps } from "./strings/next-steps";
+import { stacksQueuesNextSteps } from "./stacks-queues/next-steps";
+import { linkedListsNextSteps } from "./linked-lists/next-steps";
+import { hashMapsNextSteps } from "./hash-maps/next-steps";
+import { setsTuplesNextSteps } from "./sets-tuples/next-steps";
+import { treesNextSteps } from "./trees/next-steps";
+import { graphsNextSteps } from "./graphs/next-steps";
+
 const dataStructureBundles: Record<string, TopicBundle> = {
   arrays: {
     meta: arraysMeta,
@@ -59,6 +69,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       disabledLabel: "Move the slider first",
       enabledLabel: "Storage decides speed",
     },
+    nextSteps: arraysNextSteps,
   },
   strings: {
     meta: stringsMeta,
@@ -70,6 +81,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       disabledLabel: "Slide the highlight first",
       enabledLabel: "Same machinery, different content",
     },
+    nextSteps: stringsNextSteps,
   },
   "stacks-queues": {
     meta: stacksQueuesMeta,
@@ -81,6 +93,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       disabledLabel: "Push or enqueue something first",
       enabledLabel: "Restrict, then optimize",
     },
+    nextSteps: stacksQueuesNextSteps,
   },
   "linked-lists": {
     meta: linkedListsMeta,
@@ -92,6 +105,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       disabledLabel: "Insert or remove something first",
       enabledLabel: "Pointers are the trick",
     },
+    nextSteps: linkedListsNextSteps,
   },
   "hash-maps": {
     meta: hashMapsMeta,
@@ -103,6 +117,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       disabledLabel: "Type a name first",
       enabledLabel: "Compute the address",
     },
+    nextSteps: hashMapsNextSteps,
   },
   "sets-tuples": {
     meta: setsTuplesMeta,
@@ -114,6 +129,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       disabledLabel: "Try the set or tuple first",
       enabledLabel: "Identity vs grouping",
     },
+    nextSteps: setsTuplesNextSteps,
   },
   trees: {
     meta: treesMeta,
@@ -125,6 +141,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       disabledLabel: "Click a node first",
       enabledLabel: "Each node points to its kids",
     },
+    nextSteps: treesNextSteps,
   },
   graphs: {
     meta: graphsMeta,
@@ -136,6 +153,7 @@ const dataStructureBundles: Record<string, TopicBundle> = {
       disabledLabel: "Click a person first",
       enabledLabel: "Nodes plus edges",
     },
+    nextSteps: graphsNextSteps,
   },
 };
 
