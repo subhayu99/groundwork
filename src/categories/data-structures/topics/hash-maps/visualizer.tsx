@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
@@ -36,7 +36,7 @@ function hash(s: string, buckets: number): number {
 export const HashMapsVisualizer = phasedVisualizer([
   { until: 2, render: () => <LinearScanViz /> },
   { until: 3, render: (p) => <HashLookupViz onInteraction={p.onWedgeInteraction} onActiveLine={p.onActiveLine} /> },
-  { until: 5, render: () => <BucketsViz /> },
+  { until: 5, render: (p) => <BucketsViz onActiveLine={p.onActiveLine} /> },
   { render: () => <SummaryViz /> },
 ]);
 
@@ -127,10 +127,10 @@ function LinearScanViz() {
 }
 
 /* Step 3 — type a name, see the hash function spit out a slot */
-// The "hash into a bucket" concept lives only as pseudo-code COMMENTS in
-// algorithm.py, so we anchor the real lookup line instead — typing a name and
-// resolving it to a slot IS the dict lookup (`alices_number = phone["alice"]`).
-const LOOKUP_LABEL = "lookup";
+// Typing a name and resolving it to a slot IS `return hash(key) % capacity`
+// (HashMap._slot) — the real bucket-index computation, now executable code in
+// algorithm.py rather than a comment, so the highlight matches the visual.
+const SLOT_LABEL = "hm_slot";
 
 function HashLookupViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: (number | string)[]) => void }) {
   const BUCKETS = 16;
@@ -142,7 +142,7 @@ function HashLookupViz({ onInteraction, onActiveLine }: { onInteraction?: () => 
   const handle = (v: string) => {
     setInput(v);
     onInteraction?.();
-    onActiveLine?.([LOOKUP_LABEL]);
+    onActiveLine?.([SLOT_LABEL]);
   };
 
   return (
@@ -195,11 +195,17 @@ function HashLookupViz({ onInteraction, onActiveLine }: { onInteraction?: () => 
 }
 
 /* Step 4-5 — buckets with the actual phone book, show collisions */
-function BucketsViz() {
+function BucketsViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const BUCKETS = 16;
   const grouped: { name: string; number: string }[][] = Array.from({ length: BUCKETS }, () => []);
   for (const p of PHONE_BOOK) grouped[hash(p.name, BUCKETS)].push(p);
   const collisions = grouped.reduce((acc, b) => acc + Math.max(0, b.length - 1), 0);
+
+  // This view IS HashMap.put: each name goes to its slot, scans the bucket, and
+  // is chained on (collisions). Light up those real lines while it's on screen.
+  useEffect(() => {
+    onActiveLine?.(["hm_put_slot", "hm_put_scan", "hm_put_append"]);
+  }, [onActiveLine]);
 
   return (
     <div className="flex flex-col items-center gap-6 max-w-[640px]">

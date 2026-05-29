@@ -54,11 +54,22 @@ capabilities the next domains need.
     unverified — don't claim it until measured.
   - Pointer-gating closed: both interactive gates (Scene nodes, window slider) are keyboard-operable.
 
-## 4. Content work
-- **Gaps:** hash-maps "bucket" concept is only commented pseudo-code (add real bucket code);
-  sets-tuples is hardcoded to `add("alice")` (parameterize); tuple-immutability is told, never shown.
-- **Content-correctness pass:** verify every derivation card's claims + left↔right example match, all 20
-  `algorithm.py`, and the 40 practice problems/solutions.
+## 4. Content work — IN PROGRESS (2026-05-30)
+- **hash-maps bucket code — DONE ✅.** `algorithm.py` now has a real, runnable `HashMap` class
+  (`_slot = hash(key) % capacity`, `put` with bucket scan + chain, `get`) with `@sync` anchors, instead
+  of the old commented pseudo-code. code-maps re-pointed: step 3 → `hm_slot` (the real hash line, was the
+  `phone["alice"]` workaround), steps 4–5 → the `put` bucket lines. Visualizer emits them
+  (`HashLookupViz`→`hm_slot`, `BucketsViz`→put lines). Verified: step-3 highlights `hash(key) % capacity`,
+  step-4 highlights the bucket `put` lines — matching the visual. The dict API section stays as the
+  takeaway ("just use dict — it IS a hash map").
+- **sets-tuples gaps — already handled by the visualizer (backlog note was stale).** The step-3+ viz
+  already (a) renders a `+name` button per `NAME_POOL` entry (adds are parameterized, not hardcoded to
+  alice; the `add("alice")` line is just the canonical synced example) and (b) demonstrates
+  tuple-immutability interactively — "try: tuple[0] = …" / "try: tuple.append(…)" buttons flash the real
+  `TypeError`. No code change needed. (Minor future polish: have the immutability buttons emit
+  `tuple_def` so the code panel points at the tuple during the error.)
+- **Content-correctness pass (remaining):** verify every derivation card's claims + left↔right example
+  match, all 20 `algorithm.py`, and the 40 practice problems/solutions.
 
 ## 5. LAST — frame-by-frame code↔visual sync deep audit
 Subhayu still perceives sync issues — the highlight is "video-like" and coarse sampling can look synced
