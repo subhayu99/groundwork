@@ -53,12 +53,20 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
 
       <div className="flex items-center gap-4">
         {shouldShowProgressLink && (
-          <Link
-            href="/progress"
-            className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]"
-          >
-            progress
-          </Link>
+          <>
+            <Link
+              href="/progress"
+              className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]"
+            >
+              progress
+            </Link>
+            <Link
+              href="/settings"
+              className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]"
+            >
+              settings
+            </Link>
+          </>
         )}
         {difficulty && (
           <span

@@ -70,6 +70,46 @@
   }
 }
 
+/* Explicit "reduce motion" preference from Settings (overrides the OS setting). */
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Light theme — applied when Settings selects Light (or System resolves light).
+   Mirrors the dark token set above with paper-light surfaces and darker accents
+   for contrast. Dark stays the default (no attribute needed). */
+:root[data-theme="light"] {
+  --bg:            oklch(0.985 0.003 250);
+  --bg-elevated:   oklch(0.965 0.004 250);
+  --bg-card:       oklch(0.945 0.005 250);
+  --bg-card-hi:    oklch(0.910 0.006 250);
+  --bg-inset:      oklch(0.925 0.005 250);
+
+  --line:          oklch(0.865 0.010 250);
+  --line-strong:   oklch(0.720 0.014 250);
+  --line-faint:    oklch(0.910 0.008 250);
+
+  --text:          oklch(0.255 0.012 250);
+  --text-muted:    oklch(0.440 0.012 250);
+  --text-subtle:   oklch(0.560 0.012 250);
+  --text-faint:    oklch(0.650 0.010 250);
+
+  --accent-sky:    #0284c7;
+  --accent-indigo: #4f46e5;
+  --accent-pink:   #c026d3;
+  --accent:        var(--accent-sky);
+  --accent-soft:   color-mix(in oklab, var(--accent) 12%, transparent);
+  --accent-line:   color-mix(in oklab, var(--accent) 40%, transparent);
+  --accent-ink:    color-mix(in oklab, var(--accent) 86%, black 14%);
+
+  --diff-easy:     #16a34a;
+  --diff-med:      #b45309;
+  --diff-hard:     #e11d48;
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-elevated: var(--bg-elevated);

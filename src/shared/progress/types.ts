@@ -30,6 +30,8 @@ export interface ProgressState {
     theme: "system" | "light" | "dark";
     animationSpeed: "slow" | "normal" | "fast";
     codeLanguage: "python";
+    /** Motion preference. "system" follows the OS; "reduce" forces minimal motion. */
+    reduceMotion?: "system" | "reduce";
   };
 }
 
@@ -42,6 +44,7 @@ export function emptyProgressState(): ProgressState {
       theme: "system",
       animationSpeed: "normal",
       codeLanguage: "python",
+      reduceMotion: "system",
     },
   };
 }

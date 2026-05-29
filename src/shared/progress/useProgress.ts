@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ProgressStore } from "./ProgressStore";
-import { ProgressState, TopicProgress, emptyTopicProgress } from "./types";
+import { ProgressState, TopicProgress, emptyTopicProgress, emptyProgressState } from "./types";
+
+type Settings = ProgressState["settings"];
 
 const store = new ProgressStore();
 
@@ -47,11 +49,19 @@ export function useProgress() {
     [state]
   );
 
+  const updateSettings = useCallback((mutator: (s: Settings) => Settings) => {
+    const prev = store.load();
+    store.save({ ...prev, settings: mutator(prev.settings) });
+  }, []);
+
+  const resetProgress = useCallback(() => {
+    store.save(emptyProgressState());
+  }, []);
+
   const exportJson = useCallback(() => store.exportJson(), []);
   const importJson = useCallback((json: string) => {
     store.importJson(json);
-    setState(store.load());
   }, []);
 
-  return { state, updateTopic, getTopic, exportJson, importJson };
+  return { state, updateTopic, getTopic, updateSettings, resetProgress, exportJson, importJson };
 }
