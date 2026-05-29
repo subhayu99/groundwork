@@ -94,13 +94,15 @@ function NaiveArrayViz() {
                 opacity: 1,
                 scale: 1,
                 x: shifting.includes(i) ? -4 : 0,
+              }}
+              exit={{ opacity: 0, scale: 0.7 }}
+              transition={{ duration: 0.28 }}
+              style={{
                 backgroundColor: shifting.includes(i)
                   ? "color-mix(in oklab, var(--diff-med) 22%, var(--bg-card))"
                   : "var(--bg-card)",
               }}
-              exit={{ opacity: 0, scale: 0.7 }}
-              transition={{ duration: 0.28 }}
-              className="rounded-lg border-2 border-[var(--line)] px-2 md:px-4 h-12 md:h-14 flex items-center justify-center font-mono text-xs md:text-sm text-[var(--text)]"
+              className="rounded-lg border-2 border-[var(--line)] px-2 md:px-4 h-12 md:h-14 flex items-center justify-center font-mono text-xs md:text-sm text-[var(--text)] transition-[background-color,border-color] duration-200"
             >
               {item.label}
             </motion.div>

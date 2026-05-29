@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Tone, toneStyle } from "./tones";
 
 export interface GraphVizNode {
@@ -66,14 +65,13 @@ export function GraphViz({
         const b = byId.get(e.b);
         if (!a || !b) return null;
         return (
-          <motion.line
+          <line
             key={`e${i}`}
             x1={a.x}
             y1={a.y}
             x2={b.x}
             y2={b.y}
-            animate={{ stroke: e.tone ? toneStyle[e.tone].border : "var(--line)" }}
-            transition={{ duration: 0.18 }}
+            style={{ stroke: e.tone ? toneStyle[e.tone].border : "var(--line)", transition: "stroke 0.2s" }}
             strokeWidth={2}
             strokeDasharray={e.dashed ? "5 4" : undefined}
           />
@@ -88,12 +86,11 @@ export function GraphViz({
             onClick={clickable ? () => onNodeClick?.(n.id) : undefined}
             style={{ cursor: clickable ? "pointer" : "default" }}
           >
-            <motion.circle
+            <circle
               cx={n.x}
               cy={n.y}
               r={nodeRadius}
-              animate={{ fill: bg, stroke: border }}
-              transition={{ duration: 0.18 }}
+              style={{ fill: bg, stroke: border, transition: "fill 0.2s, stroke 0.2s" }}
               strokeWidth={2}
             />
             <text

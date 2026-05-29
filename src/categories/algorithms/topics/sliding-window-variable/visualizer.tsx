@@ -49,15 +49,19 @@ function CharCells({
             <motion.div
               key={i}
               animate={{
+                opacity: isIn ? 1 : 0.5,
+              }}
+              transition={{ duration: 0.22 }}
+              className="rounded-md border-2 flex items-center justify-center font-mono text-[var(--text)] transition-[background-color,border-color] duration-200"
+              style={{
+                width: cell,
+                height: cell,
+                fontSize: Math.round(cell * 0.42),
                 backgroundColor: isIn
                   ? "color-mix(in oklab, var(--accent-sky) 18%, var(--bg-card))"
                   : "var(--bg-card)",
                 borderColor: isIn ? "var(--accent-line)" : "var(--line)",
-                opacity: isIn ? 1 : 0.5,
               }}
-              transition={{ duration: 0.22 }}
-              className="rounded-md border-2 flex items-center justify-center font-mono text-[var(--text)]"
-              style={{ width: cell, height: cell, fontSize: Math.round(cell * 0.42) }}
             >
               {ch}
             </motion.div>

@@ -56,12 +56,11 @@ export function TreeViz({ nodes, edges, width, height, radius = 20 }: Props) {
         const { bg, border } = toneStyle[n.tone ?? "idle"];
         return (
           <motion.g key={n.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18 }}>
-            <motion.circle
+            <circle
               cx={n.x}
               cy={n.y}
               r={radius}
-              animate={{ fill: bg, stroke: border }}
-              transition={{ duration: 0.18 }}
+              style={{ fill: bg, stroke: border, transition: "fill 0.2s, stroke 0.2s" }}
               strokeWidth={2}
             />
             <text

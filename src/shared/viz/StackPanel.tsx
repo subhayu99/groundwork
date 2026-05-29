@@ -59,9 +59,10 @@ export function StackPanel({
               <motion.div
                 key={it.key}
                 initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0, backgroundColor: bg, borderColor: border }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.18 }}
-                className="rounded-md border px-2 py-1 font-mono text-xs text-[var(--text)] flex items-center justify-between gap-2"
+                className="rounded-md border px-2 py-1 font-mono text-xs text-[var(--text)] flex items-center justify-between gap-2 transition-[background-color,border-color] duration-200"
+                style={{ backgroundColor: bg, borderColor: border }}
               >
                 <span className="truncate">{it.label}</span>
                 {it.sub != null && (

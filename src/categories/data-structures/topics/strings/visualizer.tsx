@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 import { useIsMobile } from "@/shared/layout/useIsMobile";
@@ -56,8 +55,12 @@ function CharRow({
         const isSpace = ch === " ";
         return (
           <div key={i} className="flex flex-col items-center">
-            <motion.div
-              animate={{
+            <div
+              className="rounded-md border-2 flex items-center justify-center font-mono transition-[background-color,border-color] duration-200"
+              style={{
+                width: cell,
+                height: cell,
+                fontSize: isMobile ? 10 : 16,
                 backgroundColor: matched
                   ? "color-mix(in oklab, var(--diff-easy) 18%, var(--bg-card))"
                   : mismatch
@@ -73,14 +76,11 @@ function CharRow({
                   ? "var(--accent-line)"
                   : "var(--line)",
               }}
-              transition={{ duration: 0.18 }}
-              className="rounded-md border-2 flex items-center justify-center font-mono"
-              style={{ width: cell, height: cell, fontSize: isMobile ? 10 : 16 }}
             >
               <span className={isSpace ? "text-[var(--text-faint)]" : "text-[var(--text)]"}>
                 {isSpace ? "·" : ch}
               </span>
-            </motion.div>
+            </div>
             {showIndices && (
               <span className="font-mono text-[9px] text-[var(--text-faint)] mt-1">{i}</span>
             )}

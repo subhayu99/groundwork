@@ -150,14 +150,16 @@ function LinkedListViz({ onInteraction, onActiveLine, expanded }: { onInteractio
               animate={{
                 opacity: highlightedIds.length > 0 && !highlightedIds.includes(n.id) ? 0.55 : 1,
                 scale: 1,
+              }}
+              exit={{ opacity: 0, scale: 0.6, y: -10 }}
+              transition={{ duration: 0.28 }}
+              style={{
                 borderColor: highlightedIds.includes(n.id) ? "var(--accent-sky)" : "var(--line)",
                 backgroundColor: highlightedIds.includes(n.id)
                   ? "color-mix(in oklab, var(--accent-sky) 16%, var(--bg-card))"
                   : "var(--bg-card)",
               }}
-              exit={{ opacity: 0, scale: 0.6, y: -10 }}
-              transition={{ duration: 0.28 }}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 transition-[background-color,border-color] duration-200"
             >
               <div className="rounded-lg border-2 px-3 h-12 flex items-center font-mono text-base text-[var(--text)]" style={{ borderColor: "inherit", background: "inherit" }}>
                 {n.value}

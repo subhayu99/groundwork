@@ -118,10 +118,10 @@ function MeetingBar({
         {m.label}
       </motion.div>
       <motion.div
-        animate={{ top: row * (ROW_H + ROW_GAP), backgroundColor: bg, borderColor: border }}
+        animate={{ top: row * (ROW_H + ROW_GAP) }}
         transition={{ duration: 0.32 }}
-        className={`absolute rounded-md border flex items-center justify-center font-mono ${compact ? "text-[8px]" : "text-[10px]"}`}
-        style={{ left, width, height: ROW_H, color: "var(--text)" }}
+        className={`absolute rounded-md border flex items-center justify-center font-mono transition-[background-color,border-color] duration-200 ${compact ? "text-[8px]" : "text-[10px]"}`}
+        style={{ left, width, height: ROW_H, color: "var(--text)", backgroundColor: bg, borderColor: border }}
       >
         {m.start}&ndash;{m.end}
       </motion.div>

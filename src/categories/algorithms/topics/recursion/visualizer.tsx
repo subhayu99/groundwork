@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { StackPanel } from "@/shared/viz/StackPanel";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
@@ -96,11 +95,9 @@ function NodeRow({
       ? "var(--diff-easy)"
       : "var(--line)";
   return (
-    <motion.div
-      animate={{ backgroundColor: bg, borderColor: border }}
-      transition={{ duration: 0.18 }}
-      className="rounded-md border px-3 py-1.5 font-mono text-xs flex items-center justify-between"
-      style={{ marginLeft: depth * 18, minWidth: 260 - depth * 18 }}
+    <div
+      className="rounded-md border px-3 py-1.5 font-mono text-xs flex items-center justify-between transition-[background-color,border-color] duration-200"
+      style={{ marginLeft: depth * 18, minWidth: 260 - depth * 18, backgroundColor: bg, borderColor: border }}
     >
       <span className="flex items-center gap-2">
         <span className="text-[var(--text-faint)]">{isFile ? "·" : "▸"}</span>
@@ -115,7 +112,7 @@ function NodeRow({
       >
         {computed === null ? "?" : `${computed}MB`}
       </span>
-    </motion.div>
+    </div>
   );
 }
 

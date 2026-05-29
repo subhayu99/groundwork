@@ -53,7 +53,13 @@ export function ArrayViz({
             layout
             onMouseEnter={() => onHover?.(i)}
             onMouseLeave={() => onHover?.(null)}
-            animate={{
+            animate={{ scale: isEntering || isLeaving ? 1.06 : 1 }}
+            transition={{ duration: 0.32, ease: [0.22, 0.65, 0.3, 1] }}
+            className="relative flex flex-col items-center transition-[background-color,border-color] duration-300"
+            // Colors via CSS (OKLCH color-mix isn't Motion-animatable); scale via Motion.
+            style={{
+              width: cellPx,
+              height: cellPx,
               backgroundColor: isRecomputed
                 ? "color-mix(in oklab, #fcd34d 30%, var(--bg-card))"
                 : inWindow
@@ -68,11 +74,7 @@ export function ArrayViz({
                 : isHover
                 ? "var(--line-strong)"
                 : "var(--line)",
-              scale: isEntering || isLeaving ? 1.06 : 1,
             }}
-            transition={{ duration: 0.32, ease: [0.22, 0.65, 0.3, 1] }}
-            className="relative flex flex-col items-center"
-            style={{ width: cellPx, height: cellPx }}
           >
             <div
               className="flex items-center justify-center w-full h-full rounded-lg border-2 font-mono text-[var(--text)]"

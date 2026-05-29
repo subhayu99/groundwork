@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import { TreeViz } from "@/shared/viz/TreeViz";
 import type { Tone } from "@/shared/viz/tones";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
@@ -222,8 +221,12 @@ function TabulationViz({ onActiveLine }: { onActiveLine?: (lines: (number | stri
               const isJust = i === filledTo;
               return (
                 <div key={i} className="flex flex-col items-center" style={{ width: 48 }}>
-                  <motion.div
-                    animate={{
+                  <div
+                    className="rounded-md border-2 flex items-center justify-center font-mono text-sm transition-[background-color,border-color] duration-200"
+                    style={{
+                      width: 48,
+                      height: 48,
+                      color: "var(--text)",
                       backgroundColor: isJust
                         ? "color-mix(in oklab, var(--accent-sky) 32%, var(--bg-card))"
                         : filled
@@ -235,12 +238,9 @@ function TabulationViz({ onActiveLine }: { onActiveLine?: (lines: (number | stri
                         ? "var(--diff-easy)"
                         : "var(--line)",
                     }}
-                    transition={{ duration: 0.2 }}
-                    className="rounded-md border-2 flex items-center justify-center font-mono text-sm"
-                    style={{ width: 48, height: 48, color: "var(--text)" }}
                   >
                     {filled ? DP_VALUES[i] : "·"}
-                  </motion.div>
+                  </div>
                   <span className="font-mono text-[10px] text-[var(--text-faint)] mt-1">
                     dp[{i}]
                   </span>

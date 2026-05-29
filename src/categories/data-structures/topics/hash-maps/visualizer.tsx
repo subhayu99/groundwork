@@ -86,9 +86,9 @@ function LinearScanViz() {
 
       <div className="grid grid-cols-2 gap-1 font-mono text-xs max-h-[260px] overflow-hidden">
         {PHONE_BOOK.map((p, i) => (
-          <motion.div
+          <div
             key={p.name}
-            animate={{
+            style={{
               backgroundColor:
                 found && i === cursor
                   ? "color-mix(in oklab, var(--diff-easy) 22%, var(--bg-card))"
@@ -99,12 +99,11 @@ function LinearScanViz() {
                   : "var(--bg-card)",
               borderColor: i === cursor ? "var(--accent-line)" : "var(--line)",
             }}
-            transition={{ duration: 0.12 }}
-            className="rounded-md border px-3 py-1.5 flex items-center justify-between gap-3"
+            className="rounded-md border px-3 py-1.5 flex items-center justify-between gap-3 transition-[background-color,border-color] duration-200"
           >
             <span className="text-[var(--text)] truncate">{p.name}</span>
             <span className="text-[var(--text-faint)]">{p.number}</span>
-          </motion.div>
+          </div>
         ))}
       </div>
 
@@ -167,20 +166,19 @@ function HashLookupViz({ onInteraction, onActiveLine }: { onInteraction?: () => 
 
       <div className="grid grid-cols-8 gap-1.5 w-full">
         {Array.from({ length: BUCKETS }, (_, i) => (
-          <motion.div
+          <div
             key={i}
-            animate={{
+            style={{
               borderColor: i === slot ? "var(--accent-sky)" : "var(--line-faint)",
               backgroundColor: i === slot
                 ? "color-mix(in oklab, var(--accent-sky) 18%, var(--bg-card))"
                 : "var(--bg-card)",
             }}
-            transition={{ duration: 0.18 }}
-            className="aspect-square rounded-md border-2 flex flex-col items-center justify-center font-mono text-xs"
+            className="aspect-square rounded-md border-2 flex flex-col items-center justify-center font-mono text-xs transition-[background-color,border-color] duration-200"
           >
             <span className="text-[var(--text-faint)] text-[10px]">{i}</span>
             {i === slot && <span className="text-[var(--accent-ink)] text-[10px] mt-1 truncate w-full text-center px-1">{input}</span>}
-          </motion.div>
+          </div>
         ))}
       </div>
 

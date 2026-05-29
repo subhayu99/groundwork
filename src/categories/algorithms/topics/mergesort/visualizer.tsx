@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 import { AnimatedAlgorithmView, type AlgoFrame } from "@/shared/viz/AnimatedAlgorithmView";
@@ -53,14 +52,12 @@ function Card({
       ? "var(--diff-med)"
       : "var(--line)";
   return (
-    <motion.div
-      animate={{ backgroundColor: bg, borderColor: border }}
-      transition={{ duration: 0.16 }}
-      className="rounded-md border-2 flex items-center justify-center font-mono text-sm"
-      style={{ width: CARD, height: CARD, color: "var(--text)" }}
+    <div
+      className="rounded-md border-2 flex items-center justify-center font-mono text-sm transition-[background-color,border-color] duration-200"
+      style={{ width: CARD, height: CARD, color: "var(--text)", backgroundColor: bg, borderColor: border }}
     >
       {value}
-    </motion.div>
+    </div>
   );
 }
 

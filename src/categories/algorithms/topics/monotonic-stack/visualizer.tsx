@@ -64,10 +64,10 @@ function TempBar({
   return (
     <div className="flex flex-col items-center" style={{ width: CELL }}>
       <motion.div
-        animate={{ height: h, backgroundColor: bg, borderColor: border }}
+        animate={{ height: h }}
         transition={{ duration: 0.2 }}
-        className="rounded-md border-2 flex items-end justify-center font-mono text-[10px] text-[var(--text-muted)] pb-1"
-        style={{ width: CELL }}
+        className="rounded-md border-2 flex items-end justify-center font-mono text-[10px] text-[var(--text-muted)] pb-1 transition-[background-color,border-color] duration-200"
+        style={{ width: CELL, backgroundColor: bg, borderColor: border }}
       >
         {t}&deg;
       </motion.div>

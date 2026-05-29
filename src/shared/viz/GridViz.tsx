@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode } from "react";
-import { motion } from "framer-motion";
 import { Tone, toneStyle } from "./tones";
 
 export interface CellSpec {
@@ -48,11 +47,12 @@ export function GridViz({
             const { bg, border } = toneStyle[spec.tone ?? "idle"];
             const clickable = Boolean(onCellClick) && !cellDisabled?.(r, c);
             const inner = (
-              <motion.div
-                animate={{ backgroundColor: bg, borderColor: border }}
-                transition={{ duration: 0.18 }}
-                className="rounded-md border-2 flex flex-col items-center justify-center font-mono text-sm"
-                style={{ width: cellPx, height: cellPx, color: "var(--text)" }}
+              // Color is animated via CSS transition (not Motion `animate`):
+              // tones are OKLCH `color-mix(...)` values, which Motion can't
+              // interpolate but the browser transitions natively.
+              <div
+                className="rounded-md border-2 flex flex-col items-center justify-center font-mono text-sm transition-[background-color,border-color] duration-200"
+                style={{ width: cellPx, height: cellPx, color: "var(--text)", backgroundColor: bg, borderColor: border }}
               >
                 {spec.content}
                 {spec.sub != null && (
@@ -60,7 +60,7 @@ export function GridViz({
                     {spec.sub}
                   </span>
                 )}
-              </motion.div>
+              </div>
             );
             return clickable ? (
               <button

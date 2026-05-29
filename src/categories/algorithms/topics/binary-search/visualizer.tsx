@@ -145,6 +145,13 @@ function ClickToHalveViz({ onInteraction, onActiveLine }: { onInteraction?: () =
                 onClick={() => click(i)}
                 animate={{
                   opacity: inRange ? 1 : 0.18,
+                }}
+                transition={{ duration: 0.22 }}
+                disabled={!inRange}
+                className={`rounded-md border-2 font-mono ${isMobile ? "text-[11px]" : "text-sm"} text-[var(--text)] flex items-center justify-center disabled:cursor-not-allowed transition-[background-color,border-color] duration-200`}
+                style={{
+                  width: cell,
+                  height: cell,
                   backgroundColor: isFound
                     ? "color-mix(in oklab, var(--diff-easy) 28%, var(--bg-card))"
                     : isLast
@@ -152,10 +159,6 @@ function ClickToHalveViz({ onInteraction, onActiveLine }: { onInteraction?: () =
                     : "var(--bg-card)",
                   borderColor: isFound ? "var(--diff-easy)" : isLast ? "var(--accent)" : inRange ? "var(--line-strong)" : "var(--line)",
                 }}
-                transition={{ duration: 0.22 }}
-                disabled={!inRange}
-                className={`rounded-md border-2 font-mono ${isMobile ? "text-[11px]" : "text-sm"} text-[var(--text)] flex items-center justify-center disabled:cursor-not-allowed`}
-                style={{ width: cell, height: cell }}
               >
                 {v}
               </motion.button>
@@ -243,6 +246,12 @@ function BinarySearchAnimatedViz({ onActiveLine }: { onActiveLine?: (lines: (num
                       key={i}
                       animate={{
                         opacity: inRange ? 1 : 0.16,
+                      }}
+                      transition={{ duration: 0.28 }}
+                      className={`rounded-md border-2 font-mono ${isMobile ? "text-[11px]" : "text-sm"} text-[var(--text)] flex items-center justify-center transition-[background-color,border-color] duration-200`}
+                      style={{
+                        width: cell,
+                        height: cell,
                         backgroundColor: isFoundAt
                           ? "color-mix(in oklab, var(--diff-easy) 28%, var(--bg-card))"
                           : isMid
@@ -250,9 +259,6 @@ function BinarySearchAnimatedViz({ onActiveLine }: { onActiveLine?: (lines: (num
                           : "var(--bg-card)",
                         borderColor: isFoundAt ? "var(--diff-easy)" : isMid ? "var(--accent)" : "var(--line)",
                       }}
-                      transition={{ duration: 0.28 }}
-                      className={`rounded-md border-2 font-mono ${isMobile ? "text-[11px]" : "text-sm"} text-[var(--text)] flex items-center justify-center`}
-                      style={{ width: cell, height: cell }}
                     >
                       {v}
                     </motion.div>

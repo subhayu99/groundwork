@@ -201,12 +201,18 @@ export function CodeHighlight({ code, highlightedLines = [], revealedLines, head
           return (
             <div
               key={i}
-              className={`px-4 transition-all duration-300 ${
+              className={`relative px-4 transition-all duration-300 ${
                 isHighlighted
                   ? "bg-[var(--accent-soft)] border-l-2 border-[var(--accent)]"
                   : "border-l-2 border-transparent"
-              } ${isDimmed ? "opacity-30 blur-[0.4px]" : "opacity-100"}`}
+              } ${isDimmed ? "opacity-55" : "opacity-100"}`}
             >
+              {/* debugger-style "running now" marker on the active line */}
+              {isHighlighted && (
+                <span className="absolute left-1 top-1/2 -translate-y-1/2 text-[var(--accent)] text-[8px] leading-none select-none">
+                  ▶
+                </span>
+              )}
               <span className="inline-block w-8 text-right pr-3 text-[var(--text-faint)] select-none opacity-60">
                 {lineNo}
               </span>
