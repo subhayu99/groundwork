@@ -7,6 +7,16 @@ Live: https://subhayu.in/groundwork/ · auto-deploys on push to `main` (GitHub A
 2. **Left↔right sync.** The card and the visualizer must show the SAME example (same target/names/numbers). Mismatch = bug.
 3. **Code drawer = real syntax-highlighted viewer.**
 
+## Round 3 — Features, content & bug fixes — COMPLETE (2 items deferred)
+- **Practice problems for all 20 topics** — every topic now ships `problems.tsx` (2 problems each: prompt, examples, hints, Python solution + walkthrough). Build is 92 static pages.
+- **Settings** (`/settings`) — theme System/Light/Dark (full light OKLCH palette in `globals.css` `[data-theme="light"]`), motion System/Reduce, progress export/import/reset. Applied app-wide by `src/app/MotionProvider.tsx` (reads saved prefs: `data-theme` + `html.reduce-motion` class + `MotionConfig`). `useProgress` gained `updateSettings`/`resetProgress`.
+- **Touch concept map** — nodes are tap-to-trace / tap-again-to-open (mouse + touch); the map now shows on phones too (grid kept below).
+- **Code ↔ visualization sync** (was reported broken) — the code drawer highlight now follows the derivation step via `src/categories/code-maps.ts` (per-topic step→line map); plumbed `currentStep → TopicLayout → ScrubbableCode` (`activeLines`), manual scrub overrides, re-syncs on step change. Topics without a map fall back to the manual scrubber.
+- **"Mark complete" fix** (was reported broken) — root cause was per-instance `useProgress` state with no cross-sync; added subscribe/notify to `ProgressStore` so every consumer re-reads on save (lesson page now reveals Next Steps + unlocks code + collapses the card on completion).
+- **"Builds on" bridge** — topic headers link to prerequisite topics (partial take on spec `bridgeFrom`).
+- **Polish/maintenance** — last 2 visualizers (sliding-window-variable, stacks-queues) to scale 1.0 on mobile; all 20 now fit. (CI Node-24 bump authored but NOT pushed — the gh token lacks `workflow` scope; bump `node-version` in `deploy.yml` manually with a `workflow`-scoped token, or `gh auth refresh -s workflow`.)
+- **DEFERRED (large, future):** custom **input editors** (let users edit visualizer inputs — invasive per-visualizer; `customInputs` store field still unused) and the **variants.ts** template generator. Each warrants its own focused session.
+
 ## Round 2 — Mobile UX & usability overhaul — COMPLETE
 Plan + empirical Playwright audit: `/Users/subhayu/.claude/plans/effervescent-snacking-treasure.md`.
 - **Mobile learning loop:** `TopicLayout` no longer tabs Lesson/Visual/Code apart — on phones the visualizer is a fixed-height panel on top (collapsible via "hide visual") and the lesson cards scroll beneath it, so you read + watch together. Code is a collapsible block at the end of the lesson. Desktop unchanged (reflow via flex `order`; cards/visualizer mount once).
