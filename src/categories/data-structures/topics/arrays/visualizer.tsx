@@ -11,20 +11,27 @@ const GAP = 8;
 const STRIDE = CELL + GAP;
 const TARGET_INDEX = 6;
 
+/* algorithm.py line numbers each live operation maps to */
+const LINE_ACCESS = 6; // third = books[2]      — indexed access
+const LINE_APPEND = 9; // books.append("Frame")  — append at end
+const LINE_INSERT = 12; // books.insert(2, ...)   — insert in the middle
+const LINE_DELETE = 15; // del books[1]           — delete at index
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function ArraysVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
-  if (step <= 2) return <PileViz />;
-  if (step === 3) return <SliderViz onInteraction={onWedgeInteraction} />;
-  if (step >= 4 && step <= 5) return <OperationsViz />;
+export function ArraysVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
+  if (step <= 2) return <PileViz onActiveLine={onActiveLine} />;
+  if (step === 3) return <SliderViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
+  if (step >= 4 && step <= 5) return <OperationsViz onActiveLine={onActiveLine} />;
   return <SummaryViz />;
 }
 
 /* Steps 1-2 — pile of books: linear count */
-function PileViz() {
+function PileViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [scan, setScan] = useState(0);
   const [playing, setPlaying] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -37,7 +44,8 @@ function PileViz() {
     }
     scanRef.current += 1;
     setScan(scanRef.current);
-  }, []);
+    onActiveLine?.([LINE_ACCESS]); // each lift is an indexed access at scan
+  }, [onActiveLine]);
 
   useEffect(() => {
     if (!playing) return;
@@ -87,11 +95,12 @@ function PileViz() {
 }
 
 /* Step 3 — slider: direct addressing */
-function SliderViz({ onInteraction }: { onInteraction?: () => void }) {
+function SliderViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void }) {
   const [index, setIndex] = useState(0);
   const handleChange = (v: number) => {
     setIndex(v);
     onInteraction?.();
+    onActiveLine?.([LINE_ACCESS]); // direct addressing: arr[index] in one jump
   };
 
   return (
@@ -130,7 +139,7 @@ function SliderViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-5 — operations: insert/delete/append */
-function OperationsViz() {
+function OperationsViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [arr, setArr] = useState<number[]>([3, 1, 4, 1, 5, 9, 2, 6]);
   const [highlighted, setHighlighted] = useState<number[]>([]);
   const [entering, setEntering] = useState<number[]>([]);
@@ -144,6 +153,7 @@ function OperationsViz() {
     setEntering([arr.length]);
     setLastOp(`append (${newVal}) — O(1)`);
     setOpCount((c) => c + 1);
+    onActiveLine?.([LINE_APPEND]);
     setTimeout(() => setEntering([]), 520);
   };
 
@@ -155,6 +165,7 @@ function OperationsViz() {
     setHighlighted(Array.from({ length: arr.length - mid + 1 }, (_, i) => mid + 1 + i));
     setLastOp(`insert mid (${newVal}) — O(n): ${arr.length - mid} shifts`);
     setOpCount((c) => c + (arr.length - mid + 1));
+    onActiveLine?.([LINE_INSERT]);
     setTimeout(() => {
       setEntering([]);
       setHighlighted([]);
@@ -167,6 +178,7 @@ function OperationsViz() {
     setLeaving([mid]);
     setLastOp(`delete mid — O(n): ${arr.length - mid - 1} shifts`);
     setOpCount((c) => c + (arr.length - mid));
+    onActiveLine?.([LINE_DELETE]);
     setTimeout(() => {
       setArr((a) => [...a.slice(0, mid), ...a.slice(mid + 1)]);
       setLeaving([]);

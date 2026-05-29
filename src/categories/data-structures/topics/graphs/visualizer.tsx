@@ -54,6 +54,15 @@ const EDGES: GEdge[] = [
   { a: "harper", b: "grace" },
 ];
 
+// algorithm.py line numbers (1-indexed) emitted as the live "active line" while
+// the reader interacts. Kept here as named constants so they track edits to the .py.
+const PY_NEIGHBOR_ITER_BFS = 32; // `for neighbor in friends[node]:` (BFS)
+const PY_NEIGHBOR_ITER_DFS = 49; // `for neighbor in friends[node]:` (DFS)
+const PY_VISITED_MARK_BFS = 34;  // `seen.add(neighbor)` (BFS)
+const PY_VISIT_APPEND_BFS = 31;  // `order.append(node)` (BFS)
+const PY_VISITED_MARK_DFS = 47;  // `seen.add(node)` (DFS)
+const PY_VISIT_APPEND_DFS = 48;  // `order.append(node)` (DFS)
+
 function neighbors(id: string): string[] {
   const out: string[] = [];
   for (const e of EDGES) {
@@ -69,12 +78,13 @@ const vizNodes = (tone?: (id: string) => GraphVizNode["tone"]): GraphVizNode[] =
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function GraphsVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function GraphsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <ForcedTreeViz />;
-  if (step === 3) return <ClickableGraphViz onInteraction={onWedgeInteraction} />;
-  if (step >= 4 && step <= 5) return <TraversalViz />;
+  if (step === 3) return <ClickableGraphViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
+  if (step >= 4 && step <= 5) return <TraversalViz onActiveLine={onActiveLine} />;
   return <SummaryGraphViz />;
 }
 
@@ -113,7 +123,7 @@ function ForcedTreeViz() {
 }
 
 /* Step 3 — clickable, highlight neighbors */
-function ClickableGraphViz({ onInteraction }: { onInteraction?: () => void }) {
+function ClickableGraphViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const neighbors2 = activeId ? new Set(neighbors(activeId)) : new Set<string>();
   const highlighted = activeId ? new Set([activeId, ...neighbors2]) : null;
@@ -140,8 +150,11 @@ function ClickableGraphViz({ onInteraction }: { onInteraction?: () => void }) {
         edges={edges}
         {...size}
         onNodeClick={(id) => {
-          setActiveId(id === activeId ? null : id);
+          const next = id === activeId ? null : id;
+          setActiveId(next);
           onInteraction?.();
+          // Selecting a node = iterating its adjacency list to light up neighbors.
+          onActiveLine?.(next ? [PY_NEIGHBOR_ITER_BFS] : []);
         }}
       />
       <p className="font-mono text-[10px] text-[var(--text-faint)] max-w-[440px] text-center">
@@ -154,7 +167,7 @@ function ClickableGraphViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-5 — BFS / DFS traversal animation */
-function TraversalViz() {
+function TraversalViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [mode, setMode] = useState<"bfs" | "dfs">("bfs");
   const [order, setOrder] = useState<string[]>([]);
   const [cursor, setCursor] = useState(0);
@@ -207,6 +220,17 @@ function TraversalViz() {
 
   const visited = new Set(order.slice(0, cursor));
   const cur = cursor > 0 ? order[cursor - 1] : null;
+
+  // Emit the algorithm.py lines for the current traversal step: mark visited,
+  // record it in order, then iterate its neighbors. Per-mode (BFS vs DFS).
+  useEffect(() => {
+    if (cur == null) { onActiveLine?.([]); return; }
+    onActiveLine?.(
+      mode === "bfs"
+        ? [PY_VISITED_MARK_BFS, PY_VISIT_APPEND_BFS, PY_NEIGHBOR_ITER_BFS]
+        : [PY_VISITED_MARK_DFS, PY_VISIT_APPEND_DFS, PY_NEIGHBOR_ITER_DFS],
+    );
+  }, [cur, mode, onActiveLine]);
 
   const nodes = vizNodes((id) => {
     if (id === cur) return "active";

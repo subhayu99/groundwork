@@ -35,11 +35,12 @@ function hash(s: string, buckets: number): number {
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function HashMapsVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function HashMapsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <LinearScanViz />;
-  if (step === 3) return <HashLookupViz onInteraction={onWedgeInteraction} />;
+  if (step === 3) return <HashLookupViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
   if (step >= 4 && step <= 5) return <BucketsViz />;
   return <SummaryViz />;
 }
@@ -132,7 +133,12 @@ function LinearScanViz() {
 }
 
 /* Step 3 — type a name, see the hash function spit out a slot */
-function HashLookupViz({ onInteraction }: { onInteraction?: () => void }) {
+// algorithm.py mental-model block: line 27 computes the bucket index from the
+// hash, line 28 reaches into that bucket. Emit both as the input drives a lookup.
+const HASH_INDEX_LINE = 27; //   bucket_index = hash(key) % capacity
+const BUCKET_ACCESS_LINE = 28; //   table[bucket_index].append((key, value))
+
+function HashLookupViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void }) {
   const BUCKETS = 16;
   const [input, setInput] = useState("");
 
@@ -142,6 +148,7 @@ function HashLookupViz({ onInteraction }: { onInteraction?: () => void }) {
   const handle = (v: string) => {
     setInput(v);
     onInteraction?.();
+    onActiveLine?.([HASH_INDEX_LINE, BUCKET_ACCESS_LINE]);
   };
 
   return (

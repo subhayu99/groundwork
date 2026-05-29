@@ -7,12 +7,17 @@ import { ArrayViz } from "@/shared/viz/ArrayViz";
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function LinkedListsVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+/* algorithm.py line anchors — keep in sync with linked-lists/algorithm.py */
+const LINE_INSERT_RELINK = [13, 14]; // new_node = Node(..., next=node.next); node.next = new_node
+const LINE_REMOVE_RELINK = [23]; // node.next = removed.next
+
+export function LinkedListsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <ArrayShiftViz />;
-  if (step === 3) return <LinkedListViz onInteraction={onWedgeInteraction} />;
-  if (step >= 4 && step <= 5) return <LinkedListViz onInteraction={undefined} expanded />;
+  if (step === 3) return <LinkedListViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
+  if (step >= 4 && step <= 5) return <LinkedListViz onInteraction={undefined} onActiveLine={onActiveLine} expanded />;
   return <SummaryViz />;
 }
 
@@ -76,7 +81,7 @@ function ArrayShiftViz() {
 }
 
 /* Steps 3-5 — interactive linked list */
-function LinkedListViz({ onInteraction, expanded }: { onInteraction?: () => void; expanded?: boolean }) {
+function LinkedListViz({ onInteraction, onActiveLine, expanded }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void; expanded?: boolean }) {
   const [nodes, setNodes] = useState<NodeItem[]>([
     { id: 1, value: 1 },
     { id: 2, value: 2 },
@@ -101,6 +106,7 @@ function LinkedListViz({ onInteraction, expanded }: { onInteraction?: () => void
     setPointerEdits((p) => p + 2);
     setLastOp(`insert ${value} after node(${afterId}) · 2 pointer swaps`);
     onInteraction?.();
+    onActiveLine?.(LINE_INSERT_RELINK);
     setTimeout(() => setHighlightedIds([]), 720);
   };
 
@@ -109,6 +115,7 @@ function LinkedListViz({ onInteraction, expanded }: { onInteraction?: () => void
     setPointerEdits((p) => p + 1);
     setLastOp(`remove node(${id}) · 1 pointer swap`);
     onInteraction?.();
+    onActiveLine?.(LINE_REMOVE_RELINK);
     setTimeout(() => {
       setNodes((ns) => ns.filter((n) => n.id !== id));
       setHighlightedIds([]);

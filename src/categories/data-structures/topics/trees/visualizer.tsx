@@ -1,7 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TreeViz, TreeVizNode, TreeVizEdge } from "@/shared/viz/TreeViz";
+
+/* algorithm.py line anchors (1-indexed) for live code-sync emits. */
+const LINE_DFS_VISIT = 13; // out = [node.value]  — visit current node
+const LINE_DFS_RECURSE = [14, 15]; // for child / out.extend(dfs(child)) — recurse into children
+const LINE_BST_INIT = 38; // cur = root
+const LINE_BST_FOUND = 40; // if v == cur.value: base case (match)
+const LINE_BST_DESCEND = 42; // cur = cur.left if v < cur.value else cur.right — go left/right
 
 interface TNode {
   id: string;
@@ -38,12 +45,13 @@ const ORG_CHART: TNode = {
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function TreesVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function TreesVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <FlatListViz />;
-  if (step === 3) return <ClickableTreeViz onInteraction={onWedgeInteraction} />;
-  if (step >= 4 && step <= 5) return <BSTViz />;
+  if (step === 3) return <ClickableTreeViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
+  if (step >= 4 && step <= 5) return <BSTViz onActiveLine={onActiveLine} />;
   return <SummaryTreeViz />;
 }
 
@@ -85,7 +93,13 @@ function FlatListViz() {
 }
 
 /* Step 3 — clickable tree: highlight subtree */
-function ClickableTreeViz({ onInteraction }: { onInteraction?: () => void }) {
+function ClickableTreeViz({
+  onInteraction,
+  onActiveLine,
+}: {
+  onInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
+}) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const findNode = (root: TNode, id: string): TNode | null => {
@@ -109,6 +123,12 @@ function ClickableTreeViz({ onInteraction }: { onInteraction?: () => void }) {
     walk(activeNode);
     return out;
   }, [activeNode]);
+
+  // Subtree highlight is a pre-order dfs walk: visit node, then recurse children.
+  useEffect(() => {
+    if (!activeNode) onActiveLine?.([]);
+    else onActiveLine?.([LINE_DFS_VISIT, ...LINE_DFS_RECURSE]);
+  }, [activeNode, onActiveLine]);
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -152,18 +172,26 @@ const BST_ROOT: BSTNode = (() => {
   return r!;
 })();
 
-function BSTViz() {
+function BSTViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [target, setTarget] = useState(35);
-  const path = useMemo(() => {
+  const { path, found } = useMemo(() => {
     const out: number[] = [];
     let cur: BSTNode | undefined = BST_ROOT;
+    let hit = false;
     while (cur) {
       out.push(cur.value);
-      if (target === cur.value) break;
+      if (target === cur.value) { hit = true; break; }
       cur = target < cur.value ? cur.left : cur.right;
     }
-    return out;
+    return { path: out, found: hit };
   }, [target]);
+
+  // bst_contains: init cur, then descend left/right until the value matches (base case).
+  useEffect(() => {
+    onActiveLine?.(
+      found ? [LINE_BST_INIT, LINE_BST_FOUND] : [LINE_BST_INIT, LINE_BST_DESCEND]
+    );
+  }, [target, found, onActiveLine]);
 
   const toTreeNode = (b: BSTNode): TNode => ({
     id: String(b.value),

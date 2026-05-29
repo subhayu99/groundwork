@@ -17,15 +17,22 @@ const STRIDE = CELL + GAP;
 const MOBILE_CELL = 15;
 const MOBILE_GAP = 2;
 
+// algorithm.py line numbers (1-indexed) for live code-sync emits.
+const LINE_SLICE = 12; // word = s[4:9]  — slicing returns a new string, O(k)
+const LINE_FIND = 18; // i = s.find("brown") — substring search
+const LINE_CONCAT = 15; // hello = "hi " + s — concatenation, O(n + m)
+const LINE_REBUILD = 20; // # Cannot mutate in place — build a new string instead
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function StringsVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function StringsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <NaiveSearchViz />;
-  if (step === 3) return <SliderViz onInteraction={onWedgeInteraction} />;
-  if (step >= 4 && step <= 5) return <ImmutabilityViz />;
+  if (step === 3) return <SliderViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
+  if (step >= 4 && step <= 5) return <ImmutabilityViz onActiveLine={onActiveLine} />;
   return <SummaryViz />;
 }
 
@@ -176,12 +183,15 @@ function NaiveSearchViz() {
 }
 
 /* Step 3 — manual slider */
-function SliderViz({ onInteraction }: { onInteraction?: () => void }) {
+function SliderViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void }) {
   const [start, setStart] = useState(0);
   const maxStart = SENTENCE.length - PATTERN.length;
   const handleChange = (v: number) => {
     setStart(v);
     onInteraction?.();
+    // Sliding the window re-slices the candidate, then compares it (find).
+    const slice = SENTENCE.slice(v, v + PATTERN.length);
+    onActiveLine?.(slice === PATTERN ? [LINE_SLICE, LINE_FIND] : [LINE_SLICE]);
   };
 
   const candidate = SENTENCE.slice(start, start + PATTERN.length);
@@ -220,7 +230,7 @@ function SliderViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-5 — immutability: rebuild on edit */
-function ImmutabilityViz() {
+function ImmutabilityViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
   const [s, setS] = useState("hello");
   const [editing, setEditing] = useState<number[]>([]);
   const [copies, setCopies] = useState(0);
@@ -229,6 +239,8 @@ function ImmutabilityViz() {
     setEditing([i]);
     setS((cur) => cur.substring(0, i) + ch + cur.substring(i + 1));
     setCopies((c) => c + s.length);
+    // Can't mutate in place — must allocate a fresh string.
+    onActiveLine?.([LINE_REBUILD]);
     setTimeout(() => setEditing([]), 520);
   };
 
@@ -236,6 +248,8 @@ function ImmutabilityViz() {
     setEditing([s.length]);
     setS((cur) => cur + ch);
     setCopies((c) => c + s.length + 1);
+    // Appending is concatenation — a new string of length n + 1.
+    onActiveLine?.([LINE_CONCAT]);
     setTimeout(() => setEditing([]), 520);
   };
 

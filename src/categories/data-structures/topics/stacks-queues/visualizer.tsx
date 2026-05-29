@@ -7,11 +7,23 @@ import { useIsMobile } from "@/shared/layout/useIsMobile";
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function StacksQueuesVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+// Actual algorithm.py line numbers for each interactive op.
+const LINE_PUSH = 7; // history.append("home")  — push
+const LINE_POP = 10; // history.pop()           — pop
+const LINE_ENQUEUE = 20; // orders.append("latte")  — enqueue
+const LINE_DEQUEUE = 23; // orders.popleft()        — dequeue
+
+export function StacksQueuesVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <NaiveArrayViz />;
-  return <StackQueueViz onInteraction={step === 3 ? onWedgeInteraction : undefined} />;
+  return (
+    <StackQueueViz
+      onInteraction={step === 3 ? onWedgeInteraction : undefined}
+      onActiveLine={onActiveLine}
+    />
+  );
 }
 
 const POOL = ["home", "inbox", "draft", "sent", "page", "post", "feed", "stats"];
@@ -124,7 +136,13 @@ function NaiveArrayViz() {
 }
 
 /* Steps 3-7 — side-by-side Stack and Queue */
-function StackQueueViz({ onInteraction }: { onInteraction?: () => void }) {
+function StackQueueViz({
+  onInteraction,
+  onActiveLine,
+}: {
+  onInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
+}) {
   const isMobile = useIsMobile();
   const [stack, setStack] = useState<Item[]>([]);
   const [queue, setQueue] = useState<Item[]>([]);
@@ -137,6 +155,7 @@ function StackQueueViz({ onInteraction }: { onInteraction?: () => void }) {
     const label = nextLabel();
     setStack((s) => [...s, { id: Date.now() + Math.random(), label }]);
     setLastStackOp(`push(${label}) · O(1)`);
+    onActiveLine?.([LINE_PUSH]);
     touch();
   };
   const stackPop = () => {
@@ -146,6 +165,7 @@ function StackQueueViz({ onInteraction }: { onInteraction?: () => void }) {
       setLastStackOp(`pop() → ${last.label} · O(1)`);
       return s.slice(0, -1);
     });
+    onActiveLine?.([LINE_POP]);
     touch();
   };
 
@@ -153,6 +173,7 @@ function StackQueueViz({ onInteraction }: { onInteraction?: () => void }) {
     const label = nextLabel();
     setQueue((q) => [...q, { id: Date.now() + Math.random(), label }]);
     setLastQueueOp(`enqueue(${label}) · O(1)`);
+    onActiveLine?.([LINE_ENQUEUE]);
     touch();
   };
   const queueDequeue = () => {
@@ -162,6 +183,7 @@ function StackQueueViz({ onInteraction }: { onInteraction?: () => void }) {
       setLastQueueOp(`dequeue() → ${first.label} · O(1)`);
       return q.slice(1);
     });
+    onActiveLine?.([LINE_DEQUEUE]);
     touch();
   };
 

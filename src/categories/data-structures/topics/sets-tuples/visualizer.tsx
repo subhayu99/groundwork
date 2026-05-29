@@ -5,14 +5,21 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const NAME_POOL = ["alice", "bob", "cara", "dan", "eli", "fawn"];
 
+// algorithm.py lines for the set operation being demonstrated (1-indexed, actual lines).
+const LINE_SET_ADD = 6; // logged_in.add("alice")
+const LINE_SET_ADD_DEDUP = 8; // logged_in.add("alice")  # silently ignored — already in
+const LINE_SET_MEMBERSHIP = 10; // print("alice" in logged_in)  # True — O(1) average
+const LINE_SET_DISCARD = 13; // logged_in.discard("bob")  # O(1), no error if missing
+
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
+  onActiveLine?: (lines: number[]) => void;
 }
 
-export function SetsTuplesVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
+export function SetsTuplesVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <ListScanViz />;
-  return <SetTupleViz onInteraction={step === 3 ? onWedgeInteraction : undefined} />;
+  return <SetTupleViz onInteraction={step === 3 ? onWedgeInteraction : undefined} onActiveLine={onActiveLine} />;
 }
 
 /* Step 1-2 — list-based membership = scan */
@@ -73,18 +80,28 @@ function ListScanViz() {
 }
 
 /* Step 3+ — side-by-side set and tuple */
-function SetTupleViz({ onInteraction }: { onInteraction?: () => void }) {
+function SetTupleViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void }) {
   const [members, setMembers] = useState<string[]>(["alice", "bob"]);
   const [tuple] = useState<[string, number, number]>(["2026-05-28", 47.5, 22.1]);
   const [tupleError, setTupleError] = useState<string | null>(null);
 
   const addMember = (n: string) => {
     onInteraction?.();
-    setMembers((m) => (m.includes(n) ? m : [...m, n]));
+    setMembers((m) => {
+      const duplicate = m.includes(n);
+      // add on a present element is the silently-ignored dedup line; otherwise a fresh add.
+      onActiveLine?.(duplicate ? [LINE_SET_ADD_DEDUP] : [LINE_SET_ADD]);
+      return duplicate ? m : [...m, n];
+    });
   };
   const removeMember = (n: string) => {
     onInteraction?.();
+    onActiveLine?.([LINE_SET_DISCARD]);
     setMembers((m) => m.filter((x) => x !== n));
+  };
+  const testMembership = () => {
+    onInteraction?.();
+    onActiveLine?.([LINE_SET_MEMBERSHIP]);
   };
 
   const flashTupleError = (msg: string) => {
@@ -123,7 +140,9 @@ function SetTupleViz({ onInteraction }: { onInteraction?: () => void }) {
         <div className="font-mono text-[11px] text-[var(--text-muted)]">
           size: {members.length}
           <span className="mx-2">·</span>
-          &ldquo;alice&rdquo; in set: <span className={members.includes("alice") ? "text-[var(--diff-easy)]" : "text-[var(--diff-hard)]"}>{members.includes("alice") ? "True" : "False"}</span>
+          <button onClick={testMembership} className="font-mono text-[11px] underline decoration-dotted underline-offset-2 hover:text-[var(--text)]">
+            &ldquo;alice&rdquo; in set
+          </button>: <span className={members.includes("alice") ? "text-[var(--diff-easy)]" : "text-[var(--diff-hard)]"}>{members.includes("alice") ? "True" : "False"}</span>
         </div>
         <div className="flex flex-wrap gap-2 justify-center">
           {NAME_POOL.map((n) => (
