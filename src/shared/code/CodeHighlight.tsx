@@ -209,7 +209,7 @@ export function CodeHighlight({ code, highlightedLines = [], revealedLines, head
             >
               {/* debugger-style "running now" marker on the active line */}
               {isHighlighted && (
-                <span className="absolute left-1 top-1/2 -translate-y-1/2 text-[var(--accent)] text-[8px] leading-none select-none">
+                <span aria-hidden="true" className="absolute left-1 top-1/2 -translate-y-1/2 text-[var(--accent)] text-[8px] leading-none select-none">
                   ▶
                 </span>
               )}
