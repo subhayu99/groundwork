@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { GridViz } from "@/shared/viz/GridViz";
+import { usePlayback } from "@/shared/viz/usePlayback";
+import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import type { Tone } from "@/shared/viz/tones";
 
 const N = 6;
 const CELL = 44;
@@ -55,47 +58,25 @@ function Board({
 }) {
   const attacks = useMemo(() => attackedBy(placed), [placed]);
   return (
-    <div className="grid" style={{ gridTemplateRows: `repeat(${N}, ${CELL}px)`, gap: GAP }}>
-      {Array.from({ length: N }, (_, r) => (
-        <div
-          key={r}
-          className="grid"
-          style={{ gridTemplateColumns: `repeat(${N}, ${CELL}px)`, gap: GAP }}
-        >
-          {Array.from({ length: N }, (_, c) => {
-            const queenHere = placed[r] === c;
-            const isActive = activeRow === r && activeCol === c;
-            const attacked = showAttacks && attacks.has(`${r},${c}`);
-            const checkerLight = (r + c) % 2 === 0;
-            const bg = queenHere
-              ? "color-mix(in oklab, var(--diff-easy) 28%, var(--bg-card))"
-              : isActive
-              ? "color-mix(in oklab, var(--accent-sky) 32%, var(--bg-card))"
-              : attacked
-              ? "color-mix(in oklab, var(--diff-hard) 14%, var(--bg-card))"
-              : checkerLight
-              ? "var(--bg-card)"
-              : "var(--bg-elevated)";
-            const border = queenHere
-              ? "var(--diff-easy)"
-              : isActive
-              ? "var(--accent-line)"
-              : "var(--line)";
-            return (
-              <motion.div
-                key={c}
-                animate={{ backgroundColor: bg, borderColor: border }}
-                transition={{ duration: 0.16 }}
-                className="rounded-sm border flex items-center justify-center font-mono text-base"
-                style={{ width: CELL, height: CELL, color: "var(--text)" }}
-              >
-                {queenHere ? "♛" : ""}
-              </motion.div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
+    <GridViz
+      rows={N}
+      cols={N}
+      cellPx={CELL}
+      gap={GAP}
+      cell={(r, c) => {
+        const queenHere = placed[r] === c;
+        const isActive = activeRow === r && activeCol === c;
+        const attacked = showAttacks && attacks.has(`${r},${c}`);
+        const tone: Tone = queenHere
+          ? "good"
+          : isActive
+          ? "active"
+          : attacked
+          ? "bad"
+          : "idle";
+        return { tone, content: queenHere ? "♛" : "" };
+      }}
+    />
   );
 }
 
@@ -149,53 +130,20 @@ function ManualPlaceViz({ onInteraction }: { onInteraction?: () => void }) {
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
         click a safe square in the next row · undo when stuck
       </div>
-      <div className="grid" style={{ gridTemplateRows: `repeat(${N}, ${CELL}px)`, gap: GAP }}>
-        {Array.from({ length: N }, (_, r) => (
-          <div
-            key={r}
-            className="grid"
-            style={{ gridTemplateColumns: `repeat(${N}, ${CELL}px)`, gap: GAP }}
-          >
-            {Array.from({ length: N }, (_, c) => {
-              const queenHere = placed[r] === c;
-              const attacked = showAttacks && attacks.has(`${r},${c}`);
-              const isCandidate = r === nextRow && !attacks.has(`${r},${c}`);
-              const checkerLight = (r + c) % 2 === 0;
-              const bg = queenHere
-                ? "color-mix(in oklab, var(--diff-easy) 28%, var(--bg-card))"
-                : attacked
-                ? "color-mix(in oklab, var(--diff-hard) 14%, var(--bg-card))"
-                : checkerLight
-                ? "var(--bg-card)"
-                : "var(--bg-elevated)";
-              const border = queenHere
-                ? "var(--diff-easy)"
-                : isCandidate
-                ? "var(--accent-line)"
-                : "var(--line)";
-              return (
-                <button
-                  key={c}
-                  onClick={() => tryPlace(c)}
-                  disabled={!isCandidate}
-                  className="rounded-sm border flex items-center justify-center font-mono text-base"
-                  style={{
-                    width: CELL,
-                    height: CELL,
-                    color: "var(--text)",
-                    backgroundColor: bg,
-                    borderColor: border,
-                    cursor: isCandidate ? "pointer" : "default",
-                  }}
-                  aria-label={`row ${r} col ${c}`}
-                >
-                  {queenHere ? "♛" : ""}
-                </button>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+      <GridViz
+        rows={N}
+        cols={N}
+        cellPx={CELL}
+        gap={GAP}
+        onCellClick={(_r, c) => tryPlace(c)}
+        cellDisabled={(r, c) => !(r === nextRow && !attacks.has(`${r},${c}`))}
+        cell={(r, c) => {
+          const queenHere = placed[r] === c;
+          const attacked = showAttacks && attacks.has(`${r},${c}`);
+          const tone: Tone = queenHere ? "good" : attacked ? "bad" : "idle";
+          return { tone, content: queenHere ? "♛" : "" };
+        }}
+      />
       <div className="font-mono text-xs text-[var(--text-muted)]">
         placed: <span className="text-[var(--text)]">{placed.length}</span> of {N}
         {noSafeSquare && (
@@ -288,27 +236,19 @@ function AutoBacktrackViz() {
     solutions: [],
     done: false,
   });
-  const [playing, setPlaying] = useState(false);
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(() => {
-      setState((cur) => {
-        if (cur.done) {
-          setPlaying(false);
-          return cur;
-        }
-        return btStep(cur);
-      });
-    }, 220);
-    return () => clearInterval(id);
-  }, [playing]);
+  const btStepOnce = () => setState((cur) => (cur.done ? cur : btStep(cur)));
+
+  const pb = usePlayback({
+    onTick: btStepOnce,
+    isDone: () => state.done,
+    intervalMs: 220,
+  });
 
   const reset = () => {
     setState({ placed: [], nextCol: 0, attempts: 0, solutions: [], done: false });
-    setPlaying(false);
+    pb.stop();
   };
-  const stepOnce = () => setState((cur) => (cur.done ? cur : btStep(cur)));
 
   const activeRow = state.done ? null : state.placed.length;
   const activeCol = state.done ? null : state.nextCol;
@@ -327,28 +267,14 @@ function AutoBacktrackViz() {
         solutions: <span className="text-[var(--diff-easy)]">{state.solutions.length}</span>
         {state.done && <span className="text-[var(--diff-easy)] ml-3">✓ done</span>}
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={reset}
-          className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]"
-        >
-          ↺
-        </button>
-        <button
-          onClick={() => setPlaying((p) => !p)}
-          disabled={state.done}
-          className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40"
-        >
-          {playing ? "Pause" : "Play through"}
-        </button>
-        <button
-          onClick={stepOnce}
-          disabled={state.done}
-          className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40"
-        >
-          →
-        </button>
-      </div>
+      <PlaybackControls
+        playing={pb.playing}
+        onToggle={pb.toggle}
+        onReset={reset}
+        onStep={pb.stepOnce}
+        atEnd={state.done}
+        playLabel="Play through"
+      />
     </div>
   );
 }

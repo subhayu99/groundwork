@@ -1,7 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { StackPanel } from "@/shared/viz/StackPanel";
+import { usePlayback } from "@/shared/viz/usePlayback";
+import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 
 type Node =
   | { type: "file"; name: string; size: number }
@@ -115,7 +118,6 @@ function NodeRow({
 function NaiveCountViz() {
   const [scanIdx, setScanIdx] = useState(-1);
   const [running, setRunning] = useState(0);
-  const [playing, setPlaying] = useState(false);
   const idxRef = useRef(-1);
   const sumRef = useRef(0);
 
@@ -125,36 +127,34 @@ function NaiveCountViz() {
     return out;
   }, []);
 
-  const stepForward = useCallback(() => {
-    const next = idxRef.current + 1;
-    if (next >= fileIndices.length) {
-      setPlaying(false);
-      return;
-    }
-    idxRef.current = next;
-    setScanIdx(fileIndices[next]);
-    const node = FLAT[fileIndices[next]].node;
-    if (node.type === "file") {
-      sumRef.current += node.size;
-      setRunning(sumRef.current);
-    }
-  }, [fileIndices]);
+  const done = scanIdx >= 0 && idxRef.current >= fileIndices.length - 1;
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(stepForward, 360);
-    return () => clearInterval(id);
-  }, [playing, stepForward]);
+  const pb = usePlayback({
+    onTick: () => {
+      const next = idxRef.current + 1;
+      if (next >= fileIndices.length) {
+        pb.stop();
+        return;
+      }
+      idxRef.current = next;
+      setScanIdx(fileIndices[next]);
+      const node = FLAT[fileIndices[next]].node;
+      if (node.type === "file") {
+        sumRef.current += node.size;
+        setRunning(sumRef.current);
+      }
+    },
+    isDone: () => scanIdx >= 0 && idxRef.current >= fileIndices.length - 1,
+    intervalMs: 360,
+  });
 
   const reset = () => {
+    pb.stop();
     idxRef.current = -1;
     sumRef.current = 0;
     setScanIdx(-1);
     setRunning(0);
-    setPlaying(false);
   };
-
-  const done = scanIdx >= 0 && idxRef.current >= fileIndices.length - 1;
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -185,13 +185,14 @@ function NaiveCountViz() {
         running total: <span className="text-[var(--diff-easy)]">{running}MB</span>
         {done && <span className="text-[var(--diff-easy)] ml-3">✓ {TOTAL}MB</span>}
       </div>
-      <div className="flex items-center gap-2">
-        <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-        <button onClick={() => setPlaying((p) => !p)} disabled={done} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40">
-          {playing ? "Pause" : "Play through"}
-        </button>
-        <button onClick={stepForward} disabled={done} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40">→</button>
-      </div>
+      <PlaybackControls
+        playing={pb.playing}
+        onToggle={pb.toggle}
+        onReset={reset}
+        onStep={pb.stepOnce}
+        atEnd={done}
+        playLabel="Play through"
+      />
     </div>
   );
 }
@@ -346,38 +347,18 @@ function RecursiveComputeViz() {
     active: null,
     ranBaseCase: false,
   });
-  const [playing, setPlaying] = useState(false);
-  const doneRef = useRef(false);
+  const done = state.finished[TREE.name] !== undefined;
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(() => {
-      setState((cur) => {
-        if (cur.finished[TREE.name] !== undefined) {
-          doneRef.current = true;
-          setPlaying(false);
-          return cur;
-        }
-        return runOneStep(cur);
-      });
-    }, 520);
-    return () => clearInterval(id);
-  }, [playing]);
+  const pb = usePlayback({
+    onTick: () => setState((cur) => runOneStep(cur)),
+    isDone: () => state.finished[TREE.name] !== undefined,
+    intervalMs: 520,
+  });
 
   const reset = () => {
-    doneRef.current = false;
+    pb.stop();
     setState({ stack: [], finished: {}, active: null, ranBaseCase: false });
-    setPlaying(false);
   };
-
-  const stepOnce = () => {
-    setState((cur) => {
-      if (cur.finished[TREE.name] !== undefined) return cur;
-      return runOneStep(cur);
-    });
-  };
-
-  const done = state.finished[TREE.name] !== undefined;
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -402,46 +383,32 @@ function RecursiveComputeViz() {
             );
           })}
         </div>
-        <div className="flex flex-col items-center gap-2 w-[200px]">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-            call stack
-          </div>
-          <div className="flex flex-col-reverse items-stretch gap-1 min-h-[140px] border border-dashed border-[var(--line)] rounded-md p-2 w-full">
-            {state.stack.length === 0 ? (
-              <span className="text-[10px] font-mono text-[var(--text-faint)] text-center py-3">
-                empty
-              </span>
-            ) : (
-              state.stack.map((frame) => (
-                <motion.div
-                  key={frame.path}
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.18 }}
-                  className="rounded-md border border-[var(--accent-line)] bg-[var(--accent-soft)] px-2 py-1 font-mono text-[10px] text-[var(--accent-ink)] flex flex-col"
-                >
-                  <span className="truncate">{frame.path.split("/").slice(-1)[0]}</span>
-                  <span className="text-[9px] text-[var(--text-muted)]">
-                    partial: {frame.partial}MB
-                  </span>
-                </motion.div>
-              ))
-            )}
-          </div>
-        </div>
+        <StackPanel
+          title="call stack"
+          items={state.stack.map((frame) => ({
+            key: frame.path,
+            label: frame.path.split("/").slice(-1)[0],
+            sub: `partial: ${frame.partial}MB`,
+            tone: "accent" as const,
+          }))}
+          emptyLabel="empty"
+          topOnTop={true}
+          widthPx={200}
+        />
       </div>
       {done && (
         <div className="font-mono text-xs text-[var(--diff-easy)]">
           ✓ {state.finished[TREE.name]}MB total
         </div>
       )}
-      <div className="flex items-center gap-2">
-        <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-        <button onClick={() => setPlaying((p) => !p)} disabled={done} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40">
-          {playing ? "Pause" : "Play through"}
-        </button>
-        <button onClick={stepOnce} disabled={done} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40">→</button>
-      </div>
+      <PlaybackControls
+        playing={pb.playing}
+        onToggle={pb.toggle}
+        onReset={reset}
+        onStep={pb.stepOnce}
+        atEnd={done}
+        playLabel="Play through"
+      />
     </div>
   );
 }

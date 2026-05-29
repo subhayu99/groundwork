@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { GridViz, type CellSpec } from "@/shared/viz/GridViz";
+import { usePlayback } from "@/shared/viz/usePlayback";
+import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 
 type Cell = [number, number];
 
@@ -41,115 +43,43 @@ function cellKey(r: number, c: number): string {
   return `${r},${c}`;
 }
 
-function CellBox({
-  r,
-  c,
-  state,
-}: {
-  r: number;
-  c: number;
-  state:
-    | "wall"
-    | "start"
-    | "goal"
-    | "current"
-    | "visited"
-    | "trail"
-    | "idle";
-}) {
-  const bg =
-    state === "wall"
-      ? "var(--bg-elevated)"
-      : state === "current"
-      ? "color-mix(in oklab, var(--accent-sky) 42%, var(--bg-card))"
-      : state === "trail"
-      ? "color-mix(in oklab, var(--diff-easy) 26%, var(--bg-card))"
-      : state === "visited"
-      ? "color-mix(in oklab, var(--accent-sky) 14%, var(--bg-card))"
-      : state === "start" || state === "goal"
-      ? "var(--bg-card)"
-      : "var(--bg-card)";
-  const border =
-    state === "wall"
-      ? "var(--line-faint)"
-      : state === "current"
-      ? "var(--accent-line)"
-      : state === "trail"
-      ? "var(--diff-easy)"
-      : state === "visited"
-      ? "color-mix(in oklab, var(--accent-line) 50%, var(--line))"
-      : state === "start" || state === "goal"
-      ? "var(--text-muted)"
-      : "var(--line)";
-  return (
-    <motion.div
-      animate={{ backgroundColor: bg, borderColor: border }}
-      transition={{ duration: 0.18 }}
-      className="rounded-md border-2 flex items-center justify-center font-mono text-[10px]"
-      style={{ width: CELL_PX, height: CELL_PX, color: "var(--text-muted)" }}
-    >
-      {state === "wall"
-        ? ""
-        : state === "start"
-        ? "S"
-        : state === "goal"
-        ? "G"
-        : state === "current"
-        ? "•"
-        : ""}
-    </motion.div>
-  );
-}
-
-function MazeGrid({
-  current,
-  visited,
-  trail,
-}: {
-  current: Cell | null;
-  visited: Set<string>;
-  trail: Set<string>;
-}) {
-  return (
-    <div className="flex flex-col" style={{ gap: GAP }}>
-      {GRID.map((row, r) => (
-        <div key={r} className="flex" style={{ gap: GAP }}>
-          {row.map((cell, c) => {
-            const isStart = r === START[0] && c === START[1];
-            const isGoal = r === GOAL[0] && c === GOAL[1];
-            const isCurrent = current && current[0] === r && current[1] === c;
-            const key = cellKey(r, c);
-            let state:
-              | "wall"
-              | "start"
-              | "goal"
-              | "current"
-              | "visited"
-              | "trail"
-              | "idle";
-            if (cell === 1) state = "wall";
-            else if (isCurrent) state = "current";
-            else if (trail.has(key)) state = "trail";
-            else if (visited.has(key)) state = "visited";
-            else if (isStart) state = "start";
-            else if (isGoal) state = "goal";
-            else state = "idle";
-            return <CellBox key={c} r={r} c={c} state={state} />;
-          })}
-        </div>
-      ))}
-    </div>
-  );
+/** Map a maze cell to a GridViz CellSpec, preserving the original tone/content. */
+function mazeCell(
+  r: number,
+  c: number,
+  current: Cell | null,
+  visited: Set<string>,
+  trail: Set<string>,
+): CellSpec {
+  const isStart = r === START[0] && c === START[1];
+  const isGoal = r === GOAL[0] && c === GOAL[1];
+  const isCurrent = current != null && current[0] === r && current[1] === c;
+  const key = cellKey(r, c);
+  if (GRID[r][c] === 1) return { tone: "wall" };
+  if (isCurrent) return { tone: "active", content: "•" };
+  if (trail.has(key)) return { tone: "trail" };
+  if (visited.has(key)) return { tone: "visited" };
+  if (isStart) return { tone: "start", content: "S" };
+  if (isGoal) return { tone: "goal", content: "G" };
+  return { tone: "idle" };
 }
 
 /* Steps 1-2 — static maze with sequence-count callout */
 function MazeStaticViz() {
+  const emptyVisited = new Set<string>();
+  const emptyTrail = new Set<string>();
   return (
     <div className="flex flex-col items-center gap-6">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
         a 5×5 maze · is there a way from S to G?
       </div>
-      <MazeGrid current={null} visited={new Set()} trail={new Set()} />
+      <GridViz
+        rows={ROWS}
+        cols={COLS}
+        cellPx={CELL_PX}
+        gap={GAP}
+        cell={(r, c) => mazeCell(r, c, null, emptyVisited, emptyTrail)}
+      />
       <div className="font-mono text-xs text-[var(--text-muted)] max-w-[320px] text-center">
         sequences of 10 moves to try, blind:{" "}
         <span className="text-[var(--diff-hard)]">4<sup>10</sup> = 1,048,576</span>
@@ -216,58 +146,25 @@ function ManualWalkViz({ onInteraction }: { onInteraction?: () => void }) {
 
   const trailSet = new Set(walk.trail.map(([r, c]) => cellKey(r, c)));
 
+  const isCandidate = (r: number, c: number) =>
+    GRID[r][c] === 0 &&
+    !walk.visited.has(cellKey(r, c)) &&
+    Math.abs(walk.current[0] - r) + Math.abs(walk.current[1] - c) === 1;
+
   return (
     <div className="flex flex-col items-center gap-6">
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
         click an open neighbour · back up when stuck
       </div>
-      <div className="flex flex-col" style={{ gap: GAP }}>
-        {GRID.map((row, r) => (
-          <div key={r} className="flex" style={{ gap: GAP }}>
-            {row.map((cell, c) => {
-              const isStart = r === START[0] && c === START[1];
-              const isGoal = r === GOAL[0] && c === GOAL[1];
-              const isCurrent = walk.current[0] === r && walk.current[1] === c;
-              const key = cellKey(r, c);
-              let state:
-                | "wall"
-                | "start"
-                | "goal"
-                | "current"
-                | "visited"
-                | "trail"
-                | "idle";
-              if (cell === 1) state = "wall";
-              else if (isCurrent) state = "current";
-              else if (trailSet.has(key)) state = "trail";
-              else if (walk.visited.has(key)) state = "visited";
-              else if (isStart) state = "start";
-              else if (isGoal) state = "goal";
-              else state = "idle";
-              const isCandidate =
-                cell === 0 &&
-                !walk.visited.has(key) &&
-                Math.abs(walk.current[0] - r) + Math.abs(walk.current[1] - c) === 1;
-              return (
-                <button
-                  key={c}
-                  onClick={() => tryStep(r, c)}
-                  disabled={!isCandidate}
-                  className="p-0 rounded-md focus:outline-none"
-                  style={{
-                    cursor: isCandidate ? "pointer" : "default",
-                    width: CELL_PX,
-                    height: CELL_PX,
-                  }}
-                  aria-label={`cell ${r},${c}`}
-                >
-                  <CellBox r={r} c={c} state={state} />
-                </button>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+      <GridViz
+        rows={ROWS}
+        cols={COLS}
+        cellPx={CELL_PX}
+        gap={GAP}
+        cell={(r, c) => mazeCell(r, c, walk.current, walk.visited, trailSet)}
+        onCellClick={tryStep}
+        cellDisabled={(r, c) => !isCandidate(r, c)}
+      />
       <div className="font-mono text-xs text-[var(--text-muted)]">
         steps: <span className="text-[var(--text)]">{walk.trail.length - 1}</span>
         <span className="mx-3">·</span>
@@ -347,28 +244,19 @@ function dfsStep(state: DfsState): DfsState {
 /* Steps 4-7 — auto-play DFS with backtracking */
 function AutoDfsViz() {
   const [dfs, setDfs] = useState<DfsState>(initDfs());
-  const [playing, setPlaying] = useState(false);
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(() => {
-      setDfs((cur) => {
-        if (cur.done) {
-          setPlaying(false);
-          return cur;
-        }
-        return dfsStep(cur);
-      });
-    }, 300);
-    return () => clearInterval(id);
-  }, [playing]);
+  const stepForward = () => setDfs((cur) => (cur.done ? cur : dfsStep(cur)));
+
+  const pb = usePlayback({
+    onTick: stepForward,
+    isDone: () => dfs.done,
+    intervalMs: 300,
+  });
 
   const reset = () => {
     setDfs(initDfs());
-    setPlaying(false);
+    pb.setPlaying(false);
   };
-
-  const stepOnce = () => setDfs((cur) => (cur.done ? cur : dfsStep(cur)));
 
   const current = dfs.stack.length > 0 ? dfs.stack[dfs.stack.length - 1].cell : null;
   const trailSet = new Set(dfs.trail.map(([r, c]) => cellKey(r, c)));
@@ -378,7 +266,13 @@ function AutoDfsViz() {
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
         dive deep · back up when stuck
       </div>
-      <MazeGrid current={current} visited={dfs.visited} trail={trailSet} />
+      <GridViz
+        rows={ROWS}
+        cols={COLS}
+        cellPx={CELL_PX}
+        gap={GAP}
+        cell={(r, c) => mazeCell(r, c, current, dfs.visited, trailSet)}
+      />
       <div className="font-mono text-xs text-[var(--text-muted)]">
         stack depth: <span className="text-[var(--accent)]">{dfs.stack.length}</span>
         <span className="mx-3">·</span>
@@ -389,13 +283,14 @@ function AutoDfsViz() {
           </span>
         )}
       </div>
-      <div className="flex items-center gap-2">
-        <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-        <button onClick={() => setPlaying((p) => !p)} disabled={dfs.done} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40">
-          {playing ? "Pause" : "Play through"}
-        </button>
-        <button onClick={stepOnce} disabled={dfs.done} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40">→</button>
-      </div>
+      <PlaybackControls
+        playing={pb.playing}
+        onToggle={pb.toggle}
+        onReset={reset}
+        onStep={pb.stepOnce}
+        atEnd={dfs.done}
+        playLabel="Play through"
+      />
     </div>
   );
 }

@@ -1,7 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { GridViz } from "@/shared/viz/GridViz";
+import { StackPanel } from "@/shared/viz/StackPanel";
+import { usePlayback } from "@/shared/viz/usePlayback";
+import { PlaybackControls } from "@/shared/viz/PlaybackControls";
+import type { Tone } from "@/shared/viz/tones";
 
 type Cell = [number, number];
 
@@ -41,20 +45,6 @@ export function BfsVisualizer({ step, onWedgeInteraction }: VisualizerProps) {
   return <DerivedBfsViz />;
 }
 
-function distanceColor(d: number | null, maxD: number): string {
-  if (d === null) return "var(--bg-card)";
-  // Fade from cool sky (close) to warm green (far) as the ripple spreads.
-  const t = maxD === 0 ? 0 : d / Math.max(maxD, 1);
-  const ringPct = 14 + Math.min(t, 1) * 28;
-  return `color-mix(in oklab, var(--accent-sky) ${ringPct.toFixed(1)}%, var(--bg-card))`;
-}
-
-function distanceBorder(d: number | null): string {
-  return d === null
-    ? "var(--line)"
-    : "color-mix(in oklab, var(--accent-line) 70%, var(--line))";
-}
-
 function MazeWithDistances({
   distances,
   active,
@@ -64,60 +54,34 @@ function MazeWithDistances({
   active: Cell | null;
   showDistances: boolean;
 }) {
-  const maxD = Object.values(distances).reduce((a, b) => Math.max(a, b), 0);
   return (
-    <div className="flex flex-col" style={{ gap: GAP }}>
-      {GRID.map((row, r) => (
-        <div key={r} className="flex" style={{ gap: GAP }}>
-          {row.map((cell, c) => {
-            const key = cellKey(r, c);
-            const isStart = r === START[0] && c === START[1];
-            const isGoal = r === GOAL[0] && c === GOAL[1];
-            const isActive = active && active[0] === r && active[1] === c;
-            const d = distances[key];
-            const hasD = typeof d === "number";
-            const bg =
-              cell === 1
-                ? "var(--bg-elevated)"
-                : isActive
-                ? "color-mix(in oklab, var(--accent-sky) 48%, var(--bg-card))"
-                : hasD
-                ? distanceColor(d, maxD)
-                : "var(--bg-card)";
-            const border =
-              cell === 1
-                ? "var(--line-faint)"
-                : isActive
-                ? "var(--accent-line)"
-                : hasD
-                ? distanceBorder(d)
-                : "var(--line)";
-            return (
-              <motion.div
-                key={c}
-                animate={{ backgroundColor: bg, borderColor: border }}
-                transition={{ duration: 0.2 }}
-                className="rounded-md border-2 flex flex-col items-center justify-center font-mono text-[10px]"
-                style={{ width: CELL_PX, height: CELL_PX, color: "var(--text)" }}
-              >
-                {cell === 1 ? (
-                  ""
-                ) : (
-                  <>
-                    <span className="text-[10px] text-[var(--text-muted)]">
-                      {isStart ? "S" : isGoal ? "G" : ""}
-                    </span>
-                    {showDistances && hasD && (
-                      <span className="text-[10px] text-[var(--accent-ink)]">{d}</span>
-                    )}
-                  </>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
+    <GridViz
+      rows={ROWS}
+      cols={COLS}
+      cellPx={CELL_PX}
+      gap={GAP}
+      cell={(r, c) => {
+        const key = cellKey(r, c);
+        const isStart = r === START[0] && c === START[1];
+        const isGoal = r === GOAL[0] && c === GOAL[1];
+        const isActive = active != null && active[0] === r && active[1] === c;
+        const d = distances[key];
+        const hasD = typeof d === "number";
+        let tone: Tone;
+        if (GRID[r][c] === 1) tone = "wall";
+        else if (isActive) tone = "active";
+        else if (isStart) tone = "start";
+        else if (isGoal) tone = "goal";
+        else if (hasD) tone = "visited";
+        else tone = "idle";
+        if (GRID[r][c] === 1) return { tone };
+        return {
+          tone,
+          content: isStart ? "S" : isGoal ? "G" : "",
+          sub: showDistances && hasD ? d : undefined,
+        };
+      }}
+    />
   );
 }
 
@@ -148,45 +112,24 @@ function ContrastViz() {
       <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
         depth-first finds a path · is it the shortest?
       </div>
-      <div className="flex flex-col" style={{ gap: GAP }}>
-        {GRID.map((row, r) => (
-          <div key={r} className="flex" style={{ gap: GAP }}>
-            {row.map((cell, c) => {
-              const isStart = r === START[0] && c === START[1];
-              const isGoal = r === GOAL[0] && c === GOAL[1];
-              const key = cellKey(r, c);
-              const onTrail = trailSet.has(key);
-              const bg =
-                cell === 1
-                  ? "var(--bg-elevated)"
-                  : onTrail
-                  ? "color-mix(in oklab, var(--diff-easy) 22%, var(--bg-card))"
-                  : "var(--bg-card)";
-              const border =
-                cell === 1
-                  ? "var(--line-faint)"
-                  : onTrail
-                  ? "var(--diff-easy)"
-                  : "var(--line)";
-              return (
-                <div
-                  key={c}
-                  className="rounded-md border-2 flex items-center justify-center font-mono text-[10px]"
-                  style={{
-                    width: CELL_PX,
-                    height: CELL_PX,
-                    backgroundColor: bg,
-                    borderColor: border,
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  {isStart ? "S" : isGoal ? "G" : ""}
-                </div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+      <GridViz
+        rows={ROWS}
+        cols={COLS}
+        cellPx={CELL_PX}
+        gap={GAP}
+        cell={(r, c) => {
+          const isStart = r === START[0] && c === START[1];
+          const isGoal = r === GOAL[0] && c === GOAL[1];
+          const key = cellKey(r, c);
+          const onTrail = trailSet.has(key);
+          let tone: Tone;
+          if (GRID[r][c] === 1) tone = "wall";
+          else if (onTrail) tone = "trail";
+          else tone = "idle";
+          if (GRID[r][c] === 1) return { tone };
+          return { tone, content: isStart ? "S" : isGoal ? "G" : "" };
+        }}
+      />
       <div className="font-mono text-xs text-[var(--text-muted)] max-w-[320px] text-center">
         depth-first length: <span className="text-[var(--diff-easy)]">{dfsLen}</span>
         <span className="mx-3">·</span>
@@ -248,30 +191,21 @@ function initRipple(): RippleState {
 /* Step 3 — ring-by-ring spread, manual or play */
 function RippleViz({ onInteraction }: { onInteraction?: () => void }) {
   const [state, setState] = useState<RippleState>(initRipple());
-  const [playing, setPlaying] = useState(false);
 
   const stepRing = () => {
     onInteraction?.();
     setState((cur) => (cur.reachedGoalAt !== null ? cur : nextRing(cur)));
   };
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(() => {
-      setState((cur) => {
-        if (cur.reachedGoalAt !== null) {
-          setPlaying(false);
-          return cur;
-        }
-        return nextRing(cur);
-      });
-    }, 480);
-    return () => clearInterval(id);
-  }, [playing]);
+  const pb = usePlayback({
+    onTick: () => setState((cur) => nextRing(cur)),
+    isDone: () => state.reachedGoalAt !== null,
+    intervalMs: 480,
+  });
 
   const reset = () => {
     setState(initRipple());
-    setPlaying(false);
+    pb.stop();
   };
 
   return (
@@ -288,15 +222,14 @@ function RippleViz({ onInteraction }: { onInteraction?: () => void }) {
           </span>
         )}
       </div>
-      <div className="flex items-center gap-2">
-        <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-        <button onClick={() => setPlaying((p) => !p)} disabled={state.reachedGoalAt !== null} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40">
-          {playing ? "Pause" : "Play through"}
-        </button>
-        <button onClick={stepRing} disabled={state.reachedGoalAt !== null} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40">
-          next ring →
-        </button>
-      </div>
+      <PlaybackControls
+        playing={pb.playing}
+        onToggle={pb.toggle}
+        onReset={reset}
+        onStep={stepRing}
+        atEnd={state.reachedGoalAt !== null}
+        playLabel="Play through"
+      />
     </div>
   );
 }
@@ -361,27 +294,17 @@ function bfsStep(state: BfsState): BfsState {
 /* Steps 4-7 — BFS with visible queue */
 function DerivedBfsViz() {
   const [state, setState] = useState<BfsState>(initBfs());
-  const [playing, setPlaying] = useState(false);
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(() => {
-      setState((cur) => {
-        if (cur.done) {
-          setPlaying(false);
-          return cur;
-        }
-        return bfsStep(cur);
-      });
-    }, 380);
-    return () => clearInterval(id);
-  }, [playing]);
+  const pb = usePlayback({
+    onTick: () => setState((cur) => bfsStep(cur)),
+    isDone: () => state.done,
+    intervalMs: 380,
+  });
 
   const reset = () => {
     setState(initBfs());
-    setPlaying(false);
+    pb.stop();
   };
-  const stepOnce = () => setState((cur) => (cur.done ? cur : bfsStep(cur)));
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -394,38 +317,22 @@ function DerivedBfsViz() {
           active={state.active}
           showDistances
         />
-        <div className="flex flex-col items-center gap-2 w-[180px]">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)]">
-            queue · front on top
-          </div>
-          <div className="flex flex-col items-stretch gap-1 min-h-[140px] border border-dashed border-[var(--line)] rounded-md p-2 w-full">
-            {state.queue.length === 0 ? (
-              <span className="text-[10px] font-mono text-[var(--text-faint)] text-center py-3">
-                empty
-              </span>
-            ) : (
-              state.queue.slice(0, 7).map((q, i) => (
-                <motion.div
-                  key={`${cellKey(q.cell[0], q.cell[1])}-${i}`}
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="rounded-md border border-[var(--accent-line)] bg-[var(--accent-soft)] px-2 py-1 font-mono text-[10px] text-[var(--accent-ink)] flex items-center justify-between"
-                >
-                  <span>
-                    ({q.cell[0]},{q.cell[1]})
-                  </span>
-                  <span className="text-[var(--text-muted)]">d={q.d}</span>
-                </motion.div>
-              ))
-            )}
-            {state.queue.length > 7 && (
-              <span className="text-[9px] font-mono text-[var(--text-faint)] text-center">
-                +{state.queue.length - 7} more
-              </span>
-            )}
-          </div>
-        </div>
+        <StackPanel
+          title="queue · front on top"
+          topOnTop={false}
+          widthPx={180}
+          minHeightPx={140}
+          emptyLabel="empty"
+          items={state.queue.slice(0, 7).map((q, i) => ({
+            key: `${cellKey(q.cell[0], q.cell[1])}-${i}`,
+            label: `(${q.cell[0]},${q.cell[1]})`,
+            sub: `d=${q.d}`,
+            tone: "accent" as Tone,
+          }))}
+          footer={
+            state.queue.length > 7 ? `+${state.queue.length - 7} more` : undefined
+          }
+        />
       </div>
       <div className="font-mono text-xs text-[var(--text-muted)]">
         visited: <span className="text-[var(--accent)]">{state.visited.size}</span>
@@ -435,13 +342,14 @@ function DerivedBfsViz() {
           </span>
         )}
       </div>
-      <div className="flex items-center gap-2">
-        <button onClick={reset} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]">↺</button>
-        <button onClick={() => setPlaying((p) => !p)} disabled={state.done} className="px-4 py-1.5 rounded-md font-mono text-xs border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] hover:bg-[color-mix(in_oklab,var(--accent)_28%,transparent)] disabled:opacity-40">
-          {playing ? "Pause" : "Play through"}
-        </button>
-        <button onClick={stepOnce} disabled={state.done} className="px-3 py-1.5 rounded-md font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40">→</button>
-      </div>
+      <PlaybackControls
+        playing={pb.playing}
+        onToggle={pb.toggle}
+        onReset={reset}
+        onStep={pb.stepOnce}
+        atEnd={state.done}
+        playLabel="Play through"
+      />
     </div>
   );
 }
