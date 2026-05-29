@@ -1,9 +1,11 @@
 # Groundwork — Backlog (post B1–B4)
 
 B1–B4 (label-based sync, AnimatedAlgorithmView, phasedVisualizer, tone/CSS colors) are done and
-deployed. Remaining work, **in the agreed order**:
+deployed.
 
-## 1. B5 — contract consolidation (for AI-generated pages)
+**Order (set 2026-05-30): B6 → cross-cutting → content → frame-by-frame sync audit. B5 is DEFERRED.**
+
+## 1. B5 — contract consolidation (for AI-generated pages) — DEFERRED (do later)
 Move `TopicBundle` + `VisualizerProps` into `src/shared/topic/contract.ts`; fold `codeMap` into the
 bundle; make step count flexible (drop hardcoded `StepNumber = 1..7`); replace the two near-identical
 `topics/index.ts` files + the `if (categoryKey===…)` switch with `defineTopics(domain, bundles)`. Goal: a
