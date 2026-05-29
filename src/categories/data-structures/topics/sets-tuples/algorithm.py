@@ -31,4 +31,3 @@ date, lat, temp = reading                    # unpack by position @sync: tuple_u
 seen: set[tuple[float, float]] = set()       # @sync: tuple_immutable
 seen.add((47.5, 22.1))                       # OK — tuples hash @sync: tuple_key
 # seen.add([47.5, 22.1])                     ❌ lists don't hash
-</content>
