@@ -3,7 +3,13 @@
 B1–B4 (label-based sync, AnimatedAlgorithmView, phasedVisualizer, tone/CSS colors) are done and
 deployed.
 
-**Order (set 2026-05-30): B6 → cross-cutting → content → frame-by-frame sync audit. B5 is DEFERRED.**
+**Order (set 2026-05-30): B6 ✅ → cross-cutting → content → frame-by-frame sync audit. B5 is DEFERRED.**
+
+> **B6 done (2026-05-30, commit `0d8a764`, local — not yet pushed):** `src/shared/viz/Scene.tsx`
+> is the single node-and-edge SVG engine (positioned circle/rect nodes, toned/labeled/directed edges
+> with arrowheads, annotation layer, keyboard-operable nodes). `TreeViz`/`GraphViz` are now thin
+> wrappers with unchanged public APIs (consumers: trees, graphs, dp-1d — untouched). tsc/tests/build
+> green. **Next: cross-cutting.** New domains use `Scene` directly (rect nodes + directed/labeled edges).
 
 ## 1. B5 — contract consolidation (for AI-generated pages) — DEFERRED (do later)
 Move `TopicBundle` + `VisualizerProps` into `src/shared/topic/contract.ts`; fold `codeMap` into the
@@ -11,10 +17,13 @@ bundle; make step count flexible (drop hardcoded `StepNumber = 1..7`); replace t
 `topics/index.ts` files + the `if (categoryKey===…)` switch with `defineTopics(domain, bundles)`. Goal: a
 model emits ONE self-contained topic object.
 
-## 2. B6 — domain-agnostic `Scene` primitive
-Positioned-nodes + labeled-edges + annotation layer (array/tree/graph become special cases) so new
-domains reuse the engine without forking: systems design, DB architectures, distributed systems, load
-balancing, sharding, OLAP/OLTP, replication/consensus.
+## 2. B6 — domain-agnostic `Scene` primitive ✅ DONE (commit `0d8a764`, local)
+Positioned-nodes + labeled-edges + annotation layer so new domains reuse the engine without forking:
+systems design, DB architectures, distributed systems, load balancing, sharding, OLAP/OLTP,
+replication/consensus. Shipped as `src/shared/viz/Scene.tsx`; `TreeViz`/`GraphViz` collapsed into thin
+wrappers (the SVG node-and-edge family). Array/grid/stack stay HTML (Motion layout animation) by design
+— the SVG node-graph family is what unified. Directed/labeled edges + rect nodes + a11y are the new
+capabilities the next domains need.
 
 ## 3. Cross-cutting
 - **Jargon gating:** `O(1)/O(n)…` and CS terms (hash, bucket, pointer, node, immutable, LIFO/FIFO…)
