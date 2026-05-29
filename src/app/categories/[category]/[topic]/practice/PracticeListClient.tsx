@@ -40,7 +40,7 @@ export function PracticeListClient({
         ]}
       />
 
-      <main className="flex-1 max-w-3xl mx-auto px-8 py-12 w-full">
+      <main className="flex-1 max-w-3xl mx-auto px-5 md:px-8 py-12 w-full">
         <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)] mb-1">
           {topicName} · practice
         </div>

@@ -4,6 +4,7 @@ import { Chrome } from "@/shared/layout/Chrome";
 import { useProgress } from "@/shared/progress/useProgress";
 import { listAllTopics } from "@/categories/registry";
 import { useRef } from "react";
+import Link from "next/link";
 
 export default function ProgressPage() {
   const { state, exportJson, importJson } = useProgress();
@@ -53,7 +54,7 @@ export default function ProgressPage() {
     <div className="min-h-screen flex flex-col">
       <Chrome breadcrumb={[{ label: "Home", href: "/" }, { label: "Progress" }]} />
 
-      <main className="flex-1 max-w-4xl mx-auto px-8 py-12 w-full">
+      <main className="flex-1 max-w-4xl mx-auto px-5 md:px-8 py-12 w-full">
         <h1 className="text-3xl font-semibold text-[var(--text)] mb-2">Your progress</h1>
         <p className="text-[var(--text-muted)] mb-8">
           {completed.length} of {allTopics.length} topics completed
@@ -87,9 +88,10 @@ export default function ProgressPage() {
             const isCompleted = tp?.derivation.completed ?? false;
             const currentStep = tp?.derivation.currentStep ?? 0;
             return (
-              <div
+              <Link
                 key={`${t.category}/${t.key}`}
-                className="flex items-center justify-between p-4 rounded-xl border border-[var(--line-faint)] bg-[var(--bg-card)]"
+                href={`/categories/${t.category}/${t.key}`}
+                className="block flex items-center justify-between p-4 rounded-xl border border-[var(--line-faint)] bg-[var(--bg-card)] hover:border-[var(--line-strong)] transition-colors"
               >
                 <div>
                   <div className="font-medium text-[var(--text)]">{t.name}</div>
@@ -104,7 +106,7 @@ export default function ProgressPage() {
                     <span className="text-[var(--text-faint)]">not started</span>
                   )}
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Chrome } from "@/shared/layout/Chrome";
 import { ConceptMapHome } from "./ConceptMapHome";
+import { ResumeBanner } from "./ResumeBanner";
 import { listCategories, listTopicsInCategory } from "@/categories/registry";
 import { getPrinciple } from "@/principles/registry";
 
@@ -11,7 +12,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <Chrome />
 
-      <main className="flex-1 max-w-4xl mx-auto px-8 py-16 w-full">
+      <main className="flex-1 max-w-4xl mx-auto px-5 md:px-8 py-16 w-full">
         <h1 className="text-5xl font-semibold text-[var(--text)] mb-3">
           First principles, not patterns.
         </h1>
@@ -19,6 +20,10 @@ export default function Home() {
           Learn the seven ideas underneath every algorithm. Derive each pattern from scratch &mdash;
           never memorize a name without understanding what it&rsquo;s made of.
         </p>
+
+        <div className="mb-8">
+          <ResumeBanner />
+        </div>
 
         {/* Desktop: force-directed concept map. Mobile: the topic grid below. */}
         <div className="hidden md:block">

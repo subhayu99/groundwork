@@ -27,7 +27,7 @@ export default async function PrinciplePage({
     <div className="min-h-screen flex flex-col">
       <Chrome breadcrumb={[{ label: "Principle" }, { label: meta.name }]} />
 
-      <main className="flex-1 max-w-3xl mx-auto px-8 py-16 w-full">
+      <main className="flex-1 max-w-3xl mx-auto px-5 md:px-8 py-16 w-full">
         <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)] mb-1">
           one of the seven ideas
         </div>

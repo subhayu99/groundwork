@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useReducedMotion } from "framer-motion";
 import {
   forceSimulation,
   forceManyBody,
@@ -71,6 +72,7 @@ export function ConceptMapHome() {
   const { state } = useProgress();
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [, tick] = useReducer((n: number) => n + 1, 0);
+  const prefersReduced = useReducedMotion();
   // The simulation runs only in the browser, so the prerendered/SSR HTML has no
   // node positions. Render the graph contents only after mount so the server and
   // first client render match exactly (no hydration mismatch under static export).
@@ -154,6 +156,12 @@ export function ConceptMapHome() {
   const simRef = useRef<Simulation<GNode, GLink> | null>(null);
 
   useEffect(() => {
+    const clamp = () => {
+      for (const n of nodesRef.current) {
+        if (n.x != null) n.x = Math.max(n.hw + 6, Math.min(W - n.hw - 6, n.x));
+        if (n.y != null) n.y = Math.max(n.hh + 24, Math.min(H - n.hh - 6, n.y));
+      }
+    };
     const sim = forceSimulation<GNode, GLink>(nodes)
       .force(
         "link",
@@ -171,20 +179,25 @@ export function ConceptMapHome() {
       .force("x", forceX(W / 2).strength(0.04))
       .force("y", forceY(H / 2).strength(0.06));
 
-    sim.on("tick", () => {
-      // keep chips inside the frame
-      for (const n of nodesRef.current) {
-        if (n.x != null) n.x = Math.max(n.hw + 6, Math.min(W - n.hw - 6, n.x));
-        if (n.y != null) n.y = Math.max(n.hh + 24, Math.min(H - n.hh - 6, n.y));
-      }
+    if (prefersReduced) {
+      // Reduced motion: settle the layout synchronously and render once — no
+      // animated drift.
+      sim.stop();
+      sim.tick(300);
+      clamp();
       tick();
-    });
+    } else {
+      sim.on("tick", () => {
+        clamp();
+        tick();
+      });
+    }
 
     simRef.current = sim;
     return () => {
       sim.stop();
     };
-  }, [nodes, links]);
+  }, [nodes, links, prefersReduced]);
 
   // Layer completion state onto topic nodes (read-only; doesn't disturb layout).
   if (state) {

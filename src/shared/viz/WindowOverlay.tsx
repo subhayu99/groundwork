@@ -56,7 +56,13 @@ export function WindowOverlay({
       dragConstraints={{ left: 0, right: maxStart * stride }}
       dragElastic={0}
       dragMomentum={false}
-      onDragStart={() => setDragging(true)}
+      onDragStart={() => {
+        setDragging(true);
+        // Fire on drag start (pointer down) so even a tiny drag counts toward
+        // interaction gates — re-asserting the current clamped start.
+        const clamped = Math.max(0, Math.min(maxStart, start));
+        onChange?.(clamped);
+      }}
       onDragEnd={() => {
         setDragging(false);
         // Snap to nearest cell on release

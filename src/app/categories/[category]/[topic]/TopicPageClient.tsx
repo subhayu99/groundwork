@@ -7,7 +7,7 @@ import { TopicLayout } from "@/shared/layout/TopicLayout";
 import { DerivationEngine } from "@/shared/derivation/DerivationEngine";
 import { NextStepsSection } from "@/shared/next-steps/NextStepsSection";
 import { AccessGate } from "@/shared/access/AccessGate";
-import { getCategory } from "@/categories/registry";
+import { getCategory, listAllTopics } from "@/categories/registry";
 import { getPrinciple } from "@/principles/registry";
 import { getTopicBundle } from "@/categories/topic-registry";
 import { emitEvent } from "@/shared/analytics/events";
@@ -37,6 +37,16 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, problems, nextSteps } = bundle;
   const problemCount = problems?.length ?? 0;
   const unlockAt = unlockCodeAtStep ?? steps.length;
+
+  const allTopics = listAllTopics();
+  const currentIndex = allTopics.findIndex(
+    (t) => t.category === categoryKey && t.key === topicKey,
+  );
+  const prevTopic = currentIndex > 0 ? allTopics[currentIndex - 1] : null;
+  const nextTopic =
+    currentIndex >= 0 && currentIndex < allTopics.length - 1
+      ? allTopics[currentIndex + 1]
+      : null;
 
   const stepGating = wedgeStep && wedgeGating
     ? {
@@ -105,6 +115,38 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
                   hasInAppPractice={problemCount > 0}
                 />
               )}
+              <div className="flex items-center justify-between gap-3 mt-8 pt-5 border-t border-[var(--line-faint)]">
+                {prevTopic ? (
+                  <Link
+                    href={`/categories/${prevTopic.category}/${prevTopic.key}`}
+                    className="flex flex-col justify-center min-h-[44px] py-2"
+                  >
+                    <span className="text-[10px] font-mono uppercase text-[var(--text-faint)]">
+                      previous
+                    </span>
+                    <span className="text-sm text-[var(--text)] hover:text-[var(--accent-ink)]">
+                      ← {prevTopic.name}
+                    </span>
+                  </Link>
+                ) : (
+                  <span />
+                )}
+                {nextTopic ? (
+                  <Link
+                    href={`/categories/${nextTopic.category}/${nextTopic.key}`}
+                    className="flex flex-col justify-center min-h-[44px] py-2 text-right"
+                  >
+                    <span className="text-[10px] font-mono uppercase text-[var(--text-faint)]">
+                      next
+                    </span>
+                    <span className="text-sm text-[var(--text)] hover:text-[var(--accent-ink)]">
+                      {nextTopic.name} →
+                    </span>
+                  </Link>
+                ) : (
+                  <span />
+                )}
+              </div>
             </>
           }
           visualization={

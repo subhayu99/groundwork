@@ -20,7 +20,7 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
   // Default: show the progress link only on pages that don't already have a breadcrumb leading there
   const shouldShowProgressLink = showProgressLink ?? !breadcrumb;
   return (
-    <header className="relative z-10 flex items-center justify-between px-8 py-4 border-b border-[var(--line-faint)] backdrop-blur-md bg-[color-mix(in_oklab,var(--bg)_80%,transparent)]">
+    <header className="relative z-10 flex items-center justify-between gap-3 px-4 md:px-8 py-4 border-b border-[var(--line-faint)] backdrop-blur-md bg-[color-mix(in_oklab,var(--bg)_80%,transparent)]">
       <Link href="/" className="flex items-center gap-2.5 font-mono text-xs tracking-wider text-[var(--text-muted)] hover:text-[var(--text)] leading-tight">
         <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
         <span className="flex flex-col">
@@ -30,21 +30,24 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
       </Link>
 
       {breadcrumb && (
-        <nav className="flex items-center gap-2 font-mono text-xs text-[var(--text-muted)] whitespace-nowrap overflow-hidden">
-          {breadcrumb.map((item, i) => (
-            <span key={i} className="flex items-center gap-2">
-              {i > 0 && <span className="text-[var(--text-faint)]">/</span>}
-              {item.href ? (
-                <Link href={item.href} className="hover:text-[var(--text)]">
-                  {item.label}
-                </Link>
-              ) : (
-                <span className={i === breadcrumb.length - 1 ? "text-[var(--text)]" : ""}>
-                  {item.label}
-                </span>
-              )}
-            </span>
-          ))}
+        <nav className="flex items-center gap-2 font-mono text-xs text-[var(--text-muted)] whitespace-nowrap overflow-hidden min-w-0">
+          {breadcrumb.map((item, i) => {
+            const isLeaf = i === breadcrumb.length - 1;
+            return (
+              <span key={i} className={`flex items-center gap-2 ${isLeaf ? "min-w-0" : "shrink-0"}`}>
+                {i > 0 && <span className="text-[var(--text-faint)]">/</span>}
+                {item.href ? (
+                  <Link href={item.href} className="hover:text-[var(--text)]">
+                    {item.label}
+                  </Link>
+                ) : (
+                  <span className={`${isLeaf ? "text-[var(--text)] truncate max-w-[44vw] md:max-w-none" : ""}`}>
+                    {item.label}
+                  </span>
+                )}
+              </span>
+            );
+          })}
         </nav>
       )}
 

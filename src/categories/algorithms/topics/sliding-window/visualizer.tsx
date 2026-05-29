@@ -144,7 +144,8 @@ function WedgeViz({ onInteraction }: { onInteraction?: () => void }) {
   const highlighted = Array.from({ length: K }, (_, i) => start + i);
 
   const handleChange = (newStart: number) => {
-    setStart(newStart);
+    const clamped = Math.max(0, Math.min(maxStart, newStart));
+    setStart(clamped);
     onInteraction?.();
   };
 
@@ -170,7 +171,34 @@ function WedgeViz({ onInteraction }: { onInteraction?: () => void }) {
         </div>
       </div>
 
-      <div className="font-mono text-sm text-[var(--text-muted)] mt-12">
+      {/* Touch-friendly step controls — move the window one cell at a time.
+          Each press routes through handleChange (same path as drag), so the
+          wedge gate opens on tap as well as on drag. */}
+      <div className="flex items-center gap-3 mt-12">
+        <button
+          type="button"
+          aria-label="Slide window left"
+          disabled={start <= 0}
+          onClick={() => handleChange(start - 1)}
+          className="min-h-[44px] min-w-[44px] rounded-md font-mono text-sm border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          ◀
+        </button>
+        <span className="font-mono text-xs text-[var(--text-faint)] select-none">
+          slide
+        </span>
+        <button
+          type="button"
+          aria-label="Slide window right"
+          disabled={start >= maxStart}
+          onClick={() => handleChange(start + 1)}
+          className="min-h-[44px] min-w-[44px] rounded-md font-mono text-sm border border-[var(--line)] text-[var(--text-muted)] hover:bg-[var(--bg-card)] disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          ▶
+        </button>
+      </div>
+
+      <div className="font-mono text-sm text-[var(--text-muted)]">
         sum of cells {start}&ndash;{start + K - 1}:{" "}
         <span className="text-[var(--accent)]">
           {ARR.slice(start, start + K).reduce((a, b) => a + b, 0)}
