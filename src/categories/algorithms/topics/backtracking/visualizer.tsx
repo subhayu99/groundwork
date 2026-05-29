@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GridViz } from "@/shared/viz/GridViz";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
@@ -10,17 +10,17 @@ const N = 6;
 const CELL = 44;
 const GAP = 4;
 
-// algorithm.py line numbers, kept in sync with codeMaps["algorithms/backtracking"].
-const LINE_SAFE_CHECK = 29; // `if safe(placed, col):` — validity / safety prune
-const LINE_PLACE = 30; // `placed.append(col)` — choose / place the queen
-const LINE_RECURSE = 31; // `place(placed)` — recurse one row deeper
-const LINE_UNDO = 32; // `placed.pop()` — undo / backtrack
-const LINE_RECORD_SOLUTION = [21, 22]; // `if len(placed) == n:` + `solutions.append(...)`
+/* @sync labels — resolved against algorithm.py (single source of truth) */
+const LINE_SAFE_CHECK: (number | string)[] = ["loop", "is_safe"]; // safety prune (one coherent region)
+const LINE_PLACE = "place"; // `placed.append(col)` — choose / place the queen
+const LINE_RECURSE = "recurse"; // `place(placed)` — recurse one row deeper
+const LINE_UNDO = "backtrack"; // `placed.pop()` — undo / backtrack
+const LINE_RECORD_SOLUTION: (number | string)[] = ["record_solution", "record_append"];
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function BacktrackingVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -116,7 +116,7 @@ function ManualPlaceViz({
   onActiveLine,
 }: {
   onInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }) {
   const [placed, setPlaced] = useState<number[]>([]);
   const [showAttacks, setShowAttacks] = useState(true);
@@ -131,7 +131,7 @@ function ManualPlaceViz({
     onInteraction?.();
     if (nextRow >= N) return;
     // Validity / safety check — clicking an attacked square is rejected.
-    onActiveLine?.([LINE_SAFE_CHECK]);
+    onActiveLine?.(LINE_SAFE_CHECK);
     if (attacks.has(`${nextRow},${col}`)) return;
     // Choose / place the queen in the next row.
     const next = [...placed, col];
@@ -252,18 +252,18 @@ function btStep(state: BtState): BtState {
 // Classify a single backtracking transition into the algorithm.py lines it
 // exercised, so the code drawer can highlight the place / recurse / undo /
 // record-solution motion live as the stepper runs.
-function linesForTransition(prev: BtState, next: BtState): number[] {
+function linesForTransition(prev: BtState, next: BtState): (number | string)[] {
   if (next.solutions.length > prev.solutions.length) return LINE_RECORD_SOLUTION;
   if (next.placed.length > prev.placed.length) {
     // A safe column was found and the queen was placed; recursing deeper.
-    return [LINE_SAFE_CHECK, LINE_PLACE, LINE_RECURSE];
+    return ["is_safe", LINE_PLACE, LINE_RECURSE];
   }
   if (next.placed.length < prev.placed.length) return [LINE_UNDO];
-  return [LINE_SAFE_CHECK];
+  return LINE_SAFE_CHECK;
 }
 
 /* Steps 4-7 — auto backtracking sweep */
-function AutoBacktrackViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function AutoBacktrackViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [state, setState] = useState<BtState>({
     placed: [],
     nextCol: 0,
@@ -272,13 +272,21 @@ function AutoBacktrackViz({ onActiveLine }: { onActiveLine?: (lines: number[]) =
     done: false,
   });
 
+  // Emit the active code lines from an effect that observes the committed
+  // state transition — never from inside the setState updater (that would be
+  // calling the parent's setState during this component's render, the
+  // "Cannot update a component while rendering a different component" error).
+  const prevStateRef = useRef(state);
+  useEffect(() => {
+    const prev = prevStateRef.current;
+    if (prev !== state) {
+      onActiveLine?.(linesForTransition(prev, state));
+      prevStateRef.current = state;
+    }
+  }, [state, onActiveLine]);
+
   const btStepOnce = () =>
-    setState((cur) => {
-      if (cur.done) return cur;
-      const next = btStep(cur);
-      onActiveLine?.(linesForTransition(cur, next));
-      return next;
-    });
+    setState((cur) => (cur.done ? cur : btStep(cur)));
 
   const pb = usePlayback({
     onTick: btStepOnce,

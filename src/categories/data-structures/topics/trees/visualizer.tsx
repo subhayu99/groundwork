@@ -3,12 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { TreeViz, TreeVizNode, TreeVizEdge } from "@/shared/viz/TreeViz";
 
-/* algorithm.py line anchors (1-indexed) for live code-sync emits. */
-const LINE_DFS_VISIT = 13; // out = [node.value]  — visit current node
-const LINE_DFS_RECURSE = [14, 15]; // for child / out.extend(dfs(child)) — recurse into children
-const LINE_BST_INIT = 38; // cur = root
-const LINE_BST_FOUND = 40; // if v == cur.value: base case (match)
-const LINE_BST_DESCEND = 42; // cur = cur.left if v < cur.value else cur.right — go left/right
+/* @sync labels — resolved against algorithm.py (single source of truth).
+ * dfs_* belong to the general-tree dfs(); bst_* belong to bst_contains(). */
+const LINE_DFS_VISIT = "dfs_visit"; // out = [node.value] — visit current node
+const LINE_DFS_RECURSE = ["dfs_children", "dfs_recurse"]; // walk each child
+const LINE_BST_START = "bst_start"; // cur = root
+const LINE_BST_EQ = "bst_eq"; // if v == cur.value: match
+const LINE_BST_LEFT = "bst_left"; // descend left (v < cur.value)
+const LINE_BST_RIGHT = "bst_right"; // descend right (v > cur.value)
 
 interface TNode {
   id: string;
@@ -45,7 +47,7 @@ const ORG_CHART: TNode = {
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function TreesVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -98,7 +100,7 @@ function ClickableTreeViz({
   onActiveLine,
 }: {
   onInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -172,26 +174,34 @@ const BST_ROOT: BSTNode = (() => {
   return r!;
 })();
 
-function BSTViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function BSTViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [target, setTarget] = useState(35);
-  const { path, found } = useMemo(() => {
+  const { path, found, wentLeft, wentRight } = useMemo(() => {
     const out: number[] = [];
     let cur: BSTNode | undefined = BST_ROOT;
     let hit = false;
+    let left = false;
+    let right = false;
     while (cur) {
       out.push(cur.value);
       if (target === cur.value) { hit = true; break; }
-      cur = target < cur.value ? cur.left : cur.right;
+      // record which branch the search actually takes on each hop
+      if (target < cur.value) { left = true; cur = cur.left; }
+      else { right = true; cur = cur.right; }
     }
-    return { path: out, found: hit };
+    return { path: out, found: hit, wentLeft: left, wentRight: right };
   }, [target]);
 
-  // bst_contains: init cur, then descend left/right until the value matches (base case).
+  // bst_contains: start at root, then light the branch lines the search really
+  // visits — bst_eq on a match, bst_left / bst_right per the comparisons taken.
+  // (Whole-walk highlight; per-hop step-by-step animation is a B2/B3 follow-up.)
   useEffect(() => {
-    onActiveLine?.(
-      found ? [LINE_BST_INIT, LINE_BST_FOUND] : [LINE_BST_INIT, LINE_BST_DESCEND]
-    );
-  }, [target, found, onActiveLine]);
+    const lines: (number | string)[] = [LINE_BST_START];
+    if (found) lines.push(LINE_BST_EQ);
+    if (wentLeft) lines.push(LINE_BST_LEFT);
+    if (wentRight) lines.push(LINE_BST_RIGHT);
+    onActiveLine?.(lines);
+  }, [target, found, wentLeft, wentRight, onActiveLine]);
 
   const toTreeNode = (b: BSTNode): TNode => ({
     id: String(b.value),

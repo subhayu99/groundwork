@@ -7,14 +7,14 @@ import { useIsMobile } from "@/shared/layout/useIsMobile";
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
-// Actual algorithm.py line numbers for each interactive op.
-const LINE_PUSH = 7; // history.append("home")  — push
-const LINE_POP = 10; // history.pop()           — pop
-const LINE_ENQUEUE = 20; // orders.append("latte")  — enqueue
-const LINE_DEQUEUE = 23; // orders.popleft()        — dequeue
+/* @sync labels — resolved against algorithm.py (single source of truth) */
+const LINE_PUSH = "push"; // history.append("home")  — push
+const LINE_POP = "pop"; // history.pop()           — pop
+const LINE_ENQUEUE = "enqueue"; // orders.append("latte")  — enqueue
+const LINE_DEQUEUE = "dequeue"; // orders.popleft()        — dequeue
 
 export function StacksQueuesVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <NaiveArrayViz />;
@@ -141,7 +141,7 @@ function StackQueueViz({
   onActiveLine,
 }: {
   onInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }) {
   const isMobile = useIsMobile();
   const [stack, setStack] = useState<Item[]>([]);

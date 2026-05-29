@@ -1,4 +1,4 @@
-def mergesort(nums: list[int]) -> list[int]:
+def mergesort(nums: list[int]) -> list[int]:  # @sync: sig
     """Sort a list by splitting it in half, sorting each half, and merging.
 
     The split halves are smaller versions of the same problem.
@@ -6,14 +6,14 @@ def mergesort(nums: list[int]) -> list[int]:
     answers back into one.
     """
     # Base case: a list of length 0 or 1 is already sorted.
-    if len(nums) <= 1:
+    if len(nums) <= 1:                 # @sync: base
         return nums
 
-    mid = len(nums) // 2
-    left = mergesort(nums[:mid])
-    right = mergesort(nums[mid:])
+    mid = len(nums) // 2               # @sync: split
+    left = mergesort(nums[:mid])       # @sync: recurse_left
+    right = mergesort(nums[mid:])      # @sync: recurse_right
 
-    return merge(left, right)
+    return merge(left, right)          # @sync: merge_call
 
 
 def merge(left: list[int], right: list[int]) -> list[int]:
@@ -26,16 +26,16 @@ def merge(left: list[int], right: list[int]) -> list[int]:
     out: list[int] = []
     i = j = 0
 
-    while i < len(left) and j < len(right):
-        if left[i] <= right[j]:
-            out.append(left[i])
+    while i < len(left) and j < len(right):  # @sync: merge_loop
+        if left[i] <= right[j]:              # @sync: merge_compare
+            out.append(left[i])             # @sync: merge_take
             i += 1
         else:
             out.append(right[j])
             j += 1
 
     # One of these slices is empty; the other has the tail.
-    out.extend(left[i:])
+    out.extend(left[i:])               # @sync: merge_tail
     out.extend(right[j:])
     return out
 

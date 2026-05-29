@@ -10,10 +10,10 @@ const K = 3;
 const CELL = 56;
 const GAP = 8;
 
-// algorithm.py line numbers for the final (sliding) algorithm — kept in sync
-// with codeMaps["algorithms/sliding-window"] step 7 ([10, 14, 15]).
-const LINE_SLIDE_UPDATE = 14; // window_sum = window_sum - arr[i - k] + arr[i]
-const LINE_RECORD = 15; // results.append(window_sum)
+// algorithm.py @sync labels for the final (sliding) algorithm — resolved to
+// real line numbers at runtime, kept in sync with codeMaps["algorithms/sliding-window"].
+const LINE_SLIDE_UPDATE = "slide"; // window_sum = window_sum - arr[i - k] + arr[i]
+const LINE_RECORD = "record"; // results.append(window_sum)
 
 interface VisualizerProps {
   /** Current derivation step (1-7) controls which viz mode renders */
@@ -21,7 +21,7 @@ interface VisualizerProps {
   /** Notified when user interacts with the window in Step 3 */
   onWedgeInteraction?: () => void;
   /** Emits the algorithm.py line(s) the current animation maps to (final algorithm only) */
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function SlidingWindowVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -216,7 +216,7 @@ function WedgeViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-6 — derived: with naive ↔ derived toggle */
-function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [mode, setMode] = useState<"naive" | "derived">("derived");
   const [start, setStart] = useState(0);
   const [windowSum, setWindowSum] = useState(ARR.slice(0, K).reduce((a, b) => a + b, 0));

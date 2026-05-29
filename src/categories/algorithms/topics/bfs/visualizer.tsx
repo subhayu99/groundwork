@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { GridViz } from "@/shared/viz/GridViz";
 import { StackPanel } from "@/shared/viz/StackPanel";
 import { usePlayback } from "@/shared/viz/usePlayback";
@@ -34,15 +34,15 @@ function cellKey(r: number, c: number): string {
   return `${r},${c}`;
 }
 
-/* Live-emit line numbers — keyed to bfs/algorithm.py, mirrors codeMaps["algorithms/bfs"]. */
-const LINE_DEQUEUE = 23; // (r, c), d = queue.popleft()  — pull from front + read distance d
-const LINE_MARK_VISITED = 32; // visited.add((nr, nc))
-const LINE_ENQUEUE = 33; // queue.append(((nr, nc), d + 1)) — push neighbour + distance handling
+/* @sync labels — resolved against bfs/algorithm.py (single source of truth) */
+const LINE_DEQUEUE = "dequeue"; // (r, c), d = queue.popleft() — pull from front + read distance d
+const LINE_MARK_VISITED = "mark"; // visited.add((nr, nc))
+const LINE_ENQUEUE = "enqueue"; // queue.append(((nr, nc), d + 1)) — push neighbour + distance d + 1
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function BfsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -261,8 +261,8 @@ function initBfs(): BfsState {
 }
 
 /** Advances one BFS step. `lines` (if given) is filled with the algorithm.py
- *  line numbers this step exercised, for live code-sync emission. */
-function bfsStep(state: BfsState, lines?: number[]): BfsState {
+ *  @sync labels this step exercised, for live code-sync emission. */
+function bfsStep(state: BfsState, lines?: (number | string)[]): BfsState {
   if (state.done) return state;
   if (state.queue.length === 0) return { ...state, done: true, active: null };
   const [head, ...rest] = state.queue;
@@ -303,16 +303,21 @@ function bfsStep(state: BfsState, lines?: number[]): BfsState {
 }
 
 /* Steps 4-7 — BFS with visible queue */
-function DerivedBfsViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function DerivedBfsViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [state, setState] = useState<BfsState>(initBfs());
+  const stateRef = useRef<BfsState>(state);
+  stateRef.current = state;
 
-  const advance = () =>
-    setState((cur) => {
-      const lines: number[] = [];
-      const next = bfsStep(cur, lines);
-      if (lines.length > 0) onActiveLine?.([...new Set(lines)]);
-      return next;
-    });
+  // Compute the next step from a ref (never from the updater arg) so the parent's
+  // onActiveLine fires from the event handler, not during React's render/commit
+  // of the setState updater — which was the setState-in-render warning + frozen
+  // highlight (the emitted lines never reached the parent on the first tick).
+  const advance = useCallback(() => {
+    const lines: (number | string)[] = [];
+    const next = bfsStep(stateRef.current, lines);
+    setState(next);
+    if (lines.length > 0) onActiveLine?.([...new Set(lines)]);
+  }, [onActiveLine]);
 
   const pb = usePlayback({
     onTick: advance,

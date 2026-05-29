@@ -3,46 +3,65 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { codeMaps } from "@/categories/code-maps";
 import { listAllTopics } from "@/categories/registry";
+import { prepareCode, resolveLines } from "@/shared/code/syncAnchors";
 
 /**
- * Guard the step→line maps that drive the code drawer's progressive reveal and
- * the live-emit fallback. Two failure modes this catches:
- *  1. A line number that points past the end of its `algorithm.py` (silent drift
- *     when a .py is edited but its map isn't).
- *  2. A topic missing a map entry (so the drawer would have nothing to reveal).
+ * Guards the step→code maps that drive the code drawer. Tokens are `@sync:`
+ * LABELS (resolved against algorithm.py) or legacy raw line numbers. Failure
+ * modes caught:
+ *  1. a topic with no map entry (drawer has nothing to reveal);
+ *  2. a token that resolves to no line (drifted label / out-of-range number);
+ *  3. a token that resolves to a COMMENT or BLANK line (the "highlight a `#`
+ *     comment as if it ran" bug) — labels must point at executable code;
+ *  4. a step (1–7) with no mapping.
  */
 
 const SRC = resolve(__dirname, "..");
 
-function pyLineCount(category: string, topic: string): number {
+function loadTopic(category: string, topic: string) {
   const path = resolve(SRC, "categories", category, "topics", topic, "algorithm.py");
-  const src = readFileSync(path, "utf8");
-  // Trailing newline shouldn't count as a referenceable line.
-  return src.replace(/\n$/, "").split("\n").length;
+  const raw = readFileSync(path, "utf8");
+  return prepareCode(raw); // { code (anchors stripped), labelToLine }
 }
 
 describe("codeMaps", () => {
   it("has an entry for every registered topic", () => {
-    const topics = listAllTopics();
-    const missing = topics
+    const missing = listAllTopics()
       .map((t) => `${t.category}/${t.key}`)
       .filter((key) => !(key in codeMaps));
     expect(missing).toEqual([]);
   });
 
-  it("references no line outside its algorithm.py", () => {
+  it("every token resolves to a real, executable (non-comment) line", () => {
     const violations: string[] = [];
 
     for (const [key, stepMap] of Object.entries(codeMaps)) {
       const [category, topic] = key.split("/");
-      const lineCount = pyLineCount(category, topic);
+      const { code, labelToLine } = loadTopic(category, topic);
+      const displayLines = code.split("\n");
 
-      for (const [step, lines] of Object.entries(stepMap)) {
-        for (const line of lines) {
-          if (line < 1 || line > lineCount) {
-            violations.push(
-              `${key} step ${step}: line ${line} out of range (file has ${lineCount} lines)`,
-            );
+      for (const [step, tokens] of Object.entries(stepMap)) {
+        for (const token of tokens) {
+          const resolved = resolveLines([token], labelToLine);
+          if (resolved === undefined) {
+            violations.push(`${key} step ${step}: unresolved token ${JSON.stringify(token)}`);
+            continue;
+          }
+          const isLabel = typeof token === "string";
+          for (const line of resolved) {
+            if (line < 1 || line > displayLines.length) {
+              violations.push(`${key} step ${step}: line ${line} out of range (${displayLines.length})`);
+              continue;
+            }
+            // Strict for migrated (label) topics: a label must point at real,
+            // executable code — never a comment/blank. Legacy numeric tokens
+            // are range-checked only until migrated.
+            if (isLabel) {
+              const text = (displayLines[line - 1] ?? "").trim();
+              if (text === "" || text.startsWith("#")) {
+                violations.push(`${key} step ${step}: label ${JSON.stringify(token)} → line ${line} is a comment/blank: "${text.slice(0, 40)}"`);
+              }
+            }
           }
         }
       }
@@ -55,9 +74,7 @@ describe("codeMaps", () => {
     const gaps: string[] = [];
     for (const [key, stepMap] of Object.entries(codeMaps)) {
       for (let step = 1; step <= 7; step++) {
-        if (!stepMap[step] || stepMap[step].length === 0) {
-          gaps.push(`${key} is missing step ${step}`);
-        }
+        if (!stepMap[step] || stepMap[step].length === 0) gaps.push(`${key} is missing step ${step}`);
       }
     }
     expect(gaps).toEqual([]);

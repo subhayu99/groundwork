@@ -1,21 +1,21 @@
-def fit_meetings(meetings: list[tuple[int, int]]) -> list[tuple[int, int]]:
+def fit_meetings(meetings: list[tuple[int, int]]) -> list[tuple[int, int]]:  # @sync: sig
     """Pick the most non-overlapping meetings for one room.
 
     Each meeting is (start, end). Sort by end time. Walk through them
     in order. Accept the next meeting whenever it starts at or after
     the last accepted meeting ended.
     """
-    by_end = sorted(meetings, key=lambda m: m[1])
+    by_end = sorted(meetings, key=lambda m: m[1])  # @sync: sort
 
-    chosen: list[tuple[int, int]] = []
-    last_end = float("-inf")
+    chosen: list[tuple[int, int]] = []  # @sync: result_init
+    last_end = float("-inf")  # @sync: last_end
 
-    for start, end in by_end:
-        if start >= last_end:
-            chosen.append((start, end))
-            last_end = end
+    for start, end in by_end:  # @sync: loop
+        if start >= last_end:  # @sync: compatible
+            chosen.append((start, end))  # @sync: select
+            last_end = end  # @sync: update
 
-    return chosen
+    return chosen  # @sync: result
 
 
 # Why pick the earliest-ending meeting? Because freeing the room

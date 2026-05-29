@@ -17,16 +17,16 @@ const STRIDE = CELL + GAP;
 const MOBILE_CELL = 15;
 const MOBILE_GAP = 2;
 
-// algorithm.py line numbers (1-indexed) for live code-sync emits.
-const LINE_SLICE = 12; // word = s[4:9]  — slicing returns a new string, O(k)
-const LINE_FIND = 18; // i = s.find("brown") — substring search
-const LINE_CONCAT = 15; // hello = "hi " + s — concatenation, O(n + m)
-const LINE_REBUILD = 20; // # Cannot mutate in place — build a new string instead
+/* @sync labels — resolved against algorithm.py (single source of truth) */
+const LINE_SLICE = "slice"; // word = s[4:9] — slicing returns a new string, O(k)
+const LINE_FIND = "find"; // i = s.find("brown") — substring search
+const LINE_CONCAT = "concat"; // hello = "hi " + s — concatenation, O(n + m)
+const LINE_REBUILD = "rebuild"; // caps = s.upper() — can't mutate, build a new string
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function StringsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -183,7 +183,7 @@ function NaiveSearchViz() {
 }
 
 /* Step 3 — manual slider */
-function SliderViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void }) {
+function SliderViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: (number | string)[]) => void }) {
   const [start, setStart] = useState(0);
   const maxStart = SENTENCE.length - PATTERN.length;
   const handleChange = (v: number) => {
@@ -230,7 +230,7 @@ function SliderViz({ onInteraction, onActiveLine }: { onInteraction?: () => void
 }
 
 /* Step 4-5 — immutability: rebuild on edit */
-function ImmutabilityViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function ImmutabilityViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [s, setS] = useState("hello");
   const [editing, setEditing] = useState<number[]>([]);
   const [copies, setCopies] = useState(0);

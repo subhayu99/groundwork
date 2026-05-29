@@ -7,30 +7,32 @@
  * Keyed by `"<category>/<topic>"`. Lines are 1-indexed. A topic with no entry
  * falls back to the manual code scrubber (no auto-sync).
  */
-export type StepCodeLines = Record<number, number[]>;
+// Tokens may be `@sync:` LABELS (preferred — resolved against algorithm.py) or
+// legacy raw line numbers (still accepted during the migration to labels).
+export type StepCodeLines = import("@/shared/code/syncAnchors").TopicSyncMap;
 
 export const codeMaps: Record<string, StepCodeLines> = {
   // Algorithms
-  "algorithms/binary-search": { 1: [1, 2], 2: [1, 2], 3: [9, 10], 4: [6, 7, 9, 10], 5: [11, 12], 6: [13, 14, 15, 16], 7: [9, 18] },
-  "algorithms/sliding-window": { 1: [1, 2], 2: [1, 2], 3: [13], 4: [14], 5: [14], 6: [10, 11, 14], 7: [10, 14, 15] },
-  "algorithms/two-pointers": { 1: [1, 2], 2: [2, 4, 5], 3: [7, 8], 4: [11, 12, 14, 16], 5: [10, 15, 17], 6: [10, 11], 7: [13, 19] },
-  "algorithms/sliding-window-variable": { 1: [1, 2], 2: [1, 2], 3: [13, 16], 4: [16, 17], 5: [16, 17, 19], 6: [19, 20], 7: [20, 22] },
-  "algorithms/monotonic-stack": { 1: [1, 2], 2: [1, 2, 3], 3: [9, 10], 4: [15, 16, 17], 5: [16, 17], 6: [15, 16, 17], 7: [15, 18] },
-  "algorithms/activity-selection": { 1: [1, 2], 2: [2, 4, 5], 3: [8, 13, 14], 4: [8, 11, 14, 16], 5: [8, 13], 6: [8, 14], 7: [14, 15, 16] },
-  "algorithms/recursion": { 1: [1, 2], 2: [4, 5, 6], 3: [13, 14, 15], 4: [10, 11, 15], 5: [10, 11, 15], 6: [13, 14, 15], 7: [10, 11, 15] },
-  "algorithms/dfs": { 1: [4, 5], 2: [5, 8, 13], 3: [20, 27], 4: [15, 17, 18], 5: [20, 23, 26], 6: [23, 24, 26], 7: [27, 28, 29, 34] },
-  "algorithms/bfs": { 1: [6, 7, 8], 2: [9, 10, 11], 3: [20, 22, 23], 4: [22, 23, 25, 26], 5: [31, 32, 33], 6: [16, 17, 32], 7: [40, 41, 42] },
-  "algorithms/dp-1d": { 1: [1, 2], 2: [1, 4, 5], 3: [12, 13], 4: [15, 16, 17], 5: [16, 17, 18], 6: [15, 17], 7: [16, 17, 18] },
-  "algorithms/backtracking": { 1: [1, 2, 3], 2: [4, 5, 6], 3: [30, 31, 32], 4: [31], 5: [32], 6: [9, 29], 7: [21, 22] },
-  "algorithms/mergesort": { 1: [1, 2], 2: [1, 2, 3], 3: [9, 10], 4: [12, 13, 14], 5: [13, 14, 16], 6: [29, 30, 31], 7: [16, 38, 39] },
+  "algorithms/binary-search": { 1: ["sig"], 2: ["sig"], 3: ["loop", "mid"], 4: ["init", "loop", "mid"], 5: ["compare", "found"], 6: ["less", "lo_update", "greater", "hi_update"], 7: ["loop", "notfound"] },
+  "algorithms/sliding-window": { 1: ["sig"], 2: ["sig"], 3: ["init_window"], 4: ["slide"], 5: ["slide"], 6: ["init_window", "loop", "slide"], 7: ["loop", "slide", "record"] },
+  "algorithms/two-pointers": { 1: ["sig"], 2: ["sig"], 3: ["init", "init_right"], 4: ["compute", "compare", "less", "greater"], 5: ["loop", "move_left", "move_right"], 6: ["loop", "compute"], 7: ["found", "notfound"] },
+  "algorithms/sliding-window-variable": { 1: ["sig"], 2: ["sig"], 3: ["expand", "check"], 4: ["check", "contract"], 5: ["check", "contract", "record"], 6: ["record", "update"], 7: ["update", "result"] },
+  "algorithms/monotonic-stack": { 1: ["sig", "init_answer"], 2: ["sig", "init_answer", "init_stack"], 3: ["loop", "push"], 4: ["while_pop", "record", "push"], 5: ["record", "push"], 6: ["while_pop", "record", "push"], 7: ["while_pop", "done"] },
+  "algorithms/activity-selection": { 1: ["sig"], 2: ["sig"], 3: ["sort", "loop", "compatible"], 4: ["sort", "last_end", "compatible", "update"], 5: ["sort", "loop"], 6: ["sort", "compatible"], 7: ["compatible", "select", "update"] },
+  "algorithms/recursion": { 1: ["sig"], 2: ["aggregate"], 3: ["recursive_call", "aggregate"], 4: ["base_case", "base_return", "recursive_call"], 5: ["base_case", "base_return", "recursive_call"], 6: ["recursive_call", "aggregate", "folder_return"], 7: ["base_case", "base_return", "recursive_call", "aggregate", "folder_return"] },
+  "algorithms/dfs": { 1: ["sig"], 2: ["sig", "visited"], 3: ["visit", "recurse"], 4: ["sig", "found"], 5: ["visit", "neighbors"], 6: ["neighbors"], 7: ["recurse", "found", "backtrack"] },
+  "algorithms/bfs": { 1: ["sig"], 2: ["rows", "cols"], 3: ["init_queue", "loop", "dequeue"], 4: ["loop", "dequeue", "visit", "found"], 5: ["seen_check", "mark", "enqueue"], 6: ["seen_check", "mark"], 7: ["loop", "dequeue"] },
+  "algorithms/dp-1d": { 1: ["sig"], 2: ["sig", "recurrence"], 3: ["base_check", "base_return"], 4: ["init_table", "loop", "recurrence"], 5: ["loop", "recurrence", "answer"], 6: ["init_table", "recurrence"], 7: ["loop", "recurrence", "answer"] },
+  "algorithms/backtracking": { 1: ["sig"], 2: ["sig", "init"], 3: ["place", "recurse", "backtrack"], 4: ["recurse"], 5: ["backtrack"], 6: ["loop", "is_safe"], 7: ["record_solution", "record_append"] },
+  "algorithms/mergesort": { 1: ["sig", "base"], 2: ["sig", "base"], 3: ["split", "recurse_left", "recurse_right"], 4: ["split", "recurse_left", "recurse_right"], 5: ["recurse_left", "recurse_right", "merge_call"], 6: ["merge_loop", "merge_compare", "merge_take"], 7: ["merge_compare", "merge_take", "merge_tail"] },
 
   // Data structures
-  "data-structures/arrays": { 1: [1, 3], 2: [3, 6], 3: [5, 6], 4: [5, 6], 5: [6, 9, 12], 6: [12, 15], 7: [6, 18, 22] },
-  "data-structures/strings": { 1: [1, 3], 2: [6, 9], 3: [11, 12], 4: [3, 20, 21], 5: [6, 12, 15], 6: [17, 18], 7: [20, 21, 22] },
-  "data-structures/stacks-queues": { 1: [1, 6], 2: [4, 6, 11], 3: [7, 10, 11], 4: [3, 6, 14], 5: [7, 10, 11], 6: [3, 14], 7: [19, 20, 23] },
-  "data-structures/linked-lists": { 1: [11, 12], 2: [6, 7, 8], 3: [13, 14], 4: [5, 6, 7, 8], 5: [13, 14, 23], 6: [29, 30, 33], 7: [8, 13, 14] },
-  "data-structures/sets-tuples": { 1: [5, 24], 2: [5, 25, 31], 3: [6, 8, 32], 4: [5, 6, 24], 5: [10, 17, 18, 19], 6: [6, 10, 24], 7: [16, 24, 32] },
-  "data-structures/hash-maps": { 1: [1, 4], 2: [9, 10], 3: [27, 31], 4: [27, 28], 5: [5, 6, 7], 6: [13, 21], 7: [4, 10] },
-  "data-structures/trees": { 1: [5, 6, 7, 8], 2: [6, 7, 8], 3: [8, 14], 4: [28, 29], 5: [13, 14, 15], 6: [30, 31, 32, 33], 7: [16, 34] },
-  "data-structures/graphs": { 1: [10, 24], 2: [10, 24], 3: [4, 32, 49], 4: [4, 6, 11], 5: [25, 33, 41], 6: [32, 33, 49], 7: [6, 11, 12] },
+  "data-structures/arrays": { 1: ["index_read"], 2: ["index_read"], 3: ["index_read"], 4: ["append"], 5: ["insert_mid", "delete"], 6: ["loop", "loop_body"], 7: ["append", "insert_mid", "delete", "length"] },
+  "data-structures/strings": { 1: ["find"], 2: ["find"], 3: ["slice", "find"], 4: ["index_read", "rebuild", "concat"], 5: ["index_read", "slice", "concat"], 6: ["concat", "find"], 7: ["source", "index_read", "length"] },
+  "data-structures/stacks-queues": { 1: ["sig"], 2: ["pop"], 3: ["push", "pop"], 4: ["peek"], 5: ["enqueue"], 6: ["dequeue"], 7: ["qinit", "enqueue", "dequeue"] },
+  "data-structures/linked-lists": { 1: ["sig", "insert_new"], 2: ["node_class", "node_value", "node_next"], 3: ["insert_new", "insert_relink"], 4: ["node_class", "node_value", "node_next"], 5: ["insert_new", "insert_relink", "remove_relink"], 6: ["traverse_init", "traverse_loop", "traverse_advance"], 7: ["node_next", "insert_new", "insert_relink"] },
+  "data-structures/sets-tuples": { 1: ["set_def"], 2: ["set_def", "set_add", "set_in"], 3: ["set_add", "set_add_dup", "tuple_def"], 4: ["set_def", "tuple_def"], 5: ["set_in", "set_ops", "tuple_unpack"], 6: ["set_add", "set_in", "tuple_def"], 7: ["set_ops", "tuple_def", "tuple_key"] },
+  "data-structures/hash-maps": { 1: ["dict_init"], 2: ["insert"], 3: ["lookup"], 4: ["membership"], 5: ["delete"], 6: ["iterate"], 7: ["lookup"] },
+  "data-structures/trees": { 1: ["node_class"], 2: ["node_class"], 3: ["dfs_visit", "dfs_children", "dfs_recurse"], 4: ["bst_start", "bst_eq", "bst_left", "bst_right"], 5: ["bst_start", "bst_eq", "bst_left", "bst_right"], 6: ["node_class", "dfs_visit"], 7: ["node_class", "dfs_visit"] },
+  "data-structures/graphs": { 1: ["add_edge_a", "add_edge_b"], 2: ["add_edge_a", "add_edge_b"], 3: ["bfs_neighbors"], 4: ["bfs_seen", "bfs_append", "bfs_neighbors"], 5: ["bfs_seen", "bfs_append", "bfs_neighbors"], 6: ["sig", "neighbors"], 7: ["sig", "bfs_neighbors", "dfs_neighbors"] },
 };

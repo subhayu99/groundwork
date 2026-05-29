@@ -43,16 +43,16 @@ function useDims(): Dims {
   return isMobile ? MOBILE_DIMS : DESKTOP_DIMS;
 }
 
-// algorithm.py line numbers the greedy walk emits as it runs.
-const LINE_SORT_BY_END = 8; // by_end = sorted(meetings, key=lambda m: m[1])
-const LINE_COMPAT_CHECK = 14; // if start >= last_end:
-const LINE_ACCEPT = 15; // chosen.append((start, end))
-const LINE_UPDATE_LAST_END = 16; // last_end = end
+/* @sync labels — resolved against algorithm.py (single source of truth) */
+const LINE_SORT_BY_END = "sort"; // by_end = sorted(meetings, key=lambda m: m[1])
+const LINE_COMPAT_CHECK = "compatible"; // if start >= last_end:
+const LINE_ACCEPT = "select"; // chosen.append((start, end))
+const LINE_UPDATE_LAST_END = "update"; // last_end = end
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function ActivitySelectionVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -224,7 +224,7 @@ function SortAndPickViz({
   onActiveLine,
 }: {
   onInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }) {
   const dims = useDims();
   const { HOUR_PX, ROW_H, ROW_GAP, LABEL_W } = dims;

@@ -7,12 +7,12 @@ import { ArrayViz } from "@/shared/viz/ArrayViz";
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
-/* algorithm.py line anchors — keep in sync with linked-lists/algorithm.py */
-const LINE_INSERT_RELINK = [13, 14]; // new_node = Node(..., next=node.next); node.next = new_node
-const LINE_REMOVE_RELINK = [23]; // node.next = removed.next
+/* @sync labels — resolved against linked-lists/algorithm.py (single source of truth) */
+const LINE_INSERT_RELINK = ["insert_new", "insert_relink"]; // new_node = Node(..., next=node.next); node.next = new_node
+const LINE_REMOVE_RELINK = ["remove_relink"]; // node.next = removed.next
 
 export function LinkedListsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <ArrayShiftViz />;
@@ -81,7 +81,7 @@ function ArrayShiftViz() {
 }
 
 /* Steps 3-5 — interactive linked list */
-function LinkedListViz({ onInteraction, onActiveLine, expanded }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void; expanded?: boolean }) {
+function LinkedListViz({ onInteraction, onActiveLine, expanded }: { onInteraction?: () => void; onActiveLine?: (lines: (number | string)[]) => void; expanded?: boolean }) {
   const [nodes, setNodes] = useState<NodeItem[]>([
     { id: 1, value: 1 },
     { id: 2, value: 2 },
@@ -96,6 +96,7 @@ function LinkedListViz({ onInteraction, onActiveLine, expanded }: { onInteractio
 
   const insertAfter = (afterId: number, value: number) => {
     const newId = Date.now() + Math.random();
+    const afterValue = nodes.find((n) => n.id === afterId)?.value ?? value;
     setHighlightedIds([afterId, newId]);
     setNodes((ns) => {
       const idx = ns.findIndex((n) => n.id === afterId);
@@ -104,16 +105,17 @@ function LinkedListViz({ onInteraction, onActiveLine, expanded }: { onInteractio
       return next;
     });
     setPointerEdits((p) => p + 2);
-    setLastOp(`insert ${value} after node(${afterId}) · 2 pointer swaps`);
+    setLastOp(`insert ${value} after node(${afterValue}) · 2 pointer swaps`);
     onInteraction?.();
     onActiveLine?.(LINE_INSERT_RELINK);
     setTimeout(() => setHighlightedIds([]), 720);
   };
 
   const removeNode = (id: number) => {
+    const removedValue = nodes.find((n) => n.id === id)?.value;
     setHighlightedIds([id]);
     setPointerEdits((p) => p + 1);
-    setLastOp(`remove node(${id}) · 1 pointer swap`);
+    setLastOp(`remove node(${removedValue}) · 1 pointer swap`);
     onInteraction?.();
     onActiveLine?.(LINE_REMOVE_RELINK);
     setTimeout(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
@@ -9,27 +9,22 @@ const ARR = [5, 2, 4, 7, 1, 3, 8, 6];
 const CARD = 38;
 const GAP = 4;
 
-// Lines in this topic's algorithm.py (1-indexed), kept in sync with
-// codeMaps["algorithms/mergesort"] in src/categories/code-maps.ts.
-const LINE_MID = 12; // `mid = len(nums) // 2`
-const LINE_SORT_LEFT = 13; // `left = mergesort(nums[:mid])`
-const LINE_SORT_RIGHT = 14; // `right = mergesort(nums[mid:])`
-const LINE_MERGE_COMPARE = 30; // `if left[i] <= right[j]:`
-const LINE_MERGE_APPEND = 31; // `out.append(left[i])`
-
-const SPLIT_LINES = [LINE_MID, LINE_SORT_LEFT, LINE_SORT_RIGHT];
-const MERGE_LINES = [LINE_MERGE_COMPARE, LINE_MERGE_APPEND];
+/* @sync labels — resolved against algorithm.py (single source of truth).
+   Split labels live in mergesort(); merge labels live in merge().
+   Each emit set comes from ONE function so the highlight never spans two. */
+const SPLIT_LINES = ["split", "recurse_left", "recurse_right"]; // mergesort()
+const MERGE_LINES = ["merge_loop", "merge_compare", "merge_take"]; // merge()
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function MergesortVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
   if (step <= 2) return <NaiveSwapViz />;
   if (step === 3) return <SplitMergeViz onInteraction={onWedgeInteraction} onActiveLine={onActiveLine} />;
-  return <AutoMergesortViz />;
+  return <AutoMergesortViz onActiveLine={onActiveLine} />;
 }
 
 function Card({
@@ -215,7 +210,7 @@ function SplitMergeViz({
   onActiveLine,
 }: {
   onInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }) {
   const [segs, setSegs] = useState<Segment[]>(startSegments());
   const [phase, setPhase] = useState<"splitting" | "merging">("splitting");
@@ -274,9 +269,16 @@ function SplitMergeViz({
 }
 
 /* Steps 4-7 — autoplay split-all-the-way-down then merge-all-the-way-up */
-function AutoMergesortViz() {
+function AutoMergesortViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [history, setHistory] = useState<Segment[][]>([startSegments()]);
   const [phase, setPhase] = useState<"splitting" | "merging" | "done">("splitting");
+
+  // Highlight the code region for the current phase. Split lines live in
+  // mergesort(), merge lines in merge() — never mixed across functions.
+  useEffect(() => {
+    if (phase === "splitting") onActiveLine?.(SPLIT_LINES);
+    else if (phase === "merging") onActiveLine?.(MERGE_LINES);
+  }, [phase, onActiveLine]);
 
   const advance = () => {
     setHistory((h) => {

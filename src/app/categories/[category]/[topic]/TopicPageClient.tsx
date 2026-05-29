@@ -11,6 +11,7 @@ import { getCategory, listAllTopics } from "@/categories/registry";
 import { getPrinciple } from "@/principles/registry";
 import { getTopicBundle } from "@/categories/topic-registry";
 import { codeMaps } from "@/categories/code-maps";
+import { prepareCode, resolveLines } from "@/shared/code/syncAnchors";
 import { emitEvent } from "@/shared/analytics/events";
 import { useProgress } from "@/shared/progress/useProgress";
 import { notFound } from "next/navigation";
@@ -25,9 +26,10 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   const bundle = getTopicBundle(categoryKey, topicKey);
   const [currentStep, setCurrentStep] = useState(1);
   const [wedgeInteracted, setWedgeInteracted] = useState(false);
-  // Live code line(s) emitted by the visualizer as it animates / on interaction.
-  // Overrides the coarse step→line map; reset when the step changes.
-  const [liveLines, setLiveLines] = useState<number[] | null>(null);
+  // Live code line(s) emitted by the visualizer as it animates / on interaction,
+  // as @sync labels (or legacy line numbers). Overrides the coarse step→line
+  // map; reset when the step changes.
+  const [liveLines, setLiveLines] = useState<(number | string)[] | null>(null);
   useEffect(() => setLiveLines(null), [currentStep]);
   const { getTopic: getTopicProgress } = useProgress();
   const topicProgress = getTopicProgress(categoryKey, topicKey);
@@ -43,6 +45,9 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   const problemCount = problems?.length ?? 0;
   const unlockAt = unlockCodeAtStep ?? steps.length;
 
+  // Strip @sync anchors for display; build the label→line index (single source
+  // of truth = the .py). Resolution is tolerant of legacy raw line numbers.
+  const { code: displayCode, labelToLine } = prepareCode(pythonCode);
   const stepCodeLines = codeMaps[`${categoryKey}/${topicKey}`];
 
   // Progressive reveal: dim lines for steps not yet reached. A completed topic
@@ -51,12 +56,11 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
     ? steps.length
     : Math.max(currentStep, ...topicProgress.derivation.completedSteps, 1);
   const codeRevealedLines = stepCodeLines
-    ? Array.from(
-        new Set(
-          Object.entries(stepCodeLines)
-            .filter(([s]) => Number(s) <= revealedThrough)
-            .flatMap(([, ls]) => ls),
-        ),
+    ? resolveLines(
+        Object.entries(stepCodeLines)
+          .filter(([s]) => Number(s) <= revealedThrough)
+          .flatMap(([, ls]) => ls),
+        labelToLine,
       )
     : undefined;
 
@@ -206,10 +210,13 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
               onActiveLine={setLiveLines}
             />
           }
-          code={pythonCode}
+          code={displayCode}
           codeDrawerLocked={false}
           codeFilename={`${topicKey.replaceAll("-", "_")}.py`}
-          codeActiveLines={liveLines ?? stepCodeLines?.[Math.min(currentStep, steps.length)]}
+          codeActiveLines={resolveLines(
+            liveLines ?? stepCodeLines?.[Math.min(currentStep, steps.length)],
+            labelToLine,
+          )}
           codeRevealedLines={codeRevealedLines}
         />
       </div>

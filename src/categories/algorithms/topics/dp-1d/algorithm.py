@@ -1,4 +1,4 @@
-def ways_to_climb(n: int) -> int:
+def ways_to_climb(n: int) -> int:  # @sync: sig
     """How many distinct ways can you climb n stairs, taking 1 or 2 at a time?
 
     ways(n) = ways(n - 1) + ways(n - 2)
@@ -9,13 +9,13 @@ def ways_to_climb(n: int) -> int:
     """
     # Tabulation: build the answer bottom-up. We only ever need the
     # last two values, so two ints are all the memory we need.
-    if n <= 1:
-        return 1
+    if n <= 1:  # @sync: base_check
+        return 1  # @sync: base_return
 
-    a, b = 1, 1  # ways(n-2), ways(n-1)
-    for _ in range(2, n + 1):
-        a, b = b, a + b
-    return b
+    a, b = 1, 1  # ways(n-2), ways(n-1) @sync: init_table
+    for _ in range(2, n + 1):  # @sync: loop
+        a, b = b, a + b  # @sync: recurrence
+    return b  # @sync: answer
 
 
 # The same problem with memoization, for the readers who think of

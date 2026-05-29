@@ -9,16 +9,16 @@ import { useIsMobile } from "@/shared/layout/useIsMobile";
 const ARR = [3, 7, 11, 14, 19, 23, 27, 32, 38, 44, 51, 59, 68, 74, 81];
 const TARGET = 27;
 
-/* algorithm.py line numbers (1-indexed) */
-const LINE_MID = 10; // mid = (lo + hi) // 2
-const LINE_COMPARE_RETURN = [11, 12]; // if arr[mid] == target: return mid
-const LINE_LO_UPDATE = [13, 14]; // if arr[mid] < target: lo = mid + 1
-const LINE_HI_UPDATE = [15, 16]; // else: hi = mid - 1
+/* @sync labels — resolved against algorithm.py (single source of truth) */
+const LINE_MID = "mid";
+const LINE_COMPARE_RETURN = ["compare", "found"];
+const LINE_LO_UPDATE = ["less", "lo_update"];
+const LINE_HI_UPDATE = ["greater", "hi_update"];
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function BinarySearchVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -95,7 +95,7 @@ function LinearScanViz() {
 }
 
 /* Step 3 — click any cell, half the array goes dark */
-function ClickToHalveViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void }) {
+function ClickToHalveViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: (number | string)[]) => void }) {
   const isMobile = useIsMobile();
   const cell = isMobile ? 22 : 40;
   const gap = isMobile ? 3 : 6;
@@ -195,7 +195,7 @@ function ClickToHalveViz({ onInteraction, onActiveLine }: { onInteraction?: () =
 }
 
 /* Step 4-7 — animated binary search */
-function BinarySearchAnimatedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function BinarySearchAnimatedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const isMobile = useIsMobile();
   const cell = isMobile ? 22 : 40;
   const gap = isMobile ? 3 : 6;

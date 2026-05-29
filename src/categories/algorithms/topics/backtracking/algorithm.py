@@ -1,10 +1,10 @@
-def n_queens(n: int) -> list[list[int]]:
+def n_queens(n: int) -> list[list[int]]:  # @sync: sig
     """Place n queens on an n x n board so no two attack each other.
 
     Each result is a list of column positions, one per row.
     [1, 3, 0, 2] means: row 0 queen in col 1, row 1 in col 3, etc.
     """
-    solutions: list[list[int]] = []
+    solutions: list[list[int]] = []  # @sync: init
 
     def safe(placed: list[int], col: int) -> bool:
         # placed[r] holds the column of the queen in row r.
@@ -18,18 +18,18 @@ def n_queens(n: int) -> list[list[int]]:
         return True
 
     def place(placed: list[int]) -> None:
-        if len(placed) == n:
-            solutions.append(placed[:])
+        if len(placed) == n:  # @sync: record_solution
+            solutions.append(placed[:])  # @sync: record_append
             return
 
         # Try every column for the next row. The "safe" check is the
         # prune — we never even recurse into branches that can't lead
         # to a full solution.
-        for col in range(n):
-            if safe(placed, col):
-                placed.append(col)
-                place(placed)
-                placed.pop()  # Undo. Try the next column.
+        for col in range(n):  # @sync: loop
+            if safe(placed, col):  # @sync: is_safe
+                placed.append(col)  # @sync: place
+                place(placed)  # @sync: recurse
+                placed.pop()  # Undo. Try the next column. @sync: backtrack
 
     place([])
     return solutions

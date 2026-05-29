@@ -9,15 +9,15 @@ import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 
 const N = 8;
 
-// Lines of `algorithm.py` the tabulation view emits as it runs.
-const LINE_TABLE_INIT = 15; // a, b = 1, 1  (dp base values)
-const LINE_RECURRENCE = 17; // a, b = b, a + b  (dp[i] = dp[i-1] + dp[i-2])
-const LINE_READ_ANSWER = 18; // return b
+// @sync labels — resolved against algorithm.py (single source of truth).
+const LINE_TABLE_INIT = "init_table"; // a, b = 1, 1  (dp base values)
+const LINE_RECURRENCE = "recurrence"; // a, b = b, a + b  (dp[i] = dp[i-1] + dp[i-2])
+const LINE_READ_ANSWER = "answer"; // return b
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function Dp1dVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -178,7 +178,7 @@ function RecursionTreeViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Steps 4-7 — bottom-up tabulation */
-function TabulationViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function TabulationViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [filledTo, setFilledTo] = useState(1);
   const done = filledTo >= N;
 

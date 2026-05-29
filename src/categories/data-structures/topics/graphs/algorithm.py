@@ -6,10 +6,10 @@ from collections import defaultdict, deque
 friends: dict[str, list[str]] = defaultdict(list)
 
 
-def add_edge(a: str, b: str) -> None:
+def add_edge(a: str, b: str) -> None:  # @sync: sig
     """Undirected edge — friendship goes both ways."""
-    friends[a].append(b)
-    friends[b].append(a)
+    friends[a].append(b)              # @sync: add_edge_a
+    friends[b].append(a)              # @sync: add_edge_b
 
 
 add_edge("alice", "bob")
@@ -27,11 +27,11 @@ def bfs(start: str) -> list[str]:
     order: list[str] = []
 
     while queue:
-        node = queue.popleft()
-        order.append(node)
-        for neighbor in friends[node]:
+        node = queue.popleft()                  # @sync: bfs_pop
+        order.append(node)                       # @sync: bfs_append
+        for neighbor in friends[node]:           # @sync: bfs_neighbors, neighbors
             if neighbor not in seen:
-                seen.add(neighbor)
+                seen.add(neighbor)               # @sync: bfs_seen
                 queue.append(neighbor)
     return order
 
@@ -44,10 +44,10 @@ def dfs(start: str) -> list[str]:
     def visit(node: str) -> None:
         if node in seen:
             return
-        seen.add(node)
-        order.append(node)
-        for neighbor in friends[node]:
-            visit(neighbor)
+        seen.add(node)                           # @sync: dfs_seen
+        order.append(node)                       # @sync: dfs_append
+        for neighbor in friends[node]:           # @sync: dfs_neighbors
+            visit(neighbor)                      # @sync: dfs_recurse
 
     visit(start)
     return order

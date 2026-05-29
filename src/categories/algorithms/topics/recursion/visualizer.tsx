@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { StackPanel } from "@/shared/viz/StackPanel";
 import { usePlayback } from "@/shared/viz/usePlayback";
@@ -56,16 +56,16 @@ function totalSize(node: Node): number {
 
 const TOTAL = totalSize(TREE);
 
-// algorithm.py line numbers (1-indexed) for live code-sync emits.
-const LINE_BASE_CASE_RETURN = 11; // `return node["size"]` — a file returns its own size
-const LINE_RECURSIVE_CALL = 15; // `folder_size(child)` — descend into a child
-const LINE_AGGREGATE_SUM = 15; // `sum(...)` — combine children's sizes
-const LINE_FOLDER_RETURN = 15; // returning a folder's summed total up the stack
+/* @sync labels — resolved against algorithm.py (single source of truth) */
+const LINE_BASE_CASE_RETURN = "base_return"; // `return node["size"]` — a file returns its own size
+const LINE_RECURSIVE_CALL = "recursive_call"; // `folder_size(child)` — descend into a child
+const LINE_AGGREGATE_SUM = "aggregate"; // `sum(...)` — combine children's sizes
+const LINE_FOLDER_RETURN = "folder_return"; // returning a folder's summed total up the stack
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function RecursionVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -211,7 +211,7 @@ function ManualExploreViz({
   onActiveLine,
 }: {
   onInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }) {
   const [computed, setComputed] = useState<Record<string, number>>({});
 
@@ -357,7 +357,7 @@ function runOneStep(state: RecursionState): RecursionState {
 
 /* Steps 4-7 — animated recursion */
 // Classify a single recursion transition into the algorithm.py lines it maps to.
-function linesForStep(before: RecursionState, after: RecursionState): number[] {
+function linesForStep(before: RecursionState, after: RecursionState): (number | string)[] {
   // A file hit its base case and returned its own size up the stack.
   if (after.ranBaseCase) return [LINE_BASE_CASE_RETURN];
   // Stack grew: a folder descended into one of its children (recursive call).
@@ -368,7 +368,7 @@ function linesForStep(before: RecursionState, after: RecursionState): number[] {
   return [];
 }
 
-function RecursiveComputeViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function RecursiveComputeViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [state, setState] = useState<RecursionState>({
     stack: [],
     finished: {},
@@ -377,14 +377,18 @@ function RecursiveComputeViz({ onActiveLine }: { onActiveLine?: (lines: number[]
   });
   const done = state.finished[TREE.name] !== undefined;
 
+  const advance = useCallback(() => {
+    // Compute the transition (and its emitted lines) OUTSIDE the state updater
+    // so onActiveLine — which triggers a parent setState — never runs during
+    // render or inside another component's state-updater (setState-in-render).
+    const next = runOneStep(state);
+    const lines = linesForStep(state, next);
+    setState(next);
+    if (lines.length > 0) onActiveLine?.(lines);
+  }, [state, onActiveLine]);
+
   const pb = usePlayback({
-    onTick: () =>
-      setState((cur) => {
-        const next = runOneStep(cur);
-        const lines = linesForStep(cur, next);
-        if (lines.length > 0) onActiveLine?.(lines);
-        return next;
-      }),
+    onTick: advance,
     isDone: () => state.finished[TREE.name] !== undefined,
     intervalMs: 520,
   });

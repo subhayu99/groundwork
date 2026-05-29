@@ -1,4 +1,4 @@
-def longest_unique_substring(s: str) -> int:
+def longest_unique_substring(s: str) -> int:  # @sync: sig
     """Length of the longest substring of s with no repeated characters.
 
     Variable sliding window:
@@ -10,16 +10,16 @@ def longest_unique_substring(s: str) -> int:
     left = 0
     best = 0
 
-    for right, ch in enumerate(s):
+    for right, ch in enumerate(s):  # @sync: expand
         # If we've seen ch inside the current window, jump left
         # past its previous occurrence so the window stays unique.
-        if ch in last_seen and last_seen[ch] >= left:
-            left = last_seen[ch] + 1
+        if ch in last_seen and last_seen[ch] >= left:  # @sync: check
+            left = last_seen[ch] + 1  # @sync: contract
 
-        last_seen[ch] = right
-        best = max(best, right - left + 1)
+        last_seen[ch] = right  # @sync: record
+        best = max(best, right - left + 1)  # @sync: update
 
-    return best
+    return best  # @sync: result
 
 
 # Same template, different invariant:

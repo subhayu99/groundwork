@@ -1,4 +1,4 @@
-def folder_size(node: dict) -> int:
+def folder_size(node: dict) -> int:  # @sync: sig
     """Total bytes inside a folder, counting every file at every depth.
 
     A node is either a file (with a size) or a folder (with children).
@@ -7,12 +7,12 @@ def folder_size(node: dict) -> int:
     in code, and let the function call itself on each child.
     """
     # Base case: a file knows its own size. Stop recursing.
-    if node["type"] == "file":
-        return node["size"]
+    if node["type"] == "file":  # @sync: base_case
+        return node["size"]  # @sync: base_return
 
     # Recursive case: a folder is the sum of its children's sizes.
     # Each child is a smaller version of the same problem.
-    return sum(folder_size(child) for child in node["children"])
+    return sum(folder_size(child) for child in node["children"])  # @sync: recursive_call, aggregate, folder_return
 
 
 # Two pieces are non-negotiable in every recursive function:

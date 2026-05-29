@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GridViz, type CellSpec } from "@/shared/viz/GridViz";
 import { usePlayback } from "@/shared/viz/usePlayback";
 import { PlaybackControls } from "@/shared/viz/PlaybackControls";
@@ -8,13 +8,14 @@ import { PlaybackControls } from "@/shared/viz/PlaybackControls";
 type Cell = [number, number];
 
 /**
- * algorithm.py line numbers, mirrored here so the live visualizer can emit the
- * exact source lines it is "executing". Kept in sync with code-maps.ts.
+ * algorithm.py `@sync:` labels, mirrored here so the live visualizer can emit the
+ * exact source lines it is "executing". Resolved against algorithm.py at render
+ * time — no hand-maintained line numbers, so the highlight can never drift.
  */
-const LINE_VISIT = 20; // visited.add((r, c))
-const LINE_RECURSE = 27; // explore(nr, nc, trail + [(nr, nc)]) — descend into neighbour
-const LINE_BACKTRACK = 34; // return None — dead end, back up to caller
-const LINE_FOUND = 17; // if (r, c) == end: return trail
+const LINE_VISIT = "visit"; // visited.add((r, c))
+const LINE_RECURSE = "recurse"; // explore(nr, nc, trail + [(nr, nc)]) — descend into neighbour
+const LINE_BACKTRACK = "backtrack"; // return None — dead end, back up to caller
+const LINE_FOUND = "found"; // if (r, c) == end: return trail
 
 const GRID: number[][] = [
   [0, 0, 0, 0, 1],
@@ -40,7 +41,7 @@ const DIRS: Cell[] = [
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function DfsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -133,7 +134,7 @@ function ManualWalkViz({
   onActiveLine,
 }: {
   onInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }) {
   const [walk, setWalk] = useState<WalkState>(startWalk());
 
@@ -264,7 +265,7 @@ function dfsStep(state: DfsState): DfsState {
  * Classify what a single dfsStep does to its state, mapping it to the
  * algorithm.py line that the step represents. Mirrors dfsStep's branches.
  */
-function lineForStep(prev: DfsState, next: DfsState): number[] | null {
+function lineForStep(prev: DfsState, next: DfsState): (number | string)[] | null {
   if (prev.done) return null;
   if (next.found) return [LINE_FOUND]; // reached goal → return trail
   if (next.stack.length < prev.stack.length) return [LINE_BACKTRACK]; // popped → back up
@@ -273,17 +274,27 @@ function lineForStep(prev: DfsState, next: DfsState): number[] | null {
 }
 
 /* Steps 4-7 — auto-play DFS with backtracking */
-function AutoDfsViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function AutoDfsViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [dfs, setDfs] = useState<DfsState>(initDfs());
+  // Lines the latest transition produced, emitted from an effect (never from
+  // inside the setDfs updater — that runs during render and setState-in-render
+  // of the parent throws "Cannot update a component while rendering …").
+  const pendingLines = useRef<(number | string)[] | null>(null);
 
   const stepForward = () =>
     setDfs((cur) => {
       if (cur.done) return cur;
       const next = dfsStep(cur);
-      const lines = lineForStep(cur, next);
-      if (lines) onActiveLine?.(lines);
+      pendingLines.current = lineForStep(cur, next);
       return next;
     });
+
+  useEffect(() => {
+    if (pendingLines.current) {
+      onActiveLine?.(pendingLines.current);
+      pendingLines.current = null;
+    }
+  }, [dfs, onActiveLine]);
 
   const pb = usePlayback({
     onTick: stepForward,

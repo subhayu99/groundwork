@@ -13,16 +13,15 @@ const STRIDE = CELL + GAP;
 const MIN_T = 65;
 const MAX_T = 78;
 
-// 1-indexed line numbers in this topic's algorithm.py that each
-// stack operation corresponds to (kept in sync with codeMaps).
-const LINE_POP_CONDITION = 15; // `while waiting and temps[waiting[-1]] < t:`
-const LINE_ANSWER_ASSIGN = 17; // `answer[j] = i - j`
-const LINE_PUSH = 18; // `waiting.append(i)`
+/* @sync labels — resolved against algorithm.py (single source of truth) */
+const LINE_POP_CONDITION = "while_pop"; // `while waiting and temps[waiting[-1]] < t:`
+const LINE_ANSWER_ASSIGN = "record"; // `answer[j] = i - j`
+const LINE_PUSH = "push"; // `waiting.append(i)`
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function MonotonicStackVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -198,10 +197,10 @@ function stepOne(prev: Snapshot): Snapshot {
 // Lines of algorithm.py touched by advancing from `prev` by one outer step:
 // the pop-condition + answer-assignment when any day pops, plus the push
 // that always runs. Used to drive the synced code highlight.
-function linesForStep(prev: Snapshot): number[] {
+function linesForStep(prev: Snapshot): (number | string)[] {
   if (prev.i >= TEMPS.length) return [];
   const next = stepOne(prev);
-  const lines: number[] = [];
+  const lines: (number | string)[] = [];
   if (next.popsThisStep > 0) lines.push(LINE_POP_CONDITION, LINE_ANSWER_ASSIGN);
   lines.push(LINE_PUSH);
   return lines;
@@ -258,7 +257,7 @@ function ManualWalkViz({
   onActiveLine,
 }: {
   onInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }) {
   const [snap, setSnap] = useState<Snapshot>({
     i: 0,
@@ -269,10 +268,10 @@ function ManualWalkViz({
 
   const next = () => {
     onInteraction?.();
-    setSnap((cur) => {
-      onActiveLine?.(linesForStep(cur));
-      return stepOne(cur);
-    });
+    // Emit the highlight from the click handler (not inside setSnap's
+    // updater) so onActiveLine never fires during render.
+    onActiveLine?.(linesForStep(snap));
+    setSnap((cur) => stepOne(cur));
   };
   const reset = () => {
     setSnap({ i: 0, stack: [], answer: emptyAnswer(), popsThisStep: 0 });
@@ -319,7 +318,7 @@ function ManualWalkViz({
 }
 
 /* Steps 4-7 — auto-play */
-function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [snap, setSnap] = useState<Snapshot>({
     i: 0,
     stack: [],
@@ -331,14 +330,14 @@ function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void
   const done = snap.i >= TEMPS.length;
 
   const stepOnce = () => {
-    setSnap((cur) => {
-      if (cur.i >= TEMPS.length) return cur;
-      const next = stepOne(cur);
-      onActiveLine?.(linesForStep(cur));
-      // count: one push always, plus pops
-      setTotalOps((ops) => ops + 1 + next.popsThisStep);
-      return next;
-    });
+    if (snap.i >= TEMPS.length) return;
+    const next = stepOne(snap);
+    // Emit the highlight + counters from the tick/handler, never from
+    // inside setSnap's updater (that runs during render → setState-in-render).
+    onActiveLine?.(linesForStep(snap));
+    // count: one push always, plus pops
+    setTotalOps((ops) => ops + 1 + next.popsThisStep);
+    setSnap(next);
   };
 
   const pb = usePlayback({

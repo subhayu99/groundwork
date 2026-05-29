@@ -54,14 +54,16 @@ const EDGES: GEdge[] = [
   { a: "harper", b: "grace" },
 ];
 
-// algorithm.py line numbers (1-indexed) emitted as the live "active line" while
-// the reader interacts. Kept here as named constants so they track edits to the .py.
-const PY_NEIGHBOR_ITER_BFS = 32; // `for neighbor in friends[node]:` (BFS)
-const PY_NEIGHBOR_ITER_DFS = 49; // `for neighbor in friends[node]:` (DFS)
-const PY_VISITED_MARK_BFS = 34;  // `seen.add(neighbor)` (BFS)
-const PY_VISIT_APPEND_BFS = 31;  // `order.append(node)` (BFS)
-const PY_VISITED_MARK_DFS = 47;  // `seen.add(node)` (DFS)
-const PY_VISIT_APPEND_DFS = 48;  // `order.append(node)` (DFS)
+// @sync labels — resolved against algorithm.py (single source of truth). The
+// live "active line" emits labels, never line numbers, so they track edits to
+// the .py automatically. BFS and DFS use DISTINCT labels so an operation only
+// ever lights up the ONE function that is actually running.
+const BFS_NEIGHBORS = "bfs_neighbors"; // `for neighbor in friends[node]:` (BFS)
+const BFS_SEEN = "bfs_seen";           // `seen.add(neighbor)` (BFS)
+const BFS_APPEND = "bfs_append";       // `order.append(node)` (BFS)
+const DFS_NEIGHBORS = "dfs_neighbors"; // `for neighbor in friends[node]:` (DFS)
+const DFS_SEEN = "dfs_seen";           // `seen.add(node)` (DFS)
+const DFS_APPEND = "dfs_append";       // `order.append(node)` (DFS)
 
 function neighbors(id: string): string[] {
   const out: string[] = [];
@@ -78,7 +80,7 @@ const vizNodes = (tone?: (id: string) => GraphVizNode["tone"]): GraphVizNode[] =
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function GraphsVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -123,7 +125,7 @@ function ForcedTreeViz() {
 }
 
 /* Step 3 — clickable, highlight neighbors */
-function ClickableGraphViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void }) {
+function ClickableGraphViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: (number | string)[]) => void }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const neighbors2 = activeId ? new Set(neighbors(activeId)) : new Set<string>();
   const highlighted = activeId ? new Set([activeId, ...neighbors2]) : null;
@@ -153,8 +155,10 @@ function ClickableGraphViz({ onInteraction, onActiveLine }: { onInteraction?: ()
           const next = id === activeId ? null : id;
           setActiveId(next);
           onInteraction?.();
-          // Selecting a node = iterating its adjacency list to light up neighbors.
-          onActiveLine?.(next ? [PY_NEIGHBOR_ITER_BFS] : []);
+          // Selecting a node = iterating its adjacency list to light up
+          // neighbors. The traversal that actually plays (next step) is BFS, so
+          // we anchor ONLY the BFS neighbor-iteration line — not DFS's too.
+          onActiveLine?.(next ? [BFS_NEIGHBORS] : []);
         }}
       />
       <p className="font-mono text-[10px] text-[var(--text-faint)] max-w-[440px] text-center">
@@ -167,7 +171,7 @@ function ClickableGraphViz({ onInteraction, onActiveLine }: { onInteraction?: ()
 }
 
 /* Step 4-5 — BFS / DFS traversal animation */
-function TraversalViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function TraversalViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [mode, setMode] = useState<"bfs" | "dfs">("bfs");
   const [order, setOrder] = useState<string[]>([]);
   const [cursor, setCursor] = useState(0);
@@ -221,14 +225,16 @@ function TraversalViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => vo
   const visited = new Set(order.slice(0, cursor));
   const cur = cursor > 0 ? order[cursor - 1] : null;
 
-  // Emit the algorithm.py lines for the current traversal step: mark visited,
-  // record it in order, then iterate its neighbors. Per-mode (BFS vs DFS).
+  // Emit the algorithm.py labels for the current traversal step: mark visited,
+  // record it in order, then iterate its neighbors. The labels are per-mode, so
+  // only the ONE function that is actually animating lights up (never bfs+dfs at
+  // once — that was the old WIDE-SPAN double-highlight bug).
   useEffect(() => {
     if (cur == null) { onActiveLine?.([]); return; }
     onActiveLine?.(
       mode === "bfs"
-        ? [PY_VISITED_MARK_BFS, PY_VISIT_APPEND_BFS, PY_NEIGHBOR_ITER_BFS]
-        : [PY_VISITED_MARK_DFS, PY_VISIT_APPEND_DFS, PY_NEIGHBOR_ITER_DFS],
+        ? [BFS_SEEN, BFS_APPEND, BFS_NEIGHBORS]
+        : [DFS_SEEN, DFS_APPEND, DFS_NEIGHBORS],
     );
   }, [cur, mode, onActiveLine]);
 

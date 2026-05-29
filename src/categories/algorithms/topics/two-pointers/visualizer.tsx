@@ -11,16 +11,16 @@ const CELL = 56;
 const GAP = 8;
 const STRIDE = CELL + GAP;
 
-/* algorithm.py line numbers (1-indexed) for the final two-pointers algorithm */
-const LINE_COMPARE = 11; // s = arr[left] + arr[right]
-const LINE_RETURN = 13; // return (left, right)
-const LINE_MOVE_LEFT = 15; // left += 1
-const LINE_MOVE_RIGHT = 17; // right -= 1
+/* algorithm.py @sync labels for the final two-pointers algorithm */
+const LINE_COMPARE = "compute"; // s = arr[left] + arr[right]
+const LINE_RETURN = "found"; // return (left, right)
+const LINE_MOVE_LEFT = "move_left"; // left += 1
+const LINE_MOVE_RIGHT = "move_right"; // right -= 1
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function TwoPointersVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -195,7 +195,7 @@ function WedgeViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-7 — derived: run the algorithm */
-function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [l, setL] = useState(0);
   const [r, setR] = useState(ARR.length - 1);
   const [comparisons, setComparisons] = useState(0);

@@ -5,16 +5,16 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const NAME_POOL = ["alice", "bob", "cara", "dan", "eli", "fawn"];
 
-// algorithm.py lines for the set operation being demonstrated (1-indexed, actual lines).
-const LINE_SET_ADD = 6; // logged_in.add("alice")
-const LINE_SET_ADD_DEDUP = 8; // logged_in.add("alice")  # silently ignored — already in
-const LINE_SET_MEMBERSHIP = 10; // print("alice" in logged_in)  # True — O(1) average
-const LINE_SET_DISCARD = 13; // logged_in.discard("bob")  # O(1), no error if missing
+// @sync labels for the set operation being demonstrated (resolved against algorithm.py).
+const SET_ADD = "set_add"; // logged_in.add("alice")
+const SET_ADD_DEDUP = "set_add_dup"; // logged_in.add("alice")  # silently ignored — already in
+const SET_MEMBERSHIP = "set_in"; // print("alice" in logged_in)  # True — O(1) average
+const SET_DISCARD = "set_discard"; // logged_in.discard("bob")  # O(1), no error if missing
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function SetsTuplesVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -80,28 +80,27 @@ function ListScanViz() {
 }
 
 /* Step 3+ — side-by-side set and tuple */
-function SetTupleViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: number[]) => void }) {
+function SetTupleViz({ onInteraction, onActiveLine }: { onInteraction?: () => void; onActiveLine?: (lines: (number | string)[]) => void }) {
   const [members, setMembers] = useState<string[]>(["alice", "bob"]);
   const [tuple] = useState<[string, number, number]>(["2026-05-28", 47.5, 22.1]);
   const [tupleError, setTupleError] = useState<string | null>(null);
 
   const addMember = (n: string) => {
     onInteraction?.();
-    setMembers((m) => {
-      const duplicate = m.includes(n);
-      // add on a present element is the silently-ignored dedup line; otherwise a fresh add.
-      onActiveLine?.(duplicate ? [LINE_SET_ADD_DEDUP] : [LINE_SET_ADD]);
-      return duplicate ? m : [...m, n];
-    });
+    // add on a present element is the silently-ignored dedup line; otherwise a fresh add.
+    // Emit from the handler (not the state updater, which runs during render).
+    const duplicate = members.includes(n);
+    onActiveLine?.(duplicate ? [SET_ADD_DEDUP] : [SET_ADD]);
+    setMembers((m) => (m.includes(n) ? m : [...m, n]));
   };
   const removeMember = (n: string) => {
     onInteraction?.();
-    onActiveLine?.([LINE_SET_DISCARD]);
+    onActiveLine?.([SET_DISCARD]);
     setMembers((m) => m.filter((x) => x !== n));
   };
   const testMembership = () => {
     onInteraction?.();
-    onActiveLine?.([LINE_SET_MEMBERSHIP]);
+    onActiveLine?.([SET_MEMBERSHIP]);
   };
 
   const flashTupleError = (msg: string) => {

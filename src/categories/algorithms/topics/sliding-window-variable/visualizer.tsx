@@ -10,15 +10,15 @@ const S = "abracadabra";
 const CELL = 38;
 const GAP = 4;
 
-// algorithm.py line numbers the DerivedViz stepper maps onto (1-indexed).
-const LINE_EXPAND = 19; // last_seen[ch] = right  — right edge advances
-const LINE_SHRINK = 17; // left = last_seen[ch] + 1 — repeat forces left in
-const LINE_BEST = 20; // best = max(best, right - left + 1) — best updated
+/* @sync labels — resolved against algorithm.py (single source of truth) */
+const LINE_EXPAND = "record"; // last_seen[ch] = right  — right edge advances
+const LINE_SHRINK = "contract"; // left = last_seen[ch] + 1 — repeat forces left in
+const LINE_BEST = "update"; // best = max(best, right - left + 1) — best updated
 
 interface VisualizerProps {
   step: number;
   onWedgeInteraction?: () => void;
-  onActiveLine?: (lines: number[]) => void;
+  onActiveLine?: (lines: (number | string)[]) => void;
 }
 
 export function SlidingWindowVariableVisualizer({ step, onWedgeInteraction, onActiveLine }: VisualizerProps) {
@@ -192,7 +192,7 @@ function ManualWindowViz({ onInteraction }: { onInteraction?: () => void }) {
 }
 
 /* Step 4-7 — animated derived algorithm */
-function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void }) {
+function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: (number | string)[]) => void }) {
   const [l, setL] = useState(0);
   const [r, setR] = useState(-1);
   const [best, setBest] = useState(0);
@@ -211,7 +211,7 @@ function DerivedViz({ onActiveLine }: { onActiveLine?: (lines: number[]) => void
       pb.stop();
       return;
     }
-    const lines: number[] = [];
+    const lines: (number | string)[] = [];
     const ch = S[nextR];
     const prev = seenRef.current[ch];
     if (prev !== undefined && prev >= lRef.current) {

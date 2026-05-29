@@ -9,9 +9,11 @@ export interface TopicBundle {
   Visualizer: ComponentType<{
     step: number;
     onWedgeInteraction?: () => void;
-    /** Emit the algorithm.py line(s) the current operation maps to, for live
-     *  frame-by-frame code highlighting. Optional per visualizer. */
-    onActiveLine?: (lines: number[]) => void;
+    /** Emit the code line(s) the current operation maps to, for live
+     *  frame-by-frame highlighting. Prefer `@sync:` LABELS (strings) resolved
+     *  against algorithm.py — never hand-maintained line numbers. Raw numbers
+     *  are still accepted during migration. Optional per visualizer. */
+    onActiveLine?: (lines: (number | string)[]) => void;
   }>;
   pythonCode: string;
   /** Step at which the code drawer unlocks. Defaults to last step. */
