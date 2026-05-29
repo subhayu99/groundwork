@@ -1,51 +1,28 @@
-# Handoff — Next Session
+# Handoff — Groundwork
 
-Read this first. It exists so a fresh session picks up the in-flight work without re-discovering it.
+Live: https://subhayu.in/groundwork/ · auto-deploys on push to `main` (GitHub Actions → static export → Pages).
 
-## Hard rules (already saved to user memory — re-state if a new session shows up)
+## Hard rules (non-negotiable — also in user memory)
+1. **10th-grader accessible.** No CS jargon before Step 7 (invariant, monotone, predicate, amortized, recurrence, memoize/tabulate, subarray, immutable…). Big-O only from Step 5's operations table onward — never steps 1–4.
+2. **Left↔right sync.** The card and the visualizer must show the SAME example (same target/names/numbers). Mismatch = bug.
+3. **Code drawer = real syntax-highlighted viewer.**
 
-1. **Tenth-grader accessibility.** Every analogy in `derivation.tsx` must be readable by a 15-year-old with no CS background. No `invariant`, `monotone`, `predicate`, `amortized`, `subarray`, `recurrence`, `memoize` before Step 7. Big-O notation only in Step 5's "operations" table and Step 7 — never in Steps 1–4.
-2. **Left ↔ right sync.** Whatever the active card says, the right-side viz must show the *same* example: same target, same characters, same numbers, same person's name. If they have to differ for technical reasons, the card must say so explicitly.
-3. **Code drawer is a real code viewer.** Syntax-highlighted Python (already implemented in `src/shared/code/CodeHighlight.tsx`), comments that read like explanations, palette tied to the OKLCH design tokens.
+## Audit & remediation (in progress)
+Full audit + plan: `/Users/subhayu/.claude/plans/effervescent-snacking-treasure.md`. Spec (intent): `/Users/subhayu/Documents/docs/superpowers/specs/2026-05-24-dsa-first-principles-design.md`.
 
-## State at this checkpoint
+**DONE & deployed:**
+- **Phase 1 — consistency:** Hash Maps "find alice" now grinds (alice moved last in an unsorted book, 13 comparisons); 11 jargon/Big-O early-step violations reworded; 7 "drawer below" → "Code panel"; step-aware gate clean.
+- **Phase 2a — shared viz primitives** (the spec's missing layer) in `src/shared/viz/`: `tones.ts`, `usePlayback`, `PlaybackControls`, `GridViz`, `StackPanel`, `TreeViz`, `GraphViz`.
+- **Phase 2b (partial) — 10/20 visualizers migrated** to compose primitives: dfs/bfs/backtracking (GridViz), monotonic-stack/recursion (StackPanel), mergesort/activity-selection/dp-1d (usePlayback+TreeViz), graphs (GraphViz), trees (TreeViz). All tsc-clean, 15/15 tests, zero console errors.
 
-- 12 topics live: 8 data structures + 4 algorithms.
-- Latest commits worth knowing about:
-  - `ac9ba99` — code drawer chrome stripped to match reference (no traffic lights, no COPY button, muted palette, topic-specific filename)
-  - `4c34cc9` — plain-language principle pill labels + Step 5 Big-O explainers (one-liners next to first `O(...)` per topic)
-  - `0ac52f7` — previous HANDOFF doc
-- No console errors on any topic at the last full Playwright audit (12 topics at 1440×900).
-- Production build clean. `npm run test` passes 15/15.
+**REMAINING:**
+- **Phase 2b rest:** migrate the 6 array-family visualizers that still hand-roll play loops/controls → `usePlayback`+`PlaybackControls`: `sliding-window-variable, strings, hash-maps, sets-tuples, stacks-queues, linked-lists`. (arrays/two-pointers/binary-search/sliding-window already use ArrayViz; add shared playback there too.) Pure refactor; pattern proven — dispatch one subagent per file with the primitive APIs, then full tsc + Playwright sweep.
+- **Phase 3a — Step 8 / Next Steps:** build `shared/NextStepsSection` + typed `next-steps` shape; normalize the 2 orphan files (`sliding-window/next-steps.tsx`, `two-pointers/next-steps.ts`); author `next-steps` for all 20 (related + 2-3 practice + real-world + resources, reuse existing `problems.tsx`); render as Step 8 in TopicLayout/DerivationEngine.
+- **Phase 3b — principle pages:** `app/principles/[principle]/page.tsx` (+ generateStaticParams) grouping topics by principle; make pills `<Link>`s in `app/page.tsx`, `categories/[category]/page.tsx`, `TopicPageClient.tsx`.
+- **Phase 3c — D3 concept-map home:** replace static grid in `app/page.tsx` with d3 force-layout (d3 already a dep); responsive grid fallback on mobile.
+- **Phase 4:** drop unused `StatsPanel`/`WindowOverlay` if subsumed; full verify; update this doc + memory.
 
-## What's still open (feature work, not polish)
-
-### Code drawer scrub controls + line-by-line viz sync
-
-The reference design (`docs/superpowers/design-reference/uploads/pasted-1779966676590-0.png`) shows the code drawer as an interactive scrubber: ↺ ← Play → controls at the bottom, a `step N / 32` line counter at top right, and an active-line highlight whose row corresponds to the viz state.
-
-Today's implementation is a static syntax-highlighted viewer. To match the reference:
-- `CodeHighlight` already accepts `highlightedLines: number[]` — wire it up in `TopicPageClient` so the active step's `Visualizer` can drive which line is highlighted.
-- Add a scrub control row inside `TopicLayout`'s drawer panel: reset, back, play/pause, forward, plus a `step N / total` indicator.
-- Each topic visualizer would need to expose its step/animation state so the drawer can drive it (and vice versa). Probably wants a small shared `useScrubber` hook in `src/shared/scrubber/`.
-
-This is a real phase, not a polish task. Probably 1-2 sessions.
-
-### Mobile layout
-
-The 12-topic walkthrough confirms the page doesn't crash on a 390px viewport, but the layout is a stacked one-column read with the viz hidden behind a drawer toggle. Acceptable as a known degradation. Real mobile work is a separate phase.
-
-## Repo facts the next agent needs
-
-- Project root: `/Users/subhayu/Downloads/first-principles-learning-platform`
-- GitHub: `https://github.com/subhayu99/first-principles-learning-platform`
-- Stack: Next.js 16 (Turbopack), TypeScript, Tailwind v4 (OKLCH tokens), Framer Motion, custom SVG for trees/graphs.
-- Topic-as-plugin registry at `src/categories/topic-registry.ts` (delegates to per-category registries in `src/categories/{algorithms,data-structures}/topics/index.ts`).
-- Adding a topic = drop a folder + append one entry to the category bundle + append meta to `src/categories/registry.ts`.
+## Out of scope (future): input editors, variants.ts template generator, bridgeFrom rendering.
 
 ## How to resume
-
-1. Read this file end-to-end.
-2. Read `/Users/subhayu/.claude/projects/-Users-subhayu-Documents/memory/feedback_first_principles_rules.md` — those are the hard rules.
-3. The four polish items from the previous session (principle pills, Big-O explainers, visual walkthrough, code drawer cosmetic review) are all done in `4c34cc9` and `ac9ba99`. Push to remote when you have authorization (auto mode classifier blocks push-to-main).
-4. The next genuine work is the code drawer scrub controls — see above.
+Read this + the plan file + [[feedback-first-principles-rules]]. Migrations are behavior-preserving (screenshot before/after). Commit per phase; push deploys. Primitive API reference lives at the top of each file in `src/shared/viz/`.
