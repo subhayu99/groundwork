@@ -7,8 +7,17 @@ Live: https://subhayu.in/groundwork/ · auto-deploys on push to `main` (GitHub A
 2. **Left↔right sync.** The card and the visualizer must show the SAME example (same target/names/numbers). Mismatch = bug.
 3. **Code drawer = real syntax-highlighted viewer.**
 
-## Audit & remediation — COMPLETE
-Full audit + plan: `/Users/subhayu/.claude/plans/effervescent-snacking-treasure.md`. Spec (intent): `/Users/subhayu/Documents/docs/superpowers/specs/2026-05-24-dsa-first-principles-design.md`.
+## Round 2 — Mobile UX & usability overhaul — COMPLETE
+Plan + empirical Playwright audit: `/Users/subhayu/.claude/plans/effervescent-snacking-treasure.md`.
+- **Mobile learning loop:** `TopicLayout` no longer tabs Lesson/Visual/Code apart — on phones the visualizer is a fixed-height panel on top (collapsible via "hide visual") and the lesson cards scroll beneath it, so you read + watch together. Code is a collapsible block at the end of the lesson. Desktop unchanged (reflow via flex `order`; cards/visualizer mount once).
+- **Responsive visualizers:** `FitViewport` fits by height + centers (`fitHeight`); `ArrayViz` is count-aware (cells+font sized to fit ~340px for any length); per-viz mobile tuning for binary-search/strings/activity-selection/stacks-queues/graphs (GraphViz gained a backward-compatible `viewBox`). 18/20 visualizers render at scale 1.0 at 390px (was ~0.48–0.66). Hooks: `src/shared/layout/useIsMobile.ts`, `src/shared/viz/useContainerWidth.ts`.
+- **Touch:** sliding-window has ◀/▶ slide buttons (and drag fires on pointer-down) so the step-3 gate opens without a precise drag; ≥40–44px tap targets on PlaybackControls/ScrubBar/NextStepsSection.
+- **A11y/motion:** `prefers-reduced-motion` CSS block + `<MotionConfig reducedMotion="user">` (in `src/app/MotionProvider.tsx`, wraps the app); ConceptMap settles the d3 sim instantly under reduced motion.
+- **Usability:** "Continue where you left off" banner on home (`src/app/ResumeBanner.tsx`); `/progress` rows link to their topic; prev/next topic nav at the foot of every lesson; code-lock copy fixed; `px-5 md:px-8` content padding; breadcrumb truncates instead of clipping.
+- Verified end-to-end via Playwright at 1440px + 390px (0 console errors, 0 overflow). Out of scope (future): settings UI / animationSpeed wiring, a touch concept-map for mobile (grid fallback kept), per-topic practice authoring.
+
+## Audit & remediation (Round 1) — COMPLETE
+Full audit + plan (superseded by Round 2 above): same plan file. Spec (intent): `/Users/subhayu/Documents/docs/superpowers/specs/2026-05-24-dsa-first-principles-design.md`.
 
 All phases done & deployed. Final state: `npx tsc --noEmit` clean, 15/15 tests, build emits **57 static pages**, zero console errors across home / topic / principle routes (Playwright-verified at 1440px and 390px).
 
