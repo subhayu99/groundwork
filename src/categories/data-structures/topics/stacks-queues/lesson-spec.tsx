@@ -10,7 +10,7 @@ const VW = 860, VH = 470;
 
 /* shared row of items both stories sit on (beats 1–2) */
 const ROW = ["home", "inbox", "draft", "sent", "page"];
-const ROWG = rowGeom(ROW.length, VW, 248, 72, 10, 44);
+const ROWG = rowGeom(ROW.length, VW, 280, 96, 12, 48);
 
 /* ── static: the shared row (setup) ───────────────────────────────────────── */
 function SharedRow({ frontLeaving = false, shift = false }: { frontLeaving?: boolean; shift?: boolean }) {
@@ -37,7 +37,7 @@ function SharedRow({ frontLeaving = false, shift = false }: { frontLeaving?: boo
 }
 
 /* ── interactive WEDGE: push then pop a stack (LIFO), code line follows click ─ */
-const STACK_CX = 250, Q_CX = 620, S_TOP = 150, BOX_W = 150, BOX_H = 28, BOX_GAP = 6;
+const STACK_CX = 250, Q_CX = 620, S_TOP = 218, BOX_W = 190, BOX_H = 32, BOX_GAP = 8;
 const SEED = ["home", "inbox", "draft"]; // grows on push
 
 function PushPopStack({ api }: { api: BeatVisualApi }) {
@@ -74,17 +74,17 @@ function PushPopStack({ api }: { api: BeatVisualApi }) {
       <text x={STACK_CX} y={S_TOP - 28} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>STACK · last in, first out</text>
       <Pill x={STACK_CX} y={S_TOP - 18} text="↑ top" />
       <StackBoxes items={sItems} cx={STACK_CX} top={S_TOP} width={BOX_W} boxH={BOX_H} gap={BOX_GAP} />
-      <Btn x={STACK_CX - 44} y={S_TOP + 200} label="push" onClick={push} />
-      <Btn x={STACK_CX + 44} y={S_TOP + 200} label="pop" onClick={pop} />
+      <Btn x={STACK_CX - 44} y={338} label="push" onClick={push} />
+      <Btn x={STACK_CX + 44} y={338} label="pop" onClick={pop} />
 
       {/* queue — add at back, remove from front */}
       <text x={Q_CX} y={S_TOP - 28} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>QUEUE · first in, first out</text>
       <Pill x={Q_CX} y={S_TOP - 18} text="↑ front (out)" />
       <StackBoxes items={qItems} cx={Q_CX} top={S_TOP} width={BOX_W} boxH={BOX_H} gap={BOX_GAP} topOnTop={false} />
-      <Btn x={Q_CX - 44} y={S_TOP + 200} label="add" onClick={enq} />
-      <Btn x={Q_CX + 44} y={S_TOP + 200} label="remove" onClick={deq} />
+      <Btn x={Q_CX - 50} y={338} label="add" onClick={enq} />
+      <Btn x={Q_CX + 50} y={338} label="remove" onClick={deq} />
 
-      <text x={VW / 2} y={S_TOP + 240} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>{msg}</text>
+      <text x={STACK_CX} y={392} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--text-faint)" }}>{msg}</text>
     </g>
   );
 }
@@ -130,11 +130,11 @@ function AutoStack({ api }: { api: BeatVisualApi }) {
       <text x={VW / 2} y={S_TOP - 28} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>STACK · last in, first out</text>
       <Pill x={VW / 2} y={S_TOP - 18} text="↑ top — both push & pop here" />
       <StackBoxes items={items} cx={VW / 2} top={S_TOP} width={BOX_W} boxH={BOX_H} gap={BOX_GAP} />
-      <text x={VW / 2} y={S_TOP + 190} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>{s.note}</text>
+      <text x={VW / 2} y={410} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>{s.note}</text>
       <g onClick={() => setS(init())} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label="replay"
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setS(init()); } }}>
-        <rect x={VW / 2 - 30} y={S_TOP + 206} width={60} height={24} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
-        <text x={VW / 2} y={S_TOP + 218} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>↺ replay</text>
+        <rect x={VW / 2 - 30} y={428} width={60} height={24} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
+        <text x={VW / 2} y={440} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>↺ replay</text>
       </g>
     </g>
   );
@@ -214,10 +214,10 @@ export const stacksQueuesLesson: LessonSpec = {
       id: "obvious",
       visual: <SharedRow frontLeaving shift />,
       panels: [{
-        left: 150, top: 320, width: 580, variant: "main", label: "The obvious thing", title: "Use an array. Add at the end is cheap; the front is not.",
+        left: 150, top: 24, width: 580, variant: "main", label: "The obvious thing", title: "Use an array. Add at the end is cheap; the front is not.",
         body: <>An <strong>array</strong> is a fixed row of slots in memory. Adding at the <em>end</em> is one move, no matter how long &mdash; we call instant, length-independent cost <code>O(1)</code>. But removing the <em>front</em> slides everyone left; that cost grows with the count &mdash; <code>O(n)</code>.</>,
       }],
-      arrows: [{ x1: ROWG.cx(0), y1: 312, x2: ROWG.cx(0), y2: ROWG.y + ROWG.cellH + 4 }],
+      arrows: [{ x1: ROWG.cx(0), y1: 152, x2: ROWG.cx(0), y2: ROWG.y - 4 }],
       codeLabels: [],
     },
     {
@@ -225,11 +225,11 @@ export const stacksQueuesLesson: LessonSpec = {
       visual: (api) => <PushPopStack api={api} />,
       panels: [
         {
-          left: 250, top: 14, width: 360, variant: "main", label: "The wedge", title: "Touch only the ends. Watch which end each move uses.",
+          left: 60, top: 18, width: 740, variant: "main", label: "The wedge", title: "Touch only the ends. Watch which end each move uses.",
           body: <>Both start with a few items. On the stack press <em>push</em> (add) and <em>pop</em> (remove the newest) &mdash; both touch the <strong>top</strong>. On the queue press <em>add</em> and <em>remove</em> &mdash; add joins the back, remove takes the front.</>,
         },
         {
-          left: 280, top: 408, width: 300, variant: "note",
+          left: 548, top: 372, width: 290, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> if you promise to only ever touch the ends, what suddenly becomes free?</>,
         },
       ],
@@ -240,12 +240,12 @@ export const stacksQueuesLesson: LessonSpec = {
       id: "structure",
       visual: <TwoContracts stackTones={["idle", "idle", "active"]} queueTones={["active", "idle", "idle"]} />,
       panels: [{
-        left: 40, top: 150, width: 180, variant: "main", label: "The structure", title: "One end, or two.",
+        left: 150, top: 22, width: 560, variant: "main", label: "The structure", title: "One end, or two.",
         body: <>A <strong>stack</strong> adds &amp; removes only at the <em>top</em>: newest out first &mdash; <strong>LIFO</strong> (last in, first out). A <strong>queue</strong> adds at the back, removes from the front: oldest out first &mdash; <strong>FIFO</strong> (first in, first out).</>,
       }],
       arrows: [
-        { x1: 230, y1: 200, x2: STACK_CX - BOX_W / 2, y2: S_TOP + 14 },
-        { x1: 230, y1: 230, x2: Q_CX - BOX_W / 2, y2: S_TOP + 14 },
+        { x1: STACK_CX, y1: 152, x2: STACK_CX, y2: S_TOP - 40 },
+        { x1: Q_CX, y1: 152, x2: Q_CX, y2: S_TOP - 40 },
       ],
       codeLabels: ["sig", "qinit"],
     },
@@ -253,7 +253,7 @@ export const stacksQueuesLesson: LessonSpec = {
       id: "operations",
       visual: (api) => <AutoStack api={api} />,
       panels: [{
-        left: 150, top: 380, width: 580, variant: "main", label: "The operations", title: "Every move is at an end, so every move is instant.",
+        left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Every move is at an end, so every move is instant.",
         body: <>On a stack, <code>push</code>, <code>pop</code>, and <code>peek</code> (look at the top without taking it) are all <code>O(1)</code>. A queue&rsquo;s add/remove are <code>O(1)</code> too &mdash; if you use a <em>deque</em> (say &ldquo;deck&rdquo;: a row built to be fast at both ends), not a plain list whose front-removal is <code>O(n)</code>.</>,
       }],
       codeLabels: ["push", "pop", "peek"],
@@ -263,7 +263,7 @@ export const stacksQueuesLesson: LessonSpec = {
       id: "fits",
       visual: <TwoContracts stackTones={["idle", "muted", "active"]} queueTones={["active", "muted", "idle"]} showNoMiddle chips />,
       panels: [{
-        left: 40, top: 150, width: 180, variant: "main", label: "When it fits", title: "Newest-next vs oldest-next.",
+        left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "Newest-next vs oldest-next.",
         body: <>Pick a <strong>stack</strong> when you want the most-recent next: browser back, undo, the <em>call stack</em> (the list of functions still waiting to finish), <em>recursion</em> (a function calling itself, piling up unfinished calls), DFS. Pick a <strong>queue</strong> for the longest-waiter: scheduling, print jobs, BFS.</>,
       }],
       codeLabels: ["sig", "qinit"],

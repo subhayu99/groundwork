@@ -30,8 +30,10 @@ const COLS = GRID[0].length;
 const START: [number, number] = [0, 0];
 const GOAL: [number, number] = [ROWS - 1, COLS - 1];
 
-/* Centered grid geometry inside the canvas box. */
-const GG = gridGeom(ROWS, COLS, VW, 150, 46, 6);
+/* Centered grid geometry inside the canvas box — big cells fill the visual band.
+   cellPx 50 (was 46) is the largest that still keeps all 5 rows on the 470-tall
+   canvas at y0 185; bottom edge lands at 467. */
+const GG = gridGeom(ROWS, COLS, VW, 185, 50, 8);
 const key = (r: number, c: number) => `${r},${c}`;
 const isStart = (r: number, c: number) => r === START[0] && c === START[1];
 const isGoal = (r: number, c: number) => r === GOAL[0] && c === GOAL[1];
@@ -142,7 +144,9 @@ function ManualWalk({ api }: { api: BeatVisualApi }) {
   const reset = () => setW(startWalk());
   const trailSet = new Set(w.trail.map(([r, c]) => key(r, c)));
   const depth = w.trail.length - 1;
-  const by = GG.cy(GOAL[0], 0) + GG.cellPx / 2; // grid bottom-ish
+  /* controls live in the right gutter, beside the band-filling grid */
+  const gx = GG.x0 + COLS * (GG.cellPx + GG.gap) + 20; // just right of the grid
+  const gy = GG.cy(2, 0); // vertically centred on the grid
 
   return (
     <g>
@@ -158,15 +162,13 @@ function ManualWalk({ api }: { api: BeatVisualApi }) {
         cellEnabled={(r, c) => isCandidate(r, c) && !w.done}
       />
       <text
-        x={VW / 2}
-        y={by + 30}
-        textAnchor="middle"
+        x={gx}
+        y={gy - 26}
+        textAnchor="start"
         className="font-mono select-none"
-        style={{ fontSize: 12, fill: w.done ? "var(--diff-easy)" : "var(--text-faint)" }}
+        style={{ fontSize: 11, fill: w.done ? "var(--diff-easy)" : "var(--text-faint)" }}
       >
-        {w.done
-          ? `reached G · trail depth ${depth}`
-          : `trail depth ${depth} · visited ${w.visited.size} — click a lit neighbour, or back up`}
+        {w.done ? `reached G · depth ${depth}` : `depth ${depth} · visited ${w.visited.size}`}
       </text>
       {/* back up */}
       <g
@@ -182,8 +184,8 @@ function ManualWalk({ api }: { api: BeatVisualApi }) {
           }
         }}
       >
-        <rect x={VW / 2 - 64} y={by + 44} width={62} height={24} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
-        <text x={VW / 2 - 33} y={by + 56} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>
+        <rect x={gx} y={gy - 12} width={88} height={26} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
+        <text x={gx + 44} y={gy + 1} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>
           ← back up
         </text>
       </g>
@@ -201,8 +203,8 @@ function ManualWalk({ api }: { api: BeatVisualApi }) {
           }
         }}
       >
-        <rect x={VW / 2 + 4} y={by + 44} width={48} height={24} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
-        <text x={VW / 2 + 28} y={by + 56} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>
+        <rect x={gx} y={gy + 22} width={88} height={26} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
+        <text x={gx + 44} y={gy + 35} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>
           ↺ reset
         </text>
       </g>
@@ -286,7 +288,9 @@ function AutoDfs({ api, showStack }: { api: BeatVisualApi; showStack?: boolean }
   const current = s.stack.length > 0 ? s.stack[s.stack.length - 1].cell : null;
   const trailSet = new Set(s.trail.map(([r, c]) => key(r, c)));
   const depth = s.trail.length - 1;
-  const by = GG.cy(GOAL[0], 0) + GG.cellPx / 2;
+  /* status + replay live in the right gutter, beside the band-filling grid */
+  const gx = GG.x0 + COLS * (GG.cellPx + GG.gap) + 20;
+  const gy = GG.cy(2, 0);
 
   return (
     <g>
@@ -309,17 +313,17 @@ function AutoDfs({ api, showStack }: { api: BeatVisualApi; showStack?: boolean }
         />
       )}
       <text
-        x={VW / 2}
-        y={by + 30}
-        textAnchor="middle"
+        x={gx}
+        y={gy - 14}
+        textAnchor="start"
         className="font-mono select-none"
-        style={{ fontSize: 12, fill: s.found ? "var(--diff-easy)" : "var(--text-faint)" }}
+        style={{ fontSize: 11, fill: s.found ? "var(--diff-easy)" : "var(--text-faint)" }}
       >
         {s.found
-          ? `reached G · trail depth ${depth}`
+          ? `reached G · depth ${depth}`
           : s.done
           ? "no path"
-          : `trail depth ${depth} · visited ${s.visited.size} — dive deep, back up when stuck`}
+          : `depth ${depth} · visited ${s.visited.size}`}
       </text>
       <g
         onClick={() => setS(initDfs())}
@@ -334,8 +338,8 @@ function AutoDfs({ api, showStack }: { api: BeatVisualApi; showStack?: boolean }
           }
         }}
       >
-        <rect x={VW / 2 - 30} y={by + 44} width={60} height={24} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
-        <text x={VW / 2} y={by + 56} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>
+        <rect x={gx} y={gy + 2} width={72} height={26} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
+        <text x={gx + 36} y={gy + 15} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>
           ↺ replay
         </text>
       </g>
@@ -349,11 +353,11 @@ function Explosion() {
     <g>
       {maze(null, emptySet, emptySet)}
       <g opacity={0.9}>
-        <text x={VW / 2} y={GG.y0 - 22} textAnchor="middle" className="font-mono" style={{ fontSize: 12, fill: "var(--diff-hard)" }}>
-          blind move-sequences of length 10 = 4&times;4&times;&hellip; = 1,048,576
+        <text x={GG.x0 - 16} y={GG.cy(1, 0)} textAnchor="end" className="font-mono" style={{ fontSize: 12, fill: "var(--diff-hard)" }}>
+          blind seqs = 1,048,576
         </text>
-        <text x={VW / 2} y={GG.cy(GOAL[0], 0) + GG.cellPx / 2 + 30} textAnchor="middle" className="font-mono" style={{ fontSize: 12, fill: "var(--diff-easy)" }}>
-          cells in the whole maze = 25
+        <text x={GG.x0 + COLS * (GG.cellPx + GG.gap) + 16} y={GG.cy(3, 0)} textAnchor="start" className="font-mono" style={{ fontSize: 12, fill: "var(--diff-easy)" }}>
+          maze cells = 25
         </text>
       </g>
     </g>
@@ -363,12 +367,12 @@ function Explosion() {
 /* ── Beat 6 static: same dive-deep walk, now on a generic graph ─────────────── */
 function GraphDive() {
   const nodes: GNode[] = [
-    { id: "a", x: 200, y: 200, label: "A", tone: "trail" },
-    { id: "b", x: 320, y: 150, label: "B", tone: "trail" },
-    { id: "c", x: 440, y: 120, label: "C", tone: "active" },
-    { id: "d", x: 320, y: 280, label: "D", tone: "visited" },
-    { id: "e", x: 560, y: 170, label: "E", tone: "idle" },
-    { id: "f", x: 440, y: 320, label: "F", tone: "idle" },
+    { id: "a", x: 240, y: 250, label: "A", tone: "trail" },
+    { id: "b", x: 380, y: 210, label: "B", tone: "trail" },
+    { id: "c", x: 520, y: 200, label: "C", tone: "active" },
+    { id: "d", x: 360, y: 350, label: "D", tone: "visited" },
+    { id: "e", x: 640, y: 250, label: "E", tone: "idle" },
+    { id: "f", x: 500, y: 380, label: "F", tone: "idle" },
   ];
   const edges: GEdge[] = [
     { from: "a", to: "b", tone: "trail" },
@@ -379,18 +383,16 @@ function GraphDive() {
   ];
   return (
     <g>
-      <NodeGraph nodes={nodes} edges={edges} radius={20} />
-      <text x={440} y={88} textAnchor="middle" className="font-mono" style={{ fontSize: 11, fill: "var(--accent-ink)" }}>
+      <NodeGraph nodes={nodes} edges={edges} radius={24} />
+      <text x={520} y={168} textAnchor="middle" className="font-mono" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>
         dig down A &rarr; B &rarr; C first
       </text>
-      <text x={380} y={400} textAnchor="middle" className="font-mono" style={{ fontSize: 11, fill: "var(--text-faint)" }}>
+      <text x={430} y={430} textAnchor="middle" className="font-mono" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
         same walk: folders &middot; web links &middot; friends-of-friends &middot; dependencies
       </text>
     </g>
   );
 }
-
-const cy = GG.cy(GOAL[0], 0) + GG.cellPx / 2;
 
 export const dfsLesson: LessonSpec = {
   topicTitle: "depth-first search · escape the maze",
@@ -402,9 +404,9 @@ export const dfsLesson: LessonSpec = {
       visual: maze(null, emptySet, emptySet),
       panels: [
         {
-          left: 30,
-          top: 150,
-          width: 250,
+          left: 40,
+          top: 20,
+          width: 640,
           variant: "main",
           label: "The setup",
           title: "A small maze. Reach the corner.",
@@ -419,7 +421,7 @@ export const dfsLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: 250, y1: 200, x2: GG.cx(0, 0) - 28, y2: GG.cy(0, 0) }],
+      arrows: [{ x1: GG.cx(0, 0), y1: 150, x2: GG.cx(0, 0), y2: GG.cy(0, 0) - GG.cellPx / 2 - 4 }],
       codeLabels: ["sig"],
     },
     {
@@ -427,9 +429,9 @@ export const dfsLesson: LessonSpec = {
       visual: <Explosion />,
       panels: [
         {
-          left: 200,
-          top: cy + 70,
-          width: 460,
+          left: 40,
+          top: 18,
+          width: 780,
           variant: "main",
           label: "The obvious thing",
           title: "Trying every move-sequence explodes.",
@@ -452,9 +454,9 @@ export const dfsLesson: LessonSpec = {
       visual: (api) => <ManualWalk api={api} />,
       panels: [
         {
-          left: 30,
-          top: 150,
-          width: 250,
+          left: 40,
+          top: 18,
+          width: 560,
           variant: "main",
           label: "The wedge",
           title: "Pick a direction. Dig deep. Back up when stuck.",
@@ -467,9 +469,9 @@ export const dfsLesson: LessonSpec = {
           ),
         },
         {
-          left: 600,
-          top: 150,
-          width: 240,
+          left: 588,
+          top: 374,
+          width: 252,
           variant: "note",
           body: (
             <>
@@ -488,9 +490,9 @@ export const dfsLesson: LessonSpec = {
       visual: (api) => <AutoDfs api={api} />,
       panels: [
         {
-          left: 30,
-          top: 150,
-          width: 250,
+          left: 40,
+          top: 18,
+          width: 780,
           variant: "main",
           label: "The derivation",
           title: "Standing at a cell, ask each neighbour.",
@@ -515,9 +517,9 @@ export const dfsLesson: LessonSpec = {
       visual: (api) => <AutoDfs api={api} showStack />,
       panels: [
         {
-          left: 180,
-          top: cy + 70,
-          width: 500,
+          left: 40,
+          top: 18,
+          width: 780,
           variant: "main",
           label: "The operations",
           title: "Each cell once. Memory grows with the deepest detour.",
@@ -542,9 +544,9 @@ export const dfsLesson: LessonSpec = {
       visual: <GraphDive />,
       panels: [
         {
-          left: 30,
-          top: 150,
-          width: 230,
+          left: 40,
+          top: 18,
+          width: 560,
           variant: "main",
           label: "The generalization",
           title: "Not just grids. Anything with neighbours.",
@@ -559,7 +561,7 @@ export const dfsLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: 270, y1: 200, x2: 420, y2: 124 }],
+      arrows: [{ x1: 240, y1: 150, x2: 240, y2: 226 }],
       codeLabels: ["neighbors", "recurse"],
     },
     {
@@ -581,9 +583,9 @@ export const dfsLesson: LessonSpec = {
       ),
       panels: [
         {
-          left: 30,
-          top: 150,
-          width: 250,
+          left: 40,
+          top: 18,
+          width: 640,
           variant: "main",
           label: "The pattern",
           title: "Depth-First Search.",
@@ -598,7 +600,7 @@ export const dfsLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: 250, y1: 200, x2: GG.cx(GOAL[0], GOAL[1]) - 28, y2: GG.cy(GOAL[0], GOAL[1]) }],
+      arrows: [{ x1: GG.cx(GOAL[0], GOAL[1]), y1: 150, x2: GG.cx(GOAL[0], GOAL[1]), y2: GG.cy(GOAL[0], GOAL[1]) - GG.cellPx / 2 - 4 }],
       codeLabels: ["found"],
     },
   ],

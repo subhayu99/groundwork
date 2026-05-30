@@ -12,14 +12,14 @@ const VW = 860, VH = 470;
 // Positions authored directly in the 860×470 canvas, kept clear of the top
 // text panels (everything sits at y >= 150).
 const POS: Record<string, { x: number; y: number }> = {
-  alice:  { x: 430, y: 200 },
-  bob:    { x: 270, y: 260 },
-  cara:   { x: 590, y: 260 },
-  harper: { x: 430, y: 320 },
-  dan:    { x: 200, y: 380 },
-  eli:    { x: 660, y: 380 },
-  fawn:   { x: 330, y: 420 },
-  grace:  { x: 540, y: 420 },
+  alice:  { x: 300, y: 205 },
+  bob:    { x: 150, y: 270 },
+  cara:   { x: 470, y: 250 },
+  harper: { x: 300, y: 310 },
+  dan:    { x: 130, y: 360 },
+  eli:    { x: 500, y: 345 },
+  fawn:   { x: 290, y: 400 },
+  grace:  { x: 450, y: 402 },
 };
 const NAMES = Object.keys(POS);
 
@@ -184,7 +184,7 @@ function ForcedTree() {
 // "Adjacency list" — the graph beside its dict-of-neighbors text rows.
 function AdjacencyList() {
   const rows = NAMES.map((id) => `${id}: [${neighborsOf(id).join(", ")}]`);
-  const bx = 600, by = 200, lh = 22;
+  const bx = 565, by = 205, lh = 22;
   return (
     <g>
       <NodeGraph nodes={baseNodes((id) => (id === "alice" ? "active" : undefined))}
@@ -209,7 +209,7 @@ export const graphsLesson: LessonSpec = {
       id: "setup",
       visual: idleGraph(),
       panels: [{
-        left: 20, top: 18, width: 300, variant: "main", label: "The setup",
+        left: 60, top: 20, width: 600, variant: "main", label: "The setup",
         title: "Who knows whom?",
         body: <>Some questions are about <strong>connections</strong>: who&rsquo;s friends with whom, which web pages link to which, which roads join which towns. Here are eight people; a line means &ldquo;these two are friends.&rdquo;</>,
       }],
@@ -219,7 +219,7 @@ export const graphsLesson: LessonSpec = {
       id: "forced-tree",
       visual: <ForcedTree />,
       panels: [{
-        left: 20, top: 18, width: 300, variant: "main", label: "The obvious thing",
+        left: 60, top: 20, width: 600, variant: "main", label: "The obvious thing",
         title: "Forcing it into a tree loses links.",
         body: <>A <em>tree</em> is a neat family chart: one top person, each below has exactly one parent, and lines never loop back. Try it here and friendships that loop back (red, dashed) get thrown away. We need something that allows any link.</>,
       }],
@@ -230,12 +230,12 @@ export const graphsLesson: LessonSpec = {
       visual: (api) => <ClickNeighbors api={api} />,
       panels: [
         {
-          left: 20, top: 18, width: 300, variant: "main", label: "The wedge",
+          left: 60, top: 20, width: 600, variant: "main", label: "The wedge",
           title: "Click a person. Follow their links.",
           body: <>Click anyone. The people they&rsquo;re directly friends with light up. Click one of those and <em>their</em> friends light up. Each click is just reading one person&rsquo;s list of friends &mdash; following the lines, in any direction.</>,
         },
         {
-          left: 560, top: 18, width: 280, variant: "note",
+          left: 540, top: 372, width: 290, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what is the smallest amount of record-keeping needed to answer &ldquo;who&rsquo;s connected to whom?&rdquo;</>,
         },
       ],
@@ -246,7 +246,7 @@ export const graphsLesson: LessonSpec = {
       id: "structure",
       visual: <AdjacencyList />,
       panels: [{
-        left: 20, top: 18, width: 300, variant: "main", label: "The structure",
+        left: 60, top: 20, width: 600, variant: "main", label: "The structure",
         title: "A graph = dots + lines.",
         body: <>The answer: a <strong>graph</strong> &mdash; a set of dots (<em>nodes</em>, one per person) and lines (<em>edges</em>, one per friendship). Store it as an <em>adjacency list</em>: a lookup table from each person to the list of their friends. That&rsquo;s the whole structure.</>,
       }],
@@ -256,7 +256,7 @@ export const graphsLesson: LessonSpec = {
       id: "traverse",
       visual: (api) => <AutoBFS api={api} />,
       panels: [{
-        left: 20, top: 18, width: 300, variant: "main", label: "The operations",
+        left: 60, top: 20, width: 600, variant: "main", label: "The operations",
         title: "Walk it: nearest friends first.",
         body: <>Watch a <em>breadth-first search</em>: start at alice, visit her friends, then their friends, spreading outward in rings. A &ldquo;seen&rdquo; set (the same lookup table idea) stops us re-walking a line and looping forever. This finds the shortest chain between people.</>,
       }],
@@ -270,7 +270,7 @@ export const graphsLesson: LessonSpec = {
         (a, b) => ((a === "alice" || b === "alice" || a === "harper" || b === "harper") ? "trail" : undefined),
       ),
       panels: [{
-        left: 20, top: 18, width: 300, variant: "main", label: "When it fits",
+        left: 60, top: 20, width: 600, variant: "main", label: "When it fits",
         title: "Anywhere you say 'the links between X.'",
         body: <>Reach for a graph whenever the <strong>relationships</strong> matter: social networks, maps and routes, web links, which software package needs which. If links only ever go one way down a hierarchy with no loops, a tree is simpler. Loops back? You&rsquo;ve got a graph.</>,
       }],
@@ -280,7 +280,7 @@ export const graphsLesson: LessonSpec = {
       id: "name",
       visual: idleGraph(),
       panels: [{
-        left: 20, top: 18, width: 320, variant: "main", label: "The structure",
+        left: 60, top: 20, width: 600, variant: "main", label: "The structure",
         title: "Graph.",
         body: <>That&rsquo;s the name. The structure is tiny &mdash; a table from each node to its neighbors. The richness is in what you run on it: breadth-first or depth-first walks (dive deep down one path, then back up), shortest routes, spotting separate clusters.</>,
       }],

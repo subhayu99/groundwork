@@ -12,16 +12,16 @@ const VW = 860, VH = 470;
  * Ana is the root; everyone below is a direct report of the node above them. */
 interface Person { id: string; label: string; x: number; y: number; parent?: string; }
 const ORG: Person[] = [
-  { id: "ana", label: "Ana", x: 430, y: 96 },
-  { id: "bo", label: "Bo", x: 250, y: 188, parent: "ana" },
-  { id: "harper", label: "Harper", x: 640, y: 188, parent: "ana" },
-  { id: "cara", label: "Cara", x: 150, y: 286, parent: "bo" },
-  { id: "eli", label: "Eli", x: 340, y: 286, parent: "bo" },
-  { id: "ivy", label: "Ivy", x: 570, y: 286, parent: "harper" },
-  { id: "june", label: "June", x: 710, y: 286, parent: "harper" },
-  { id: "dax", label: "Dax", x: 150, y: 384, parent: "cara" },
-  { id: "fawn", label: "Fawn", x: 290, y: 384, parent: "eli" },
-  { id: "grace", label: "Grace", x: 400, y: 384, parent: "eli" },
+  { id: "ana", label: "Ana", x: 430, y: 210 },
+  { id: "bo", label: "Bo", x: 250, y: 280, parent: "ana" },
+  { id: "harper", label: "Harper", x: 640, y: 280, parent: "ana" },
+  { id: "cara", label: "Cara", x: 150, y: 350, parent: "bo" },
+  { id: "eli", label: "Eli", x: 340, y: 350, parent: "bo" },
+  { id: "ivy", label: "Ivy", x: 570, y: 350, parent: "harper" },
+  { id: "june", label: "June", x: 710, y: 350, parent: "harper" },
+  { id: "dax", label: "Dax", x: 150, y: 418, parent: "cara" },
+  { id: "fawn", label: "Fawn", x: 290, y: 418, parent: "eli" },
+  { id: "grace", label: "Grace", x: 400, y: 418, parent: "eli" },
 ];
 const ORG_EDGES: GEdge[] = ORG.filter((p) => p.parent).map((p) => ({ from: p.parent!, to: p.id }));
 const childrenOf = (id: string) => ORG.filter((p) => p.parent === id).map((p) => p.id);
@@ -37,16 +37,16 @@ const orgNodes = (tone: (id: string) => Tone | undefined): GNode[] =>
 /* ── BST, positioned by depth/level — smaller left, larger right ──────────────── */
 interface BstPos { v: number; x: number; y: number; parent?: number; }
 const BST: BstPos[] = [
-  { v: 50, x: 430, y: 150 },
-  { v: 30, x: 250, y: 232, parent: 50 },
-  { v: 70, x: 610, y: 232, parent: 50 },
-  { v: 20, x: 160, y: 314, parent: 30 },
-  { v: 40, x: 340, y: 314, parent: 30 },
-  { v: 60, x: 520, y: 314, parent: 70 },
-  { v: 80, x: 700, y: 314, parent: 70 },
-  { v: 10, x: 110, y: 396, parent: 20 },
-  { v: 35, x: 290, y: 396, parent: 40 },
-  { v: 65, x: 470, y: 396, parent: 60 },
+  { v: 50, x: 430, y: 206 },
+  { v: 30, x: 250, y: 274, parent: 50 },
+  { v: 70, x: 610, y: 274, parent: 50 },
+  { v: 20, x: 160, y: 342, parent: 30 },
+  { v: 40, x: 340, y: 342, parent: 30 },
+  { v: 60, x: 520, y: 342, parent: 70 },
+  { v: 80, x: 700, y: 342, parent: 70 },
+  { v: 10, x: 110, y: 410, parent: 20 },
+  { v: 35, x: 290, y: 410, parent: 40 },
+  { v: 65, x: 470, y: 410, parent: 60 },
 ];
 const BST_BY = new Map(BST.map((b) => [b.v, b]));
 const BST_EDGES: GEdge[] = BST.filter((b) => b.parent !== undefined).map((b) => ({ from: String(b.parent), to: String(b.v) }));
@@ -102,7 +102,7 @@ const FLAT: { name: string; mgr: string; key: string }[] = [
   { name: "June", mgr: "Harper", key: "june" },
 ];
 function FlatTable({ rowTone }: { rowTone?: (key: string) => Tone | undefined }) {
-  const colW = 150, x0 = VW / 2 - colW, rowH = 26, y0 = 84, headH = 22;
+  const colW = 150, x0 = VW / 2 - colW, rowH = 23, y0 = 178, headH = 22;
   return (
     <g>
       {/* header */}
@@ -149,8 +149,8 @@ function ClickToBranch({ api }: { api: BeatVisualApi }) {
   return (
     <g>
       <NodeGraph nodes={orgNodes(tone)} edges={ORG_EDGES} radius={21} onNodeClick={click} />
-      <Caption y={62} text={activePerson ? `${activePerson.label}'s branch: ${count} ${count === 1 ? "person" : "people"} lit — one walk down the links` : "click any person to light up their branch"} />
-      <ReplayButton y={430} label="↺ reset" onClick={() => { setActive(null); api.onActiveLine([]); }} />
+      <Caption y={186} text={activePerson ? `${activePerson.label}'s branch: ${count} ${count === 1 ? "person" : "people"} lit — one walk down the links` : "click any person to light up their branch"} />
+      <ReplayButton y={444} label="↺ reset" onClick={() => { setActive(null); api.onActiveLine([]); }} />
     </g>
   );
 }
@@ -196,7 +196,7 @@ function AutoBSTSearch({ api }: { api: BeatVisualApi }) {
     <g>
       <NodeGraph nodes={bstNodes(tone)} edges={BST_EDGES} radius={20} />
       <Caption
-        y={120}
+        y={184}
         tone={s.done ? "var(--diff-easy)" : "var(--text-faint)"}
         text={
           s.done
@@ -206,7 +206,7 @@ function AutoBSTSearch({ api }: { api: BeatVisualApi }) {
               : `at ${cur}: 35 ${35 < cur ? "< it → go left" : 35 > cur ? "> it → go right" : "= it → match"}`
         }
       />
-      <ReplayButton y={430} label="↺ replay" onClick={() => setS(init())} />
+      <ReplayButton y={444} label="↺ replay" onClick={() => setS(init())} />
     </g>
   );
 }
@@ -227,15 +227,15 @@ function FitsChips() {
     );
   };
   let tx = 70;
-  const treeRow = treeChips.map((t) => { const w = t.length * 6.4 + 18; const el = chip(t, tx, 250, false); tx += w + 8; return el; });
+  const treeRow = treeChips.map((t) => { const w = t.length * 6.4 + 18; const el = chip(t, tx, 332, false); tx += w + 8; return el; });
   let bx = 130;
-  const bstRow = bstChips.map((t) => { const w = t.length * 6.4 + 18; const el = chip(t, bx, 296, true); bx += w + 8; return el; });
+  const bstRow = bstChips.map((t) => { const w = t.length * 6.4 + 18; const el = chip(t, bx, 392, true); bx += w + 8; return el; });
   return (
     <g>
       <NodeGraph nodes={orgNodes(() => undefined)} edges={ORG_EDGES} radius={18} />
-      <text x={70} y={244} className="font-mono select-none" style={{ fontSize: 10, fill: "var(--accent-ink)" }}>TREE — any nested data:</text>
+      <text x={70} y={326} className="font-mono select-none" style={{ fontSize: 10, fill: "var(--accent-ink)" }}>TREE — any nested data:</text>
       {treeRow}
-      <text x={70} y={290} className="font-mono select-none" style={{ fontSize: 10, fill: "var(--diff-easy)" }}>BST — ordered lookups:</text>
+      <text x={70} y={386} className="font-mono select-none" style={{ fontSize: 10, fill: "var(--diff-easy)" }}>BST — ordered lookups:</text>
       {bstRow}
     </g>
   );
@@ -276,7 +276,7 @@ export const treesLesson: LessonSpec = {
       id: "setup",
       visual: <FlatTable />,
       panels: [{
-        left: 40, top: 24, width: 250, variant: "main", label: "The setup",
+        left: 40, top: 20, width: 600, variant: "main", label: "The setup",
         title: "People have managers. Managers have managers.",
         body: <>Open a folder: it holds files and more folders, which hold more folders. Reply to a comment, someone replies to <em>your</em> reply. These don&rsquo;t form a straight line &mdash; they <strong>branch</strong>. A flat list can&rsquo;t say &ldquo;what&rsquo;s inside what.&rdquo;</>,
       }],
@@ -286,11 +286,11 @@ export const treesLesson: LessonSpec = {
       id: "obvious",
       visual: <FlatTable rowTone={(k) => (k === "bo" ? "active" : subtreeIds("bo").has(k) && k !== "bo" ? "visited" : undefined)} />,
       panels: [{
-        left: 40, top: 24, width: 250, variant: "main", label: "The obvious thing",
+        left: 40, top: 20, width: 600, variant: "main", label: "The obvious thing",
         title: "Flatten it. Watch the shape die.",
         body: <>Store everyone in a list with a &ldquo;manager&rdquo; column. &ldquo;Who does Bo report to?&rdquo; is one quick lookup (blue). But &ldquo;everyone <em>under</em> Bo?&rdquo; forces you to scan every row (orange) to rebuild the branch. The real shape is a hierarchy; a flat table fights it.</>,
       }],
-      arrows: [{ x1: 280, y1: 200, x2: 360, y2: 200 }],
+      arrows: [{ x1: 230, y1: 150, x2: 280, y2: 234 }],
       codeLabels: [],
     },
     {
@@ -298,12 +298,12 @@ export const treesLesson: LessonSpec = {
       visual: (api) => <ClickToBranch api={api} />,
       panels: [
         {
-          left: 596, top: 30, width: 244, variant: "main", label: "The wedge",
+          left: 40, top: 20, width: 600, variant: "main", label: "The wedge",
           title: "Click a person. Their branch lights up.",
           body: <>Each box here is a <strong>node</strong> &mdash; one person. A node remembers only its direct reports; that single link from one node to another is a <strong>pointer</strong>. Click anyone: only their branch lights. You didn&rsquo;t search the company &mdash; you followed pointers down.</>,
         },
         {
-          left: 596, top: 232, width: 244, variant: "note",
+          left: 540, top: 372, width: 290, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what does &ldquo;a child&rdquo; look like in this structure &mdash; and how is it different from a sibling next to it?</>,
         },
       ],
@@ -312,24 +312,24 @@ export const treesLesson: LessonSpec = {
     },
     {
       id: "structure",
-      visual: <g><NodeGraph nodes={orgNodes((id) => (id === "ana" ? "active" : undefined))} edges={ORG_EDGES} radius={21} /><Caption y={62} text="root — the one box every path starts from" /></g>,
+      visual: <g><NodeGraph nodes={orgNodes((id) => (id === "ana" ? "active" : undefined))} edges={ORG_EDGES} radius={21} /><Caption y={186} text="root — the one box every path starts from" /></g>,
       panels: [{
-        left: 596, top: 30, width: 244, variant: "main", label: "The structure",
+        left: 40, top: 20, width: 600, variant: "main", label: "The structure",
         title: "Nodes with links to children. No loops.",
         body: <>A <strong>tree</strong> is just nodes &mdash; like a chain where each box held one &ldquo;next,&rdquo; but now a box can hold <em>several</em> child links. One start box is the <strong>root</strong> (lit). No box ever points back up; that loop-back would make it a <strong>graph</strong>. A <em>binary</em> tree caps each node at two children: left and right.</>,
       }],
-      arrows: [{ x1: 596, y1: 110, x2: 458, y2: 96 }],
+      arrows: [{ x1: 430, y1: 150, x2: 430, y2: 189 }],
       codeLabels: ["node_class"],
     },
     {
       id: "operations",
       visual: (api) => <AutoBSTSearch api={api} />,
       panels: [{
-        left: 40, top: 24, width: 250, variant: "main", label: "The operations",
+        left: 40, top: 20, width: 600, variant: "main", label: "The operations",
         title: "Walk it all, or take the sorted shortcut.",
         body: <>Visiting every node costs <strong>O(n)</strong> &mdash; &ldquo;n&rdquo; is the node count, so 10&times; the nodes is 10&times; the work. A <strong>Binary Search Tree</strong> keeps smaller values left, larger right, so a lookup is a chain of left/right turns: <strong>O(log n)</strong> &mdash; doubling the tree adds just one step &mdash; if it&rsquo;s balanced (no branch much longer than the others).</>,
       }],
-      arrows: [{ x1: 290, y1: 150, x2: 408, y2: 150 }],
+      arrows: [{ x1: 430, y1: 150, x2: 430, y2: 186 }],
       codeLabels: ["bst_start", "bst_eq", "bst_left", "bst_right"],
       interaction: "playback",
     },
@@ -337,7 +337,7 @@ export const treesLesson: LessonSpec = {
       id: "fits",
       visual: <FitsChips />,
       panels: [{
-        left: 250, top: 28, width: 360, variant: "main", label: "When it fits",
+        left: 40, top: 20, width: 600, variant: "main", label: "When it fits",
         title: "Hierarchy, and sorted lookups with ranges.",
         body: <>Reach for a <strong>tree</strong> whenever data is genuinely nested (below). Reach for a <strong>BST</strong> (or a balanced cousin like AVL / red-black) when you need fast lookups <em>and</em> sorted order &mdash; a <strong>hash map</strong> (a lookup table) finds one value instantly, <strong>O(1)</strong>, but keeps nothing in order. Databases use B-trees: a wide-branching BST.</>,
       }],
@@ -347,7 +347,7 @@ export const treesLesson: LessonSpec = {
       id: "name",
       visual: <ComplexityRecap />,
       panels: [{
-        left: 40, top: 24, width: 200, variant: "main", label: "The pattern",
+        left: 40, top: 20, width: 600, variant: "main", label: "The pattern",
         title: "Tree.",
         body: <>That&rsquo;s the name. Variants you&rsquo;ll meet: <em>heaps</em> (a tree that always keeps the biggest &mdash; or smallest &mdash; item ready at the top), <em>tries</em> (a tree of word-prefix letters), <em>B-trees</em> (the engine behind database indexes). All share one skeleton: nodes holding child links, rooted at the top.</>,
       }],
