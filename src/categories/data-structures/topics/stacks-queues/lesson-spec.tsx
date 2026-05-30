@@ -215,7 +215,7 @@ export const stacksQueuesLesson: LessonSpec = {
       visual: <SharedRow frontLeaving shift />,
       panels: [{
         left: 150, top: 24, width: 580, variant: "main", label: "The obvious thing", title: "Use an array. Add at the end is cheap; the front is not.",
-        body: <>An <strong>array</strong> is a fixed row of slots in memory. Adding at the <em>end</em> is one move, no matter how long &mdash; we call instant, length-independent cost <code>O(1)</code>. But removing the <em>front</em> slides everyone left; that cost grows with the count &mdash; <code>O(n)</code>.</>,
+        body: <>An <strong>array</strong> is a fixed row of slots in memory. Adding at the <em>end</em> is one move, no matter how long &mdash; an instant, length-independent cost we write <code>O(1)</code>. But removing the <em>front</em> slides everyone left, so the cost grows with the number of items (call that count <em>n</em>) &mdash; written <code>O(n)</code>.</>,
       }],
       arrows: [{ x1: ROWG.cx(0), y1: 152, x2: ROWG.cx(0), y2: ROWG.y - 4 }],
       codeLabels: [],
@@ -264,7 +264,7 @@ export const stacksQueuesLesson: LessonSpec = {
       visual: <TwoContracts stackTones={["idle", "muted", "active"]} queueTones={["active", "muted", "idle"]} showNoMiddle chips />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "Newest-next vs oldest-next.",
-        body: <>Pick a <strong>stack</strong> when you want the most-recent next: browser back, undo, the <em>call stack</em> (the list of functions still waiting to finish), <em>recursion</em> (a function calling itself, piling up unfinished calls), DFS. Pick a <strong>queue</strong> for the longest-waiter: scheduling, print jobs, BFS.</>,
+        body: <>Pick a <strong>stack</strong> when you want the most-recent next: browser back, undo, the <em>call stack</em> (the list of functions still waiting to finish), <em>recursion</em> (a function calling itself, piling up unfinished calls), or DFS (going as deep as you can before backing up). Pick a <strong>queue</strong> for the longest-waiter: scheduling, print jobs, or BFS (exploring everything one ring out at a time).</>,
       }],
       codeLabels: ["sig", "qinit"],
     },

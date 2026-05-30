@@ -327,7 +327,7 @@ export const treesLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The operations",
         title: "Walk it all, or take the sorted shortcut.",
-        body: <>Visiting every node costs <strong>O(n)</strong> &mdash; &ldquo;n&rdquo; is the node count, so 10&times; the nodes is 10&times; the work. A <strong>Binary Search Tree</strong> keeps smaller values left, larger right, so a lookup is a chain of left/right turns: <strong>O(log n)</strong> &mdash; doubling the tree adds just one step &mdash; if it&rsquo;s balanced (no branch much longer than the others).</>,
+        body: <>Visiting every box means touching all of them, so the work grows in step with the box count &mdash; twice the boxes, twice the work (shorthand: <strong>O(n)</strong>, n = the count). A <strong>Binary Search Tree</strong> keeps smaller values left, larger right, so a lookup is just a chain of left/right turns &mdash; doubling the tree adds only one more turn. That growth is so slow it gets its own shorthand, <strong>O(log n)</strong>, when the tree is balanced (no branch much longer than the rest).</>,
       }],
       arrows: [{ x1: 430, y1: 150, x2: 430, y2: 186 }],
       codeLabels: ["bst_start", "bst_eq", "bst_left", "bst_right"],
@@ -339,7 +339,7 @@ export const treesLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "When it fits",
         title: "Hierarchy, and sorted lookups with ranges.",
-        body: <>Reach for a <strong>tree</strong> whenever data is genuinely nested (below). Reach for a <strong>BST</strong> (or a balanced cousin like AVL / red-black) when you need fast lookups <em>and</em> sorted order &mdash; a <strong>hash map</strong> (a lookup table) finds one value instantly, <strong>O(1)</strong>, but keeps nothing in order. Databases use B-trees: a wide-branching BST.</>,
+        body: <>Reach for a <strong>tree</strong> whenever data is genuinely nested (below). Reach for a <strong>BST</strong> (or a balanced cousin like AVL / red-black) when you need fast lookups <em>and</em> sorted order &mdash; a <strong>hash map</strong> (a lookup table) jumps straight to one value in a single step no matter how big it gets &mdash; that always-one-step speed is written <strong>O(1)</strong> &mdash; but it keeps nothing in order. Databases use B-trees: a wide-branching BST.</>,
       }],
       codeLabels: ["bst_insert_left", "bst_insert_right"],
     },

@@ -77,4 +77,23 @@ a `wedge` gate. See `ClickToHalve` / `AutoBinarySearch` in the binary-search spe
 - Everything is committed in small steps (`git log annotated-canvas-conversion`).
 
 ## Critic findings + fixes
-(Appended below after the adversarial content-review pass completes.)
+An adversarial reviewer read each of the 5 lessons (full reviews in
+`docs/ac-conversion/REVIEW__*.md`). Verdicts: binary-search, graphs, dfs = *minor-fixes*;
+trees, stacks-queues = *needs-work*. **All 4 HIGH-severity issues fixed** (they were the same
+class — Big-O / `log` / DFS-BFS used before being explained in plain words):
+- trees · "operations" beat — `O(n)`/`O(log n)`/`log`/"balanced" now led with the plain idea, symbol as an aside.
+- trees · "fits" beat — `O(1)` now defined in plain words ("jumps straight to one value in a single step").
+- stacks-queues · "obvious" beat — `O(n)` and `n` now defined at first use.
+- stacks-queues · "fits" beat — `DFS`/`BFS` now expanded inline ("going as deep as you can…" / "one ring out at a time").
+
+Verified after fixes: tsc clean · 18/18 tests · build = 95 static pages.
+
+**Remaining (medium/low, deferred — see the REVIEW files):** a handful of wording tightenings and a
+few `codeLabels` that could map more precisely. None are beginner-safety blockers. Good next-session task.
+
+---
+
+## Bottom line
+The annotated-canvas form is real, reusable, and live on 5 diverse topics on the branch — interactive,
+beginner-safe, verified. The engine makes the remaining 15 a mechanical follow-on (specs ready). Review
+the 5 routes + `docs/ac-conversion/screens/`, and merge when you're happy.
