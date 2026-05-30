@@ -25,7 +25,7 @@ function SharedRow({ frontLeaving = false, shift = false }: { frontLeaving?: boo
       <text x={ROWG.left(ROW.length - 1) + ROWG.cellW + 14} y={ROWG.y + ROWG.cellH / 2} dominantBaseline="central"
         className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>← back</text>
       {frontLeaving && (
-        <text x={ROWG.cx(0)} y={ROWG.y - 16} textAnchor="middle" className="font-mono select-none"
+        <text x={ROWG.cx(3)} y={ROWG.y - 18} textAnchor="middle" className="font-mono select-none"
           style={{ fontSize: 11, fill: "var(--diff-hard)" }}>remove front — everyone shifts left</text>
       )}
       {shift && ROW.slice(1).map((_, i) => (
@@ -159,10 +159,7 @@ function TwoContracts({ stackTones, queueTones, showNoMiddle = false, chips = fa
       <Pill x={Q_CX} y={S_TOP - 18} text="↑ front (out)" />
       <StackBoxes items={qItems} cx={Q_CX} top={S_TOP} width={BOX_W} boxH={BOX_H} gap={BOX_GAP} topOnTop={false} />
       {showNoMiddle && (
-        <>
-          <text x={STACK_CX + BOX_W / 2 + 22} y={S_TOP + BOX_H + BOX_GAP + BOX_H / 2} dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--diff-hard)" }}>✗ no middle</text>
-          <text x={Q_CX - BOX_W / 2 - 22} y={S_TOP + BOX_H + BOX_GAP + BOX_H / 2} textAnchor="end" dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--diff-hard)" }}>no middle ✗</text>
-        </>
+        <text x={(STACK_CX + Q_CX) / 2} y={S_TOP + BOX_H + BOX_GAP + BOX_H / 2} textAnchor="middle" dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--diff-hard)" }}>✗ no middle</text>
       )}
       {chips && (
         <>
@@ -264,7 +261,7 @@ export const stacksQueuesLesson: LessonSpec = {
       visual: <TwoContracts stackTones={["idle", "muted", "active"]} queueTones={["active", "muted", "idle"]} showNoMiddle chips />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "Newest-next vs oldest-next.",
-        body: <>Pick a <strong>stack</strong> when you want the most-recent next: browser back, undo, the <em>call stack</em> (the list of functions still waiting to finish), <em>recursion</em> (a function calling itself, piling up unfinished calls), or DFS (going as deep as you can before backing up). Pick a <strong>queue</strong> for the longest-waiter: scheduling, print jobs, or BFS (exploring everything one ring out at a time).</>,
+        body: <>Pick a <strong>stack</strong> when you want the most-recent thing next &mdash; like browser back or the <em>call stack</em> (the list of functions still waiting to finish). Pick a <strong>queue</strong> when the longest-waiter goes next &mdash; like print jobs or scheduling.</>,
       }],
       codeLabels: ["sig", "qinit"],
     },

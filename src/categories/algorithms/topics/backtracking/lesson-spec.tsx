@@ -12,8 +12,9 @@ const VW = 860,
 const N = 6;
 
 /* Centered 6×6 board in the visual band. cellPx 36, gap 6 → 246px square.
-   y0 182 lands the bottom edge at ~428, inside the 180–430 middle band. */
-const GG = gridGeom(N, N, VW, 182, 36, 6);
+   y0 188 lands the bottom edge at ~434, inside the middle band; the top stays
+   clear of the top-band panels (which end by ~y170). */
+const GG = gridGeom(N, N, VW, 188, 36, 6);
 const key = (r: number, c: number) => `${r},${c}`;
 
 /* Which squares a set of placed queens attacks (row, column, both diagonals).
@@ -459,9 +460,9 @@ export const backtrackingLesson: LessonSpec = {
       visual: board([2], attackedBy([2]), null),
       panels: [
         {
-          left: 40,
-          top: 20,
-          width: 470,
+          left: 160,
+          top: 18,
+          width: 540,
           variant: "main",
           label: "The setup",
           title: "Six queens on a 6×6 board. No clashes.",
@@ -475,7 +476,7 @@ export const backtrackingLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: GG.cx(0, 2), y1: 150, x2: GG.cx(0, 2), y2: GG.cy(0, 0) - GG.cellPx / 2 - 4 }],
+      arrows: [{ x1: GG.cx(0, 2), y1: 162, x2: GG.cx(0, 2), y2: GG.cy(0, 0) - GG.cellPx / 2 - 4 }],
       codeLabels: ["sig"],
     },
     {
@@ -483,9 +484,9 @@ export const backtrackingLesson: LessonSpec = {
       visual: <Explosion />,
       panels: [
         {
-          left: 540,
+          left: 560,
           top: 20,
-          width: 300,
+          width: 282,
           variant: "main",
           label: "The obvious thing",
           title: "Trying every board explodes.",
@@ -500,7 +501,7 @@ export const backtrackingLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: 540, y1: GG.cy(1, 0), x2: GG.cx(1, 2) + GG.cellPx / 2 + 4, y2: GG.cy(1, 2) }],
+      arrows: [{ x1: 558, y1: GG.cy(1, 2), x2: GG.cx(1, 2) + GG.cellPx / 2 + 4, y2: GG.cy(1, 2) }],
       codeLabels: [],
     },
     {
@@ -508,9 +509,9 @@ export const backtrackingLesson: LessonSpec = {
       visual: (api) => <ManualPlace api={api} />,
       panels: [
         {
-          left: 40,
-          top: 18,
-          width: 470,
+          left: 150,
+          top: 16,
+          width: 560,
           variant: "main",
           label: "The wedge",
           title: "Place a queen. Check. Undo when stuck.",
@@ -525,9 +526,9 @@ export const backtrackingLesson: LessonSpec = {
           ),
         },
         {
-          left: 540,
+          left: 562,
           top: 372,
-          width: 290,
+          width: 280,
           variant: "note",
           body: (
             <>
@@ -539,7 +540,7 @@ export const backtrackingLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: 280, y1: 150, x2: GG.cx(0, 2), y2: GG.cy(0, 0) - GG.cellPx / 2 - 4 }],
+      arrows: [{ x1: GG.cx(0, 2), y1: 168, x2: GG.cx(0, 2), y2: GG.cy(0, 0) - GG.cellPx / 2 - 4 }],
       codeLabels: ["loop", "is_safe"],
       interaction: "wedge",
     },
@@ -550,28 +551,24 @@ export const backtrackingLesson: LessonSpec = {
         {
           left: 40,
           top: 18,
-          width: 480,
+          width: 252,
           variant: "main",
           label: "The derivation",
-          title: "Place row by row. Recurse. Undo on a dead end.",
+          title: "Place row by row. Recurse. Undo a dead end.",
           body: (
             <>
-              Name it <code>place(placed)</code> &mdash; <code>placed</code> lists the
-              column chosen in each filled row. So <code>placed = [1, 3]</code> means
-              row 0&rsquo;s queen sits in column 1, row 1&rsquo;s in column 3, and the
-              next row is row <code>len(placed)</code> = &ldquo;how many placed so
-              far&rdquo; = 2. Got six? Save the board. Else, for each safe column (same
-              column or diagonal fails &mdash; never the row, since one queen per row):
-              add it, call <code>place</code> again one row deeper &mdash;{" "}
-              <strong>recursion</strong>, a function calling itself on a smaller job
-              &mdash; then remove it. That pop is the undo.
+              <code>placed</code> lists the column picked per filled row, so{" "}
+              <code>[1, 3]</code> fills rows 0 and 1; the next row is row 2. Six placed?
+              Save it. Else, for each safe column: add it, call <code>place</code> one
+              row deeper &mdash; <strong>recursion</strong> (a function calling itself on
+              a smaller job) &mdash; then pop it off. That pop is the undo.
             </>
           ),
         },
         {
-          left: 540,
+          left: 562,
           top: 372,
-          width: 290,
+          width: 280,
           variant: "note",
           body: (
             <>
@@ -582,7 +579,7 @@ export const backtrackingLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: 280, y1: 150, x2: GG.cx(3, 0), y2: GG.cy(3, 0) - GG.cellPx / 2 - 4 }],
+      arrows: [{ x1: 296, y1: GG.cy(3, 0), x2: GG.cx(3, 0) - GG.cellPx / 2 - 4, y2: GG.cy(3, 0) }],
       codeLabels: ["record_solution", "record_append", "loop", "is_safe", "place", "recurse", "backtrack"],
     },
     {
@@ -592,19 +589,18 @@ export const backtrackingLesson: LessonSpec = {
         {
           left: 40,
           top: 18,
-          width: 480,
+          width: 252,
           variant: "main",
           label: "The operations",
-          title: "Worst case balloons. Here the prune cuts deep.",
+          title: "Worst case balloons. The prune cuts deep.",
           body: (
             <>
-              Blindly we&rsquo;d build 46,656 boards. The safety check makes the
-              search fail early, so it touches only a few hundred &mdash; watch{" "}
-              <em>boards built</em> climb and <em>solutions</em> tick to 4. Worst case
-              is still <strong>exponential</strong> (work that balloons as the board
-              size grows), but here the prune bites hard. Memory is tiny: the{" "}
-              <strong>stack</strong> &mdash; the chain of paused <code>place</code>{" "}
-              calls &mdash; is at most six deep.
+              Blindly: 46,656 boards. The safety check fails early, so it touches only
+              a few hundred &mdash; watch <em>boards built</em> climb and{" "}
+              <em>solutions</em> reach 4. Worst case stays{" "}
+              <strong>exponential</strong> (work balloons as the board grows), but the
+              prune bites hard. Memory is tiny: the <strong>stack</strong> of paused{" "}
+              <code>place</code> calls is at most six deep.
             </>
           ),
         },
@@ -617,9 +613,9 @@ export const backtrackingLesson: LessonSpec = {
       visual: <Gallery />,
       panels: [
         {
-          left: 40,
-          top: 20,
-          width: 470,
+          left: 150,
+          top: 18,
+          width: 560,
           variant: "main",
           label: "The generalization",
           title: "Not just chess. Anything built piece-by-piece with a check.",
@@ -641,9 +637,9 @@ export const backtrackingLesson: LessonSpec = {
       visual: board(SOLUTION, noAttacks, null),
       panels: [
         {
-          left: 540,
+          left: 560,
           top: 20,
-          width: 300,
+          width: 282,
           variant: "main",
           label: "The pattern",
           title: "Backtracking.",
@@ -660,7 +656,7 @@ export const backtrackingLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: 540, y1: GG.cy(0, 0), x2: GG.cx(0, SOLUTION[0]) + GG.cellPx / 2 + 4, y2: GG.cy(0, 0) }],
+      arrows: [{ x1: 558, y1: GG.cy(2, 5), x2: GG.cx(2, 5) + GG.cellPx / 2 + 4, y2: GG.cy(2, 5) }],
       codeLabels: ["record_solution", "record_append"],
     },
   ],

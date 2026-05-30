@@ -140,10 +140,10 @@ function CostCard() {
     ["delete in the middle", "O(n)", "muted"],
     ["find a value (no index)", "O(n)", "muted"],
   ];
-  const cw = 360, x = (VW - cw) / 2, y0 = 222, rh = 26;
+  const cw = 360, x = (VW - cw) / 2, y0 = 248, rh = 28;
   return (
     <g>
-      <CellRow geom={rowGeom(ARR.length, VW, 188, 40, 6, 30)} values={ARR} tones={tones} />
+      <CellRow geom={rowGeom(ARR.length, VW, 184, 40, 6, 30)} values={ARR} tones={tones} />
       {rows.map(([op, cost, t], i) => {
         const y = y0 + i * rh;
         return (
@@ -184,10 +184,10 @@ export const arraysLesson: LessonSpec = {
       id: "pile",
       visual: <PileCount />,
       panels: [{
-        left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "A pile of books. Count from the top.",
+        left: 150, top: 332, width: 580, variant: "main", label: "The obvious thing", title: "A pile of books. Count from the top.",
         body: <>Simplest storage: a pile. To reach book 487 you lift the top one, then the next, then the next &mdash; 487 lifts for one question. Ask for a different book and you start over. The cost grows with the position you&rsquo;re asked about.</>,
       }],
-      arrows: [{ x1: G.cx(6), y1: 300, x2: G.cx(6), y2: G.y + G.cellH + 4 }],
+      arrows: [{ x1: G.cx(6), y1: 332, x2: G.cx(6), y2: G.y + G.cellH + 26 }],
       codeLabels: [],
     },
     {
@@ -248,7 +248,7 @@ export const arraysLesson: LessonSpec = {
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Array. List, in Python.",
         body: <>That&rsquo;s the name. In low-level languages an array&rsquo;s size is fixed; Python&rsquo;s <code>list</code> is a <strong>dynamic array</strong> &mdash; it grows when you append, with the same cost model. Every <code>arr[i]</code> you see does that <code>base + i × size</code> jump. That one line is why arrays are everywhere.</>,
       }],
-      arrows: [{ x1: G.cx(TARGET), y1: G.y + G.cellH + 34, x2: G.cx(TARGET), y2: G.y + G.cellH + 4 }],
+      arrows: [{ x1: G.cx(TARGET), y1: 150, x2: G.cx(TARGET), y2: G.y - 4 }],
       codeLabels: ["setup", "length"],
     },
   ],

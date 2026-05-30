@@ -162,15 +162,15 @@ function CounterRace() {
 /** The pattern's three signal chips. */
 function Signals() {
   const chips = ["contiguous stretch of length k", "longest / shortest window satisfying X", "count substrings with property Y"];
-  const cw = 250, gap = 16, total = chips.length * cw + (chips.length - 1) * gap, sx = (VW - total) / 2, y = 248;
+  const cw = 268, gap = 12, total = chips.length * cw + (chips.length - 1) * gap, sx = (VW - total) / 2, y = 280, h = 58;
   return (
     <g>
       {chips.map((c, i) => {
         const x = sx + i * (cw + gap);
         return (
           <g key={i}>
-            <rect x={x} y={y} width={cw} height={48} rx={10} fill="var(--accent-soft)" stroke="var(--accent-line)" strokeWidth={1.5} />
-            <text x={x + cw / 2} y={y + 24} textAnchor="middle" dominantBaseline="central" className="font-mono" style={{ fontSize: 11, fill: "var(--accent-ink)" }}>{c}</text>
+            <rect x={x} y={y} width={cw} height={h} rx={11} fill="var(--accent-soft)" stroke="var(--accent-line)" strokeWidth={1.5} />
+            <text x={x + cw / 2} y={y + h / 2} textAnchor="middle" dominantBaseline="central" className="font-mono" style={{ fontSize: 10, fill: "var(--accent-ink)" }}>{c}</text>
           </g>
         );
       })}
@@ -199,7 +199,7 @@ export const slidingWindowLesson: LessonSpec = {
         left: 150, top: 24, width: 560, variant: "main", label: "The setup", title: "A row of numbers. Add the first three.",
         body: <>Here&rsquo;s a row of ten numbers. A friend points at the first three &mdash; we&rsquo;ll call that frame around them a <strong>window</strong> &mdash; and asks &ldquo;what do these add up to?&rdquo; Then slides it one cell right and asks again. Eight times.</>,
       }],
-      arrows: [{ x1: G.cx(1), y1: 150, x2: G.cx(1), y2: G.y - 18 }],
+      arrows: [{ x1: G.cx(0), y1: 150, x2: G.cx(0), y2: G.y - 4 }],
       codeLabels: ["sig"],
     },
     {
@@ -282,7 +282,7 @@ export const slidingWindowLesson: LessonSpec = {
         left: 150, top: 18, width: 580, variant: "main", label: "The generalization", title: "Same wedge. New question.",
         body: <>Forget listing all eight sums. New question: what&rsquo;s the <strong>biggest</strong> three-in-a-row sum? Same slide, same two operations &mdash; just remember the largest total you&rsquo;ve seen, plus one comparison each step. The slide doesn&rsquo;t care what you ask.</>,
       }],
-      arrows: [{ x1: G.cx(5), y1: 150, x2: G.cx(5), y2: G.y - 18 }],
+      arrows: [{ x1: G.cx(6), y1: 150, x2: G.cx(6), y2: G.y - 4 }],
       codeLabels: ["loop", "slide", "record"],
     },
     {

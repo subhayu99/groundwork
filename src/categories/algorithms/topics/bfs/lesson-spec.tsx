@@ -30,13 +30,14 @@ const COLS = GRID[0].length;
 const START: [number, number] = [0, 0];
 const GOAL: [number, number] = [ROWS - 1, COLS - 1];
 
-/* Centered grid geometry. cellPx 50 keeps all 5 rows on the 470-tall canvas at
-   y0 185; bottom edge lands at 467 — copied from the DFS archetype so the
-   no-overlap three-zone layout is identical. */
-const GG = gridGeom(ROWS, COLS, VW, 185, 50, 8);
-/* A narrower, left-shifted grid for the queue beats so a queue column fits in
-   the right gutter without overlapping anything. */
-const GGq = gridGeom(ROWS, COLS, 560, 185, 50, 8);
+/* Centered grid geometry. cellPx 44 keeps all 5 rows in the MIDDLE band
+   (y0 200 → bottom 452), so it sits clear below the top panel band and leaves
+   no big bottom dead-space. x0 = 304, centered in the 860 canvas. */
+const GG = gridGeom(ROWS, COLS, VW, 208, 44, 8);
+/* The queue beats pair the maze with a queue column. Using vw=678 puts the grid
+   at x0=213 so grid (213→465) + a queue column to its right are CENTERED as a
+   unit in the 860 canvas — no left-stranding, no overlap. */
+const GGq = gridGeom(ROWS, COLS, 678, 208, 44, 8);
 
 const key = (r: number, c: number) => `${r},${c}`;
 const isStart = (r: number, c: number) => r === START[0] && c === START[1];
@@ -304,15 +305,18 @@ function AutoBfs({ api, frozen }: { api: BeatVisualApi; frozen?: boolean }) {
   /* For the frozen Beat-5 panel, fast-forward to the solved maze once. */
   const display: BfsState = frozen ? solvedBfs : s;
 
-  const qx = GGq.x0 + COLS * (GGq.cellPx + GGq.gap) + 30; // queue column, right gutter
-  const qTop = GGq.y0 + 4;
-  const shown = display.queue.slice(0, 7);
+  const qx = GGq.x0 + COLS * (GGq.cellPx + GGq.gap) + 36; // queue column, right gutter
+  const qTop = GGq.y0 + 16;
+  const QMAX = 6; // queue rows that fit cleanly in the middle band
+  const QBOX = 25, QGAP = 5, QSTRIDE = QBOX + QGAP;
+  const shown = display.queue.slice(0, QMAX);
   const items: StackBox[] = shown.map((q, i) => ({
     key: `${key(q.cell[0], q.cell[1])}-${i}`,
     label: `(${q.cell[0]},${q.cell[1]})`,
     sub: `d=${q.d}`,
     tone: "accent" as Tone,
   }));
+  const qEnd = qTop + QMAX * QSTRIDE; // y just below the last queue box
 
   return (
     <g>
@@ -322,24 +326,24 @@ function AutoBfs({ api, frozen }: { api: BeatVisualApi; frozen?: boolean }) {
         queue · front on top
       </text>
       {items.length > 0 ? (
-        <StackBoxes items={items} cx={qx} top={qTop} width={132} boxH={26} gap={5} topOnTop={false} />
+        <StackBoxes items={items} cx={qx} top={qTop} width={132} boxH={QBOX} gap={QGAP} topOnTop={false} />
       ) : (
         <text x={qx} y={qTop + 16} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--text-faint)" }}>
           empty
         </text>
       )}
-      {display.queue.length > 7 && (
-        <text x={qx} y={qTop + 7 * 31 + 6} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>
-          +{display.queue.length - 7} more
+      {display.queue.length > QMAX && (
+        <text x={qx} y={qEnd + 4} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>
+          +{display.queue.length - QMAX} more
         </text>
       )}
-      {/* status */}
+      {/* status — bottom-left gutter, clear of the top panel band and the grid */}
       <text
-        x={GGq.x0}
-        y={GGq.y0 - 16}
+        x={70}
+        y={430}
         textAnchor="start"
         className="font-mono select-none"
-        style={{ fontSize: 11, fill: display.goalAt !== null ? "var(--diff-easy)" : "var(--text-faint)" }}
+        style={{ fontSize: 12, fill: display.goalAt !== null ? "var(--diff-easy)" : "var(--text-faint)" }}
       >
         {display.goalAt !== null
           ? `✓ shortest distance ${display.goalAt}`
@@ -359,8 +363,8 @@ function AutoBfs({ api, frozen }: { api: BeatVisualApi; frozen?: boolean }) {
             }
           }}
         >
-          <rect x={qx - 36} y={qTop + 7 * 31 + 14} width={72} height={26} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
-          <text x={qx} y={qTop + 7 * 31 + 27} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>
+          <rect x={qx - 36} y={qEnd + 14} width={72} height={26} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
+          <text x={qx} y={qEnd + 27} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>
             ↺ replay
           </text>
         </g>
@@ -410,8 +414,8 @@ function DfsContrast() {
           return { tone, content: content(r, c) };
         }}
       />
-      <text x={GG.x0 + COLS * (GG.cellPx + GG.gap) / 2} y={GG.y0 - 16} textAnchor="middle" className="font-mono" style={{ fontSize: 11, fill: "var(--text-faint)" }}>
-        depth-first length 8 · here it ties the shortest, but it need not
+      <text x={GG.x0 + COLS * (GG.cellPx + GG.gap)} y={GG.y0 - 14} textAnchor="end" className="font-mono" style={{ fontSize: 11, fill: "var(--text-faint)" }}>
+        depth-first · 8 steps
       </text>
     </g>
   );
@@ -419,15 +423,17 @@ function DfsContrast() {
 
 /* ── Beat 6 static: equal-cost network, distances rippling outward ──────────── */
 function NetworkRipple() {
+  /* Laid out in the right two-thirds + lower band so the left panel never
+     covers a node: every node is below y265 or right of x500. */
   const nodes: GNode[] = [
-    { id: "me", x: 250, y: 300, label: "me", sub: "0", tone: "start" },
-    { id: "a", x: 380, y: 230, label: "A", sub: "1", tone: "trail" },
-    { id: "b", x: 380, y: 370, label: "B", sub: "1", tone: "trail" },
-    { id: "c", x: 520, y: 200, label: "C", sub: "2", tone: "visited" },
-    { id: "d", x: 520, y: 300, label: "D", sub: "2", tone: "visited" },
-    { id: "e", x: 520, y: 400, label: "E", sub: "2", tone: "visited" },
-    { id: "f", x: 660, y: 260, label: "F", sub: "3", tone: "idle" },
-    { id: "g", x: 660, y: 360, label: "G", sub: "3", tone: "idle" },
+    { id: "me", x: 250, y: 360, label: "me", sub: "0", tone: "start" },
+    { id: "a", x: 375, y: 300, label: "A", sub: "1", tone: "trail" },
+    { id: "b", x: 375, y: 418, label: "B", sub: "1", tone: "trail" },
+    { id: "c", x: 510, y: 278, label: "C", sub: "2", tone: "visited" },
+    { id: "d", x: 510, y: 360, label: "D", sub: "2", tone: "visited" },
+    { id: "e", x: 510, y: 430, label: "E", sub: "2", tone: "visited" },
+    { id: "f", x: 645, y: 312, label: "F", sub: "3", tone: "idle" },
+    { id: "g", x: 645, y: 392, label: "G", sub: "3", tone: "idle" },
   ];
   const edges: GEdge[] = [
     { from: "me", to: "a", tone: "trail" },
@@ -440,11 +446,11 @@ function NetworkRipple() {
   ];
   return (
     <g>
-      <NodeGraph nodes={nodes} edges={edges} radius={22} />
-      <text x={500} y={166} textAnchor="middle" className="font-mono" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>
+      <NodeGraph nodes={nodes} edges={edges} radius={21} />
+      <text x={560} y={262} textAnchor="middle" className="font-mono" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>
         sub-number = rings from &ldquo;me&rdquo; · closest first
       </text>
-      <text x={455} y={446} textAnchor="middle" className="font-mono" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+      <text x={440} y={458} textAnchor="middle" className="font-mono" style={{ fontSize: 11, fill: "var(--text-faint)" }}>
         same walk: friends-of-friends &middot; word ladders &middot; equal-cost routing &middot; tree levels
       </text>
     </g>
@@ -462,8 +468,8 @@ export const bfsLesson: LessonSpec = {
       panels: [
         {
           left: 40,
-          top: 20,
-          width: 640,
+          top: 22,
+          width: 740,
           variant: "main",
           label: "The setup",
           title: "Same maze. New question: how few steps?",
@@ -514,10 +520,10 @@ export const bfsLesson: LessonSpec = {
       ],
       arrows: [
         {
-          x1: GG.cx(2, 2),
+          x1: GG.cx(0, 1),
           y1: 150,
-          x2: GG.cx(2, 2),
-          y2: GG.cy(2, 2) - GG.cellPx / 2 - 4,
+          x2: GG.cx(0, 1),
+          y2: GG.cy(0, 1) - GG.cellPx / 2 - 4,
         },
       ],
       codeLabels: ["sig"],
@@ -544,9 +550,9 @@ export const bfsLesson: LessonSpec = {
           ),
         },
         {
-          left: 540,
-          top: 372,
-          width: 290,
+          left: 40,
+          top: 300,
+          width: 250,
           variant: "note",
           body: (
             <>
@@ -567,29 +573,28 @@ export const bfsLesson: LessonSpec = {
         {
           left: 40,
           top: 18,
-          width: 780,
+          width: 800,
           variant: "main",
           label: "The derivation",
           title: "A queue holds 'the next ring to look at'.",
           body: (
             <>
-              A <strong>queue</strong> is a waiting line: you join at the back and are
-              called from the front &mdash; first in, first out (<strong>FIFO</strong>).
-              Put S in line at distance 0. Loop: pull the front cell; if it&rsquo;s G,
-              its distance is the answer. Otherwise mark each open, unseen neighbour{" "}
-              <strong>seen</strong>, give it a distance one more than the cell we just
-              pulled, and send it to the back. Marking on entry means each cell is
-              counted once.
+              A <strong>queue</strong> is a waiting line &mdash; join at the back, leave
+              from the front (first in, first out, <strong>FIFO</strong>). Put S in line at
+              distance 0. Loop: pull the front cell; if it&rsquo;s G, its distance is the
+              answer. Otherwise mark each open, unseen neighbour <strong>seen</strong>, give
+              it a distance one more, and send it to the back &mdash; so each cell is counted
+              once.
             </>
           ),
         },
       ],
       arrows: [
         {
-          x1: GGq.x0 + COLS * (GGq.cellPx + GGq.gap) + 30,
+          x1: GGq.x0 + COLS * (GGq.cellPx + GGq.gap) + 36,
           y1: 150,
-          x2: GGq.x0 + COLS * (GGq.cellPx + GGq.gap) + 30,
-          y2: GGq.y0 - 2,
+          x2: GGq.x0 + COLS * (GGq.cellPx + GGq.gap) + 36,
+          y2: GGq.y0 - 8,
         },
       ],
       codeLabels: [
@@ -612,31 +617,28 @@ export const bfsLesson: LessonSpec = {
         {
           left: 40,
           top: 18,
-          width: 780,
+          width: 800,
           variant: "main",
           label: "The operations",
           title: "Each cell enters the line once. Each is checked once.",
           body: (
             <>
               Marked seen the moment it joins, a cell never joins twice. Let{" "}
-              <strong>V</strong> = how many open cells there are and{" "}
-              <strong>E</strong> = how many neighbour-to-neighbour links between them
-              (each cell touches up to 4). The total work is <strong>O(V + E)</strong>
-              &mdash; &ldquo;O(...)&rdquo; just means how the effort grows, here in
-              step with cells plus links. Memory holds only the cells in the current
-              ring (the ripple&rsquo;s edge), not the whole grid. DFS does the same
-              total work, but BFS is the only one whose <em>first</em> arrival at G is
-              guaranteed shortest.
+              <strong>V</strong> = open cells and <strong>E</strong> = neighbour-to-neighbour
+              links (each cell touches up to 4). Total work is <strong>O(V + E)</strong>
+              &mdash; &ldquo;O(...)&rdquo; just means how effort grows, here in step with cells
+              plus links. Memory holds only the current ring, not the whole grid. DFS does the
+              same work, but only BFS&rsquo;s <em>first</em> arrival at G is guaranteed shortest.
             </>
           ),
         },
       ],
       arrows: [
         {
-          x1: GGq.x0 + COLS * (GGq.cellPx + GGq.gap) + 30,
+          x1: GGq.x0 + COLS * (GGq.cellPx + GGq.gap) + 36,
           y1: 150,
-          x2: GGq.x0 + COLS * (GGq.cellPx + GGq.gap) + 30,
-          y2: GGq.y0 - 2,
+          x2: GGq.x0 + COLS * (GGq.cellPx + GGq.gap) + 36,
+          y2: GGq.y0 - 8,
         },
       ],
       codeLabels: ["seen", "seen_check", "mark"],
@@ -649,24 +651,23 @@ export const bfsLesson: LessonSpec = {
         {
           left: 40,
           top: 18,
-          width: 470,
+          width: 450,
           variant: "main",
           label: "The generalization",
           title: "Anywhere you want 'closest first'.",
           body: (
             <>
-              A cell can be any <strong>node</strong> &mdash; a thing-with-links: a
-              dot connected by <strong>edges</strong> (the lines). Wherever links cost
-              the same &mdash; one click is one click &mdash; this outward walk gives
-              the shortest route: degrees of separation, word ladders, equal-cost
-              routing, printing a tree level by level. When links cost differently (a
-              road map), swap the plain line for a smarter one &mdash; that&rsquo;s
-              Dijkstra&rsquo;s algorithm.
+              A cell can be any <strong>node</strong> &mdash; a thing-with-links: a dot
+              joined by <strong>edges</strong> (the lines). Wherever links cost the same
+              &mdash; one click is one click &mdash; this outward walk gives the shortest
+              route: degrees of separation, word ladders, equal-cost routing, printing a
+              tree level by level. When links cost differently (a road map), swap the plain
+              line for a smarter one &mdash; Dijkstra&rsquo;s algorithm.
             </>
           ),
         },
       ],
-      arrows: [{ x1: 250, y1: 150, x2: 250, y2: 278 }],
+      arrows: [{ x1: 250, y1: 234, x2: 250, y2: 338 }],
       codeLabels: ["enqueue"],
     },
     {

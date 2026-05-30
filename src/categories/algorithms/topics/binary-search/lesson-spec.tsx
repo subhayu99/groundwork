@@ -207,7 +207,7 @@ export const binarySearchLesson: LessonSpec = {
     },
     {
       id: "name",
-      visual: idleRow(ARR.map((_, i) => (i === 6 ? "good" : undefined)), ARR.map((_, i) => i !== 6), { 6: "✓" }),
+      visual: idleRow(ARR.map((_, i) => (i === 6 ? "good" : undefined)), ARR.map((_, i) => i !== 6)),
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Binary Search.",
         body: <>That&rsquo;s the name. You&rsquo;ll spot it when you see: a sorted list + find a value; &ldquo;smallest / largest value such that&hellip;&rdquo;; &ldquo;minimum X to make all Y work&rdquo;; or any &ldquo;does this work?&rdquo; that flips from no to yes exactly once as you turn a dial.</>,

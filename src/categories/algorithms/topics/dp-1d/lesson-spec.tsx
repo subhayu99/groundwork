@@ -15,7 +15,7 @@ const DP = (() => {
   return a;
 })();
 /* Row geometry for the 9-cell dp table, centered, sitting in the middle band. */
-const G = rowGeom(DP.length, VW, 250, 44, 8, 44);
+const G = rowGeom(DP.length, VW, 300, 52, 10, 52);
 
 /* ── shared SVG caption above/below the visual ─────────────────────────────── */
 function Caption({ y, text, tone = "var(--text-faint)" }: { y: number; text: string; tone?: string }) {
@@ -38,31 +38,42 @@ function ReplayButton({ y, label, onClick }: { y: number; label: string; onClick
 /* ── STAIRCASE visual (beats 1-2), raw SVG so we control tone + counters ────── */
 function Staircase({ showCounts }: { showCounts?: boolean }) {
   const steps = 8;
-  const tw = 64, th = 18, gap = 9;          // tread width / height / vertical gap
-  const baseY = 392, x0 = 250;
+  const tw = 70, th = 20, gap = 8;          // tread width / height / vertical gap
+  const stepShift = 24;                      // horizontal offset per step
+  const stride = th + gap;
+  // Footprint of the treads (x0 .. x0 + 7*shift + tw). Keep it left of the
+  // counts column when showCounts; otherwise center it in the 860 width.
+  const footprint = (steps - 1) * stepShift + tw;
+  const x0 = showCounts ? 120 : (VW - footprint) / 2;
+  // Bottom tread (step 1) sits low in the middle band; step 8 climbs up to ~y200.
+  const baseY = 404;
   const rows = Array.from({ length: steps }, (_, i) => {
     const tread = i + 1;                     // step 1 (bottom) … step 8 (top)
-    const x = x0 + i * 14;
-    const y = baseY - i * (th + gap);
+    const x = x0 + i * stepShift;
+    const y = baseY - i * stride;
     return (
       <g key={i}>
-        <rect x={x} y={y} width={tw} height={th} rx={4}
+        <rect x={x} y={y} width={tw} height={th} rx={5}
           fill={tread === steps ? "color-mix(in oklab, var(--accent-sky) 22%, var(--bg-card))" : "var(--bg-card)"}
           stroke={tread === steps ? "var(--accent-line)" : "var(--line)"} strokeWidth={1.5} />
-        <text x={x + tw / 2} y={y + th / 2} textAnchor="middle" dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-muted)" }}>step {tread}</text>
+        <text x={x + tw / 2} y={y + th / 2} textAnchor="middle" dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>step {tread}</text>
       </g>
     );
   });
   return (
     <g>
-      <Caption y={196} text="8 steps · hop 1 or 2 at a time" />
+      {!showCounts && (
+        <text x={x0 + footprint / 2} y={186} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+          8 steps · hop 1 or 2 at a time
+        </text>
+      )}
       {rows}
       {showCounts && (
         <g>
-          <text x={560} y={300} className="font-mono select-none" style={{ fontSize: 13, fill: "var(--diff-easy)" }}>real answer = 34 routes</text>
-          <text x={560} y={326} className="font-mono select-none" style={{ fontSize: 13, fill: "var(--diff-hard)" }}>naive recursion = 67 calls</text>
-          <text x={560} y={350} className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>most re-compute the same</text>
-          <text x={560} y={364} className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>sub-answer over and over</text>
+          <text x={560} y={250} className="font-mono select-none" style={{ fontSize: 15, fill: "var(--diff-easy)" }}>real answer = 34 routes</text>
+          <text x={560} y={282} className="font-mono select-none" style={{ fontSize: 15, fill: "var(--diff-hard)" }}>naive recursion = 67 calls</text>
+          <text x={560} y={320} className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>most re-compute the same</text>
+          <text x={560} y={338} className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>sub-answer over and over</text>
         </g>
       )}
     </g>
@@ -75,21 +86,21 @@ function Staircase({ showCounts }: { showCounts?: boolean }) {
  * x-positions keep the wide tree inside the 860×470 box. */
 interface TNode { id: string; k: number; x: number; y: number; parent?: string; }
 const TREE: TNode[] = [
-  { id: "6", k: 6, x: 430, y: 200 },
-  { id: "5a", k: 5, x: 300, y: 252, parent: "6" },
-  { id: "4a", k: 4, x: 560, y: 252, parent: "6" },
-  { id: "4b", k: 4, x: 200, y: 308, parent: "5a" },
-  { id: "3a", k: 3, x: 380, y: 308, parent: "5a" },
-  { id: "3b", k: 3, x: 520, y: 308, parent: "4a" },
-  { id: "2a", k: 2, x: 640, y: 308, parent: "4a" },
-  { id: "3c", k: 3, x: 130, y: 364, parent: "4b" },
-  { id: "2b", k: 2, x: 250, y: 364, parent: "4b" },
-  { id: "2c", k: 2, x: 350, y: 364, parent: "3a" },
-  { id: "1a", k: 1, x: 430, y: 364, parent: "3a" },
-  { id: "2d", k: 2, x: 500, y: 364, parent: "3b" },
-  { id: "1b", k: 1, x: 580, y: 364, parent: "3b" },
-  { id: "2e", k: 2, x: 100, y: 420, parent: "3c" },
-  { id: "1c", k: 1, x: 175, y: 420, parent: "3c" },
+  { id: "6", k: 6, x: 400, y: 198 },
+  { id: "5a", k: 5, x: 280, y: 256, parent: "6" },
+  { id: "4a", k: 4, x: 520, y: 256, parent: "6" },
+  { id: "4b", k: 4, x: 190, y: 314, parent: "5a" },
+  { id: "3a", k: 3, x: 360, y: 314, parent: "5a" },
+  { id: "3b", k: 3, x: 470, y: 314, parent: "4a" },
+  { id: "2a", k: 2, x: 580, y: 314, parent: "4a" },
+  { id: "3c", k: 3, x: 120, y: 372, parent: "4b" },
+  { id: "2b", k: 2, x: 240, y: 372, parent: "4b" },
+  { id: "2c", k: 2, x: 330, y: 372, parent: "3a" },
+  { id: "1a", k: 1, x: 400, y: 372, parent: "3a" },
+  { id: "2d", k: 2, x: 450, y: 372, parent: "3b" },
+  { id: "1b", k: 1, x: 510, y: 372, parent: "3b" },
+  { id: "2e", k: 2, x: 90, y: 430, parent: "3c" },
+  { id: "1c", k: 1, x: 165, y: 430, parent: "3c" },
 ];
 const TREE_EDGES: GEdge[] = TREE.filter((t) => t.parent).map((t) => ({ from: t.parent!, to: t.id }));
 const treeNodes = (tone: (t: TNode) => Tone | undefined): GNode[] =>
@@ -188,20 +199,20 @@ function FamilyGallery() {
     ["knapsack", "pack a bag under a weight cap"],
     ["cheapest grid path", "walk a grid of costs"],
   ];
-  const cw = 178, ch = 56, gap = 16, cols = 2;
+  const cw = 200, ch = 64, gap = 20, cols = 2;
   const totalW = cols * cw + (cols - 1) * gap;
-  const x0 = (VW - totalW) / 2, y0 = 250;
+  const x0 = (VW - totalW) / 2, y0 = 268;
   return (
     <g>
-      <Caption y={232} text="one skeleton — solve small parts once, reuse them — many stories" />
+      <Caption y={238} text="one skeleton — solve small parts once, reuse them — many stories" />
       {cards.map((c, i) => {
         const r = Math.floor(i / cols), col = i % cols;
         const x = x0 + col * (cw + gap), y = y0 + r * (ch + gap);
         return (
           <g key={c[0]}>
             <rect x={x} y={y} width={cw} height={ch} rx={8} fill="var(--bg-card)" stroke="var(--line)" strokeWidth={1.5} />
-            <text x={x + cw / 2} y={y + 22} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>{c[0]}</text>
-            <text x={x + cw / 2} y={y + 40} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>{c[1]}</text>
+            <text x={x + cw / 2} y={y + 26} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 13, fill: "var(--accent-ink)" }}>{c[0]}</text>
+            <text x={x + cw / 2} y={y + 46} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>{c[1]}</text>
           </g>
         );
       })}
@@ -222,7 +233,7 @@ export const dp1dLesson: LessonSpec = {
         title: "How many ways to climb the stairs?",
         body: <>You&rsquo;re at the bottom of an <strong>8-step</strong> staircase. Each move you hop up 1 step or 2 steps. How many different routes reach the top? 1 step: 1 way. 2 steps: 2 ways. 3 steps: 3 ways. For 8, too many to count by hand.</>,
       }],
-      arrows: [{ x1: 300, y1: 150, x2: 290, y2: 213 }],
+      arrows: [{ x1: 540, y1: 158, x2: 524, y2: 210 }],
       codeLabels: ["sig"],
     },
     {
@@ -233,7 +244,7 @@ export const dp1dLesson: LessonSpec = {
         title: "A rule that re-does the same work over and over.",
         body: <>On step n, only your last move matters: you came from n&minus;1 or n&minus;2. So ways(n) = ways(n&minus;1) + ways(n&minus;2). (<strong>Recursion</strong> = a rule that calls itself on a smaller case.) But finding ways(8) keeps re-asking the same smaller questions.</>,
       }],
-      arrows: [{ x1: 590, y1: 150, x2: 560, y2: 316 }],
+      arrows: [{ x1: 620, y1: 152, x2: 600, y2: 236 }],
       codeLabels: ["sig"],
     },
     {
@@ -255,13 +266,13 @@ export const dp1dLesson: LessonSpec = {
     },
     {
       id: "derive",
-      visual: <g>{dpRow(1, DP.map((_, i) => (i <= 1 ? "good" : undefined)), { 0: "dp0", 1: "dp1" })}<Bracket x1={G.left(0)} x2={G.left(1) + G.cellW} y={G.y - 16} label="the two base values" color="var(--diff-easy)" /></g>,
+      visual: <g>{dpRow(1, DP.map((_, i) => (i <= 1 ? "good" : undefined)), { 0: "dp0", 1: "dp1" })}<Bracket x1={G.left(0)} x2={G.left(1) + G.cellW} y={G.y - 14} label="the two base values" color="var(--diff-easy)" /></g>,
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The derivation",
         title: "Two flavours, same answer.",
         body: <>Top-down: keep the rule, add a notebook &mdash; check if it&rsquo;s written down before working, store it after. Bottom-up: drop recursion, fill a table from the smallest case up. dp[0]=1, dp[1]=1, then dp[i]=dp[i&minus;1]+dp[i&minus;2]. (dp[i] = ways to reach step i; [i] picks one slot.)</>,
       }],
-      arrows: [{ x1: G.cx(0), y1: 150, x2: G.cx(0), y2: G.y - 18 }],
+      arrows: [{ x1: 213, y1: 152, x2: 213, y2: G.y - 30 }],
       codeLabels: ["init_table"],
     },
     {
@@ -272,7 +283,7 @@ export const dp1dLesson: LessonSpec = {
         title: "From exponential to one quick pass.",
         body: <>Naive recursion roughly doubles its work per extra step &mdash; ways(40) calls itself a billion times. The table fills each slot once, one addition each: that&rsquo;s <strong>O(n)</strong> (work grows in step with the stairs n). Keeping only the last two values is <strong>O(1)</strong> &mdash; a fixed amount however tall the staircase.</>,
       }],
-      arrows: [{ x1: 430, y1: 150, x2: 430, y2: G.y - 18 }],
+      arrows: [{ x1: 430, y1: 152, x2: 430, y2: G.y - 44 }],
       codeLabels: ["loop", "recurrence", "answer"],
       interaction: "playback",
     },
@@ -300,7 +311,7 @@ export const dp1dLesson: LessonSpec = {
           body: <>Spot it on <strong>number of ways / minimum cost / maximum value</strong> problems where naive recursion explodes from repeated calls, and a greedy grab-the-best step gives the wrong answer.</>,
         },
       ],
-      arrows: [{ x1: G.cx(8), y1: 150, x2: G.cx(8), y2: G.y - 6 }],
+      arrows: [{ x1: G.cx(8), y1: 230, x2: G.cx(8), y2: G.y - 4 }],
       codeLabels: ["answer"],
     },
   ],

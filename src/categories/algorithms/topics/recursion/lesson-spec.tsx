@@ -225,7 +225,7 @@ function NaiveScan() {
     <g>
       <NodeGraph nodes={nodes} edges={EDGES} />
       <text x={300} y={188} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--diff-easy)" }}>top-level files added: 2 + 1 = 3MB</text>
-      <text x={TBY.get("app")!.x + 10} y={TBY.get("app")!.y - 22} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--diff-hard)" }}>✗ a flat loop never reaches here</text>
+      <text x={TBY.get("app")!.x} y={TBY.get("app")!.y + 28} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--diff-hard)" }}>✗ a flat loop never reaches here</text>
     </g>
   );
 }
@@ -291,13 +291,13 @@ function SameShape() {
 function NamedPattern() {
   const nodes = treeNodes({ tone: (n) => (n.kind === "file" ? "good" : "active"), shown: (n) => n.total });
   const file = TBY.get("scratch")!;     // a file row = base case
-  const folder = TBY.get("photos")!;    // a folder row = recursive case
+  const folder = TBY.get("code")!;      // a folder row = recursive case
   return (
     <g>
       <NodeGraph nodes={nodes} edges={EDGES} />
       <text x={TBY.get("root")!.x} y={TBY.get("root")!.y - 22} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--diff-easy)" }}>19MB ✓</text>
       <Bracket x1={file.x - 42} x2={file.x + 42} y={file.y + 22} label="base case — a file knows its size" color="var(--diff-easy)" />
-      <Bracket x1={folder.x - 44} x2={folder.x + 124} y={folder.y - 18} label="recursive case — ask each child, add up" color="var(--accent-ink)" />
+      <Bracket x1={folder.x - 42} x2={folder.x + 156} y={folder.y - 16} label="recursive case — ask each child, add up" color="var(--accent-ink)" />
     </g>
   );
 }

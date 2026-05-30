@@ -34,19 +34,30 @@ function subtreeIds(id: string): Set<string> {
 const orgNodes = (tone: (id: string) => Tone | undefined): GNode[] =>
   ORG.map((p) => ({ id: p.id, x: p.x, y: p.y, label: p.label, tone: tone(p.id), r: 21 }));
 
+/* A compact org tree confined to a left-side band, so a recap table / chip list
+ * can sit beside it without ever overlapping the nodes. cx≈170, spans y≈210..420. */
+const ORG_COMPACT: Record<string, { x: number; y: number }> = {
+  ana: { x: 168, y: 214 },
+  bo: { x: 96, y: 282 }, harper: { x: 244, y: 282 },
+  cara: { x: 54, y: 350 }, eli: { x: 138, y: 350 }, ivy: { x: 210, y: 350 }, june: { x: 286, y: 350 },
+  dax: { x: 54, y: 416 }, fawn: { x: 116, y: 416 }, grace: { x: 168, y: 416 },
+};
+const compactOrgNodes = (r: number): GNode[] =>
+  ORG.map((p) => ({ id: p.id, x: ORG_COMPACT[p.id].x, y: ORG_COMPACT[p.id].y, label: p.label, tone: undefined, r }));
+
 /* ── BST, positioned by depth/level — smaller left, larger right ──────────────── */
 interface BstPos { v: number; x: number; y: number; parent?: number; }
 const BST: BstPos[] = [
-  { v: 50, x: 430, y: 206 },
-  { v: 30, x: 250, y: 274, parent: 50 },
-  { v: 70, x: 610, y: 274, parent: 50 },
-  { v: 20, x: 160, y: 342, parent: 30 },
-  { v: 40, x: 340, y: 342, parent: 30 },
-  { v: 60, x: 520, y: 342, parent: 70 },
-  { v: 80, x: 700, y: 342, parent: 70 },
-  { v: 10, x: 110, y: 410, parent: 20 },
-  { v: 35, x: 290, y: 410, parent: 40 },
-  { v: 65, x: 470, y: 410, parent: 60 },
+  { v: 50, x: 430, y: 222 },
+  { v: 30, x: 250, y: 288, parent: 50 },
+  { v: 70, x: 610, y: 288, parent: 50 },
+  { v: 20, x: 160, y: 354, parent: 30 },
+  { v: 40, x: 340, y: 354, parent: 30 },
+  { v: 60, x: 520, y: 354, parent: 70 },
+  { v: 80, x: 700, y: 354, parent: 70 },
+  { v: 10, x: 110, y: 420, parent: 20 },
+  { v: 35, x: 290, y: 420, parent: 40 },
+  { v: 65, x: 470, y: 420, parent: 60 },
 ];
 const BST_BY = new Map(BST.map((b) => [b.v, b]));
 const BST_EDGES: GEdge[] = BST.filter((b) => b.parent !== undefined).map((b) => ({ from: String(b.parent), to: String(b.v) }));
@@ -226,17 +237,25 @@ function FitsChips() {
       </g>
     );
   };
-  let tx = 70;
-  const treeRow = treeChips.map((t) => { const w = t.length * 6.4 + 18; const el = chip(t, tx, 332, false); tx += w + 8; return el; });
-  let bx = 130;
-  const bstRow = bstChips.map((t) => { const w = t.length * 6.4 + 18; const el = chip(t, bx, 392, true); bx += w + 8; return el; });
+  // chips wrap inside the right band [colX .. colX+colW]
+  const colX = 372, colW = 442;
+  const wrapRow = (chips: string[], y0: number, accent: boolean) => {
+    let x = colX, y = y0;
+    return chips.map((t) => {
+      const w = t.length * 6.4 + 18;
+      if (x + w > colX + colW) { x = colX; y += 30; }
+      const el = chip(t, x, y, accent);
+      x += w + 8;
+      return el;
+    });
+  };
   return (
     <g>
-      <NodeGraph nodes={orgNodes(() => undefined)} edges={ORG_EDGES} radius={18} />
-      <text x={70} y={326} className="font-mono select-none" style={{ fontSize: 10, fill: "var(--accent-ink)" }}>TREE — any nested data:</text>
-      {treeRow}
-      <text x={70} y={386} className="font-mono select-none" style={{ fontSize: 10, fill: "var(--diff-easy)" }}>BST — ordered lookups:</text>
-      {bstRow}
+      <NodeGraph nodes={compactOrgNodes(17)} edges={ORG_EDGES} radius={17} />
+      <text x={colX} y={236} className="font-mono select-none" style={{ fontSize: 11, fill: "var(--accent-ink)" }}>TREE — any nested data:</text>
+      {wrapRow(treeChips, 250, false)}
+      <text x={colX} y={356} className="font-mono select-none" style={{ fontSize: 11, fill: "var(--diff-easy)" }}>BST — ordered lookups:</text>
+      {wrapRow(bstChips, 370, true)}
     </g>
   );
 }
@@ -249,10 +268,10 @@ function ComplexityRecap() {
     ["BST lookup, lopsided", "O(n)", "var(--diff-hard)"],
     ["BST insert / delete", "O(log n) avg", "var(--diff-med)"],
   ];
-  const x0 = 250, y0 = 248, rowH = 30, w = 360;
+  const x0 = 372, y0 = 248, rowH = 38, w = 412;
   return (
     <g>
-      <NodeGraph nodes={orgNodes(() => undefined)} edges={ORG_EDGES} radius={14} />
+      <NodeGraph nodes={compactOrgNodes(17)} edges={ORG_EDGES} radius={17} />
       {rows.map((r, i) => {
         const y = y0 + i * rowH;
         return (

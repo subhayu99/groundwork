@@ -121,13 +121,13 @@ function NaiveScan() {
   const dim = ARR.map((_, i) => i < start || i > end);
   return (
     <g>
-      <CellRow geom={G} values={ARR} tones={tones} dim={dim} markers={{ [start]: "start" }} />
-      <text x={VW / 2} y={G.y - 26} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+      <text x={VW / 2} y={G.y - 44} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
         from every start, walk right until a letter repeats · then start over one cell over
       </text>
-      <text x={VW / 2} y={G.y + G.cellH + 54} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--diff-med)" }}>
-        about length × length checks — and the same letters get re-read again and again
+      <text x={VW / 2} y={G.y - 26} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--diff-med)" }}>
+        about length × length checks — the same letters get re-read again and again
       </text>
+      <CellRow geom={G} values={ARR} tones={tones} dim={dim} markers={{ [start]: "start" }} />
     </g>
   );
 }
@@ -210,10 +210,10 @@ export const slidingWindowVariableLesson: LessonSpec = {
       id: "naive",
       visual: <NaiveScan />,
       panels: [{
-        left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "Check every possible stretch.",
+        left: 150, top: 332, width: 580, variant: "main", label: "The obvious thing", title: "Check every possible stretch.",
         body: <>The slow way: from each starting box, walk right until a letter repeats, and remember the longest clean run. For an <em>n</em>-letter word that&rsquo;s about <code>n²/2</code> &mdash; roughly length-times-length &mdash; checks. Worse, we keep re-reading the same letters, throwing away facts we already proved.</>,
       }],
-      arrows: [{ x1: G.cx(2), y1: 300, x2: G.cx(2), y2: G.y + G.cellH + 4 }],
+      arrows: [{ x1: G.cx(2), y1: 328, x2: G.cx(2), y2: G.y + G.cellH + 25 }],
       codeLabels: [],
       interaction: "none",
     },

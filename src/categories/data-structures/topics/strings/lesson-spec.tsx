@@ -46,7 +46,7 @@ function SlideTheWindow({ api }: { api: BeatVisualApi }) {
   });
 
   // slider track geometry, well below the row so nothing overlaps
-  const trackY = G.y + G.cellH + 70, trackX0 = G.left(0), trackW = G.left(SENTENCE.length - 1) + G.cellW - G.left(0);
+  const trackY = G.y + G.cellH + 52, trackX0 = G.left(0), trackW = G.left(SENTENCE.length - 1) + G.cellW - G.left(0);
   const knobX = trackX0 + (MAX_START === 0 ? 0 : (start / MAX_START)) * trackW;
 
   return (
@@ -70,8 +70,8 @@ function SlideTheWindow({ api }: { api: BeatVisualApi }) {
         );
       })}
       <circle cx={knobX} cy={trackY} r={8} fill="var(--accent)" stroke="var(--bg-card)" strokeWidth={2} style={{ pointerEvents: "none" }} />
-      <text x={VW / 2} y={trackY + 26} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--text-faint)" }}>
-        drag the start box · jumping to box 12 is no harder than box 2
+      <text x={trackX0 + trackW / 2} y={trackY + 24} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--text-faint)" }}>
+        drag the start box
       </text>
     </g>
   );
@@ -202,13 +202,14 @@ function StringGallery() {
     { label: "JSON key", text: "\"name\"" },
     { label: "log line", text: "ERR 404" },
   ];
-  const cw = 17, gap = 2, y0 = 196, rowH = 56;
+  const cw = 20, gap = 3, y0 = 202, rowH = 56;
+  const widest = Math.max(...rows.map((r) => Array.from(r.text).length));
+  const stripX = VW / 2 - (widest * cw + (widest - 1) * gap) / 2;
   return (
     <g>
       {rows.map((r, ri) => {
         const chars = Array.from(r.text);
-        const rowW = chars.length * cw + (chars.length - 1) * gap;
-        const sx = VW / 2 - 40;
+        const sx = stripX;
         const y = y0 + ri * rowH;
         return (
           <g key={ri}>
@@ -230,7 +231,8 @@ function StringGallery() {
   );
 }
 
-/* the takeaway cost table */
+/* the takeaway cost table — dimmed string up top, cost rows in a centered card below */
+const CT_ROW = rowGeom(SENTENCE.length, VW, 196, 34, 4, 32);
 function CostTable() {
   const rows: [string, string, string][] = [
     ["s[i]", "O(1)", "var(--diff-easy)"],
@@ -240,16 +242,18 @@ function CostTable() {
     ["repeat +=", "way too long", "var(--diff-hard)"],
     ["find word", "scans the text", "var(--diff-med)"],
   ];
-  const x0 = VW / 2 - 150, y0 = 220, rh = 30;
+  const tableW = 320, x0 = VW / 2 - tableW / 2, y0 = 274, rh = 28;
   return (
     <g>
-      <CellRow geom={G} values={CHARS} tones={CHARS.map(() => "visited" as Tone)} />
+      <CellRow geom={CT_ROW} values={CHARS} tones={CHARS.map(() => "visited" as Tone)} />
+      <rect x={x0 - 18} y={y0 - 22} width={tableW + 36} height={rows.length * rh + 18} rx={10}
+        fill="var(--bg-card)" stroke="var(--line)" strokeWidth={1.5} />
       {rows.map((r, i) => {
         const y = y0 + i * rh;
         return (
           <g key={i}>
             <text x={x0} y={y} dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 13, fill: "var(--text)" }}>{r[0]}</text>
-            <text x={x0 + 300} y={y} textAnchor="end" dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 13, fill: r[2] }}>{r[1]}</text>
+            <text x={x0 + tableW} y={y} textAnchor="end" dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 13, fill: r[2] }}>{r[1]}</text>
           </g>
         );
       })}
@@ -324,7 +328,7 @@ export const stringsLesson: LessonSpec = {
           body: <>The trap: gluing letters on with <code>+=</code> in a loop re-copies everything each time and quietly explodes. Build a list and join once instead.</>,
         },
       ],
-      arrows: [{ x1: G.cx(13), y1: 150, x2: VW / 2 + 80, y2: 280 }],
+      arrows: [{ x1: 440, y1: 150, x2: VW / 2, y2: 244 }],
       codeLabels: ["index_read", "concat", "rebuild"],
       interaction: "playback",
     },
@@ -335,7 +339,7 @@ export const stringsLesson: LessonSpec = {
         left: 150, top: 18, width: 560, variant: "main", label: "When it fits", title: "Text is everywhere.",
         body: <>Strings show up constantly because most data the world hands you is text &mdash; URLs, emails, JSON keys, log lines, error messages. Anywhere you&rsquo;d say &ldquo;this thing has a name,&rdquo; there&rsquo;s probably a string underneath.</>,
       }],
-      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 186 }],
+      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 196 }],
       codeLabels: ["find", "concat"],
     },
     {
@@ -345,7 +349,7 @@ export const stringsLesson: LessonSpec = {
         left: 150, top: 22, width: 600, variant: "main", label: "The structure", title: "String.",
         body: <>The mental model: an array of characters, immutable from the outside, indexed instantly. Almost every array cost rule carries straight over &mdash; the only new rule is that &ldquo;changing&rdquo; one letter means quietly building a whole new string.</>,
       }],
-      arrows: [{ x1: VW / 2 + 150, y1: 150, x2: VW / 2 + 150, y2: 206 }],
+      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 190 }],
       codeLabels: ["source", "index_read", "length", "slice", "concat", "find", "rebuild"],
     },
   ],

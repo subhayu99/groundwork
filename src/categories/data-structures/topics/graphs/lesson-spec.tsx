@@ -12,14 +12,14 @@ const VW = 860, VH = 470;
 // Positions authored directly in the 860×470 canvas, kept clear of the top
 // text panels (everything sits at y >= 150).
 const POS: Record<string, { x: number; y: number }> = {
-  alice:  { x: 300, y: 205 },
-  bob:    { x: 150, y: 270 },
-  cara:   { x: 470, y: 250 },
-  harper: { x: 300, y: 310 },
-  dan:    { x: 130, y: 360 },
-  eli:    { x: 500, y: 345 },
-  fawn:   { x: 290, y: 400 },
-  grace:  { x: 450, y: 402 },
+  alice:  { x: 335, y: 205 },
+  bob:    { x: 185, y: 270 },
+  cara:   { x: 505, y: 250 },
+  harper: { x: 335, y: 310 },
+  dan:    { x: 165, y: 360 },
+  eli:    { x: 535, y: 345 },
+  fawn:   { x: 325, y: 400 },
+  grace:  { x: 485, y: 402 },
 };
 const NAMES = Object.keys(POS);
 
@@ -184,7 +184,7 @@ function ForcedTree() {
 // "Adjacency list" — the graph beside its dict-of-neighbors text rows.
 function AdjacencyList() {
   const rows = NAMES.map((id) => `${id}: [${neighborsOf(id).join(", ")}]`);
-  const bx = 565, by = 205, lh = 22;
+  const bx = 580, by = 205, lh = 22;
   return (
     <g>
       <NodeGraph nodes={baseNodes((id) => (id === "alice" ? "active" : undefined))}

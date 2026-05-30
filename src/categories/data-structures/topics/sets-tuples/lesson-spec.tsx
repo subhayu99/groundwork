@@ -230,8 +230,8 @@ function ScanPlayback({ api }: { api: BeatVisualApi }) {
 
   return (
     <g>
-      <SetPills members={SCAN} y={250} tones={tones} label="plain list · scanned one by one" />
-      <text x={VW / 2} y={224} textAnchor="middle" className="font-mono select-none"
+      <SetPills members={SCAN} y={268} tones={tones} label="plain list · scanned one by one" />
+      <text x={VW / 2} y={216} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 12, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}>
         {done
           ? (SCAN[cursor] === "alice" ? `found "alice" after ${cursor + 1} checks` : "ran out — not found")
@@ -240,8 +240,8 @@ function ScanPlayback({ api }: { api: BeatVisualApi }) {
       <g onClick={() => { setCursor(0); setDone(false); }} style={{ cursor: "pointer", outline: "none" }}
         tabIndex={0} role="button" aria-label="replay"
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setCursor(0); setDone(false); } }}>
-        <rect x={VW / 2 - 30} y={306} width={60} height={24} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
-        <text x={VW / 2} y={318} textAnchor="middle" dominantBaseline="central"
+        <rect x={VW / 2 - 30} y={328} width={60} height={24} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
+        <text x={VW / 2} y={340} textAnchor="middle" dominantBaseline="central"
           className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>↺ replay</text>
       </g>
     </g>
@@ -357,7 +357,7 @@ export const setsTuplesLesson: LessonSpec = {
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Stuff a list. Scan when you need it.",
         body: <>The easy move: keep everyone in a plain list. To check for alice you look at chip after chip until you hit her or run out &mdash; slow if the list is long. And a list happily stores a second &ldquo;alice&rdquo;: no uniqueness rule. It works, but it doesn&rsquo;t fit.</>,
       }],
-      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 224 }],
+      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 208 }],
       codeLabels: [],
       interaction: "playback",
     },
@@ -370,7 +370,7 @@ export const setsTuplesLesson: LessonSpec = {
           body: <>Add a name to the set &mdash; then add one already in. The set shrugs: she&rsquo;s in or she isn&rsquo;t, no &ldquo;second alice.&rdquo; Now poke the packet below: try to change a slot or add a fourth. Both refuse &mdash; a tuple is <em>immutable</em> (can&rsquo;t be changed once made).</>,
         },
         {
-          left: 540, top: 372, width: 290, variant: "note",
+          left: 626, top: 384, width: 218, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what does each container&rsquo;s <em>refusal</em> tell you it&rsquo;s for?</>,
         },
       ],
@@ -394,7 +394,7 @@ export const setsTuplesLesson: LessonSpec = {
         left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Sets are hash-fast. Tuples are basically free.",
         body: <>Set: add, remove, and &ldquo;in&rdquo; each cost <code>O(1)</code> &mdash; that means the time stays the same no matter how big the set grows. Combining two sets costs about the size of the smaller one. Tuple: grab slot i instantly; reading all n items is <code>O(n)</code> &mdash; time grows with the count. Being unchangeable is exactly why a tuple can live inside a set; a list can&rsquo;t.</>,
       }],
-      arrows: [{ x1: 250, y1: 150, x2: VW / 2, y2: TG.y + TG.cellH + 30 }],
+      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 186 }],
       codeLabels: ["set_ops", "tuple_immutable", "tuple_key"],
     },
     {

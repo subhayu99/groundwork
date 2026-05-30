@@ -31,7 +31,7 @@ const ROW = rowGeom(NAMES.length, VW, 250, 50, 5, 44);
 // The 16 slot boxes (Beat 3 wedge): one row of 16, middle band.
 const SLOTS = rowGeom(BUCKETS, VW, 270, 44, 6, 44);
 // The 4×4 bucket array (Beats 4–5).
-const GRID = gridGeom(4, 4, VW, 196, 56, 8);
+const GRID = gridGeom(4, 4, VW, 206, 56, 8);
 const slotRC = (i: number) => ({ r: Math.floor(i / 4), c: i % 4 });
 
 /* ── Beat 2 playback: the linear scan grinds top→down until it hits alice ────── */
@@ -194,7 +194,7 @@ function CollisionGrid() {
 /* ── Beat 6: two-column "use it / don't" board ────────────────────────────────── */
 function FitBoard() {
   const yes = ["count words", "cache results", "dedupe a list", "join on a field"];
-  const cw = 230, ch = 38, gap = 12, lx = 150, rx = 480, y0 = 200;
+  const cw = 230, ch = 38, gap = 12, lx = 150, rx = 480, y0 = 256;
   return (
     <g>
       <text x={lx + cw / 2} y={y0 - 16} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--diff-easy)" }}>use a hash map — &ldquo;given X, find Y&rdquo;</text>
@@ -277,7 +277,7 @@ export const hashMapsLesson: LessonSpec = {
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Open page one. Start reading.",
         body: <>The simple way is to <strong>scan</strong> &mdash; read names top to bottom until you hit Alice. On entry 4,872 that&rsquo;s 4,872 reads; if she&rsquo;s missing, all ten thousand. Cost grows with the pile &mdash; we call that <strong>O(n)</strong>. What if the name itself told you the page?</>,
       }],
-      arrows: [{ x1: ROW.cx(6), y1: 150, x2: ROW.cx(6), y2: ROW.y - 4 }],
+      arrows: [{ x1: ROW.cx(1), y1: 184, x2: ROW.cx(1), y2: ROW.y - 4 }],
       codeLabels: [],
       interaction: "playback",
     },
@@ -304,7 +304,7 @@ export const hashMapsLesson: LessonSpec = {
         left: 150, top: 18, width: 580, variant: "main", label: "The structure", title: "An array of boxes, addressed by the hash.",
         body: <>A hash map is two parts. One: a plain array of slots we call <strong>buckets</strong> &mdash; jumping to box number i (written <code>arr[i]</code>) is instant, however big the array. Two: the hash function. Store = hash, drop in the box. Most boxes hold one name; some get crowded.</>,
       }],
-      arrows: [{ x1: GRID.cx(1, 0), y1: 150, x2: GRID.cx(1, 0), y2: GRID.cy(0, 0) - GRID.cellPx / 2 - 4 }],
+      arrows: [{ x1: GRID.cx(0, 0), y1: 178, x2: GRID.cx(0, 0), y2: GRID.cy(0, 0) - GRID.cellPx / 2 - 4 }],
       codeLabels: ["hm_put_slot", "hm_put_append"],
       interaction: "playback",
     },
@@ -317,11 +317,11 @@ export const hashMapsLesson: LessonSpec = {
           body: <>Insert, look up, delete: all <strong>O(1)</strong> on average &mdash; cost stays flat whether the table holds ten keys or ten million. A <strong>collision</strong> is two keys landing in one box; we <strong>chain</strong> them (keep a tiny list per box) so both fit. When the table fills, we build a bigger one &mdash; slow, but rare.</>,
         },
         {
-          left: 540, top: 372, width: 290, variant: "note",
+          left: 568, top: 300, width: 282, variant: "note",
           body: <>Box 2 holds three names &mdash; <code>fawn, eli, june</code>. Looking one up still walks only that one short box, never the whole table.</>,
         },
       ],
-      arrows: [{ x1: GRID.cx(0, 2), y1: 150, x2: GRID.cx(0, 2), y2: GRID.cy(0, 2) - GRID.cellPx / 2 - 4 }],
+      arrows: [{ x1: GRID.cx(0, 2), y1: 178, x2: GRID.cx(0, 2), y2: GRID.cy(0, 2) - GRID.cellPx / 2 - 4 }],
       codeLabels: ["hm_put_scan", "hm_put_overwrite", "hm_get_scan"],
     },
     {

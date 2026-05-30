@@ -53,7 +53,7 @@ function MoveTheFingers({ api }: { api: BeatVisualApi }) {
     <g>
       <TargetTag />
       <CellRow geom={G} values={ARR} tones={tones} markers={markers} />
-      <text x={VW / 2} y={G.y - 8} textAnchor="middle" className="font-mono select-none"
+      <text x={VW / 2} y={G.y - 52} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 13, fill: sum === TARGET ? "var(--diff-easy)" : "var(--text-faint)" }}>
         {`arr[L] + arr[R] = ${ARR[L]} + ${ARR[R]} = ${sum}  (${verdict})`}
       </text>
@@ -103,7 +103,7 @@ function AutoTwoPointers({ api }: { api: BeatVisualApi }) {
     <g>
       <TargetTag />
       <CellRow geom={G} values={ARR} tones={tones} dim={dim} markers={markers} />
-      <text x={VW / 2} y={G.y - 8} textAnchor="middle" className="font-mono select-none"
+      <text x={VW / 2} y={G.y - 52} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 13, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}>
         {done
           ? (found ? `found ${ARR[L]} + ${ARR[R]} = 17 ✓  ·  ${steps} comparisons (vs 45)` : "no pair")
@@ -129,7 +129,7 @@ function BruteForce() {
     <g>
       <TargetTag />
       <CellRow geom={G} values={ARR} tones={tones} dim={dim} />
-      <text x={VW / 2} y={G.y - 8} textAnchor="middle" className="font-mono select-none"
+      <text x={VW / 2} y={G.y - 52} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 13, fill: "var(--diff-hard)" }}>
         {`arr[i] + arr[j] = ${ARR[anchor]} + ${ARR[j]} = ${ARR[anchor] + ARR[j]}  ·  up to 45 pairs to try`}
       </text>

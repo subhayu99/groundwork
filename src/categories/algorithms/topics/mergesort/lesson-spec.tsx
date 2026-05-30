@@ -179,7 +179,7 @@ const sortedRow = () => <CellRow geom={rowGeom(SORTED.length, VW, ROW_Y)} values
    bracket for "how many levels = log n" and one level marked "n cards touched". */
 function CostLevels() {
   const widths = [8, 4, 2, 1]; // cells per pile, per level
-  const cw = 22, gap = 2, segGap = 12, y0 = 196, rowH = 34;
+  const cw = 22, gap = 2, segGap = 12, y0 = 222, rowH = 34;
   return (
     <g>
       {widths.map((per, li) => {
@@ -269,7 +269,7 @@ export const mergesortLesson: LessonSpec = {
         left: 150, top: 24, width: 560, variant: "main", label: "The setup", title: "Eight cards in a jumble. Put them in order.",
         body: <>Eight cards landed out of order: 5, 2, 4, 7, 1, 3, 8, 6. Sorting eight by eye is easy. But computers sort tables with <strong>hundreds of millions of rows</strong> &mdash; every leaderboard, every database lookup. The <em>method</em> is what matters.</>,
       }],
-      arrows: [{ x1: G.cx(3), y1: 150, x2: G.cx(3), y2: G.y - 20 }],
+      arrows: [{ x1: G.cx(3), y1: 150, x2: G.cx(3), y2: G.y - 28 }],
       codeLabels: ["sig"],
     },
     {
@@ -315,7 +315,7 @@ export const mergesortLesson: LessonSpec = {
         left: 150, top: 22, width: 560, variant: "main", label: "The operations", title: "Halve down a few levels; one walk per level.",
         body: <>You can halve a thousand cards about ten times before you hit a single card &mdash; we write that count <code>log n</code> (it grows slowly: doubling the cards adds just one level). Each level&rsquo;s merges touch every card once: <code>n</code> work. Total <code>n × log n</code> &mdash; about 20 million steps for a million cards, not a trillion.</>,
       }],
-      arrows: [{ x1: 150, y1: 150, x2: 182, y2: 196 }],
+      arrows: [{ x1: 160, y1: 156, x2: 182, y2: 220 }],
       codeLabels: ["split", "merge_loop", "merge_tail"],
     },
     {
@@ -325,7 +325,7 @@ export const mergesortLesson: LessonSpec = {
         left: 150, top: 22, width: 560, variant: "main", label: "The generalization", title: "Divide and conquer is everywhere.",
         body: <>The shape &mdash; split, solve each half, combine &mdash; fits any problem that breaks into the same problem on half the items with a cheap combine. Each box (a <em>node</em>) holds a chunk. Same skeleton powers counting out-of-order pairs, big-number multiply, the FFT, and splitting work across CPUs.</>,
       }],
-      arrows: [{ x1: G.cx(3), y1: 150, x2: VW / 2, y2: 336 }],
+      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 188 }],
       codeLabels: ["split", "recurse_left", "recurse_right", "merge_call"],
     },
     {
@@ -340,7 +340,7 @@ export const mergesortLesson: LessonSpec = {
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Mergesort.",
         body: <>That&rsquo;s the name &mdash; the textbook divide-and-conquer sort. The recursion divides; the merge conquers. Reach for it when you see: &ldquo;sort big data with a worst-case guarantee,&rdquo; &ldquo;merge two already-sorted streams,&rdquo; or a file too big to fit in memory. Open the drawer &mdash; under twenty real lines.</>,
       }],
-      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: G.y - 20 }],
+      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: G.y - 36 }],
       codeLabels: ["sig", "merge_call"],
     },
   ],

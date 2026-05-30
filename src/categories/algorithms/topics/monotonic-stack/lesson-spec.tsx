@@ -13,19 +13,22 @@ const TEMPS = [73, 74, 75, 71, 69, 72, 76, 73];
 const ANSWER = [1, 1, 4, 2, 1, 1, 0, 0];
 const N = TEMPS.length;
 
-/* bars row geometry (temperature bars, height ∝ temp) */
-const BAR_W = 56, BAR_GAP = 18, BAR_BASE = 300; // baseline y the bars sit on
-const BARS_TOTAL = N * BAR_W + (N - 1) * BAR_GAP;
-const BARS_X0 = (VW - BARS_TOTAL) / 2;
+/* bars row geometry (temperature bars, height ∝ temp).
+   Bars are LEFT-aligned so the right column is free for the waiting stack. */
+const BAR_W = 44, BAR_GAP = 14, BAR_BASE = 318; // baseline y the bars sit on
+const BARS_TOTAL = N * BAR_W + (N - 1) * BAR_GAP; // = 450
+const BARS_X0 = 64;
 const barLeft = (i: number) => BARS_X0 + i * (BAR_W + BAR_GAP);
 const barCx = (i: number) => barLeft(i) + BAR_W / 2;
+const BARS_CX = BARS_X0 + BARS_TOTAL / 2; // center of the bars block (for captions)
 const TMIN = 65, TMAX = 78; // mapping range for bar height
 const barH = (t: number) => 26 + ((t - TMIN) / (TMAX - TMIN)) * 78; // 26..104 px tall
 const barTop = (t: number) => BAR_BASE - barH(t);
 
-/* answer row sits just under the baseline */
-const ANS_Y = BAR_BASE + 18;
-const ansGeom = rowGeom(N, VW, ANS_Y, BAR_W, BAR_GAP, 30);
+/* answer row sits just under the baseline, aligned to the bars */
+const ANS_Y = BAR_BASE + 16;
+const ansGeom = { ...rowGeom(N, VW, ANS_Y, BAR_W, BAR_GAP, 28), x0: BARS_X0,
+  cx: (i: number) => barCx(i), left: (i: number) => barLeft(i) };
 
 /* tone fills for bars (mirror CellRow's tone styling by hand) */
 const toneFill: Record<string, { bg: string; border: string }> = {
@@ -75,9 +78,9 @@ function AnswerRow({ vals, tones }: { vals: (string | number)[]; tones?: (Tone |
   );
 }
 
-/* the waiting stack panel, drawn bottom-right, top-on-top */
-const STK_CX = 700, STK_TOP = 196, STK_W = 150, STK_BOXH = 26, STK_GAP = 6;
-function WaitingStack({ idxs, label = "waiting (last in line on top)" }: { idxs: number[]; label?: string }) {
+/* the waiting stack panel, drawn in the right column, top-on-top */
+const STK_CX = 660, STK_TOP = 198, STK_W = 158, STK_BOXH = 26, STK_GAP = 6;
+function WaitingStack({ idxs, label = "waiting line (newest on top)" }: { idxs: number[]; label?: string }) {
   const items: StackBox[] = idxs.map((j, k) => ({
     key: j,
     label: `day ${j}`,
@@ -157,15 +160,15 @@ function ManualWalk({ api }: { api: BeatVisualApi }) {
       <BarsRow tones={tones} />
       <AnswerRow vals={ansVals} tones={ansTones} />
       <WaitingStack idxs={s.stack} />
-      <text x={VW / 2} y={ANS_Y + 56} textAnchor="middle" className="font-mono select-none"
+      <text x={BARS_CX} y={ANS_Y + 56} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 11, fill: "var(--text-faint)" }}>{s.note}</text>
       {!s.done ? (
-        <Btn x={VW / 2 - 60} y={ANS_Y + 70} label={`send day ${s.i}`} onClick={send} />
+        <Btn x={BARS_CX - 60} y={ANS_Y + 70} label={`send day ${s.i}`} onClick={send} />
       ) : (
-        <text x={VW / 2 - 60} y={ANS_Y + 83} textAnchor="middle" className="font-mono select-none"
+        <text x={BARS_CX - 60} y={ANS_Y + 83} textAnchor="middle" className="font-mono select-none"
           style={{ fontSize: 11, fill: "var(--diff-easy)" }}>done ✓</text>
       )}
-      <Btn x={VW / 2 + 60} y={ANS_Y + 70} label="↺ reset" onClick={reset} />
+      <Btn x={BARS_CX + 60} y={ANS_Y + 70} label="↺ reset" onClick={reset} />
     </g>
   );
 }
@@ -238,16 +241,16 @@ function AutoWalk({ api }: { api: BeatVisualApi }) {
       <BarsRow tones={tones} />
       <AnswerRow vals={ansVals} tones={ansTones} />
       <WaitingStack idxs={f.stack} />
-      <text x={VW / 2} y={ANS_Y + 56} textAnchor="middle" className="font-mono select-none"
+      <text x={BARS_CX} y={ANS_Y + 56} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 11, fill: "var(--text-faint)" }}>{f.note}</text>
-      <text x={VW / 2} y={ANS_Y + 74} textAnchor="middle" className="font-mono select-none"
+      <text x={BARS_CX} y={ANS_Y + 74} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 11, fill: f.ops >= CAP ? "var(--diff-med)" : "var(--accent-ink)" }}>
-        total pushes + pops: {f.ops} / cap {CAP} (2 × {N} days)
+        pushes + pops: {f.ops} / cap {CAP}
       </text>
       <g onClick={() => setF(init())} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label="replay"
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setF(init()); } }}>
-        <rect x={VW / 2 - 30} y={ANS_Y + 84} width={60} height={22} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
-        <text x={VW / 2} y={ANS_Y + 95} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none"
+        <rect x={BARS_CX - 30} y={ANS_Y + 84} width={60} height={22} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
+        <text x={BARS_CX} y={ANS_Y + 95} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none"
           style={{ fontSize: 11, fill: "var(--text-muted)" }}>↺ replay</text>
       </g>
     </g>
@@ -294,16 +297,16 @@ function NaiveScan({ api }: { api: BeatVisualApi }) {
   return (
     <g>
       <BarsRow tones={tones} />
-      <text x={VW / 2} y={ANS_Y + 16} textAnchor="middle" className="font-mono select-none"
+      <text x={BARS_CX} y={ANS_Y + 16} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 12, fill: s.done ? "var(--diff-easy)" : "var(--text-faint)" }}>
-        {s.done ? "every day re-scanned its way forward — lots of repeat reading" : `standing on day ${s.base}, looking right at day ${Math.min(s.probe, N - 1)}`}
+        {s.done ? "every day re-scanned forward — lots of repeat reading" : `standing on day ${s.base}, looking right at day ${Math.min(s.probe, N - 1)}`}
       </text>
-      <text x={VW / 2} y={ANS_Y + 36} textAnchor="middle" className="font-mono select-none"
+      <text x={BARS_CX} y={ANS_Y + 36} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 12, fill: "var(--accent-ink)" }}>comparisons so far: {s.comps}</text>
       <g onClick={() => setS(init())} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label="replay"
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setS(init()); } }}>
-        <rect x={VW / 2 - 30} y={ANS_Y + 48} width={60} height={22} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
-        <text x={VW / 2} y={ANS_Y + 59} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none"
+        <rect x={BARS_CX - 30} y={ANS_Y + 48} width={60} height={22} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
+        <text x={BARS_CX} y={ANS_Y + 59} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none"
           style={{ fontSize: 11, fill: "var(--text-muted)" }}>↺ replay</text>
       </g>
     </g>
@@ -348,7 +351,7 @@ function FinalState() {
       <BarsRow tones={tones} />
       <AnswerRow vals={ANSWER} tones={ansTones} />
       <WaitingStack idxs={leftover} label="never warmed → answer 0" />
-      <Bracket x1={barLeft(6)} x2={barLeft(7) + BAR_W} y={barTop(76) - 20}
+      <Bracket x1={barLeft(6)} x2={barLeft(7) + BAR_W} y={barTop(76) - 14}
         label="no warmer day ahead" color="var(--diff-med)" />
     </g>
   );

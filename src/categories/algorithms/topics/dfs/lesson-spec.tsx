@@ -475,8 +475,9 @@ export const dfsLesson: LessonSpec = {
           variant: "note",
           body: (
             <>
-              <strong className="text-[var(--accent-ink)]">The wedge:</strong> the
-              maze from any cell is just a smaller copy of the same question &mdash;{" "}
+              <strong className="text-[var(--accent-ink)]">The wedge:</strong>{" "}
+              the maze from any cell is just a smaller copy of the same
+              question &mdash;{" "}
               <em>can I reach G from here?</em> If a neighbour can, so can you.
             </>
           ),
@@ -530,7 +531,7 @@ export const dfsLesson: LessonSpec = {
               because the visited mark means each cell is the current cell at most
               once. Memory comes from the <strong>stack</strong>: the pile of paused
               calls waiting to resume, newest first. The live trail{" "}
-              <span className="text-[var(--diff-easy)]">is</span> that stack &mdash;
+              <span className="text-[var(--diff-easy)]">is</span>{" "}that stack{" "}&mdash;
               a 20-cell detour stacks 20 deep before retreating.
             </>
           ),
