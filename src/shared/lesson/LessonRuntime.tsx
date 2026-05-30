@@ -238,7 +238,7 @@ export function LessonRuntime({
           {showCode && (
             <motion.div
               initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 24 }} transition={{ duration: 0.22, ease: [0.22, 0.65, 0.3, 1] }}
-              className="w-full xl:w-[46%] xl:max-w-[680px] xl:min-w-[420px] self-start flex flex-col gap-3 max-h-full"
+              className="w-full xl:w-[46%] xl:max-w-[680px] xl:min-w-[420px] self-center flex flex-col gap-3 max-h-full"
             >
               {/* code card hugs its content (caps + scrolls only if the file is long) */}
               <div className="flex flex-col max-h-[58vh] rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40 overflow-hidden">
