@@ -18,6 +18,7 @@ import { hashMapsLesson } from "@/categories/data-structures/topics/hash-maps/le
 import { setsTuplesLesson } from "@/categories/data-structures/topics/sets-tuples/lesson-spec";
 import { treesLesson } from "@/categories/data-structures/topics/trees/lesson-spec";
 import { graphsLesson } from "@/categories/data-structures/topics/graphs/lesson-spec";
+import { linkedListsLesson } from "@/categories/data-structures/topics/linked-lists/lesson-spec";
 
 /**
  * Topics converted to the annotated-canvas form. When a topic is here, the
@@ -44,6 +45,7 @@ export const lessonSpecs: Record<string, LessonSpec> = {
   "data-structures/sets-tuples": setsTuplesLesson,
   "data-structures/trees": treesLesson,
   "data-structures/graphs": graphsLesson,
+  "data-structures/linked-lists": linkedListsLesson,
 };
 
 export function getLessonSpec(category: string, topic: string): LessonSpec | undefined {
