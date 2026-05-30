@@ -205,31 +205,6 @@ export function LessonRuntime({
             </div>
           </div>
 
-          {/* controls — directly beneath the canvas */}
-          <div className="shrink-0 flex flex-col items-center gap-1.5">
-            <div className="flex items-center gap-4">
-              <button onClick={() => setB((x) => Math.max(0, x - 1))} disabled={b === 0}
-                className="min-h-[40px] px-4 rounded-lg border border-[var(--line)] text-[var(--text-muted)] disabled:opacity-40 hover:border-[var(--line-strong)]">← Back</button>
-              <div className="flex items-center gap-2">
-                {spec.beats.map((bt, i) => (
-                  <button key={bt.id} onClick={() => setB(i)} aria-label={`beat ${i + 1}`}
-                    className="w-2.5 h-2.5 rounded-full transition-colors" style={{ backgroundColor: i === b ? "var(--accent)" : "var(--line)" }} />
-                ))}
-              </div>
-              <button onClick={goNext} disabled={gated}
-                title={gated ? "Try the interaction on the canvas first" : undefined}
-                className="min-h-[40px] px-4 rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] disabled:opacity-40">
-                {b === last ? (completed ? "Completed ✓" : "Finish ✓") : "Next →"}
-              </button>
-              <div className="w-px h-6 bg-[var(--line)] mx-0.5" />
-              <button onClick={() => setShowCode((v) => !v)} aria-pressed={showCode}
-                title={showCode ? "Hide the code panel" : "Show the code panel"}
-                className="inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-lg border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--line-strong)] hover:text-[var(--text)] font-mono text-[11px]">
-                <span>&lt;/&gt;</span> {showCode ? "Hide code" : "Code"}
-              </button>
-            </div>
-            {gated && <div className="font-mono text-[10px] text-[var(--accent-ink)]">↑ try it on the canvas to continue</div>}
-          </div>
         </div>
 
         {/* RIGHT — the code as a floating card that pops in/out (one toggle, in the controls).
@@ -277,6 +252,33 @@ export function LessonRuntime({
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+
+      {/* controls — a full-width bar, always centered in the viewport (independent
+          of whether the code panel is open) */}
+      <div className="shrink-0 flex flex-col items-center gap-1.5 px-5 pb-4 pt-1">
+        <div className="flex items-center gap-4">
+          <button onClick={() => setB((x) => Math.max(0, x - 1))} disabled={b === 0}
+            className="min-h-[40px] px-4 rounded-lg border border-[var(--line)] text-[var(--text-muted)] disabled:opacity-40 hover:border-[var(--line-strong)]">← Back</button>
+          <div className="flex items-center gap-2">
+            {spec.beats.map((bt, i) => (
+              <button key={bt.id} onClick={() => setB(i)} aria-label={`beat ${i + 1}`}
+                className="w-2.5 h-2.5 rounded-full transition-colors" style={{ backgroundColor: i === b ? "var(--accent)" : "var(--line)" }} />
+            ))}
+          </div>
+          <button onClick={goNext} disabled={gated}
+            title={gated ? "Try the interaction on the canvas first" : undefined}
+            className="min-h-[40px] px-4 rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] disabled:opacity-40">
+            {b === last ? (completed ? "Completed ✓" : "Finish ✓") : "Next →"}
+          </button>
+          <div className="w-px h-6 bg-[var(--line)] mx-0.5" />
+          <button onClick={() => setShowCode((v) => !v)} aria-pressed={showCode}
+            title={showCode ? "Hide the code panel" : "Show the code panel"}
+            className="inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-lg border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--line-strong)] hover:text-[var(--text)] font-mono text-[11px]">
+            <span>&lt;/&gt;</span> {showCode ? "Hide code" : "Code"}
+          </button>
+        </div>
+        {gated && <div className="font-mono text-[10px] text-[var(--accent-ink)]">↑ try it on the canvas to continue</div>}
       </div>
     </main>
   );
