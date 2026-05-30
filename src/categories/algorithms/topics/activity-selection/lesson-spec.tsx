@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { toneStyle, type Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import activity_selectionPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860,
   VH = 470;
@@ -368,7 +369,7 @@ function AutoGreedy({ api }: { api: BeatVisualApi }) {
       const kept = next.accepted.length > cur.accepted.length;
       api.onActiveLine(kept ? ["compatible", "select", "update"] : ["compatible"]);
       setPick(next);
-    }, 900);
+    }, pace(900));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -578,14 +579,13 @@ export const activitySelectionLesson: LessonSpec = {
           ),
         },
         {
-          left: 540,
-          top: 372,
-          width: 290,
+          left: 592,
+          top: 206,
+          width: 240,
           variant: "note",
           body: (
             <>
-              <strong className="text-[var(--accent-ink)]">The wedge:</strong> the dashed line is when the room next opens. Freeing it at the
-              earliest moment can only help &mdash; it rules out the least.
+              <strong className="text-[var(--accent-ink)]">The wedge:</strong> the dashed line marks when the room next opens. Freeing it soonest rules out the least.
             </>
           ),
         },
@@ -613,14 +613,13 @@ export const activitySelectionLesson: LessonSpec = {
           ),
         },
         {
-          left: 540,
-          top: 372,
-          width: 290,
+          left: 592,
+          top: 206,
+          width: 240,
           variant: "note",
           body: (
             <>
-              <strong className="text-[var(--accent-ink)]">Why it wins:</strong> swap our first pick for anyone else&rsquo;s &mdash; ours frees the
-              room no later, so everything that fit after theirs still fits. The swap never loses a meeting.
+              <strong className="text-[var(--accent-ink)]">Why it wins:</strong>{" "}swap our first pick for any other &mdash; ours frees the room no later, so the swap never loses a meeting.
             </>
           ),
         },
@@ -664,8 +663,8 @@ export const activitySelectionLesson: LessonSpec = {
           title: "Greedy works when the swap argument holds.",
           body: (
             <>
-              <strong>Greedy</strong> means: at each step take the locally best option and never undo it. Allowed whenever you can argue &ldquo;if
-              someone chose differently first, I could swap mine in without losing.&rdquo; It fails when no clean swap exists &mdash; making 6 from
+              <strong>Greedy</strong>{" "}means: at each step take the locally best option and never undo it. Allowed whenever you can argue &ldquo;if
+              someone chose differently first, I could swap mine in without losing.&rdquo; It fails when no clean swap exists &mdash; making 6 from{" "}
               {"{1, 3, 4}"}, greedy grabs 4+1+1, but 3+3 is better. Then you need <strong>dynamic programming</strong>: step back and retry.
             </>
           ),
@@ -694,19 +693,18 @@ export const activitySelectionLesson: LessonSpec = {
           ),
         },
         {
-          left: 540,
-          top: 372,
-          width: 290,
+          left: 592,
+          top: 206,
+          width: 240,
           variant: "note",
           body: (
             <>
-              <strong className="text-[var(--accent-ink)]">The result:</strong> the green bars are the clash-free set greedy produced &mdash; the most
-              meetings one room can hold.
+              <strong className="text-[var(--accent-ink)]">The result:</strong>{" "}the green bars are greedy&rsquo;s clash-free set &mdash; the most meetings one room can hold.
             </>
           ),
         },
       ],
-      arrows: [{ x1: 600, y1: 372, x2: xOf(15), y2: yOf(MEETINGS.length - 1) + ROW_H / 2 }],
+      arrows: [{ x1: 712, y1: 250, x2: xOf(15), y2: yOf(MEETINGS.length - 1) + ROW_H / 2 }],
       codeLabels: ["sig", "sort", "result_init", "last_end", "loop", "compatible", "select", "update", "result"],
     },
   ],

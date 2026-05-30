@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Bracket } from "@/shared/lesson/canvas";
 import sliding_window_variablePy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const S = "abracadabra";
 const ARR = Array.from(S);
@@ -80,7 +81,7 @@ function AutoWindow({ api }: { api: BeatVisualApi }) {
       const len = nextR - c.l + 1;
       if (len > c.best) { api.onActiveLine(["record", "update"]); setS({ ...c, r: nextR, seen, best: len, bestRange: [c.l, nextR] }); }
       else { api.onActiveLine(["expand"]); setS({ ...c, r: nextR, seen }); }
-    }, 850);
+    }, pace(850));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -238,7 +239,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       visual: (api) => <AutoWindow api={api} />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The derivation", title: "Right always grows. Left shrinks just enough.",
-        body: <>Walk <code>R</code> across the word. Each step: is the letter at <code>R</code> already inside the current run? No &mdash; keep it, update the best length. Yes &mdash; the no-repeat rule just broke, so slide <code>L</code> forward past the duplicate. <span className="text-[var(--accent-ink)]">A small lookup table remembers each letter&rsquo;s last position, so <code>L</code> jumps there in one move.</span></>,
+        body: <>Walk <code>R</code> across the word. Each step: is the letter at <code>R</code> already in the run? No &mdash; keep it, update the best length. Yes &mdash; the rule just broke, so slide <code>L</code> past the duplicate. <span className="text-[var(--accent-ink)]">A small lookup table remembers each letter&rsquo;s last position, so <code>L</code> jumps there in one move.</span></>,
       }],
       codeLabels: ["expand", "check", "contract", "record", "update"],
       interaction: "playback",
@@ -248,7 +249,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       visual: <LinearContrast />,
       panels: [{
         left: 150, top: 30, width: 560, variant: "main", label: "The win", title: "Every letter touched twice. Linear time.",
-        body: <>Each letter joins the run once and leaves once &mdash; about <code>2n</code> moves, written <code>O(n)</code> (work grows in step with the word&rsquo;s length). The table lookup is instant &mdash; <code>O(1)</code>, the same tiny cost no matter its size. Naive on 1,000 letters: half a million checks; this: about two thousand.</>,
+        body: <>Each letter joins the run once and leaves once &mdash; about <code>2n</code> moves, written <code>O(n)</code> (work grows in step with the word&rsquo;s length). The table lookup is instant, written <code>O(1)</code> (same tiny cost at any size). Naive on 1,000 letters: half a million checks; this: about two thousand.</>,
       }],
       arrows: [{ x1: G.cx(2), y1: 150, x2: G.cx(2), y2: G.y - 4 }],
       codeLabels: ["expand", "contract"],
@@ -258,8 +259,8 @@ export const slidingWindowVariableLesson: LessonSpec = {
       id: "general",
       visual: <ThreeVariants />,
       panels: [{
-        left: 150, top: 22, width: 560, variant: "main", label: "The generalization", title: "Any rule that breaks once you cross a line.",
-        body: <>It works for any rule the window keeps that snaps the moment you cross a line. &ldquo;Smallest window covering every needed letter.&rdquo; &ldquo;Longest run with at most <code>k</code> different letters&rdquo; (<code>k</code> is any number you pick). Grow <code>R</code> while the rule holds; shrink <code>L</code> the least that brings it back.</>,
+        left: 130, top: 22, width: 600, variant: "main", label: "The generalization", title: "Any rule that breaks once you cross a line.",
+        body: <>It fits any rule that snaps the moment you cross a line: &ldquo;smallest window covering every needed letter,&rdquo; or &ldquo;at most <code>k</code> different letters&rdquo; (<code>k</code> is any number). Grow <code>R</code> while the rule holds; shrink <code>L</code> the least that brings it back.</>,
       }],
       codeLabels: ["expand", "check", "contract"],
       interaction: "none",

@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom } from "@/shared/lesson/canvas";
 import binarySearchPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const ARR = [3, 7, 11, 14, 19, 23, 27, 32, 38, 44, 51, 59, 68, 74, 81];
 const TARGET = 27; // index 6
@@ -35,7 +36,7 @@ function ClickToHalve({ api }: { api: BeatVisualApi }) {
     <g>
       <CellRow geom={G} values={ARR} tones={tones} dim={dim} onCellClick={click} cellEnabled={(i) => i >= lo && i <= hi && !done} />
       <text x={VW / 2} y={G.y - 30} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
-        {last === null ? "click any page to guess" : done ? `found 27 at index ${last}` : `${ARR[last]} ${ARR[last] < TARGET ? "< 27 — left half kept" : "> 27 — right half gone"}`}
+        {last === null ? "click any page to guess" : done ? `found 27 at index ${last}` : `${ARR[last]} ${ARR[last] < TARGET ? "< 27 — left half gone" : "> 27 — right half gone"}`}
       </text>
       <g onClick={reset} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label="reset"
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reset(); } }}>
@@ -62,7 +63,7 @@ function AutoBinarySearch({ api }: { api: BeatVisualApi }) {
       if (ARR[m] === TARGET) { api.onActiveLine(["compare", "found"]); setS({ ...c, mid: m, done: true, found: true }); return; }
       if (ARR[m] < TARGET) { api.onActiveLine(["less", "lo_update"]); setS({ ...c, mid: m, lo: m + 1 }); }
       else { api.onActiveLine(["greater", "hi_update"]); setS({ ...c, mid: m, hi: m - 1 }); }
-    }, 950);
+    }, pace(950));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

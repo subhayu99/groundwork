@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom } from "@/shared/lesson/canvas";
 import arraysPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const ARR = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3];
 const TARGET = 6; // the slot we keep pointing at in the small stand-in row
@@ -69,7 +70,7 @@ function AutoInsert({ api }: { api: BeatVisualApi }) {
         const next = [...BASE.slice(0, MID), NEW, ...BASE.slice(MID)];
         setS({ ...c, arr: next, mid: MID, done: true });
       }
-    }, 700);
+    }, pace(700));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -140,7 +141,7 @@ function CostCard() {
     ["delete in the middle", "O(n)", "muted"],
     ["find a value (no index)", "O(n)", "muted"],
   ];
-  const cw = 360, x = (VW - cw) / 2, y0 = 248, rh = 28;
+  const cw = 360, x = 130, y0 = 248, rh = 28;
   return (
     <g>
       <CellRow geom={rowGeom(ARR.length, VW, 184, 40, 6, 30)} values={ARR} tones={tones} />
@@ -154,8 +155,8 @@ function CostCard() {
           </g>
         );
       })}
-      <text x={VW / 2} y={y0 + rows.length * rh + 6} textAnchor="middle" className="font-mono" style={{ fontSize: 10, fill: "var(--text-faint)" }}>
-        * O(1) on average — once in a while the shelf fills and books copy to a bigger shelf
+      <text x={x} y={y0 + rows.length * rh + 6} className="font-mono" style={{ fontSize: 10, fill: "var(--text-faint)" }}>
+        * O(1) on average — now and then a full shelf copies to a bigger one
       </text>
     </g>
   );
@@ -236,8 +237,8 @@ export const arraysLesson: LessonSpec = {
       id: "fit",
       visual: <CostCard />,
       panels: [{
-        left: 540, top: 372, width: 290, variant: "note", label: "When it fits",
-        body: <>Use arrays when the work is read-by-position, append, or scan start-to-end. Reach for other layouts (you&rsquo;ll meet them later) when you constantly insert or delete in the middle.</>,
+        left: 560, top: 240, width: 280, variant: "note", label: "When it fits",
+        body: <>Reach for arrays when the work is read-by-position, append, or scan start-to-end. Pick other layouts (later lessons) when you constantly insert or delete in the middle.</>,
       }],
       codeLabels: ["loop"],
     },

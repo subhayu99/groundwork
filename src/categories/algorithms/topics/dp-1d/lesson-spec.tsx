@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, NodeGraph, GNode, GEdge, Bracket } from "@/shared/lesson/canvas";
 import dp_1dPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860, VH = 470;
 
@@ -164,7 +165,7 @@ function AutoTabulate({ api }: { api: BeatVisualApi }) {
       if (next >= DP.length - 1) { api.onActiveLine(["answer"]); setS({ filledTo: DP.length - 1, done: true }); return; }
       api.onActiveLine(["loop", "recurrence"]);
       setS({ filledTo: next, done: false });
-    }, 900);
+    }, pace(900));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

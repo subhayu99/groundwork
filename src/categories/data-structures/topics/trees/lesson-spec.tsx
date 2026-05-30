@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { NodeGraph, GNode, GEdge } from "@/shared/lesson/canvas";
 import treesPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860, VH = 470;
 
@@ -188,7 +189,7 @@ function AutoBSTSearch({ api }: { api: BeatVisualApi }) {
       api.onActiveLine(["bst_start", c.target < atVal ? "bst_left" : "bst_right"]);
       if (c.idx + 1 >= result.path.length) { setS({ ...c, done: true }); return; }
       setS({ ...c, idx: c.idx + 1 });
-    }, 1000);
+    }, pace(1000));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -335,7 +336,7 @@ export const treesLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The structure",
         title: "Nodes with links to children. No loops.",
-        body: <>A <strong>tree</strong> is just nodes &mdash; like a chain where each box held one &ldquo;next,&rdquo; but now a box can hold <em>several</em> child links. One start box is the <strong>root</strong> (lit). No box ever points back up; that loop-back would make it a <strong>graph</strong>. A <em>binary</em> tree caps each node at two children: left and right.</>,
+        body: <>A <strong>tree</strong> is nodes, like a chain &mdash; but a box can hold <em>several</em> child links, not one &ldquo;next.&rdquo; The one start box is the <strong>root</strong> (lit). No box points back up; that loop would make it a <strong>graph</strong>. A <em>binary</em> tree caps each node at two children.</>,
       }],
       arrows: [{ x1: 430, y1: 150, x2: 430, y2: 189 }],
       codeLabels: ["node_class"],
@@ -346,7 +347,7 @@ export const treesLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The operations",
         title: "Walk it all, or take the sorted shortcut.",
-        body: <>Visiting every box means touching all of them, so the work grows in step with the box count &mdash; twice the boxes, twice the work (shorthand: <strong>O(n)</strong>, n = the count). A <strong>Binary Search Tree</strong> keeps smaller values left, larger right, so a lookup is just a chain of left/right turns &mdash; doubling the tree adds only one more turn. That growth is so slow it gets its own shorthand, <strong>O(log n)</strong>, when the tree is balanced (no branch much longer than the rest).</>,
+        body: <>Visiting every box touches all of them: twice the boxes, twice the work (shorthand <strong>O(n)</strong>, n = the count). A <strong>Binary Search Tree</strong> keeps smaller values left, larger right, so a lookup is just a chain of left/right turns &mdash; doubling the tree adds only one more turn. That barely-growing speed gets its own shorthand, <strong>O(log n)</strong>, when the tree is balanced.</>,
       }],
       arrows: [{ x1: 430, y1: 150, x2: 430, y2: 186 }],
       codeLabels: ["bst_start", "bst_eq", "bst_left", "bst_right"],

@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, gridGeom, GridCells, Pill } from "@/shared/lesson/canvas";
 import hash_mapsPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860, VH = 470;
 
@@ -49,7 +50,7 @@ function LinearScan({ api }: { api: BeatVisualApi }) {
       api.onActiveLine(["hm_get_scan"]);
       if (next >= NAMES.length || NAMES[next] === TARGET) { setS({ cursor: next, done: true }); return; }
       setS({ cursor: next, done: false });
-    }, 360);
+    }, pace(360));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -139,7 +140,7 @@ function DropIntoBuckets({ api }: { api: BeatVisualApi }) {
       api.onActiveLine(["hm_put_slot", "hm_put_append"]);
       if (c.n >= NAMES.length) { setS({ ...c, done: true }); return; }
       setS({ n: c.n + 1, done: c.n + 1 >= NAMES.length });
-    }, 420);
+    }, pace(420));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -286,8 +287,8 @@ export const hashMapsLesson: LessonSpec = {
       visual: (api) => <HashAddress api={api} />,
       panels: [
         {
-          left: 150, top: 18, width: 580, variant: "main", label: "The wedge", title: "Pick a name. Watch its address appear.",
-          body: <>Click a name and a <strong>hash function</strong> &mdash; a recipe that turns the letters into a number &mdash; hands you a box. It searches nothing; it just computes, then takes that number mod 16 (the remainder after dividing by 16, landing you in box 0&ndash;15). One hop, however huge the book.</>,
+          left: 150, top: 22, width: 580, variant: "main", label: "The wedge", title: "Pick a name. Watch its address appear.",
+          body: <>Click a name and a <strong>hash function</strong> &mdash; a recipe that turns the letters into a number &mdash; hands you a box. It searches nothing; it computes a number, then takes it mod 16 (the remainder, landing in box 0&ndash;15). One hop, however huge the book.</>,
         },
         {
           left: 250, top: 372, width: 290, variant: "note",
@@ -301,8 +302,8 @@ export const hashMapsLesson: LessonSpec = {
       id: "structure",
       visual: (api) => <DropIntoBuckets api={api} />,
       panels: [{
-        left: 150, top: 18, width: 580, variant: "main", label: "The structure", title: "An array of boxes, addressed by the hash.",
-        body: <>A hash map is two parts. One: a numbered row of slots we call <strong>buckets</strong> &mdash; jumping to box number i (written <code>arr[i]</code>) is instant, however many boxes there are. Two: the hash function. To store: hash the name, drop it in that box. Most boxes hold one name; some get crowded.</>,
+        left: 150, top: 22, width: 580, variant: "main", label: "The structure", title: "An array of boxes, addressed by the hash.",
+        body: <>A hash map is two parts: a numbered row of slots called <strong>buckets</strong> (jumping to box <code>arr[i]</code> is instant, however many there are), plus the hash function. To store a name, hash it and drop it in that box. Most boxes hold one; some get crowded.</>,
       }],
       arrows: [{ x1: GRID.cx(0, 0), y1: 178, x2: GRID.cx(0, 0), y2: GRID.cy(0, 0) - GRID.cellPx / 2 - 4 }],
       codeLabels: ["hm_put_slot", "hm_put_append"],

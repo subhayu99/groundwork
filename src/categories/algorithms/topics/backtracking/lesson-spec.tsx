@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { GridCells, gridGeom, Arrow, Bracket } from "@/shared/lesson/canvas";
 import backtrackingPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860,
   VH = 470;
@@ -275,7 +276,7 @@ function AutoBacktrack({ api, showDepth }: { api: BeatVisualApi; showDepth?: boo
       const { next, line } = btStep(c);
       if (line.length) api.onActiveLine(line);
       setS(next);
-    }, 280);
+    }, pace(280));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -620,10 +621,9 @@ export const backtrackingLesson: LessonSpec = {
           body: (
             <>
               The shape was never about queens: build an answer one choice at a time,
-              and the instant a partial answer becomes impossible, drop every way of
-              continuing it. Same shape, new stories &mdash; sudoku, coloring a map so
-              neighbours differ, valid bracket strings, hitting a target sum. The check
-              beats blind guessing.
+              and the instant a partial answer can&rsquo;t work, drop every way of
+              continuing it. Same shape, new stories &mdash; sudoku, map coloring, valid
+              bracket strings, target sums. The check beats blind guessing.
             </>
           ),
         },

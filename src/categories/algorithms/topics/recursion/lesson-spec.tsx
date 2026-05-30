@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { NodeGraph, GNode, GEdge, StackBoxes, StackBox, Pill, Bracket } from "@/shared/lesson/canvas";
 import recursionPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860, VH = 470;
 
@@ -173,7 +174,7 @@ function AutoRecurse({ api }: { api: BeatVisualApi }) {
       const popped = c.stack.slice(0, -1);
       if (popped.length === 0) { setS({ ...c, stack: [], finished: fin, active: null, done: true }); return; }
       setS({ ...c, stack: popped, finished: fin, active: popped[popped.length - 1] });
-    }, 760);
+    }, pace(760));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -394,7 +395,7 @@ export const recursionLesson: LessonSpec = {
       visual: <ResolvedPeak />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The memory cost", title: "The stack only gets as tall as the deepest folder.",
-        body: <>When every call has returned, the root reads <strong>19MB</strong>. The stack&rsquo;s tallest moment equals the deepest nesting &mdash; here <code>Downloads › projects › code › app.zip</code>, just 4 calls. Shallow trees barely use the stack; only a very deep chain could run it out of room.</>,
+        body: <>When every call has returned, the root reads <strong>19MB</strong>. The stack&rsquo;s tallest moment equals the deepest nesting &mdash; here <code>Downloads › projects › code › app.zip</code>, just 4 calls. Only a very deep chain could run the stack out of room.</>,
       }],
       arrows: [{ x1: 540, y1: 152, x2: STACK_CX - STACK_W / 2 - 24, y2: STACK_TOP + 30 }],
       codeLabels: ["recursive_call", "folder_return"],
@@ -413,8 +414,8 @@ export const recursionLesson: LessonSpec = {
       id: "name",
       visual: <NamedPattern />,
       panels: [{
-        left: 150, top: 30, width: 600, variant: "main", label: "The pattern", title: "Recursion.",
-        body: <>That&rsquo;s the name: <strong>recursion</strong> &mdash; a function that calls itself on a smaller version of the same problem. Two must-have parts: a <strong>base case</strong> (so small the answer is obvious &mdash; a file knows its size) and a <strong>recursive case</strong> (shrink, combine, return). Spot it whenever a whole&rsquo;s answer depends on its parts.</>,
+        left: 150, top: 24, width: 600, variant: "main", label: "The pattern", title: "Recursion.",
+        body: <>That&rsquo;s the name: <strong>recursion</strong> &mdash; a function that calls itself on a smaller version of the same problem. It needs a <strong>base case</strong> (so small the answer is obvious &mdash; a file knows its size) and a <strong>recursive case</strong> (shrink, combine, return).</>,
       }],
       codeLabels: ["base_case", "base_return", "recursive_call", "aggregate", "folder_return"],
     },

@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Bracket, Arrow } from "@/shared/lesson/canvas";
 import two_pointersPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const ARR = [1, 3, 5, 7, 9, 10, 12, 15, 18, 20];
 const TARGET = 17; // 5 + 12 → indices 2 and 6
@@ -86,7 +87,7 @@ function AutoTwoPointers({ api }: { api: BeatVisualApi }) {
       if (sum === TARGET) { api.onActiveLine(["compare", "found"]); setS({ ...c, done: true, found: true, steps }); return; }
       if (sum < TARGET) { api.onActiveLine(["less", "move_left"]); setS({ ...c, L: c.L + 1, steps }); }
       else { api.onActiveLine(["greater", "move_right"]); setS({ ...c, R: c.R - 1, steps }); }
-    }, 950);
+    }, pace(950));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -285,7 +286,7 @@ export const twoPointersLesson: LessonSpec = {
       visual: <PalindromeScene />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The generalization", title: "Same fingers. New questions.",
-        body: <>The fingers don&rsquo;t care <em>what</em> they compare. Is a word a palindrome (reads the same backward)? One finger at each end, step inward while letters match. Most water between two lines? Two ends, always move the shorter. They just need a <strong>direction</strong>: order, symmetry, height.</>,
+        body: <>The fingers don&rsquo;t care <em>what</em> they compare. Is a word a palindrome (reads the same backward)? One finger at each end, step inward while letters match. They just need a <strong>direction</strong>: order, symmetry, or height.</>,
       }],
       codeLabels: ["loop", "compare"],
     },
@@ -298,7 +299,7 @@ export const twoPointersLesson: LessonSpec = {
       ),
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Two Pointers.",
-        body: <>That&rsquo;s the name. Reach for it whenever a row has a <strong>direction</strong> &mdash; sorted order, symmetry, a one-way pattern &mdash; and one comparison can retire a whole side. Signals: &ldquo;sorted array + pair sum&rdquo;; &ldquo;palindrome&rdquo;; &ldquo;remove duplicates in place&rdquo;; &ldquo;container with most / trap rainwater.&rdquo;</>,
+        body: <>That&rsquo;s the name. Reach for it whenever a row has a <strong>direction</strong> &mdash; sorted order, symmetry, a one-way pattern &mdash; and one comparison can retire a whole side. Signals: &ldquo;sorted array + pair sum&rdquo;; &ldquo;palindrome&rdquo;; &ldquo;container with most water.&rdquo;</>,
       }],
       arrows: [
         { x1: G.cx(2), y1: G.y + G.cellH + 34, x2: G.cx(2), y2: G.y + G.cellH + 4 },

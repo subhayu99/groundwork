@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, StackBoxes, StackBox, Pill, Bracket } from "@/shared/lesson/canvas";
 import monotonic_stackPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860, VH = 470;
 
@@ -221,7 +222,7 @@ function AutoWalk({ api }: { api: BeatVisualApi }) {
       api.onActiveLine(["push"]);
       const stack = [...c.stack, c.i];
       setF({ ...c, stack, ops: c.ops + 1, i: c.i + 1, phase: "push", note: `day ${c.i} (${t}°) joins the line` });
-    }, 850);
+    }, pace(850));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -283,7 +284,7 @@ function NaiveScan({ api }: { api: BeatVisualApi }) {
         return;
       }
       setS({ ...c, probe: c.probe + 1, comps: c.comps + 1 });
-    }, 600);
+    }, pace(600));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -458,7 +459,7 @@ export const monotonicStackLesson: LessonSpec = {
       visual: <FinalState />,
       panels: [{
         left: 60, top: 20, width: 470, variant: "main", label: "The pattern", title: "Monotonic Stack.",
-        body: <>The stack is &ldquo;monotonic&rdquo; because temperatures inside only go one way &mdash; cooler at the bottom, colder near the top &mdash; and a new day pops until that holds. Cheap-on-average cost, where rare costly steps are pre-paid by cheap ones, is called <strong>amortized</strong>. Spot it on &ldquo;next/previous bigger-smaller&rdquo; and &ldquo;largest rectangle.&rdquo;</>,
+        body: <>&ldquo;Monotonic&rdquo; means temperatures inside only go one way: coolest at the bottom, colder up top. Cheap-on-average cost, where rare costly steps are pre-paid by cheap ones, is called <strong>amortized</strong>. Spot it on &ldquo;next/previous bigger-smaller&rdquo; and &ldquo;largest rectangle.&rdquo;</>,
       }],
       arrows: [{ x1: 320, y1: 150, x2: barCx(6), y2: barTop(TEMPS[6]) - 14 }],
       codeLabels: ["done"],

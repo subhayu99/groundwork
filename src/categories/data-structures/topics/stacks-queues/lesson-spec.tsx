@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, StackBoxes, StackBox, Pill, Bracket } from "@/shared/lesson/canvas";
 import stacksQueuesPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860, VH = 470;
 
@@ -119,7 +120,7 @@ function AutoStack({ api }: { api: BeatVisualApi }) {
         if (c.items.length) { api.onActiveLine(["pop"]); const v = c.items[c.items.length - 1]; setS({ ...c, items: c.items.slice(0, -1), note: `pop() → "${v}" (newest first)` }); }
         else { api.onActiveLine(["peek"]); setS({ ...c, note: "empty — LIFO done" }); }
       }
-    }, 950);
+    }, pace(950));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

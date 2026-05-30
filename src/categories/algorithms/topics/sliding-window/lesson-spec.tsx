@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Bracket } from "@/shared/lesson/canvas";
 import sliding_windowPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const ARR = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3];
 const K = 3;
@@ -80,7 +81,7 @@ function AutoSlide({ api }: { api: BeatVisualApi }) {
       if (c.start >= LAST_START) { api.onActiveLine(["result"]); setS({ ...c, done: true }); return; }
       api.onActiveLine(["loop", "slide", "record"]);
       setS({ ...c, start: c.start + 1, ops: c.ops + 2 });
-    }, 950);
+    }, pace(950));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -212,10 +213,10 @@ export const slidingWindowLesson: LessonSpec = {
         </g>
       ),
       panels: [{
-        left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "Add three. Slide. Add three. Slide.",
-        body: <>The first idea: just do it. For each of the 8 windows, add its three numbers &mdash; that&rsquo;s 24 additions. But any two side-by-side windows <strong>share two numbers</strong>. You add those, then add them right back again.</>,
+        left: 150, top: 344, width: 580, variant: "main", label: "The obvious thing", title: "Add three. Slide. Add three. Slide.",
+        body: <>The first idea: just do it. Add the three numbers in each of the 8 windows &mdash; 24 additions. But side-by-side windows <strong>share two numbers</strong>, so you keep re-adding what you just added.</>,
       }],
-      arrows: [{ x1: G.cx(2), y1: 300, x2: G.cx(2), y2: G.y + G.cellH + 4 }],
+      arrows: [{ x1: G.cx(2), y1: 344, x2: G.cx(2), y2: G.y + G.cellH + 40 }],
       codeLabels: ["sig"],
     },
     {

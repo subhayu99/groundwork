@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom } from "@/shared/lesson/canvas";
 import stringsPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860, VH = 470;
 
@@ -95,7 +96,7 @@ function AutoScan({ api }: { api: BeatVisualApi }) {
       if (c.start >= MAX_START) { api.onActiveLine(["find"]); setS({ ...c, comparisons: c.comparisons + m, done: true }); return; }
       api.onActiveLine(["find"]);
       setS({ ...c, comparisons: c.comparisons + m, start: c.start + 1 });
-    }, 650);
+    }, pace(650));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -149,7 +150,7 @@ function AutoImmutable({ api }: { api: BeatVisualApi }) {
         api.onActiveLine(["concat"]);
         setS({ chars: next, copied: c.copied + c.chars.length + 1, flash: c.chars.length, step: 3 });
       }
-    }, 1100);
+    }, pace(1100));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -280,11 +281,11 @@ export const stringsLesson: LessonSpec = {
       visual: (api) => <AutoScan api={api} />,
       panels: [
         {
-          left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "Walk it box by box.",
-          body: <>Start at box 0. Compare the next five letters to <code>brown</code>. No match? Slide one box right and retry. For 19 letters and a 5-letter word that&rsquo;s 15 starting spots &mdash; about 75 checks. Slow, but it works.</>,
+          left: 150, top: 320, width: 580, variant: "main", label: "The obvious thing", title: "Walk it box by box.",
+          body: <>Start at box 0. Compare the next five letters to <code>brown</code>. No match? Slide one box right and retry. That&rsquo;s 15 starting spots &mdash; about 75 checks. Slow, but it works.</>,
         },
       ],
-      arrows: [{ x1: G.cx(2), y1: 300, x2: G.cx(2), y2: G.y + G.cellH + 4 }],
+      arrows: [{ x1: G.cx(2), y1: 318, x2: G.cx(2), y2: G.y + G.cellH + 4 }],
       codeLabels: ["find"],
       interaction: "playback",
     },

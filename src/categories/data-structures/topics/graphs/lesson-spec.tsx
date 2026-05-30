@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { NodeGraph, GNode, GEdge } from "@/shared/lesson/canvas";
 import graphsPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860, VH = 470;
 
@@ -93,7 +94,7 @@ function ClickNeighbors({ api }: { api: BeatVisualApi }) {
   return (
     <g>
       <NodeGraph nodes={nodes} edges={edges} onNodeClick={click} />
-      <text x={VW / 2} y={158} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+      <text x={VW / 2} y={170} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
         {picked === null
           ? "click any person — their direct friends light up"
           : `${picked} has ${nbrs.size} direct friend${nbrs.size === 1 ? "" : "s"} — one lookup`}
@@ -129,7 +130,7 @@ function AutoBFS({ api }: { api: BeatVisualApi }) {
       }
       const order = [...c.order, node];
       setS({ frontier, seen, order, current: node, done: frontier.length === 0 });
-    }, 1000);
+    }, pace(1000));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -144,7 +145,7 @@ function AutoBFS({ api }: { api: BeatVisualApi }) {
   return (
     <g>
       <NodeGraph nodes={nodes} edges={edges} />
-      <text x={VW / 2} y={158} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}>
+      <text x={VW / 2} y={170} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}>
         {done ? `visited all in order: ${order.join(" → ")}` : current === null ? "starting from alice…" : `now visiting ${current} — its friends join the line`}
       </text>
       <g onClick={() => { setS(init()); api.onActiveLine([]); }} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label="replay"
@@ -174,7 +175,7 @@ function ForcedTree() {
   return (
     <g>
       <NodeGraph nodes={nodes} edges={edges} />
-      <text x={VW / 2} y={158} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--diff-hard)" }}>
+      <text x={VW / 2} y={170} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--diff-hard)" }}>
         {lost} friendships (red, dashed) exist — but a tree can&rsquo;t hold them
       </text>
     </g>
@@ -221,7 +222,7 @@ export const graphsLesson: LessonSpec = {
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The obvious thing",
         title: "Forcing it into a tree loses links.",
-        body: <>A <em>tree</em> is a neat family chart: one top person, each below has exactly one parent, and lines never loop back. Try it here and friendships that loop back (red, dashed) get thrown away. We need something that allows any link.</>,
+        body: <>A <em>tree</em> is a neat family chart: one top person, no lines ever loop back. Friendships that loop back (red, dashed) get dropped. We need something that allows any link.</>,
       }],
       codeLabels: [],
     },
@@ -232,7 +233,7 @@ export const graphsLesson: LessonSpec = {
         {
           left: 60, top: 20, width: 600, variant: "main", label: "The wedge",
           title: "Click a person. Follow their links.",
-          body: <>Click anyone. The people they&rsquo;re directly friends with light up. Click one of those and <em>their</em> friends light up. Each click is just reading one person&rsquo;s list of friends &mdash; following the lines, in any direction.</>,
+          body: <>Click anyone &mdash; the people they&rsquo;re directly friends with light up. Each click just reads one person&rsquo;s list of friends, following the lines in any direction.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
@@ -258,7 +259,7 @@ export const graphsLesson: LessonSpec = {
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The operations",
         title: "Walk it: nearest friends first.",
-        body: <>Watch a <em>breadth-first search</em>: start at alice, visit her friends, then their friends, spreading outward in rings. A &ldquo;seen&rdquo; set (the same lookup table idea) stops us re-walking a line and looping forever. This finds the shortest chain between people.</>,
+        body: <>Watch a <em>breadth-first search</em>: start at alice, visit her friends, then theirs, in rings. A &ldquo;seen&rdquo; set stops loops &mdash; and finds the shortest chain between people.</>,
       }],
       codeLabels: ["bfs_pop", "bfs_append", "bfs_neighbors", "bfs_seen"],
       interaction: "playback",

@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Arrow } from "@/shared/lesson/canvas";
 import setsTuplesPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860, VH = 470;
 
@@ -220,7 +221,7 @@ function ScanPlayback({ api }: { api: BeatVisualApi }) {
       if (SCAN[c.cursor] === "alice") { setDone(true); return; }
       if (c.cursor >= SCAN.length - 1) { setDone(true); return; }
       setCursor(c.cursor + 1);
-    }, 850);
+    }, pace(850));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -367,7 +368,7 @@ export const setsTuplesLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Add a name twice. Then poke the packet.",
-          body: <>Add a name to the set &mdash; then add one already in. The set shrugs: she&rsquo;s in or she isn&rsquo;t, no &ldquo;second alice.&rdquo; Now poke the packet: try to change a slot or add a fourth. Both refuse &mdash; a tuple is <em>immutable</em> (can&rsquo;t be changed once made).</>,
+          body: <>Add a name to the set, then add one already in &mdash; it shrugs: no &ldquo;second alice.&rdquo; Now poke the packet: change a slot or add a fourth. Both refuse &mdash; a tuple is <em>immutable</em> (can&rsquo;t change once made).</>,
         },
         {
           left: 626, top: 384, width: 218, variant: "note",
@@ -382,7 +383,7 @@ export const setsTuplesLesson: LessonSpec = {
       visual: <BucketsVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The structures", title: "A set is a hash map's keys. A tuple is a fixed packet.",
-        body: <>A <strong>hash map</strong> jumps straight to any item by name in one step (a &ldquo;key&rdquo; = the name you look up by). A set is a hash map keeping only keys. &ldquo;Is x in the set?&rdquo; is one such jump; re-adding x does nothing. A tuple is the opposite: a fixed packet where slot 0 is <em>always</em> the date.</>,
+        body: <>A <strong>hash map</strong> jumps straight to any item by its name (its &ldquo;key&rdquo;) in one step. A set is a hash map keeping only keys: &ldquo;is x in the set?&rdquo; is one such jump, and re-adding x does nothing. A tuple is the opposite &mdash; a fixed packet where slot 0 is <em>always</em> the date.</>,
       }],
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 200 }],
       codeLabels: ["set_def", "set_add_dup", "tuple_def"],
@@ -392,7 +393,7 @@ export const setsTuplesLesson: LessonSpec = {
       visual: <OpsVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Sets are hash-fast. Tuples are basically free.",
-        body: <>Set: add, remove, and &ldquo;in&rdquo; each cost <code>O(1)</code> &mdash; the time stays the same however big the set grows. Combining two sets costs about the size of the smaller one. Tuple: grab any slot instantly; reading all <code>n</code> items is <code>O(n)</code> &mdash; time grows with the count. Being unchangeable is why a tuple can live inside a set; a list can&rsquo;t.</>,
+        body: <>Set: add, remove, and &ldquo;in&rdquo; each cost <code>O(1)</code> &mdash; same time however big it grows; combining two costs about the smaller one. Tuple: grab any slot instantly, read all <code>n</code> items in <code>O(n)</code>. Being unchangeable lets a tuple live inside a set; a list can&rsquo;t.</>,
       }],
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 186 }],
       codeLabels: ["set_ops", "tuple_immutable", "tuple_key"],

@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Bracket } from "@/shared/lesson/canvas";
 import mergesortPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const ARR = [5, 2, 4, 7, 1, 3, 8, 6];
 const SORTED = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -150,7 +151,7 @@ function AutoMergesort({ api }: { api: BeatVisualApi }) {
       api.onActiveLine(["merge_loop", "merge_compare", "merge_take"]);
       const sorted = next.length === 1 && next[0].sorted;
       setS({ segs: next, phase: sorted ? "done" : "merging" });
-    }, 850);
+    }, pace(850));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -323,7 +324,7 @@ export const mergesortLesson: LessonSpec = {
       visual: <DivideConquer />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The generalization", title: "Divide and conquer is everywhere.",
-        body: <>The shape &mdash; split, solve each half, cheaply combine &mdash; fits any problem that breaks into a smaller copy of itself. Each box (a <em>node</em>) holds one chunk. The same skeleton powers counting out-of-order pairs, multiplying huge numbers, and splitting work across processors.</>,
+        body: <>The shape &mdash; split, solve each half, cheaply combine &mdash; fits any problem that breaks into a smaller copy of itself. Each box (a <em>node</em>) holds one chunk. The same skeleton multiplies huge numbers and splits work across processors.</>,
       }],
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 188 }],
       codeLabels: ["split", "recurse_left", "recurse_right", "merge_call"],

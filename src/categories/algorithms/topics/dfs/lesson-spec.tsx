@@ -13,6 +13,7 @@ import {
   type GEdge,
 } from "@/shared/lesson/canvas";
 import dfsPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860,
   VH = 470;
@@ -280,7 +281,7 @@ function AutoDfs({ api, showStack }: { api: BeatVisualApi; showStack?: boolean }
       const { next, line } = dfsStep(c);
       if (line.length) api.onActiveLine(line);
       setS(next);
-    }, 600);
+    }, pace(600));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -476,9 +477,8 @@ export const dfsLesson: LessonSpec = {
           body: (
             <>
               <strong className="text-[var(--accent-ink)]">The wedge:</strong>{" "}
-              the maze from any cell is just a smaller copy of the same
-              question &mdash;{" "}
-              <em>can I reach G from here?</em> If a neighbour can, so can you.
+              the maze from any cell is a smaller copy of the same question &mdash;{" "}
+              <em>can I reach G from here?</em>
             </>
           ),
         },
@@ -499,13 +499,12 @@ export const dfsLesson: LessonSpec = {
           title: "Standing at a cell, ask each neighbour.",
           body: (
             <>
-              Name the move <code>explore(cell, trail)</code> &mdash; <code>trail</code>{" "}
+              Name the move <code>explore(cell, trail)</code>, where <code>trail</code>{" "}
               is the cells walked so far. On <strong>G</strong>: hand back the trail.
-              On any other cell: mark it visited, then ask each open, unvisited
-              neighbour the same question; if one returns a trail, you&rsquo;re done.
-              Out of neighbours: return nothing &mdash; your caller tries its next
-              direction. A problem solved by solving smaller copies of itself is{" "}
-              <strong>recursion</strong>.
+              Elsewhere: mark it visited, then ask each open, unvisited neighbour the
+              same question. Out of neighbours: return nothing &mdash; the caller tries
+              its next direction. Solving a problem by solving smaller copies of itself
+              is <strong>recursion</strong>.
             </>
           ),
         },
@@ -526,13 +525,11 @@ export const dfsLesson: LessonSpec = {
           title: "Each cell once. Memory grows with the deepest detour.",
           body: (
             <>
-              How the work grows as the maze gets bigger is written{" "}
-              <strong>O(cells + walls)</strong> &mdash; here a few dozen checks,
-              because the visited mark means each cell is the current cell at most
-              once. Memory comes from the <strong>stack</strong>: the pile of paused
-              calls waiting to resume, newest first. The live trail{" "}
-              <span className="text-[var(--diff-easy)]">is</span>{" "}that stack{" "}&mdash;
-              a 20-cell detour stacks 20 deep before retreating.
+              Work grows as <strong>O(cells + walls)</strong> &mdash; here a few dozen
+              checks, since the visited mark touches each cell once. Memory is the{" "}
+              <strong>stack</strong>: paused calls waiting to resume. The live trail{" "}
+              <span className="text-[var(--diff-easy)]">is</span> that stack &mdash; a
+              20-cell detour stacks 20 deep before retreating.
             </>
           ),
         },
@@ -553,11 +550,10 @@ export const dfsLesson: LessonSpec = {
           title: "Not just grids. Anything with neighbours.",
           body: (
             <>
-              A cell can be anything with neighbours &mdash; a <strong>node</strong>{" "}
-              (just a thing-with-links: a dot) like a folder with subfolders, a
-              friend with friends, a webpage with links. The same walk crawls a
-              website, finds connected groups, or solves a sudoku. Whenever you ask
-              &ldquo;can I reach X?&rdquo;, this is the walk.
+              A cell can be any <strong>node</strong> (a thing-with-links: a dot)
+              &mdash; a folder, a friend, a webpage. The same walk crawls a website,
+              finds connected groups, or solves a sudoku. Whenever you ask &ldquo;can I
+              reach X?&rdquo;, this is the walk.
             </>
           ),
         },

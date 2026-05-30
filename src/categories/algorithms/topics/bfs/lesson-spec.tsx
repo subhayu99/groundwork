@@ -13,6 +13,7 @@ import {
   type StackBox,
 } from "@/shared/lesson/canvas";
 import bfsPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860,
   VH = 470;
@@ -175,7 +176,7 @@ function Ripples({ api }: { api: BeatVisualApi }) {
         return;
       }
       setS(nextRing(c));
-    }, 480);
+    }, pace(480));
   };
 
   const reset = () => {
@@ -297,7 +298,7 @@ function AutoBfs({ api, frozen }: { api: BeatVisualApi; frozen?: boolean }) {
       const { next, line } = bfsStep(c);
       if (line.length) api.onActiveLine(line);
       setS(next);
-    }, 460);
+    }, pace(460));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

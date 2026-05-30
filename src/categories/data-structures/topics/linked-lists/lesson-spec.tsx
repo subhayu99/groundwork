@@ -6,6 +6,7 @@ import { toneStyle } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Arrow } from "@/shared/lesson/canvas";
 import linkedListPy from "./algorithm.py";
+import { pace } from "@/shared/lesson/pace";
 
 const VW = 860, VH = 470;
 
@@ -173,7 +174,7 @@ function ArrayShiftPlayback({ api }: { api: BeatVisualApi }) {
       if (c >= total) return;
       api.onActiveLine([]);
       setStep(c + 1);
-    }, 700);
+    }, pace(700));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -327,7 +328,7 @@ function FindWalk({ api }: { api: BeatVisualApi }) {
       if (c.cursor >= targetIdx) { api.onActiveLine(["traverse_loop"]); setDone(true); return; }
       api.onActiveLine(["traverse_advance"]);
       setCursor(c.cursor + 1);
-    }, 850);
+    }, pace(850));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -417,7 +418,7 @@ function Generalize() {
       <text x={380} y={cy + 22} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>same node idea</text>
 
       {/* right: a tree — node sprouting two children */}
-      <text x={560} y={150} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>a tree: node → several children</text>
+      <text x={560} y={172} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>a tree: node → several children</text>
       <Arrow x1={root.x - 8} y1={root.y + r - 4} x2={childL.x + 6} y2={childL.y - r - 2} />
       <Arrow x1={root.x + 8} y1={root.y + r - 4} x2={childR.x - 6} y2={childR.y - r - 2} />
       {/* graph hint: an extra arbitrary arrow */}
@@ -508,10 +509,10 @@ export const linkedListsLesson: LessonSpec = {
       id: "obvious",
       visual: (api) => <ArrayShiftPlayback api={api} />,
       panels: [{
-        left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "Arrays force a domino effect.",
-        body: <>In an array, an address is just a position in line. Drop a value into slot 2 and every later value physically shifts one place right. One insertion, <em>n</em> shoves &mdash; where <em>n</em> is the number of items after the insertion point. The facts didn&rsquo;t change; the fixed positions forced the work.</>,
+        left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Arrays force a domino effect.",
+        body: <>In an array, an address is just a position in line. Drop a value into slot 2 and every later value physically shifts one place right &mdash; one insertion, <em>n</em> shoves, where <em>n</em> is how many items sit after it. The fixed positions forced the work.</>,
       }],
-      arrows: [{ x1: 403, y1: 300, x2: 403, y2: 298 }],
+      arrows: [{ x1: 403, y1: 150, x2: 403, y2: 200 }],
       codeLabels: [],
       interaction: "playback",
     },
@@ -558,9 +559,9 @@ export const linkedListsLesson: LessonSpec = {
       visual: <Generalize />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "It's how other structures think.",
-        body: <>In everyday Python you rarely reach for a raw linked list. You learn it because it&rsquo;s the mental model underneath others: a <strong>tree</strong> is nodes pointing to several children; a <strong>graph</strong> is nodes pointing anywhere. Master the chain and those come free.</>,
+        body: <>You rarely reach for a raw linked list, but it&rsquo;s the model underneath others: a <strong>tree</strong> is nodes pointing to several children; a <strong>graph</strong> is nodes pointing anywhere. Master the chain and those come free.</>,
       }],
-      arrows: [{ x1: 560, y1: 150, x2: 560, y2: 178 }],
+      arrows: [{ x1: 620, y1: 150, x2: 588, y2: 188 }],
       codeLabels: ["node_class", "node_next"],
     },
     {
