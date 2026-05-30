@@ -13,13 +13,20 @@ it with the active line following each beat, it fills the viewport, and the code
 
 - ✅ **A reusable engine** — a lesson is now DATA (`LessonSpec`), rendered by one `LessonRuntime`.
   This is the template for every topic (and the shape an AI generator can later target).
-- ✅ **5 topics fully converted, interactive, and browser-verified** — covering every visual shape:
-  - `binary-search` (array) — the polished reference
-  - `trees` (node graph) · `graphs` (node graph) · `dfs` (grid) · `stacks-queues` (stack)
-- ✅ **"Replace on the branch" is live** — visiting these topics' real routes now serves the new form.
-- ✅ **19/20 conversion specs** (peer-reviewed) for the remaining topics, ready to implement.
+- ✅ **19 of 20 topics converted and registered** — every one renders the new form on its real route,
+  compiles (tsc clean), and ships in the static build (95 pages). Two tiers of polish:
+  - **5 fully polished + browser-verified** (every visual shape): `binary-search` (array),
+    `trees` · `graphs` (node graph), `dfs` (grid), `stacks-queues` (stack). Interactive wedges +
+    auto-playback verified, layouts clean, content critic-reviewed & fixed.
+  - **14 built on the proven patterns, compiling + building, but NOT yet visually polished or
+    content-reviewed** — two-pointers, sliding-window(+variable), monotonic-stack, recursion, bfs,
+    backtracking, dp-1d, mergesort, activity-selection, arrays, strings, sets-tuples, hash-maps.
+    They render; they likely have some panel-overlap / wording rough edges (the agents built them
+    blind — no browser). **Treat these as "draft, needs a polish + critic pass"** (see next-steps).
+- ✅ **"Replace on the branch" is live** — visiting any converted topic's route serves the new form.
 - ✅ Each lesson keeps its **wedge** (gates "Next" until you interact) and adds **auto-playback**
-  (the code line follows the animation). Content rewritten beginner-safe.
+  (the code line follows the animation). Content rewritten beginner-safe (verified on the 5).
+- ⬜ **`linked-lists`** is the one topic NOT yet built (its spec exists). Quick follow-on.
 
 ## Try it (run `npm run dev`, then visit)
 - `/categories/algorithms/binary-search`  ← start here (the reference)
@@ -58,12 +65,16 @@ a `wedge` gate. See `ClickToHalve` / `AutoBinarySearch` in the binary-search spe
 
 ---
 
-## What's NOT done (and why)
+## The exact next steps (in priority order)
+1. **Polish + critic the 14 draft topics.** They compile and render but were built without a browser.
+   Re-run the two background workflows that already worked on the 5: the **layout-fix** pass (the
+   no-overlap zone rule) and the **content-critic** pass (beginner-safety / Big-O glossing), then apply
+   the high-severity fixes. Scripts are saved under `…/workflows/scripts/` (ac-fix-layout, ac-critic-lessons)
+   — point them at the 14 topics. Then walk each route in the browser and screenshot.
+2. **Build `linked-lists`** (the 1 remaining) from its spec — array/node-chain shape, ~20 min.
+3. Optional: address the medium/low critic notes on the 5 (in `docs/ac-conversion/REVIEW__*.md`).
 
-- **The other 15 topics** are scaffolded (specs in `docs/ac-conversion/`) but not yet built. Depth-first
-  was the call — 5 done well beats 20 done rough. Building each is now mechanical: follow its spec +
-  the matching archetype reference. The fan-out workflow that built the 4 archetypes can be re-run for
-  the rest.
+## What's NOT done (and why)
 - **Backend-dependent product pieces** (auth, payments, AI generation, community) — out of scope; they
   need your decisions/credentials, not code.
 - **Known polish items** (logged for a later pass): the canvas letterboxes vertically for wide-short
