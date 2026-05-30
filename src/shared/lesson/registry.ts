@@ -1,9 +1,23 @@
 import type { LessonSpec } from "./types";
 import { binarySearchLesson } from "@/categories/algorithms/topics/binary-search/lesson-spec";
+import { twoPointersLesson } from "@/categories/algorithms/topics/two-pointers/lesson-spec";
+import { slidingWindowLesson } from "@/categories/algorithms/topics/sliding-window/lesson-spec";
+import { slidingWindowVariableLesson } from "@/categories/algorithms/topics/sliding-window-variable/lesson-spec";
+import { monotonicStackLesson } from "@/categories/algorithms/topics/monotonic-stack/lesson-spec";
+import { recursionLesson } from "@/categories/algorithms/topics/recursion/lesson-spec";
+import { dfsLesson } from "@/categories/algorithms/topics/dfs/lesson-spec";
+import { bfsLesson } from "@/categories/algorithms/topics/bfs/lesson-spec";
+import { backtrackingLesson } from "@/categories/algorithms/topics/backtracking/lesson-spec";
+import { dp1dLesson } from "@/categories/algorithms/topics/dp-1d/lesson-spec";
+import { mergesortLesson } from "@/categories/algorithms/topics/mergesort/lesson-spec";
+import { activitySelectionLesson } from "@/categories/algorithms/topics/activity-selection/lesson-spec";
+import { arraysLesson } from "@/categories/data-structures/topics/arrays/lesson-spec";
+import { stringsLesson } from "@/categories/data-structures/topics/strings/lesson-spec";
+import { stacksQueuesLesson } from "@/categories/data-structures/topics/stacks-queues/lesson-spec";
+import { hashMapsLesson } from "@/categories/data-structures/topics/hash-maps/lesson-spec";
+import { setsTuplesLesson } from "@/categories/data-structures/topics/sets-tuples/lesson-spec";
 import { treesLesson } from "@/categories/data-structures/topics/trees/lesson-spec";
 import { graphsLesson } from "@/categories/data-structures/topics/graphs/lesson-spec";
-import { dfsLesson } from "@/categories/algorithms/topics/dfs/lesson-spec";
-import { stacksQueuesLesson } from "@/categories/data-structures/topics/stacks-queues/lesson-spec";
 
 /**
  * Topics converted to the annotated-canvas form. When a topic is here, the
@@ -12,10 +26,24 @@ import { stacksQueuesLesson } from "@/categories/data-structures/topics/stacks-q
  */
 export const lessonSpecs: Record<string, LessonSpec> = {
   "algorithms/binary-search": binarySearchLesson,
+  "algorithms/two-pointers": twoPointersLesson,
+  "algorithms/sliding-window": slidingWindowLesson,
+  "algorithms/sliding-window-variable": slidingWindowVariableLesson,
+  "algorithms/monotonic-stack": monotonicStackLesson,
+  "algorithms/recursion": recursionLesson,
+  "algorithms/dfs": dfsLesson,
+  "algorithms/bfs": bfsLesson,
+  "algorithms/backtracking": backtrackingLesson,
+  "algorithms/dp-1d": dp1dLesson,
+  "algorithms/mergesort": mergesortLesson,
+  "algorithms/activity-selection": activitySelectionLesson,
+  "data-structures/arrays": arraysLesson,
+  "data-structures/strings": stringsLesson,
+  "data-structures/stacks-queues": stacksQueuesLesson,
+  "data-structures/hash-maps": hashMapsLesson,
+  "data-structures/sets-tuples": setsTuplesLesson,
   "data-structures/trees": treesLesson,
   "data-structures/graphs": graphsLesson,
-  "algorithms/dfs": dfsLesson,
-  "data-structures/stacks-queues": stacksQueuesLesson,
 };
 
 export function getLessonSpec(category: string, topic: string): LessonSpec | undefined {

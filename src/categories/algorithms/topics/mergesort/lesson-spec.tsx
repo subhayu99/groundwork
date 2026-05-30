@@ -1,0 +1,347 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { Tone } from "@/shared/viz/tones";
+import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
+import { CellRow, rowGeom, Bracket } from "@/shared/lesson/canvas";
+import mergesortPy from "./algorithm.py";
+
+const ARR = [5, 2, 4, 7, 1, 3, 8, 6];
+const SORTED = [1, 2, 3, 4, 5, 6, 7, 8];
+const VW = 860, VH = 470;
+const ROW_Y = 250;
+const G = rowGeom(ARR.length, VW, ROW_Y);
+
+/* ── segment model (shared by the wedge + playback beats) ──────────────────── */
+interface Segment { values: number[]; sorted: boolean; }
+const startSegments = (): Segment[] => [{ values: [...ARR], sorted: false }];
+
+function splitAll(segs: Segment[]): Segment[] {
+  const next: Segment[] = [];
+  for (const s of segs) {
+    if (s.values.length <= 1) { next.push({ ...s, sorted: true }); continue; }
+    const mid = Math.floor(s.values.length / 2);
+    next.push({ values: s.values.slice(0, mid), sorted: false });
+    next.push({ values: s.values.slice(mid), sorted: false });
+  }
+  return next;
+}
+function mergeOneLevel(segs: Segment[]): Segment[] {
+  if (segs.length === 1) return segs;
+  const next: Segment[] = [];
+  for (let i = 0; i < segs.length; i += 2) {
+    if (i + 1 >= segs.length) { next.push(segs[i]); continue; }
+    const a = segs[i].values, b = segs[i + 1].values, out: number[] = [];
+    let p = 0, q = 0;
+    while (p < a.length && q < b.length) { if (a[p] <= b[q]) out.push(a[p++]); else out.push(b[q++]); }
+    while (p < a.length) out.push(a[p++]);
+    while (q < b.length) out.push(b[q++]);
+    next.push({ values: out, sorted: true });
+  }
+  return next;
+}
+const allAtomic = (segs: Segment[]) => segs.every((s) => s.values.length <= 1);
+
+/* Draw a row of segments centered in the canvas at height y, with a small gap
+   between segments so the splits read as separate piles. */
+function SegRow({ segs, y }: { segs: Segment[]; y: number }) {
+  const cw = 36, gap = 3, segGap = 16;
+  const totalCells = segs.reduce((n, s) => n + s.values.length, 0);
+  const totalW = totalCells * cw + (totalCells - segs.length) * gap + (segs.length - 1) * segGap;
+  let x = (VW - totalW) / 2;
+  const out: React.ReactNode[] = [];
+  segs.forEach((s, si) => {
+    s.values.forEach((v, vi) => {
+      const tone: Tone = s.sorted ? "good" : "idle";
+      const ts = s.sorted
+        ? { bg: "color-mix(in oklab, var(--diff-easy) 20%, var(--bg-card))", border: "var(--diff-easy)" }
+        : { bg: "var(--bg-card)", border: "var(--line)" };
+      out.push(
+        <g key={`${si}-${vi}`}>
+          <rect x={x} y={y} width={cw} height={36} rx={7} style={{ fill: ts.bg, stroke: ts.border, transition: "fill .3s, stroke .3s" }} strokeWidth={2} />
+          <text x={x + cw / 2} y={y + 18} textAnchor="middle" dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 13, fill: "var(--text)" }}>{v}</text>
+        </g>,
+      );
+      void tone;
+      x += cw + (vi < s.values.length - 1 ? gap : 0);
+    });
+    if (si < segs.length - 1) x += segGap;
+  });
+  return <g>{out}</g>;
+}
+
+/* ── interactive WEDGE: split down to singletons, then merge back up ───────── */
+function SplitMerge({ api }: { api: BeatVisualApi }) {
+  const [segs, setSegs] = useState<Segment[]>(startSegments);
+  const [phase, setPhase] = useState<"splitting" | "merging">("splitting");
+  const [reachedAtomic, setReachedAtomic] = useState(false);
+  const [mergedOnce, setMergedOnce] = useState(false);
+
+  const split = () => {
+    api.onActiveLine(["split", "recurse_left", "recurse_right"]);
+    setSegs((cur) => {
+      const next = splitAll(cur);
+      if (allAtomic(next)) { setPhase("merging"); setReachedAtomic(true); }
+      return next;
+    });
+  };
+  const merge = () => {
+    api.onActiveLine(["merge_loop", "merge_compare", "merge_take"]);
+    setMergedOnce(true);
+    setSegs((cur) => mergeOneLevel(cur));
+    // Unlock "Next" only after the full journey: split to singles AND merged.
+    if (reachedAtomic) api.onInteractionDone();
+  };
+  const reset = () => { setSegs(startSegments()); setPhase("splitting"); setReachedAtomic(false); setMergedOnce(false); };
+
+  const done = segs.length === 1 && segs[0].sorted;
+  const caption = done
+    ? "sorted — one clean pass per level"
+    : phase === "splitting"
+    ? `splitting · ${segs.length} piece${segs.length > 1 ? "s" : ""}`
+    : "merging · take the smaller card next";
+
+  const Btn = ({ x, label, onClick }: { x: number; label: string; onClick: () => void }) => (
+    <g onClick={onClick} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label={label}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}>
+      <rect x={x - 38} y={ROW_Y + 88} width={76} height={24} rx={6} fill="var(--accent-soft)" stroke="var(--accent-line)" />
+      <text x={x} y={ROW_Y + 100} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--accent-ink)" }}>{label}</text>
+    </g>
+  );
+
+  return (
+    <g>
+      <SegRow segs={segs} y={ROW_Y} />
+      <text x={VW / 2} y={ROW_Y - 22} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}>{caption}</text>
+      {phase === "splitting"
+        ? <Btn x={VW / 2 - 46} label="split →" onClick={split} />
+        : <Btn x={VW / 2 - 46} label="merge →" onClick={done ? () => {} : merge} />}
+      <g onClick={reset} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label="reset"
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reset(); } }}>
+        <rect x={VW / 2 + 14} y={ROW_Y + 88} width={56} height={24} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
+        <text x={VW / 2 + 42} y={ROW_Y + 100} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>↺ reset</text>
+      </g>
+      {mergedOnce && !reachedAtomic && (
+        <text x={VW / 2} y={ROW_Y + 124} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>split all the way to single cards first</text>
+      )}
+    </g>
+  );
+}
+
+/* ── playback: auto split-down, then merge-up; code line follows each frame ── */
+type Ph = "splitting" | "merging" | "done";
+interface AS { segs: Segment[]; phase: Ph; }
+function AutoMergesort({ api }: { api: BeatVisualApi }) {
+  const init = (): AS => ({ segs: startSegments(), phase: "splitting" });
+  const [s, setS] = useState<AS>(init);
+  const ref = useRef(s); ref.current = s;
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const c = ref.current;
+      if (c.phase === "done") return;
+      if (c.phase === "splitting") {
+        const next = splitAll(c.segs);
+        api.onActiveLine(["split", "recurse_left", "recurse_right"]);
+        setS({ segs: next, phase: allAtomic(next) ? "merging" : "splitting" });
+        return;
+      }
+      const next = mergeOneLevel(c.segs);
+      api.onActiveLine(["merge_loop", "merge_compare", "merge_take"]);
+      const sorted = next.length === 1 && next[0].sorted;
+      setS({ segs: next, phase: sorted ? "done" : "merging" });
+    }, 850);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const done = s.phase === "done";
+  const caption = done ? "sorted ✓" : s.phase === "splitting" ? "splitting down to single cards…" : "merging the sorted halves up…";
+
+  return (
+    <g>
+      <SegRow segs={s.segs} y={ROW_Y} />
+      <text x={VW / 2} y={ROW_Y - 22} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}>{caption}</text>
+      <g onClick={() => setS(init())} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label="replay"
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setS(init()); } }}>
+        <rect x={VW / 2 - 30} y={ROW_Y + 88} width={60} height={24} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
+        <text x={VW / 2} y={ROW_Y + 100} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>↺ replay</text>
+      </g>
+    </g>
+  );
+}
+
+/* ── static visuals ────────────────────────────────────────────────────────── */
+const idleRow = (tones?: (Tone | undefined)[]) => <CellRow geom={G} values={ARR} tones={tones} />;
+const sortedRow = () => <CellRow geom={rowGeom(SORTED.length, VW, ROW_Y)} values={SORTED} tones={SORTED.map(() => "good" as Tone)} />;
+
+/* Cost diagram: a triangle of levels (8 → 4s → 2s → singles) with a height
+   bracket for "how many levels = log n" and one level marked "n cards touched". */
+function CostLevels() {
+  const widths = [8, 4, 2, 1]; // cells per pile, per level
+  const cw = 22, gap = 2, segGap = 12, y0 = 196, rowH = 34;
+  return (
+    <g>
+      {widths.map((per, li) => {
+        const piles = 8 / per;
+        const totalCells = 8;
+        const totalW = totalCells * cw + (totalCells - piles) * gap + (piles - 1) * segGap;
+        let x = (VW - totalW) / 2;
+        const y = y0 + li * rowH;
+        const cells: React.ReactNode[] = [];
+        for (let pi = 0; pi < piles; pi++) {
+          for (let c = 0; c < per; c++) {
+            const active = li === 2; // mark one level's linear sweep
+            cells.push(
+              <rect key={`${pi}-${c}`} x={x} y={y} width={cw} height={24} rx={4}
+                fill={active ? "color-mix(in oklab, var(--accent-sky) 26%, var(--bg-card))" : "color-mix(in oklab, var(--accent-sky) 12%, var(--bg-card))"}
+                stroke={active ? "var(--accent-line)" : "var(--accent-line)"} strokeWidth={1.4} />,
+            );
+            x += cw + (c < per - 1 ? gap : 0);
+          }
+          x += segGap;
+        }
+        return <g key={li}>{cells}</g>;
+      })}
+      {/* log n height bracket on the left */}
+      <path d={`M${190},${y0} L${182},${y0} L${182},${y0 + 3 * rowH + 24} L${190},${y0 + 3 * rowH + 24}`} fill="none" stroke="var(--diff-hard)" strokeWidth={1.5} />
+      <text x={176} y={y0 + (3 * rowH + 24) / 2} textAnchor="end" dominantBaseline="central" className="font-mono" style={{ fontSize: 11, fill: "var(--diff-hard)" }}>~3 levels</text>
+      <text x={VW - 176} y={y0 + 2 * rowH + 12} textAnchor="start" dominantBaseline="central" className="font-mono" style={{ fontSize: 11, fill: "var(--accent-ink)" }}>← every card touched once</text>
+      <text x={VW / 2} y={y0 + 3 * rowH + 48} textAnchor="middle" className="font-mono" style={{ fontSize: 12, fill: "var(--diff-easy)" }}>n cards per level × (number of halvings) levels</text>
+    </g>
+  );
+}
+
+/* Divide-and-conquer tree fragment + sibling chips naming other instances. */
+function DivideConquer() {
+  const cx = VW / 2, py = 210, cy = 296, r = 26;
+  const lx = cx - 110, rx = cx + 110;
+  const node = (x: number, y: number, label: string) => (
+    <g>
+      <rect x={x - 34} y={y - 18} width={68} height={36} rx={8} fill="var(--accent-soft)" stroke="var(--accent-line)" strokeWidth={2} />
+      <text x={x} y={y} textAnchor="middle" dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--accent-ink)" }}>{label}</text>
+    </g>
+  );
+  void r;
+  const chips = ["count out-of-order pairs", "closest two points", "big-number multiply", "FFT", "split across 2 CPUs"];
+  const chipY = 372, chipH = 22; let chipX = 0;
+  const chipW = (t: string) => t.length * 6.0 + 18;
+  const totalChipW = chips.reduce((w, t) => w + chipW(t), 0) + (chips.length - 1) * 8;
+  chipX = (VW - totalChipW) / 2;
+  return (
+    <g>
+      <line x1={cx} y1={py + 18} x2={lx} y2={cy - 18} stroke="var(--line)" strokeWidth={2} />
+      <line x1={cx} y1={py + 18} x2={rx} y2={cy - 18} stroke="var(--line)" strokeWidth={2} />
+      {node(cx, py, "problem · n")}
+      {node(lx, cy, "half · n/2")}
+      {node(rx, cy, "half · n/2")}
+      <line x1={lx} y1={cy + 18} x2={cx} y2={cy + 40} stroke="var(--diff-easy)" strokeWidth={2} />
+      <line x1={rx} y1={cy + 18} x2={cx} y2={cy + 40} stroke="var(--diff-easy)" strokeWidth={2} />
+      <text x={cx} y={cy + 50} textAnchor="middle" className="font-mono" style={{ fontSize: 11, fill: "var(--diff-easy)" }}>cheap combine</text>
+      {chips.map((t, i) => {
+        const w = chipW(t), x = chipX;
+        chipX += w + 8;
+        return (
+          <g key={i}>
+            <rect x={x} y={chipY} width={w} height={chipH} rx={11} fill="var(--bg-card)" stroke="var(--line)" strokeWidth={1} />
+            <text x={x + w / 2} y={chipY + chipH / 2} textAnchor="middle" dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 9, fill: "var(--text-muted)" }}>{t}</text>
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+export const mergesortLesson: LessonSpec = {
+  topicTitle: "mergesort · sort eight cards",
+  canvas: { width: VW, height: VH },
+  codeSource: mergesortPy as string,
+  beats: [
+    {
+      id: "setup",
+      visual: (
+        <g>
+          {idleRow()}
+          <Bracket x1={G.left(0)} x2={G.left(7) + G.cellW} y={G.y - 14} label="sort these" color="var(--text-muted)" />
+        </g>
+      ),
+      panels: [{
+        left: 150, top: 24, width: 560, variant: "main", label: "The setup", title: "Eight cards in a jumble. Put them in order.",
+        body: <>Eight cards landed out of order: 5, 2, 4, 7, 1, 3, 8, 6. Sorting eight by eye is easy. But computers sort tables with <strong>hundreds of millions of rows</strong> &mdash; every leaderboard, every database lookup. The <em>method</em> is what matters.</>,
+      }],
+      arrows: [{ x1: G.cx(3), y1: 150, x2: G.cx(3), y2: G.y - 20 }],
+      codeLabels: ["sig"],
+    },
+    {
+      id: "naive",
+      visual: idleRow(ARR.map((_, i) => (i === 0 || i === 1 ? "muted" : undefined))),
+      panels: [{
+        left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "Swap neighbours until nothing's backwards.",
+        body: <>The first idea: walk left to right, swap any pair that&rsquo;s out of order, repeat. It works but crawls &mdash; each swap fixes one tiny disagreement, so moving a card far means swapping it past every neighbour. Double the cards and the work roughly <em>quadruples</em>.</>,
+      }],
+      arrows: [{ x1: G.cx(0) + G.stride / 2, y1: 300, x2: G.cx(0) + G.stride / 2, y2: G.y + G.cellH + 4 }],
+      codeLabels: [],
+    },
+    {
+      id: "wedge",
+      visual: (api) => <SplitMerge api={api} />,
+      panels: [
+        {
+          left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Cut in half. Sort each half. Merge them.",
+          body: <>Pretend the two halves are already sorted. Finishing is then easy: walk both with two fingers, always take the smaller card &mdash; one walk through, each card seen once. So the only question shrinks to &ldquo;how do I sort a half?&rdquo; Same trick, smaller. <strong>Press split, then merge.</strong></>,
+        },
+        {
+          left: 540, top: 372, width: 290, variant: "note",
+          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> keep cutting until each piece is a single card &mdash; and one card is already in order. Then merge the pieces back, two at a time.</>,
+        },
+      ],
+      codeLabels: ["split", "recurse_left", "recurse_right"],
+      interaction: "wedge",
+    },
+    {
+      id: "derive",
+      visual: (api) => <AutoMergesort api={api} />,
+      panels: [{
+        left: 150, top: 18, width: 580, variant: "main", label: "The derivation", title: "A recipe that calls itself, plus a two-finger merge.",
+        body: <>Write <code>sort</code> as <strong>recursion</strong> &mdash; a recipe that calls itself on a smaller piece. <strong>Base case:</strong> 0 or 1 cards are already sorted, hand them back. Otherwise: find the middle, sort the left half, sort the right half, then merge. The merge uses two <em>fingers</em> &mdash; markers tracking where you&rsquo;re looking in each half.</>,
+      }],
+      codeLabels: ["base", "split", "recurse_left", "recurse_right", "merge_call"],
+      interaction: "playback",
+    },
+    {
+      id: "ops",
+      visual: <CostLevels />,
+      panels: [{
+        left: 150, top: 22, width: 560, variant: "main", label: "The operations", title: "Halve down a few levels; one walk per level.",
+        body: <>You can halve a thousand cards about ten times before you hit a single card &mdash; we write that count <code>log n</code> (it grows slowly: doubling the cards adds just one level). Each level&rsquo;s merges touch every card once: <code>n</code> work. Total <code>n × log n</code> &mdash; about 20 million steps for a million cards, not a trillion.</>,
+      }],
+      arrows: [{ x1: 150, y1: 150, x2: 182, y2: 196 }],
+      codeLabels: ["split", "merge_loop", "merge_tail"],
+    },
+    {
+      id: "general",
+      visual: <DivideConquer />,
+      panels: [{
+        left: 150, top: 22, width: 560, variant: "main", label: "The generalization", title: "Divide and conquer is everywhere.",
+        body: <>The shape &mdash; split, solve each half, combine &mdash; fits any problem that breaks into the same problem on half the items with a cheap combine. Each box (a <em>node</em>) holds a chunk. Same skeleton powers counting out-of-order pairs, big-number multiply, the FFT, and splitting work across CPUs.</>,
+      }],
+      arrows: [{ x1: G.cx(3), y1: 150, x2: VW / 2, y2: 336 }],
+      codeLabels: ["split", "recurse_left", "recurse_right", "merge_call"],
+    },
+    {
+      id: "name",
+      visual: (
+        <g>
+          {sortedRow()}
+          <text x={VW / 2} y={ROW_Y - 22} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--diff-easy)" }}>✓ sorted</text>
+        </g>
+      ),
+      panels: [{
+        left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Mergesort.",
+        body: <>That&rsquo;s the name &mdash; the textbook divide-and-conquer sort. The recursion divides; the merge conquers. Reach for it when you see: &ldquo;sort big data with a worst-case guarantee,&rdquo; &ldquo;merge two already-sorted streams,&rdquo; or a file too big to fit in memory. Open the drawer &mdash; under twenty real lines.</>,
+      }],
+      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: G.y - 20 }],
+      codeLabels: ["sig", "merge_call"],
+    },
+  ],
+};
