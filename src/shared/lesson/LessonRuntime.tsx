@@ -14,7 +14,19 @@ import type { BeatVisualApi, LessonSpec } from "./types";
  * canvas scales to its area; the code pane collapses. Hosts interactive beats
  * (playback emits the live code line; a wedge beat gates "Next" until acted on).
  */
-export function LessonRuntime({ spec, onComplete }: { spec: LessonSpec; onComplete?: () => void }) {
+export type LessonPracticeLink = { title: string; href: string; difficulty?: string };
+
+export function LessonRuntime({
+  spec,
+  practice,
+  onComplete,
+  initiallyCompleted,
+}: {
+  spec: LessonSpec;
+  practice?: LessonPracticeLink[];
+  onComplete?: () => void;
+  initiallyCompleted?: boolean;
+}) {
   const { width: VW, height: VH } = spec.canvas;
   const { code: PY, labelToLine } = useMemo(() => prepareCode(spec.codeSource), [spec.codeSource]);
 
@@ -22,6 +34,7 @@ export function LessonRuntime({ spec, onComplete }: { spec: LessonSpec; onComple
   const [showCode, setShowCode] = useState(true);
   const [liveLabels, setLiveLabels] = useState<(string | number)[] | null>(null);
   const [interacted, setInteracted] = useState<Record<string, boolean>>({});
+  const [completed, setCompleted] = useState(!!initiallyCompleted);
   const beat = spec.beats[b];
   const last = spec.beats.length - 1;
 
@@ -33,6 +46,11 @@ export function LessonRuntime({ spec, onComplete }: { spec: LessonSpec; onComple
   // crash. Deferring to a microtask lands the update right after commit.
   const liveRef = useRef<(string | number)[] | null>(null);
   useEffect(() => { liveRef.current = null; setLiveLabels(null); }, [b]);
+
+  // Progress loads asynchronously (localStorage read in an effect), so
+  // initiallyCompleted can flip true after first render — reflect it (sticky;
+  // never auto-uncomplete).
+  useEffect(() => { if (initiallyCompleted) setCompleted(true); }, [initiallyCompleted]);
 
   // Fit the fixed-size canvas (svg + the absolutely-positioned panels, together)
   // to whatever area the column gives it — so it fills the desktop viewport.
@@ -70,7 +88,10 @@ export function LessonRuntime({ spec, onComplete }: { spec: LessonSpec; onComple
 
   const goNext = () => {
     if (b < last) setB(b + 1);
-    else onComplete?.();
+    else {
+      setCompleted(true);
+      onComplete?.();
+    }
   };
 
   return (
@@ -88,7 +109,7 @@ export function LessonRuntime({ spec, onComplete }: { spec: LessonSpec; onComple
           <div ref={areaRef} className="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden">
             <div style={{ width: VW * scale, height: VH * scale }} className="relative shrink-0">
               <div
-                className="absolute top-0 left-0 rounded-2xl border border-[var(--line-faint)] bg-[var(--bg-inset)]"
+                className="absolute top-0 left-0"
                 style={{ width: VW, height: VH, transform: `scale(${scale})`, transformOrigin: "top left" }}
               >
                 <svg width={VW} height={VH} className="absolute inset-0 overflow-visible">
@@ -146,38 +167,60 @@ export function LessonRuntime({ spec, onComplete }: { spec: LessonSpec; onComple
               <button onClick={goNext} disabled={gated}
                 title={gated ? "Try the interaction on the canvas first" : undefined}
                 className="min-h-[40px] px-4 rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] disabled:opacity-40">
-                {b === last ? "Done ✓" : "Next →"}
+                {b === last ? (completed ? "Completed ✓" : "Finish ✓") : "Next →"}
               </button>
-              {!showCode && (
-                <button onClick={() => setShowCode(true)} aria-label="show code panel"
-                  className="ml-1 inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-lg border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--line-strong)] hover:text-[var(--text)] font-mono text-[11px]">
-                  <span>&lt;/&gt;</span> code
-                </button>
-              )}
+              <div className="w-px h-6 bg-[var(--line)] mx-0.5" />
+              <button onClick={() => setShowCode((v) => !v)} aria-pressed={showCode}
+                title={showCode ? "Hide the code panel" : "Show the code panel"}
+                className="inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-lg border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--line-strong)] hover:text-[var(--text)] font-mono text-[11px]">
+                <span>&lt;/&gt;</span> {showCode ? "Hide code" : "Code"}
+              </button>
             </div>
             {gated && <div className="font-mono text-[10px] text-[var(--accent-ink)]">↑ try it on the canvas to continue</div>}
           </div>
         </div>
 
-        {/* RIGHT — collapsible code pane */}
+        {/* RIGHT — the code as a floating card that pops in/out (one toggle, in the controls).
+            Practice questions live below the code so the lesson is self-contained — no second page. */}
         <AnimatePresence>
           {showCode && (
             <motion.div
-              initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.2 }}
-              className="flex flex-col min-h-0 w-full xl:flex-1 xl:max-w-[680px] xl:min-w-[440px]"
+              initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 24 }} transition={{ duration: 0.22, ease: [0.22, 0.65, 0.3, 1] }}
+              className="flex flex-col min-h-0 w-full xl:w-[44%] xl:max-w-[660px] xl:min-w-[420px] xl:my-1 gap-3"
             >
-              <div className="shrink-0 flex items-center justify-between mb-1.5 px-1">
-                <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
-                  algorithm.py <span className="text-[var(--accent-ink)] normal-case">· ▶ line follows the beat</span>
-                </span>
-                <button onClick={() => setShowCode(false)} aria-label="collapse code panel" title="collapse code"
-                  className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--line-strong)] hover:text-[var(--text)]">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
-                </button>
+              <div className="flex flex-col min-h-0 flex-1 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40 overflow-hidden">
+                <div className="shrink-0 flex items-center gap-2 px-4 py-2.5 border-b border-[var(--line-faint)]">
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">algorithm.py</span>
+                  <span className="font-mono text-[10px] text-[var(--accent-ink)]">▶ line follows the beat</span>
+                </div>
+                <div className="flex-1 min-h-0 overflow-auto p-1">
+                  <CodeHighlight code={PY} highlightedLines={activeLines} />
+                </div>
               </div>
-              <div className="flex-1 min-h-0 overflow-auto">
-                <CodeHighlight code={PY} highlightedLines={activeLines} />
-              </div>
+              {practice && practice.length > 0 && (
+                <div className="shrink-0 max-h-[34%] overflow-auto rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40">
+                  <div className="sticky top-0 flex items-center gap-2 px-4 py-2.5 border-b border-[var(--line-faint)] bg-[var(--bg-card)]">
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">practice</span>
+                    <span className="font-mono text-[10px] text-[var(--text-faint)] normal-case">· try these next</span>
+                  </div>
+                  <ul className="p-2 flex flex-col gap-1.5">
+                    {practice.map((p) => (
+                      <li key={p.href}>
+                        <a href={p.href}
+                          className="group flex items-center justify-between gap-3 rounded-lg border border-[var(--line-faint)] px-3 py-2 hover:border-[var(--line-strong)] hover:bg-[var(--bg-inset)]">
+                          <span className="text-[13px] text-[var(--text)]">{p.title}</span>
+                          <span className="flex items-center gap-2 shrink-0">
+                            {p.difficulty && (
+                              <span className="font-mono text-[9.5px] uppercase tracking-wider px-1.5 py-0.5 rounded text-[var(--text-faint)] border border-[var(--line-faint)]">{p.difficulty}</span>
+                            )}
+                            <span className="text-[var(--text-faint)] group-hover:text-[var(--accent-ink)]">→</span>
+                          </span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

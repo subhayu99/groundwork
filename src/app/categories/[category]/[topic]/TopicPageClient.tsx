@@ -33,7 +33,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   // map; reset when the step changes.
   const [liveLines, setLiveLines] = useState<(number | string)[] | null>(null);
   useEffect(() => setLiveLines(null), [currentStep]);
-  const { getTopic: getTopicProgress } = useProgress();
+  const { getTopic: getTopicProgress, updateTopic } = useProgress();
   const topicProgress = getTopicProgress(categoryKey, topicKey);
   const everCompleted = topicProgress.derivation.completed;
 
@@ -44,8 +44,40 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   if (!cat || !bundle) notFound();
 
   // Converted topics render the new annotated-canvas lesson (replace on branch).
+  // Practice problems ride along (shown below the floating code panel — no second
+  // page); finishing the last beat marks the topic complete in progress.
   const lessonSpec = getLessonSpec(categoryKey, topicKey);
-  if (lessonSpec) return <LessonRuntime spec={lessonSpec} />;
+  if (lessonSpec) {
+    const practice = (bundle.problems ?? []).map((p) => ({
+      title: p.title,
+      href: `/categories/${categoryKey}/${topicKey}/practice/${p.id}`,
+      difficulty: p.difficulty,
+    }));
+    return (
+      <LessonRuntime
+        spec={lessonSpec}
+        practice={practice}
+        initiallyCompleted={everCompleted}
+        onComplete={() => {
+          emitEvent({ type: "topic_completed", category: categoryKey, topic: topicKey });
+          updateTopic(categoryKey, topicKey, (tp) => ({
+            ...tp,
+            derivation: {
+              ...tp.derivation,
+              completed: true,
+              currentStep: lessonSpec.beats.length,
+              completedSteps: Array.from(
+                new Set([
+                  ...tp.derivation.completedSteps,
+                  ...lessonSpec.beats.map((_, i) => i + 1),
+                ]),
+              ),
+            },
+          }));
+        }}
+      />
+    );
+  }
 
   const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, naiveThroughStep, problems, nextSteps } = bundle;
   const problemCount = problems?.length ?? 0;
