@@ -337,7 +337,7 @@ export const recursionLesson: LessonSpec = {
       visual: <TreeScene nodes={treeNodes({ shown: () => null })} edges={EDGES} />,
       panels: [{
         left: 150, top: 24, width: 580, variant: "main", label: "The setup", title: "How big is your Downloads folder?",
-        body: <>Your phone says Downloads is <strong>19MB</strong>. But the files hide inside folders, inside more folders. To get one number you must add up every file &mdash; yet you can&rsquo;t see them all at once. Each folder shows a <code>?</code> until you total it. How does the phone know?</>,
+        body: <>Your phone says Downloads is <strong>19MB</strong>. But files hide inside folders, inside more folders. To get one number you must add up every file. Each folder shows a <code>?</code> until you total it. How does the phone know?</>,
       }],
       arrows: [{ x1: 200, y1: 152, x2: TBY.get("root")!.x, y2: TBY.get("root")!.y - 20 }],
       codeLabels: ["sig"],
@@ -347,7 +347,7 @@ export const recursionLesson: LessonSpec = {
       visual: <NaiveScan />,
       panels: [{
         left: 150, top: 24, width: 600, variant: "main", label: "The obvious thing", title: "Loops inside loops inside loops.",
-        body: <>The naive plan: a loop walks the top items, adding file sizes. Hit a folder? loop inside it. Hit another folder? loop again. You can hand-write two or three levels &mdash; but folders nest as deep as they like, and you can&rsquo;t write a loop for a depth you don&rsquo;t know.</>,
+        body: <>The naive plan: a loop walks the top items, adding file sizes. Hit a folder? Loop inside it. Hit another? Loop again. You can hand-write two or three levels, but folders nest as deep as they like &mdash; you can&rsquo;t write a loop for a depth you don&rsquo;t know.</>,
       }],
       arrows: [{ x1: 470, y1: 152, x2: TBY.get("app")!.x, y2: TBY.get("app")!.y - 16 }],
       codeLabels: [],
@@ -358,7 +358,7 @@ export const recursionLesson: LessonSpec = {
       panels: [
         {
           left: 60, top: 18, width: 740, variant: "main", label: "The wedge", title: "Open a folder — it’s a smaller copy of the same problem.",
-          body: <>Click any folder to ask its total. Inside you always find the same shape: some files with sizes, some more folders. So a folder&rsquo;s total is just its own files plus each subfolder&rsquo;s total. Each subfolder is the <strong>same problem, on fewer items.</strong></>,
+          body: <>Click any folder to ask its total. Inside you always find the same shape: some files with sizes, some more folders. So a folder&rsquo;s total is its own files plus each inner folder&rsquo;s total &mdash; the <strong>same problem, on fewer items.</strong></>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
@@ -373,7 +373,7 @@ export const recursionLesson: LessonSpec = {
       visual: <MidRecursion />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The derivation", title: "Write the rule. The function calls itself.",
-        body: <>Define <code>folder_size(node)</code> &mdash; a recipe taking one item (<code>node</code> = a file or folder). Two cases. <strong>File:</strong> return its size, stop. <strong>Folder:</strong> for each child, call the recipe again, then add the answers. It can&rsquo;t loop forever &mdash; every call is on a <em>strictly smaller</em> item.</>,
+        body: <>Define <code>folder_size(node)</code> &mdash; a recipe taking one item (a <code>node</code> is a file or folder). Two cases. <strong>File:</strong> return its size, stop. <strong>Folder:</strong> run the recipe on each child, then add the answers. It can&rsquo;t run forever &mdash; every call works on a <em>strictly smaller</em> item.</>,
       }],
       arrows: [{ x1: 430, y1: 150, x2: TBY.get("code")!.x, y2: TBY.get("code")!.y - 14 }],
       codeLabels: ["base_case", "base_return", "recursive_call", "aggregate"],
@@ -384,7 +384,7 @@ export const recursionLesson: LessonSpec = {
       visual: (api) => <AutoRecurse api={api} />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The operations", title: "Each item is touched once; calls pile up in a stack.",
-        body: <>Every item is looked at exactly once &mdash; that&rsquo;s <code>O(n)</code> (work grows in step with the number of items <em>n</em>). Watch the <strong>call stack</strong> on the right: a to-do list where the newest waiting call sits on top, draining as each returns.</>,
+        body: <>Every item is looked at exactly once &mdash; that&rsquo;s <code>O(n)</code> (work grows in step with the number of items, <em>n</em>). Watch the <strong>call stack</strong> on the right: a to-do list where the newest waiting call sits on top, draining as each returns.</>,
       }],
       codeLabels: ["recursive_call", "aggregate", "folder_return"],
       interaction: "playback",
@@ -394,7 +394,7 @@ export const recursionLesson: LessonSpec = {
       visual: <ResolvedPeak />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The memory cost", title: "The stack only gets as tall as the deepest folder.",
-        body: <>When every call has returned, the root reads <strong>19MB</strong>. The stack&rsquo;s tallest moment is the deepest nesting &mdash; here <code>Downloads › projects › code › app.zip</code>, just 4 calls. Shallow trees barely use the stack; only an extremely deep chain could overflow it.</>,
+        body: <>When every call has returned, the root reads <strong>19MB</strong>. The stack&rsquo;s tallest moment equals the deepest nesting &mdash; here <code>Downloads › projects › code › app.zip</code>, just 4 calls. Shallow trees barely use the stack; only a very deep chain could run it out of room.</>,
       }],
       arrows: [{ x1: 540, y1: 152, x2: STACK_CX - STACK_W / 2 - 24, y2: STACK_TOP + 30 }],
       codeLabels: ["recursive_call", "folder_return"],
@@ -404,7 +404,7 @@ export const recursionLesson: LessonSpec = {
       visual: <SameShape />,
       panels: [{
         left: 150, top: 24, width: 580, variant: "main", label: "The generalization", title: "Tree-shaped data is everywhere.",
-        body: <>The same trick fits anything that branches into smaller copies of itself. A JSON object holds objects. An HTML box holds boxes. The math <code>(2 + (3 * (4 - 1)))</code> is expressions inside expressions. Org charts, nested comments, file trees &mdash; all solved by &ldquo;answer me by answering my parts.&rdquo;</>,
+        body: <>The same trick fits anything built from smaller copies of itself. A JSON record holds records. An HTML box holds boxes. The math <code>(2 + (3 * (4 - 1)))</code> nests inside itself. Org charts, reply threads, file trees &mdash; all solved by &ldquo;answer me by answering my parts.&rdquo;</>,
       }],
       arrows: [{ x1: 430, y1: 152, x2: 430, y2: 196 }],
       codeLabels: [],
@@ -414,7 +414,7 @@ export const recursionLesson: LessonSpec = {
       visual: <NamedPattern />,
       panels: [{
         left: 150, top: 30, width: 600, variant: "main", label: "The pattern", title: "Recursion.",
-        body: <>That&rsquo;s the name: <strong>recursion</strong> &mdash; a function that calls itself on a smaller version of the same problem. Two non-negotiable parts: a <strong>base case</strong> (so small the answer is obvious &mdash; a file knows its size) and a <strong>recursive case</strong> (shrink, combine, return). Spot it when a whole&rsquo;s answer depends on its parts.</>,
+        body: <>That&rsquo;s the name: <strong>recursion</strong> &mdash; a function that calls itself on a smaller version of the same problem. Two must-have parts: a <strong>base case</strong> (so small the answer is obvious &mdash; a file knows its size) and a <strong>recursive case</strong> (shrink, combine, return). Spot it whenever a whole&rsquo;s answer depends on its parts.</>,
       }],
       codeLabels: ["base_case", "base_return", "recursive_call", "aggregate", "folder_return"],
     },

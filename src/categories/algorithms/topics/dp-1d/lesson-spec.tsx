@@ -281,7 +281,7 @@ export const dp1dLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 580, variant: "main", label: "The operations",
         title: "From exponential to one quick pass.",
-        body: <>Naive recursion roughly doubles its work per extra step &mdash; ways(40) calls itself a billion times. The table fills each slot once, one addition each: that&rsquo;s <strong>O(n)</strong> (work grows in step with the stairs n). Keeping only the last two values is <strong>O(1)</strong> &mdash; a fixed amount however tall the staircase.</>,
+        body: <>Naive recursion roughly doubles its work per extra step &mdash; ways(40) calls itself a billion times. Filling each table slot once is <strong>O(n)</strong> (work grows in step with the n stairs). Keeping just the last two values is <strong>O(1)</strong> &mdash; a fixed cost at any height.</>,
       }],
       arrows: [{ x1: 430, y1: 152, x2: 430, y2: G.y - 44 }],
       codeLabels: ["loop", "recurrence", "answer"],
@@ -293,7 +293,7 @@ export const dp1dLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 580, variant: "main", label: "The generalization",
         title: "Anywhere n depends on smaller n.",
-        body: <>The stairs aren&rsquo;t special. Any problem with a small self-referential rule whose pieces keep overlapping gets the same speed-up (below). You need two things: the parts must <em>overlap</em> (so there&rsquo;s something to reuse), and each part must have one fixed answer (so you can write it down).</>,
+        body: <>The stairs aren&rsquo;t special. Any problem solved by a rule that reuses its own smaller answers gets this speed-up (below). You need two things: the parts must <em>overlap</em> (so there&rsquo;s something to reuse), and each part must have one fixed answer.</>,
       }],
       codeLabels: ["recurrence"],
     },

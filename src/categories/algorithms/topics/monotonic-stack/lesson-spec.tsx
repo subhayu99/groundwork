@@ -378,7 +378,7 @@ export const monotonicStackLesson: LessonSpec = {
       visual: <SetupState />,
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The setup", title: "Eight cold days. When does it warm up?",
-        body: <>For each day, count the days until a warmer one. If the next warmer day is two ahead, the answer is <strong>2</strong>; if no warmer day ever comes, <strong>0</strong>. Eight days is easy &mdash; but a weather app holds a whole year.</>,
+        body: <>For each day, count the days until a warmer one. If a warmer day is two ahead, the answer is <strong>2</strong>; if none ever comes, <strong>0</strong>. Eight days is easy &mdash; a weather app holds a whole year.</>,
       }],
       arrows: [{ x1: 150, y1: 150, x2: barCx(0), y2: barTop(TEMPS[0]) - 14 }],
       codeLabels: ["sig"],
@@ -389,7 +389,7 @@ export const monotonicStackLesson: LessonSpec = {
       panels: [
         {
           left: 60, top: 20, width: 620, variant: "main", label: "The obvious thing", title: "Stand on each day. Look right until it gets warmer.",
-          body: <>The honest way: stand on a day and walk forward until a warmer one shows up, then note the gap. The cold early days re-read almost the whole week. Eight days is fine; a million is not &mdash; the work grows like size <em>times</em> size.</>,
+          body: <>The honest way: stand on a day, walk forward until a warmer one shows up, note the gap. Cold early days re-read almost the whole week. Eight days is fine; a million is not &mdash; the work grows like size <em>times</em> size.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
@@ -406,7 +406,7 @@ export const monotonicStackLesson: LessonSpec = {
       panels: [
         {
           left: 60, top: 18, width: 470, variant: "main", label: "The wedge", title: "Keep a line of days still waiting.",
-          body: <>Walk left to right. Keep a <strong>stack</strong> &mdash; a line where you only ever add to and take from the <em>same end</em>, the back. Each new day asks the last in line: &ldquo;Warmer than you?&rdquo; <strong>Yes</strong> &rarr; you&rsquo;re their answer, send them home with the gap. <strong>No</strong> &rarr; join the back and wait.</>,
+          body: <>Walk left to right. Keep a <strong>stack</strong> &mdash; a line where you only add to and remove from the <em>same end</em>, the back. Each new day asks the last in line: &ldquo;Warmer than you?&rdquo; <strong>Yes</strong> &rarr; send them home with the gap. <strong>No</strong> &rarr; join the back and wait.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
@@ -422,7 +422,7 @@ export const monotonicStackLesson: LessonSpec = {
       visual: (api) => <AutoWalk api={api} />,
       panels: [{
         left: 60, top: 18, width: 470, variant: "main", label: "The derivation", title: "A stack of indices. Pop while today wins.",
-        body: <>Store each day&rsquo;s <strong>index</strong> (its position, 0&ndash;7), not its temperature, so we can subtract to get the gap. For each new day, while the top day is cooler, <strong>pop</strong> it (remove the top) and record <code>answer = today &minus; that day</code>. Then add today. Whoever&rsquo;s left at the end stays 0.</>,
+        body: <>Store each day&rsquo;s <strong>index</strong> (its position, 0&ndash;7), not its temperature, so we can subtract to get the gap. For each new day, while the top day is cooler, <strong>pop</strong> it (remove the top) and record <code>answer = today &minus; that day</code>. Then add today. Anyone left over stays 0.</>,
       }],
       arrows: [{ x1: 300, y1: 150, x2: STK_CX, y2: STK_TOP - 4 }],
       codeLabels: ["loop", "while_pop", "pop", "record", "push"],
@@ -434,7 +434,7 @@ export const monotonicStackLesson: LessonSpec = {
       panels: [
         {
           left: 60, top: 20, width: 620, variant: "main", label: "The operations", title: "A few days do a lot. The average is constant.",
-          body: <>One warm day can send everyone waiting home &mdash; looks expensive. But every send-home was paid for by an add that already happened, so total adds plus removals is at most <code>2n</code> (twice the number of days). We call that <code>O(n)</code>: work that grows in step with how many days there are.</>,
+          body: <>One warm day can send everyone home &mdash; looks expensive. But every send-home was paid for by an add that already happened, so total adds plus removals is at most <code>2n</code> (twice the number of days, <code>n</code>). We call that <code>O(n)</code>: work that grows in step with the number of days.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
@@ -449,7 +449,7 @@ export const monotonicStackLesson: LessonSpec = {
       visual: <StoryFamily />,
       panels: [{
         left: 540, top: 60, width: 290, variant: "main", label: "The generalization", title: "Next/previous thing with a property.",
-        body: <>The trick isn&rsquo;t about temperatures. It fits any &ldquo;for each item, what&rsquo;s the next or previous one that&rsquo;s bigger / smaller / taller / cheaper?&rdquo; Same shape every time: walk once, keep a stack of waiters, let each new item answer everyone it beats.</>,
+        body: <>The trick isn&rsquo;t about temperatures. It fits any &ldquo;for each item, what&rsquo;s the next or previous one that&rsquo;s bigger / smaller / taller / cheaper?&rdquo; Same shape every time: walk once, keep a stack of waiters, let each item answer everyone it beats.</>,
       }],
       codeLabels: ["loop", "while_pop", "push"],
     },
@@ -458,7 +458,7 @@ export const monotonicStackLesson: LessonSpec = {
       visual: <FinalState />,
       panels: [{
         left: 60, top: 20, width: 470, variant: "main", label: "The pattern", title: "Monotonic Stack.",
-        body: <>The stack is &ldquo;monotonic&rdquo; because temperatures inside only go one way &mdash; cooler at the bottom, colder near the top &mdash; and a new day pops until that order holds. The cheap-on-average cost, where rare costly steps are pre-paid by the cheap ones, is called <strong>amortized</strong>. Spot it on &ldquo;next/previous bigger-smaller&rdquo; and &ldquo;largest rectangle.&rdquo;</>,
+        body: <>The stack is &ldquo;monotonic&rdquo; because temperatures inside only go one way &mdash; cooler at the bottom, colder near the top &mdash; and a new day pops until that holds. Cheap-on-average cost, where rare costly steps are pre-paid by cheap ones, is called <strong>amortized</strong>. Spot it on &ldquo;next/previous bigger-smaller&rdquo; and &ldquo;largest rectangle.&rdquo;</>,
       }],
       arrows: [{ x1: 320, y1: 150, x2: barCx(6), y2: barTop(TEMPS[6]) - 14 }],
       codeLabels: ["done"],

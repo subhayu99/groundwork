@@ -355,7 +355,7 @@ export const setsTuplesLesson: LessonSpec = {
       visual: (api) => <ScanPlayback api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Stuff a list. Scan when you need it.",
-        body: <>The easy move: keep everyone in a plain list. To check for alice you look at chip after chip until you hit her or run out &mdash; slow if the list is long. And a list happily stores a second &ldquo;alice&rdquo;: no uniqueness rule. It works, but it doesn&rsquo;t fit.</>,
+        body: <>The easy move: keep everyone in a plain list. To check for alice you scan chip after chip until you hit her or run out &mdash; slow if the list is long. And nothing stops a second &ldquo;alice&rdquo; sneaking in. It works, but it doesn&rsquo;t fit.</>,
       }],
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 208 }],
       codeLabels: [],
@@ -367,7 +367,7 @@ export const setsTuplesLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Add a name twice. Then poke the packet.",
-          body: <>Add a name to the set &mdash; then add one already in. The set shrugs: she&rsquo;s in or she isn&rsquo;t, no &ldquo;second alice.&rdquo; Now poke the packet below: try to change a slot or add a fourth. Both refuse &mdash; a tuple is <em>immutable</em> (can&rsquo;t be changed once made).</>,
+          body: <>Add a name to the set &mdash; then add one already in. The set shrugs: she&rsquo;s in or she isn&rsquo;t, no &ldquo;second alice.&rdquo; Now poke the packet: try to change a slot or add a fourth. Both refuse &mdash; a tuple is <em>immutable</em> (can&rsquo;t be changed once made).</>,
         },
         {
           left: 626, top: 384, width: 218, variant: "note",
@@ -382,7 +382,7 @@ export const setsTuplesLesson: LessonSpec = {
       visual: <BucketsVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The structures", title: "A set is a hash map's keys. A tuple is a fixed packet.",
-        body: <>A <strong>hash map</strong> jumps straight to an item by name in one step (a &ldquo;key&rdquo; = the name you look up by). A set is a hash map with the values thrown away &mdash; only keys kept. &ldquo;Is x in the set?&rdquo; is one hop. Re-adding x does nothing &mdash; its cubby already holds it. A tuple is the opposite: a fixed packet where slot 0 is <em>always</em> the date.</>,
+        body: <>A <strong>hash map</strong> jumps straight to any item by name in one step (a &ldquo;key&rdquo; = the name you look up by). A set is a hash map keeping only keys. &ldquo;Is x in the set?&rdquo; is one such jump; re-adding x does nothing. A tuple is the opposite: a fixed packet where slot 0 is <em>always</em> the date.</>,
       }],
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 200 }],
       codeLabels: ["set_def", "set_add_dup", "tuple_def"],
@@ -392,7 +392,7 @@ export const setsTuplesLesson: LessonSpec = {
       visual: <OpsVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Sets are hash-fast. Tuples are basically free.",
-        body: <>Set: add, remove, and &ldquo;in&rdquo; each cost <code>O(1)</code> &mdash; that means the time stays the same no matter how big the set grows. Combining two sets costs about the size of the smaller one. Tuple: grab slot i instantly; reading all n items is <code>O(n)</code> &mdash; time grows with the count. Being unchangeable is exactly why a tuple can live inside a set; a list can&rsquo;t.</>,
+        body: <>Set: add, remove, and &ldquo;in&rdquo; each cost <code>O(1)</code> &mdash; the time stays the same however big the set grows. Combining two sets costs about the size of the smaller one. Tuple: grab any slot instantly; reading all <code>n</code> items is <code>O(n)</code> &mdash; time grows with the count. Being unchangeable is why a tuple can live inside a set; a list can&rsquo;t.</>,
       }],
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 186 }],
       codeLabels: ["set_ops", "tuple_immutable", "tuple_key"],
@@ -402,7 +402,7 @@ export const setsTuplesLesson: LessonSpec = {
       visual: <FitVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When they fit", title: "Set for “is X here?”. Tuple for “X, Y, Z stay together.”",
-        body: <>Reach for a set whenever you&rsquo;d ask &ldquo;contains? unique? in both? in one but not the other?&rdquo; &mdash; online users, seen URLs, visited spots, allow-lists. Reach for a tuple when several values describe one thing and the shape never changes &mdash; and you pull the pieces back out by position: <code>date, lat, temp = reading</code>.</>,
+        body: <>Reach for a set whenever you&rsquo;d ask &ldquo;contains? unique? in both? in one but not the other?&rdquo; &mdash; online users, seen URLs, allow-lists. Reach for a tuple when several values describe one thing whose shape never changes, and you pull the pieces back out by position: <code>date, lat, temp = reading</code>.</>,
       }],
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 178 }],
       codeLabels: ["set_in", "tuple_unpack"],
@@ -412,7 +412,7 @@ export const setsTuplesLesson: LessonSpec = {
       visual: <NameVisual />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The structures", title: "Set and Tuple.",
-        body: <>That&rsquo;s the name. Python writes a set with curly braces <code>{"{1, 2, 3}"}</code> and a tuple with parentheses <code>(1, 2, 3)</code>. The deeper move both make: they <em>say what the data is for</em>. A list stays silent about intent. A set says &ldquo;membership matters.&rdquo; A tuple says &ldquo;these belong together as one thing.&rdquo;</>,
+        body: <>That&rsquo;s the name. Python writes a set with curly braces <code>{"{1, 2, 3}"}</code> and a tuple with parentheses <code>(1, 2, 3)</code>. The deeper move both make: they <em>say what the data is for</em>. A list stays silent. A set says &ldquo;membership matters.&rdquo; A tuple says &ldquo;these are one thing.&rdquo;</>,
       }],
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 188 }],
       codeLabels: ["set_def", "tuple_def"],

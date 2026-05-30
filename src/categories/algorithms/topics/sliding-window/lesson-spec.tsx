@@ -239,7 +239,7 @@ export const slidingWindowLesson: LessonSpec = {
       visual: <FrozenSlide />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The derivation", title: "One leaves, one enters, the rest stay.",
-        body: <>Two cells change per slide. Keep a running total &mdash; call it <code>window_sum</code>. The new total is the old total, minus the number that <strong>left</strong>, plus the number that <strong>entered</strong>. Two operations, however wide the window. <span className="text-[var(--accent-ink)]">Pay to add each number once, then reuse that total forever.</span></>,
+        body: <>Two cells change per slide. Keep a running total &mdash; call it <code>window_sum</code>. The new total is the old total, minus the number that <strong>left</strong>, plus the number that <strong>entered</strong>. Just two steps, any window width. <span className="text-[var(--accent-ink)]">Add each number once, then reuse the total forever.</span></>,
       }],
       arrows: [
         { x1: G.cx(2), y1: 150, x2: G.cx(2), y2: G.y - 4 },

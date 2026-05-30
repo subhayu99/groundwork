@@ -294,7 +294,7 @@ export const stringsLesson: LessonSpec = {
       panels: [
         {
           left: 24, top: 18, width: 480, variant: "main", label: "The wedge", title: "Drag the highlight. Read underneath.",
-          body: <>Drag the slider to pick a starting box. The five letters under the highlight are your candidate. Slide it across. Landing on box 12 is no harder than box 2 &mdash; reading any single letter is one quick lookup, exactly like an array.</>,
+          body: <>Drag the slider to pick a starting box. The five letters under the highlight are your candidate. Slide it across. Landing on box 12 is no harder than box 2 &mdash; jumping straight to any single letter is one quick, instant lookup.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",

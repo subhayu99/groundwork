@@ -175,7 +175,7 @@ export const arraysLesson: LessonSpec = {
       visual: idleRow(ARR.map((_, i) => (i === TARGET ? "active" : undefined))),
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The setup", title: "A thousand books. Find the 487th.",
-        body: <>You&rsquo;re shelving a thousand books and a friend says &ldquo;hand me book number 487.&rdquo; You don&rsquo;t care what it is &mdash; only that it sits at that <strong>position</strong>. The whole question: how fast can you reach it? (Picture this short row 1,000 long.)</>,
+        body: <>You&rsquo;re shelving a thousand books and a friend says &ldquo;hand me book number 487.&rdquo; You don&rsquo;t care what it is &mdash; only that it sits at that <strong>position</strong>. How fast can you reach it? (Picture this short row 1,000 long.)</>,
       }],
       arrows: [{ x1: G.cx(TARGET), y1: 150, x2: G.cx(TARGET), y2: G.y - 4 }],
       codeLabels: [],
@@ -211,7 +211,7 @@ export const arraysLesson: LessonSpec = {
       visual: <MemoryRuler />,
       panels: [{
         left: 150, top: 18, width: 560, variant: "main", label: "The structure", title: "Same-size slots, packed side by side.",
-        body: <>That row of equal slots is an <strong>array</strong>. Every slot has the same size and they sit next to each other in memory with no gaps (&ldquo;contiguous&rdquo;). So slot <code>i</code>&rsquo;s spot is just <code>base + i × size</code> &mdash; one piece of arithmetic, the same work for a row of a thousand or a million. We call that <strong>constant time</strong>: the effort doesn&rsquo;t grow as the array grows.</>,
+        body: <>That row of equal slots is an <strong>array</strong>. Slots are all one size, sitting side by side with no gaps. So slot <code>i</code>&rsquo;s spot is just <code>base + i × size</code> &mdash; one bit of arithmetic, the same work whether the row is a thousand or a million. That fixed effort is called <strong>constant time</strong>.</>,
       }],
       arrows: [{ x1: G.cx(TARGET), y1: 150, x2: G.cx(TARGET), y2: G.y - 4 }],
       codeLabels: ["index_read"],
@@ -222,7 +222,7 @@ export const arraysLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The operations", title: "Cheap reads, costly middle-edits.",
-          body: <>Read or write by index is one step, same cost at any size &mdash; we write that <strong>O(1)</strong> (&ldquo;stays constant&rdquo;). Inserting in the middle is different: call the number of items <code>n</code>; every later element must shift to make room, so the cost grows in step with <code>n</code>. We write that <strong>O(n)</strong>. Watch the tail shift.</>,
+          body: <>Read or write by index is one step at any size &mdash; written <strong>O(1)</strong> (&ldquo;cost stays the same&rdquo;). Inserting in the middle differs: call the item count <code>n</code>; every later item must shift over to make room, so cost grows in step with <code>n</code> &mdash; written <strong>O(n)</strong>. Watch the tail shift.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
@@ -237,7 +237,7 @@ export const arraysLesson: LessonSpec = {
       visual: <CostCard />,
       panels: [{
         left: 540, top: 372, width: 290, variant: "note", label: "When it fits",
-        body: <>Use arrays when the work is read-by-position, append, or scan start-to-end. Reach elsewhere &mdash; a linked list or hash map &mdash; when you constantly insert/delete in the middle.</>,
+        body: <>Use arrays when the work is read-by-position, append, or scan start-to-end. Reach for other layouts (you&rsquo;ll meet them later) when you constantly insert or delete in the middle.</>,
       }],
       codeLabels: ["loop"],
     },
@@ -246,7 +246,7 @@ export const arraysLesson: LessonSpec = {
       visual: idleRow(ARR.map((_, i) => (i === TARGET ? "good" : undefined)), undefined, { [TARGET]: "arr[i]" }),
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Array. List, in Python.",
-        body: <>That&rsquo;s the name. In low-level languages an array&rsquo;s size is fixed; Python&rsquo;s <code>list</code> is a <strong>dynamic array</strong> &mdash; it grows when you append, with the same cost model. Every <code>arr[i]</code> you see does that <code>base + i × size</code> jump. That one line is why arrays are everywhere.</>,
+        body: <>That&rsquo;s the name. In many languages an array&rsquo;s size is fixed; Python&rsquo;s <code>list</code> is a <strong>dynamic array</strong> &mdash; it grows when you append, same cost model. Every <code>arr[i]</code> you see does that <code>base + i × size</code> jump. That one line is why arrays are everywhere.</>,
       }],
       arrows: [{ x1: G.cx(TARGET), y1: 150, x2: G.cx(TARGET), y2: G.y - 4 }],
       codeLabels: ["setup", "length"],

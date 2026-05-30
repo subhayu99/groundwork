@@ -468,10 +468,10 @@ export const backtrackingLesson: LessonSpec = {
           title: "Six queens on a 6×6 board. No clashes.",
           body: (
             <>
-              A <strong>queen</strong> in chess attacks every square in its row, its
-              column, and both diagonals &mdash; the red squares here. Goal: place
-              all six so no two ever sit in each other&rsquo;s line of fire. Your eye
-              hunts a spot at once; a computer must try squares one at a time.
+              A <strong>queen</strong> in chess attacks every square in its row,
+              column, and both diagonals &mdash; the red squares. Goal: place all six
+              so none sits in another&rsquo;s line of fire. Your eye finds a spot at
+              once; a computer must test squares one at a time.
             </>
           ),
         },
@@ -492,11 +492,10 @@ export const backtrackingLesson: LessonSpec = {
           title: "Trying every board explodes.",
           body: (
             <>
-              The blind way &mdash; <strong>brute force</strong>, meaning test every
-              possibility &mdash; drops six queens every which way and keeps the legal
-              ones. Since no two share a row, each row holds one queen, so we just pick
-              a column per row: 46,656 boards. But most clash at once &mdash; like the
-              two reds here, doomed the moment they share a column.
+              The blind way &mdash; <strong>brute force</strong>, meaning try every
+              possibility &mdash; keeps the legal boards. Since each row holds one queen,
+              we just pick a column per row: 46,656 boards. But most clash at once
+              &mdash; like the two reds here, doomed the moment they share a column.
             </>
           ),
         },
@@ -518,10 +517,9 @@ export const backtrackingLesson: LessonSpec = {
           body: (
             <>
               Your turn. Fill rows top-down: click a safe (blue) square in the next
-              row &mdash; red attacked squares refuse the click. Reach a row with no
-              safe square? That branch is dead: press <strong>undo</strong> to pull
-              the last queen and try a different column above. That undo is the whole
-              idea.
+              row &mdash; red attacked squares refuse the click. Stuck with no safe
+              square? Press <strong>undo</strong> to pull the last queen and try a
+              different column above. That undo is the whole idea.
             </>
           ),
         },
@@ -558,10 +556,10 @@ export const backtrackingLesson: LessonSpec = {
           body: (
             <>
               <code>placed</code> lists the column picked per filled row, so{" "}
-              <code>[1, 3]</code> fills rows 0 and 1; the next row is row 2. Six placed?
-              Save it. Else, for each safe column: add it, call <code>place</code> one
-              row deeper &mdash; <strong>recursion</strong> (a function calling itself on
-              a smaller job) &mdash; then pop it off. That pop is the undo.
+              <code>[1, 3]</code> fills rows 0 and 1. Six placed? Save it. Else, for each
+              safe column: add it, call <code>place</code> a row deeper &mdash;{" "}
+              <strong>recursion</strong> (a step that reruns itself on a smaller job)
+              &mdash; then pop it off. That pop is the undo.
             </>
           ),
         },
@@ -599,8 +597,8 @@ export const backtrackingLesson: LessonSpec = {
               a few hundred &mdash; watch <em>boards built</em> climb and{" "}
               <em>solutions</em> reach 4. Worst case stays{" "}
               <strong>exponential</strong> (work balloons as the board grows), but the
-              prune bites hard. Memory is tiny: the <strong>stack</strong> of paused{" "}
-              <code>place</code> calls is at most six deep.
+              prune bites hard. Memory stays tiny: just the paused{" "}
+              <code>place</code> calls, six deep at most.
             </>
           ),
         },
@@ -624,8 +622,8 @@ export const backtrackingLesson: LessonSpec = {
               The shape was never about queens: build an answer one choice at a time,
               and the instant a partial answer becomes impossible, drop every way of
               continuing it. Same shape, new stories &mdash; sudoku, coloring a map so
-              neighbours differ, listing every valid bracket string, every subset that
-              sums to a target. The check is what beats blind guessing.
+              neighbours differ, valid bracket strings, hitting a target sum. The check
+              beats blind guessing.
             </>
           ),
         },
@@ -647,11 +645,9 @@ export const backtrackingLesson: LessonSpec = {
             <>
               That&rsquo;s the name &mdash; <strong>depth-first search</strong> (dig
               down one path before trying others) with a check at every step. The
-              &ldquo;back&rdquo; is the undo. Saving a finished board uses{" "}
-              <code>placed[:]</code> &mdash; a snapshot copy, so later undos can&rsquo;t
-              erase it. Spot it when you must &ldquo;find all / count all / is there
-              any&rdquo; arrangement fitting a rule, built one choice at a time. (Six
-              queens: 4 solutions.)
+              &ldquo;back&rdquo; is the undo. Saving a board uses <code>placed[:]</code>
+              &mdash; a frozen copy, so later undos can&rsquo;t erase it. Reach for it on
+              &ldquo;find all / is there any&rdquo; puzzles. (Six queens: 4 solutions.)
             </>
           ),
         },

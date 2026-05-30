@@ -475,11 +475,11 @@ export const bfsLesson: LessonSpec = {
           title: "Same maze. New question: how few steps?",
           body: (
             <>
-              The same 5&times;5 grid. You start at <strong>S</strong> (top-left);
-              the goal is <strong>G</strong> (bottom-right); filled cells are walls.
-              But the question changed: not <em>is there a way out?</em> &mdash; now{" "}
-              <em>what&rsquo;s the fewest steps?</em> A long winding route still
-              counts as a route, so we need a walker that always reports the shortest.
+              The same 5&times;5 grid: start at <strong>S</strong> (top-left), reach{" "}
+              <strong>G</strong> (bottom-right), filled cells are walls. New question:
+              not <em>is there a way out?</em> but <em>what&rsquo;s the fewest steps?</em>{" "}
+              A long winding route counts too, so we need a method that always reports
+              the shortest.
             </>
           ),
         },
@@ -507,13 +507,12 @@ export const bfsLesson: LessonSpec = {
           title: "Depth-first finds a path. It doesn't promise the shortest.",
           body: (
             <>
-              A <em>depth-first</em> walker dives down one branch all the way to a
-              dead end before trying another. On <em>this</em> maze its route happens
-              to be 8 steps &mdash; the true shortest. But on a different maze it
-              could slog the long way around. Finding <em>a</em> path isn&rsquo;t the
-              same as finding the <em>shortest</em> one. What if we explored{" "}
-              <strong>by distance</strong> instead &mdash; everything one step away,
-              then two, then three?
+              A <em>depth-first</em> walker dives down one branch to a dead end before
+              trying another. On <em>this</em> maze that&rsquo;s 8 steps &mdash; the true
+              shortest &mdash; but another maze could send it the long way around. Finding{" "}
+              <em>a</em> path isn&rsquo;t finding the <em>shortest</em> one. What if we
+              explored <strong>by distance</strong> &mdash; one step away, then two, then
+              three?
             </>
           ),
         },
@@ -542,10 +541,10 @@ export const bfsLesson: LessonSpec = {
           body: (
             <>
               Press <strong>play</strong> (or step). A ripple of light spreads from{" "}
-              <strong>S</strong>: first the cells one step away, then two, then three.
-              The small number on each cell is its <strong>distance</strong> &mdash;
-              the fewest steps from S to reach it. The instant the ripple touches{" "}
-              <strong>G</strong>, that number is the answer.
+              <strong>S</strong>: cells one step away, then two, then three. The small
+              number on each cell is its <strong>distance</strong> &mdash; the fewest
+              steps from S to reach it. The instant the ripple touches <strong>G</strong>,
+              that number is the answer.
             </>
           ),
         },
@@ -579,12 +578,10 @@ export const bfsLesson: LessonSpec = {
           title: "A queue holds 'the next ring to look at'.",
           body: (
             <>
-              A <strong>queue</strong> is a waiting line &mdash; join at the back, leave
-              from the front (first in, first out, <strong>FIFO</strong>). Put S in line at
-              distance 0. Loop: pull the front cell; if it&rsquo;s G, its distance is the
-              answer. Otherwise mark each open, unseen neighbour <strong>seen</strong>, give
-              it a distance one more, and send it to the back &mdash; so each cell is counted
-              once.
+              A <strong>queue</strong> is a waiting line: join at the back, leave from the
+              front. Put S in line at distance 0. Loop: pull the front cell; if it&rsquo;s G,
+              its distance is the answer. Otherwise mark each open, unseen neighbour{" "}
+              <strong>seen</strong>, set its distance one higher, and send it to the back.
             </>
           ),
         },
@@ -624,11 +621,11 @@ export const bfsLesson: LessonSpec = {
           body: (
             <>
               Marked seen the moment it joins, a cell never joins twice. Let{" "}
-              <strong>V</strong> = open cells and <strong>E</strong> = neighbour-to-neighbour
-              links (each cell touches up to 4). Total work is <strong>O(V + E)</strong>
-              &mdash; &ldquo;O(...)&rdquo; just means how effort grows, here in step with cells
-              plus links. Memory holds only the current ring, not the whole grid. DFS does the
-              same work, but only BFS&rsquo;s <em>first</em> arrival at G is guaranteed shortest.
+              <strong>V</strong> = open cells and <strong>E</strong> = links between
+              neighbours. Total work is <strong>O(V + E)</strong> &mdash; &ldquo;O(...)&rdquo;
+              just means how the effort grows, here in step with cells plus links. DFS does
+              the same work, but only BFS&rsquo;s <em>first</em> arrival at G is guaranteed
+              shortest.
             </>
           ),
         },
@@ -657,12 +654,11 @@ export const bfsLesson: LessonSpec = {
           title: "Anywhere you want 'closest first'.",
           body: (
             <>
-              A cell can be any <strong>node</strong> &mdash; a thing-with-links: a dot
-              joined by <strong>edges</strong> (the lines). Wherever links cost the same
-              &mdash; one click is one click &mdash; this outward walk gives the shortest
-              route: degrees of separation, word ladders, equal-cost routing, printing a
-              tree level by level. When links cost differently (a road map), swap the plain
-              line for a smarter one &mdash; Dijkstra&rsquo;s algorithm.
+              A cell can be any <strong>node</strong> &mdash; a dot joined to others by{" "}
+              <strong>edges</strong> (the lines). Wherever links cost the same &mdash; one
+              click is one click &mdash; this outward walk gives the shortest route: degrees
+              of separation, word ladders, equal-cost routing, tree levels. When links cost
+              differently (a road map), use a smarter tool &mdash; Dijkstra&rsquo;s algorithm.
             </>
           ),
         },
@@ -685,9 +681,9 @@ export const bfsLesson: LessonSpec = {
             <>
               That&rsquo;s the name &mdash; <em>breadth-first</em> because we finish
               every cell at distance d before any at d+1, and the queue forces that
-              order. Reach for it when you hear &ldquo;fewest steps / shortest
-              path&rdquo; on a map where every step costs the same, &ldquo;closest
-              matching X&rdquo;, or &ldquo;level by level&rdquo;.
+              order. Reach for it when you hear &ldquo;fewest steps&rdquo; where every
+              step costs the same, &ldquo;closest match&rdquo;, or &ldquo;level by
+              level&rdquo;.
             </>
           ),
         },

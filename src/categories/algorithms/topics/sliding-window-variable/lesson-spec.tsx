@@ -201,7 +201,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       ),
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "The setup", title: "The longest stretch with no repeats.",
-        body: <>Here is the word <code>abracadabra</code> spelled out as a row of letter boxes. The question: what is the longest run you can read left-to-right without ever repeating a letter? We don&rsquo;t fix the length &mdash; we protect a rule: every letter inside is different.</>,
+        body: <>The word <code>abracadabra</code> as a row of letter boxes. What is the longest run, read left-to-right, with no repeated letter? We don&rsquo;t fix the length &mdash; we protect a rule: every letter inside is different.</>,
       }],
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: G.y - 18 }],
       codeLabels: ["sig"],
@@ -211,7 +211,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       visual: <NaiveScan />,
       panels: [{
         left: 150, top: 332, width: 580, variant: "main", label: "The obvious thing", title: "Check every possible stretch.",
-        body: <>The slow way: from each starting box, walk right until a letter repeats, and remember the longest clean run. For an <em>n</em>-letter word that&rsquo;s about <code>n²/2</code> &mdash; roughly length-times-length &mdash; checks. Worse, we keep re-reading the same letters, throwing away facts we already proved.</>,
+        body: <>The slow way: from each starting box, walk right until a letter repeats, and keep the longest clean run. For an <em>n</em>-letter word (<em>n</em> counts the letters) that&rsquo;s about <code>n²/2</code> checks &mdash; roughly length-times-length. Worse, we keep re-reading the same letters.</>,
       }],
       arrows: [{ x1: G.cx(2), y1: 328, x2: G.cx(2), y2: G.y + G.cellH + 25 }],
       codeLabels: [],
@@ -223,7 +223,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Two ends. Move them by hand.",
-          body: <>Two <strong>markers</strong> (just labels under the row): <code>L</code> on the left edge of your run, <code>R</code> on the right. <em>Expand</em> adds the next letter on the right; <em>contract</em> drops the leftmost one. Try to find the longest no-repeat run &mdash; notice you never restart.</>,
+          body: <>Two <strong>markers</strong> (just labels under the row): <code>L</code> on the left edge of your run, <code>R</code> on the right. <em>Expand</em> adds the next letter on the right; <em>contract</em> drops the leftmost. Find the longest no-repeat run &mdash; notice you never restart.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
@@ -237,8 +237,8 @@ export const slidingWindowVariableLesson: LessonSpec = {
       id: "derive",
       visual: (api) => <AutoWindow api={api} />,
       panels: [{
-        left: 150, top: 18, width: 580, variant: "main", label: "The derivation", title: "Right grows greedily. Left shrinks just enough.",
-        body: <>Walk <code>R</code> across the word. Each step: is the letter at position <code>R</code> (its position number, counting from 0) already inside the current run? No &mdash; keep it, and update the best length. Yes &mdash; the no-repeat rule just broke, so slide <code>L</code> forward past the duplicate. <span className="text-[var(--accent-ink)]">A small lookup table remembers each letter&rsquo;s last position, so <code>L</code> jumps there in one move.</span></>,
+        left: 150, top: 18, width: 580, variant: "main", label: "The derivation", title: "Right always grows. Left shrinks just enough.",
+        body: <>Walk <code>R</code> across the word. Each step: is the letter at <code>R</code> already inside the current run? No &mdash; keep it, update the best length. Yes &mdash; the no-repeat rule just broke, so slide <code>L</code> forward past the duplicate. <span className="text-[var(--accent-ink)]">A small lookup table remembers each letter&rsquo;s last position, so <code>L</code> jumps there in one move.</span></>,
       }],
       codeLabels: ["expand", "check", "contract", "record", "update"],
       interaction: "playback",
@@ -248,7 +248,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       visual: <LinearContrast />,
       panels: [{
         left: 150, top: 30, width: 560, variant: "main", label: "The win", title: "Every letter touched twice. Linear time.",
-        body: <>Each letter joins the run once and leaves once &mdash; about <code>2n</code> moves, written <code>O(n)</code> (the work grows in step with the word&rsquo;s length). The table lookup is instant &mdash; <code>O(1)</code>, the same tiny cost no matter how full it gets. Naive on 1,000 letters: half a million checks; this: about two thousand.</>,
+        body: <>Each letter joins the run once and leaves once &mdash; about <code>2n</code> moves, written <code>O(n)</code> (work grows in step with the word&rsquo;s length). The table lookup is instant &mdash; <code>O(1)</code>, the same tiny cost no matter its size. Naive on 1,000 letters: half a million checks; this: about two thousand.</>,
       }],
       arrows: [{ x1: G.cx(2), y1: 150, x2: G.cx(2), y2: G.y - 4 }],
       codeLabels: ["expand", "contract"],
@@ -259,7 +259,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       visual: <ThreeVariants />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The generalization", title: "Any rule that breaks once you cross a line.",
-        body: <>The trick works for any rule the window keeps that snaps the moment you cross a line. &ldquo;Smallest window covering every needed letter.&rdquo; &ldquo;Longest run with at most <code>k</code> different letters.&rdquo; Grow <code>R</code> while the rule holds; shrink <code>L</code> the least amount that brings it back. The rule changes; the motion doesn&rsquo;t.</>,
+        body: <>It works for any rule the window keeps that snaps the moment you cross a line. &ldquo;Smallest window covering every needed letter.&rdquo; &ldquo;Longest run with at most <code>k</code> different letters&rdquo; (<code>k</code> is any number you pick). Grow <code>R</code> while the rule holds; shrink <code>L</code> the least that brings it back.</>,
       }],
       codeLabels: ["expand", "check", "contract"],
       interaction: "none",
@@ -269,7 +269,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       visual: idleRow(ARR.map((_, i) => (i >= 1 && i <= 4 ? "good" : undefined)), ARR.map((_, i) => !(i >= 1 && i <= 4)), { 1: "L", 4: "R ✓" }),
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Sliding Window (Variable).",
-        body: <>That&rsquo;s the name &mdash; the answer here is <code>brac</code> (length 4). Same family as the fixed-size window, but the window breathes: right expands when it can, left contracts when it must. Spot it whenever a problem asks for a longest or shortest <em>substring</em> (a run of letters sitting next to each other) under a rule that flips on or off once.</>,
+        body: <>That&rsquo;s the name &mdash; the answer here is <code>brac</code> (length 4). Same family as the fixed-size window, but this one breathes: right expands when it can, left contracts when it must. Spot it whenever a problem asks for the longest or shortest <em>substring</em> (a run of letters sitting next to each other) under a rule that flips on or off.</>,
       }],
       arrows: [{ x1: G.cx(2), y1: G.y + G.cellH + 34, x2: G.cx(2), y2: G.y + G.cellH + 4 }],
       codeLabels: ["result"],

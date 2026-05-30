@@ -266,7 +266,7 @@ export const twoPointersLesson: LessonSpec = {
       visual: <WinStat />,
       panels: [{
         left: 150, top: 26, width: 560, variant: "main", label: "The win", title: "Forty-five pairs becomes nine comparisons.",
-        body: <>Brute force checks up to <code>n &times; (n &minus; 1) / 2</code> pairs &mdash; here <code>n</code> (the number of cards) is 10, so 45. Two fingers touch each card once: <code>L</code> only moves right, <code>R</code> only left. They meet in at most <code>n &minus; 1</code> = 9 steps.</>,
+        body: <>Trying every pair takes up to <code>n &times; (n &minus; 1) / 2</code> &mdash; with <code>n</code> (the card count) = 10, that&rsquo;s 45. Two fingers touch each card once: <code>L</code> only moves right, <code>R</code> only left. They meet in at most <code>n &minus; 1</code> = 9 steps.</>,
       }],
       codeLabels: ["loop", "compute", "compare", "found"],
     },

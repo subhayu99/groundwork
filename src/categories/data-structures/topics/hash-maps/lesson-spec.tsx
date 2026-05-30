@@ -266,7 +266,7 @@ export const hashMapsLesson: LessonSpec = {
       visual: idleRow(),
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The setup", title: "A phone book of ten thousand names. Find Alice.",
-        body: <>You&rsquo;re holding a phone book &mdash; ten thousand names, in no order. Someone asks for Alice&rsquo;s number. You don&rsquo;t know her page, or even if she&rsquo;s listed. Every answer costs work. How much does finding one name cost?</>,
+        body: <>A phone book &mdash; ten thousand names, in no order. Someone asks for Alice&rsquo;s number. You don&rsquo;t know her page, or even if she&rsquo;s listed. Every answer costs work. How much does finding one name cost?</>,
       }],
       codeLabels: [],
     },
@@ -275,7 +275,7 @@ export const hashMapsLesson: LessonSpec = {
       visual: (api) => <LinearScan api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Open page one. Start reading.",
-        body: <>The simple way is to <strong>scan</strong> &mdash; read names top to bottom until you hit Alice. On entry 4,872 that&rsquo;s 4,872 reads; if she&rsquo;s missing, all ten thousand. Cost grows with the pile &mdash; we call that <strong>O(n)</strong>. What if the name itself told you the page?</>,
+        body: <>The simple way: <strong>scan</strong> &mdash; read names top to bottom until you hit Alice. If she&rsquo;s the 4,872nd, that&rsquo;s 4,872 reads; if missing, all ten thousand. The work grows in step with the count of names &mdash; we call that <strong>O(n)</strong>. What if the name told you the page?</>,
       }],
       arrows: [{ x1: ROW.cx(1), y1: 184, x2: ROW.cx(1), y2: ROW.y - 4 }],
       codeLabels: [],
@@ -287,7 +287,7 @@ export const hashMapsLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 580, variant: "main", label: "The wedge", title: "Pick a name. Watch its address appear.",
-          body: <>Click a name and a <strong>hash function</strong> &mdash; a tiny recipe that chews the letters into a number &mdash; hands you a box. It looks nothing up; it just computes, then takes mod 16 (the remainder after dividing by 16, which wraps the answer into a box from 0&ndash;15). One hop, however huge the book.</>,
+          body: <>Click a name and a <strong>hash function</strong> &mdash; a recipe that turns the letters into a number &mdash; hands you a box. It searches nothing; it just computes, then takes that number mod 16 (the remainder after dividing by 16, landing you in box 0&ndash;15). One hop, however huge the book.</>,
         },
         {
           left: 250, top: 372, width: 290, variant: "note",
@@ -302,7 +302,7 @@ export const hashMapsLesson: LessonSpec = {
       visual: (api) => <DropIntoBuckets api={api} />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The structure", title: "An array of boxes, addressed by the hash.",
-        body: <>A hash map is two parts. One: a plain array of slots we call <strong>buckets</strong> &mdash; jumping to box number i (written <code>arr[i]</code>) is instant, however big the array. Two: the hash function. Store = hash, drop in the box. Most boxes hold one name; some get crowded.</>,
+        body: <>A hash map is two parts. One: a numbered row of slots we call <strong>buckets</strong> &mdash; jumping to box number i (written <code>arr[i]</code>) is instant, however many boxes there are. Two: the hash function. To store: hash the name, drop it in that box. Most boxes hold one name; some get crowded.</>,
       }],
       arrows: [{ x1: GRID.cx(0, 0), y1: 178, x2: GRID.cx(0, 0), y2: GRID.cy(0, 0) - GRID.cellPx / 2 - 4 }],
       codeLabels: ["hm_put_slot", "hm_put_append"],
@@ -314,7 +314,7 @@ export const hashMapsLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Constant time — on average.",
-          body: <>Insert, look up, delete: all <strong>O(1)</strong> on average &mdash; cost stays flat whether the table holds ten keys or ten million. A <strong>collision</strong> is two keys landing in one box; we <strong>chain</strong> them (keep a tiny list per box) so both fit. When the table fills, we build a bigger one &mdash; slow, but rare.</>,
+          body: <>Insert, look up, delete: all <strong>O(1)</strong> on average &mdash; cost stays flat, ten keys or ten million. A <strong>collision</strong> is two keys landing in one box; we <strong>chain</strong> them (keep a small list in that box) so both fit. When it fills, we build a bigger one &mdash; slow, but rare.</>,
         },
         {
           left: 568, top: 300, width: 282, variant: "note",
@@ -329,7 +329,7 @@ export const hashMapsLesson: LessonSpec = {
       visual: <FitBoard />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "Lookups by key. Counting. Caching. Most things.",
-        body: <>Reach for a hash map whenever you&rsquo;d say &ldquo;given X, find Y&rdquo; &mdash; counting how often each word appears, remembering (<strong>caching</strong>) an expensive result, removing duplicates, joining two datasets. The one thing it can&rsquo;t do: keep order, or answer &ldquo;all keys between A and M.&rdquo;</>,
+        body: <>Reach for a hash map whenever you&rsquo;d say &ldquo;given X, find Y&rdquo; &mdash; counting how often each word appears, saving (<strong>caching</strong>) a slow result to reuse, removing duplicates, joining two datasets. The one thing it can&rsquo;t do: keep order, or answer &ldquo;all keys between A and M.&rdquo;</>,
       }],
       codeLabels: ["lookup", "membership"],
     },
@@ -338,7 +338,7 @@ export const hashMapsLesson: LessonSpec = {
       visual: <SummaryCard />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Hash map. A dictionary, in Python.",
-        body: <>That&rsquo;s the named pattern: hash map, hash table, <strong>dictionary</strong> (a store of key&rarr;value pairs), associative array &mdash; same idea everywhere. Python&rsquo;s <code>dict</code> is one; so are JavaScript&rsquo;s <code>Map</code> and Java&rsquo;s <code>HashMap</code>. The principle underneath: spend memory to never search.</>,
+        body: <>That&rsquo;s the named pattern: hash map, hash table, <strong>dictionary</strong> (a store of key&rarr;value pairs) &mdash; same idea everywhere. Python&rsquo;s <code>dict</code> is one; so are JavaScript&rsquo;s <code>Map</code> and Java&rsquo;s <code>HashMap</code>. The principle underneath: spend memory to never search.</>,
       }],
       codeLabels: ["dict_init", "insert", "lookup"],
     },

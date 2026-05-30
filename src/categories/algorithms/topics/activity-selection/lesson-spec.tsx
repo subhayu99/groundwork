@@ -515,9 +515,9 @@ export const activitySelectionLesson: LessonSpec = {
           title: "One room. Seven people want it. Fit the most.",
           body: (
             <>
-              One meeting room, seven booking requests &mdash; each a start and an end hour. Two meetings can share the room only if they
-              don&rsquo;t <strong>overlap</strong>: touching is fine (one ends at 11, the next starts at 11), but 10&ndash;12 beside 11&ndash;14
-              is a clash. Fit as many as you can.
+              One meeting room, seven booking requests &mdash; each with a start and end hour. Two can share the room only if they don&rsquo;t
+              <strong> overlap</strong>: touching is fine (one ends at 11, the next starts at 11), but 10&ndash;12 beside 11&ndash;14 clashes. Fit as
+              many as you can.
             </>
           ),
         },
@@ -549,9 +549,9 @@ export const activitySelectionLesson: LessonSpec = {
           title: "Try every group, or grab a quick rule that lies.",
           body: (
             <>
-              You could test every possible group and keep the biggest clash-free one &mdash; but seven meetings means 128 groups, thirty means a
-              billion. Too slow. So you guess a rule. &ldquo;Shortest first&rdquo;? A short midday meeting blocks both halves. &ldquo;Earliest
-              start&rdquo;? The all-day 9&ndash;17 meeting blocks everything. Both wrong.
+              You could test every group and keep the biggest clash-free one &mdash; but seven meetings means 128 groups, thirty means a billion. Too
+              slow. So you guess a rule. &ldquo;Shortest first&rdquo;? A short midday meeting blocks both halves. &ldquo;Earliest start&rdquo;? The
+              all-day 9&ndash;17 meeting blocks everything. Both wrong.
             </>
           ),
         },
@@ -606,9 +606,9 @@ export const activitySelectionLesson: LessonSpec = {
           title: "Sort once. Walk once. Track when the room is free.",
           body: (
             <>
-              Five steps: sort by end; keep <code>last_end</code>, a single number for when the room next opens (it starts at &ldquo;minus
-              infinity&rdquo; &mdash; the room has been free since before time, so the first meeting always fits); walk the list; if a meeting
-              starts at or after <code>last_end</code>, take it and update; else skip.
+              Sort by end. Keep <code>last_end</code>, one number for when the room next opens &mdash; it starts at &ldquo;minus infinity&rdquo; (free
+              since before time, so the first meeting always fits). Walk the list: if a meeting starts at or after <code>last_end</code>, take it and
+              update; else skip.
             </>
           ),
         },
@@ -641,9 +641,9 @@ export const activitySelectionLesson: LessonSpec = {
           title: "Sort once, then one clean pass.",
           body: (
             <>
-              Sorting costs <code>O(n log n)</code> &mdash; &ldquo;cost grows a bit faster than the number of meetings, but slowly&rdquo;: a
-              thousand meetings is about ten thousand small comparisons. The walk costs <code>O(n)</code> &mdash; &ldquo;grows in step with the
-              count&rdquo;, one check each. Memory is just <code>last_end</code> plus the kept list. The sort is the only pricey part.
+              Here <code>n</code> is the number of meetings. Sorting costs <code>O(n log n)</code> &mdash; cost grows a bit faster than <code>n</code>,
+              but slowly: a thousand meetings is about ten thousand small comparisons. The walk costs <code>O(n)</code> &mdash; one check each. The sort
+              is the only pricey part.
             </>
           ),
         },
@@ -666,8 +666,7 @@ export const activitySelectionLesson: LessonSpec = {
             <>
               <strong>Greedy</strong> means: at each step take the locally best option and never undo it. Allowed whenever you can argue &ldquo;if
               someone chose differently first, I could swap mine in without losing.&rdquo; It fails when no clean swap exists &mdash; making 6 from
-              coins {"{1, 3, 4}"}: greedy grabs 4+1+1 (three coins), but 3+3 (two) is better. Then you need <strong>dynamic programming</strong> &mdash;
-              step back and try other combinations.
+              {"{1, 3, 4}"}, greedy grabs 4+1+1, but 3+3 is better. Then you need <strong>dynamic programming</strong>: step back and retry.
             </>
           ),
         },
@@ -689,8 +688,8 @@ export const activitySelectionLesson: LessonSpec = {
           body: (
             <>
               That&rsquo;s the name. The hard part isn&rsquo;t the code &mdash; it&rsquo;s knowing greed is allowed (the swap test). Spot it when you
-              see: &ldquo;fit the most non-overlapping things&rdquo;; &ldquo;minimum X to cover all Y&rdquo;; &ldquo;pick the cheapest available with a
-              local-best rule&rdquo;; or any time the locally best choice can&rsquo;t block the global best. Open the code &mdash; five lines, one sort.
+              see &ldquo;fit the most non-overlapping things&rdquo;, &ldquo;minimum X to cover all Y&rdquo;, or any time the locally best choice
+              can&rsquo;t block the overall best. Open the code &mdash; five lines, one sort.
             </>
           ),
         },
