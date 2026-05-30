@@ -94,10 +94,14 @@ export interface CellRowProps {
   markers?: Record<number, string>;
   showIndex?: boolean;
   fontSize?: number;
+  /** Make cells clickable (and keyboard-operable). */
+  onCellClick?: (i: number) => void;
+  /** Which cells accept a click (default: all, when onCellClick is set). */
+  cellEnabled?: (i: number) => boolean;
 }
 
 /** Render a row of tone-colored cells with optional markers, in SVG. */
-export function CellRow({ geom, values, tones, dim, markers, showIndex, fontSize = 14 }: CellRowProps): ReactNode {
+export function CellRow({ geom, values, tones, dim, markers, showIndex, fontSize = 14, onCellClick, cellEnabled }: CellRowProps): ReactNode {
   const { y, cellW, cellH } = geom;
   return (
     <>
@@ -105,16 +109,25 @@ export function CellRow({ geom, values, tones, dim, markers, showIndex, fontSize
         const tone: Tone = tones?.[i] ?? "idle";
         const isDim = dim?.[i];
         const ts = toneStyle[tone];
+        const enabled = onCellClick ? (cellEnabled ? cellEnabled(i) : true) : false;
         return (
-          <g key={i} style={{ opacity: isDim ? 0.28 : 1, transition: "opacity .3s" }}>
+          <g
+            key={i}
+            style={{ opacity: isDim ? 0.28 : 1, transition: "opacity .3s", cursor: enabled ? "pointer" : "default", outline: "none" }}
+            onClick={enabled ? () => onCellClick!(i) : undefined}
+            onKeyDown={enabled ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onCellClick!(i); } } : undefined}
+            tabIndex={enabled ? 0 : undefined}
+            role={enabled ? "button" : undefined}
+            aria-label={enabled ? `cell ${i}, value ${v}` : undefined}
+          >
             <rect x={geom.left(i)} y={y} width={cellW} height={cellH} rx={8}
               style={{ fill: ts.bg, stroke: ts.border, transition: "fill .3s, stroke .3s" }} strokeWidth={2} />
             <text x={geom.cx(i)} y={y + cellH / 2} textAnchor="middle" dominantBaseline="central"
-              className="font-mono select-none" style={{ fontSize, fill: "var(--text)" }}>
+              className="font-mono select-none pointer-events-none" style={{ fontSize, fill: "var(--text)" }}>
               {v}
             </text>
             {showIndex && (
-              <text x={geom.cx(i)} y={y + cellH + 14} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>
+              <text x={geom.cx(i)} y={y + cellH + 14} textAnchor="middle" className="font-mono select-none pointer-events-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>
                 {i}
               </text>
             )}
