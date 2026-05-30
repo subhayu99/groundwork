@@ -27,7 +27,12 @@ export function LessonRuntime({ spec, onComplete }: { spec: LessonSpec; onComple
 
   // Reset the live (emitted) highlight whenever the beat changes, so a stale
   // line never lingers when leaving a playback/wedge beat.
-  useEffect(() => { setLiveLabels(null); }, [b]);
+  // Emitted labels are mirrored in a ref so onActiveLine can dedupe and DEFER
+  // its setState — a beat's visual may call onActiveLine during its own render,
+  // and a synchronous parent setState there is the "setState while rendering"
+  // crash. Deferring to a microtask lands the update right after commit.
+  const liveRef = useRef<(string | number)[] | null>(null);
+  useEffect(() => { liveRef.current = null; setLiveLabels(null); }, [b]);
 
   // Fit the fixed-size canvas (svg + the absolutely-positioned panels, together)
   // to whatever area the column gives it — so it fills the desktop viewport.
@@ -47,7 +52,15 @@ export function LessonRuntime({ spec, onComplete }: { spec: LessonSpec; onComple
   }, [showCode, VW, VH]);
 
   const api: BeatVisualApi = useMemo(() => ({
-    onActiveLine: (labels) => setLiveLabels(labels),
+    onActiveLine: (labels) => {
+      const cur = liveRef.current;
+      const same = cur != null && cur.length === labels.length && cur.every((v, i) => v === labels[i]);
+      if (same) return; // already showing these — avoids a re-render loop
+      liveRef.current = labels;
+      const apply = () => setLiveLabels(labels);
+      if (typeof queueMicrotask === "function") queueMicrotask(apply);
+      else Promise.resolve().then(apply);
+    },
     onInteractionDone: () => setInteracted((m) => (m[beat.id] ? m : { ...m, [beat.id]: true })),
   }), [beat.id]);
 
