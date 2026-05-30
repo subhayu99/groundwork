@@ -51,4 +51,14 @@ these are product/infra calls, not code I can responsibly make while they sleep.
 
 ## Run log
 - 939d547 — prototype committed to branch (reference).
-- (entries appended as the run proceeds…)
+- 8364a3a — **engine built**: `src/shared/lesson/` (types, canvas helpers, LessonRuntime). tsc clean.
+- spec swarm (workflow): **19/20 conversion specs written + peer-reviewed** in `docs/ac-conversion/`
+  (graphs missing; 1 "good" = dfs, 12 "needs-work" with concrete issues to fold in). The 7 schema-
+  return failures still wrote their files.
+- **binary-search converted + VERIFIED on the engine** (interactive wedge gates Next, click-to-halve
+  dims the eliminated half + lights the branch code; auto-playback runs and the code line follows each
+  frame; 0 console errors). Content rewritten beginner-safe.
+- **integration done**: `src/shared/lesson/registry.ts` + `TopicPageClient` switch → the REAL route
+  `/categories/algorithms/binary-search` now renders the new form ("replace on branch"). Verified.
+- NEXT: SVG primitives for tree/grid/stack shapes → build trees/graphs/dfs/stacks-queues → critic pass
+  → scaffold the other 15 from their specs → report.

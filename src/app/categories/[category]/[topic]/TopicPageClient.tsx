@@ -15,6 +15,8 @@ import { prepareCode, resolveLines } from "@/shared/code/syncAnchors";
 import { emitEvent } from "@/shared/analytics/events";
 import { useProgress } from "@/shared/progress/useProgress";
 import { notFound } from "next/navigation";
+import { getLessonSpec } from "@/shared/lesson/registry";
+import { LessonRuntime } from "@/shared/lesson/LessonRuntime";
 
 interface Props {
   categoryKey: string;
@@ -40,6 +42,10 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   }, [categoryKey, topicKey]);
 
   if (!cat || !bundle) notFound();
+
+  // Converted topics render the new annotated-canvas lesson (replace on branch).
+  const lessonSpec = getLessonSpec(categoryKey, topicKey);
+  if (lessonSpec) return <LessonRuntime spec={lessonSpec} />;
 
   const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, naiveThroughStep, problems, nextSteps } = bundle;
   const problemCount = problems?.length ?? 0;
