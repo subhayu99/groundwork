@@ -53,10 +53,22 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
       href: `/categories/${categoryKey}/${topicKey}/practice/${p.id}`,
       difficulty: p.difficulty,
     }));
+    const all = listAllTopics();
+    const idx = all.findIndex((t) => t.category === categoryKey && t.key === topicKey);
+    const prevT = idx > 0 ? all[idx - 1] : undefined;
+    const nextT = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : undefined;
+    const nav = {
+      homeHref: "/",
+      categoryName: cat.name,
+      categoryHref: `/categories/${categoryKey}`,
+      prev: prevT ? { name: prevT.name, href: `/categories/${prevT.category}/${prevT.key}` } : undefined,
+      next: nextT ? { name: nextT.name, href: `/categories/${nextT.category}/${nextT.key}` } : undefined,
+    };
     return (
       <LessonRuntime
         spec={lessonSpec}
         practice={practice}
+        nav={nav}
         initiallyCompleted={everCompleted}
         onComplete={() => {
           emitEvent({ type: "topic_completed", category: categoryKey, topic: topicKey });

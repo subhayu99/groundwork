@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { CodeHighlight } from "@/shared/code/CodeHighlight";
 import { prepareCode, resolveLines } from "@/shared/code/syncAnchors";
@@ -15,15 +16,24 @@ import type { BeatVisualApi, LessonSpec } from "./types";
  * (playback emits the live code line; a wedge beat gates "Next" until acted on).
  */
 export type LessonPracticeLink = { title: string; href: string; difficulty?: string };
+export type LessonNav = {
+  homeHref: string;
+  categoryName: string;
+  categoryHref: string;
+  prev?: { name: string; href: string };
+  next?: { name: string; href: string };
+};
 
 export function LessonRuntime({
   spec,
   practice,
+  nav,
   onComplete,
   initiallyCompleted,
 }: {
   spec: LessonSpec;
   practice?: LessonPracticeLink[];
+  nav?: LessonNav;
   onComplete?: () => void;
   initiallyCompleted?: boolean;
 }) {
@@ -86,6 +96,17 @@ export function LessonRuntime({
   const activeLines = resolveLines(liveLabels ?? beat.codeLabels ?? [], labelToLine) ?? [];
   const visualNode = typeof beat.visual === "function" ? beat.visual(api) : beat.visual;
 
+  // The code card hugs its content but caps at a max height, so a long file
+  // scrolls. Keep the active line in view so "line follows the beat" holds even
+  // when the highlighted line sits below the fold.
+  const codeScrollRef = useRef<HTMLDivElement>(null);
+  const activeKey = activeLines.join(",");
+  useEffect(() => {
+    if (!showCode) return;
+    const el = codeScrollRef.current?.querySelector("[data-active-line]");
+    el?.scrollIntoView({ block: "nearest" });
+  }, [activeKey, showCode]);
+
   const goNext = () => {
     if (b < last) setB(b + 1);
     else {
@@ -96,11 +117,42 @@ export function LessonRuntime({
 
   return (
     <main className="h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] overflow-hidden">
-      <div className="shrink-0 flex flex-col items-center gap-0.5 pt-3 pb-2">
+      <div className="shrink-0 relative flex items-center justify-center pt-3 pb-2 px-4 min-h-[40px]">
+        {/* left — breadcrumb back to home / the category (the category page lists every topic) */}
+        {nav && (
+          <nav className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 font-mono text-[11px]">
+            <Link href={nav.homeHref} aria-label="Home"
+              className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
+              <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
+              <span className="hidden sm:inline">Groundwork</span>
+            </Link>
+            <span className="text-[var(--line-strong)]">/</span>
+            <Link href={nav.categoryHref}
+              className="px-2 py-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
+              {nav.categoryName}
+            </Link>
+          </nav>
+        )}
+
+        {/* center — topic title */}
         <div className="flex items-center gap-2">
           <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
           <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--text-muted)]">{spec.topicTitle}</span>
         </div>
+
+        {/* right — jump to the previous / next topic */}
+        {nav && (nav.prev || nav.next) && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 font-mono text-[11px]">
+            {nav.prev && (
+              <Link href={nav.prev.href} title={`Previous topic: ${nav.prev.name}`}
+                className="px-2 py-1 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">‹ prev</Link>
+            )}
+            {nav.next && (
+              <Link href={nav.next.href} title={`Next topic: ${nav.next.name}`}
+                className="px-2 py-1 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">next ›</Link>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex-1 min-h-0 flex flex-col xl:flex-row gap-5 px-5 pb-4 justify-center w-full">
@@ -186,19 +238,20 @@ export function LessonRuntime({
           {showCode && (
             <motion.div
               initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 24 }} transition={{ duration: 0.22, ease: [0.22, 0.65, 0.3, 1] }}
-              className="flex flex-col min-h-0 w-full xl:w-[44%] xl:max-w-[660px] xl:min-w-[420px] xl:my-1 gap-3"
+              className="w-full xl:w-[46%] xl:max-w-[680px] xl:min-w-[420px] self-start flex flex-col gap-3 max-h-full"
             >
-              <div className="flex flex-col min-h-0 flex-1 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40 overflow-hidden">
+              {/* code card hugs its content (caps + scrolls only if the file is long) */}
+              <div className="flex flex-col max-h-[58vh] rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40 overflow-hidden">
                 <div className="shrink-0 flex items-center gap-2 px-4 py-2.5 border-b border-[var(--line-faint)]">
                   <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">algorithm.py</span>
                   <span className="font-mono text-[10px] text-[var(--accent-ink)]">▶ line follows the beat</span>
                 </div>
-                <div className="flex-1 min-h-0 overflow-auto p-1">
+                <div ref={codeScrollRef} className="min-h-0 overflow-auto p-1">
                   <CodeHighlight code={PY} highlightedLines={activeLines} />
                 </div>
               </div>
               {practice && practice.length > 0 && (
-                <div className="shrink-0 max-h-[34%] overflow-auto rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40">
+                <div className="max-h-[30vh] overflow-auto rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40">
                   <div className="sticky top-0 flex items-center gap-2 px-4 py-2.5 border-b border-[var(--line-faint)] bg-[var(--bg-card)]">
                     <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">practice</span>
                     <span className="font-mono text-[10px] text-[var(--text-faint)] normal-case">· try these next</span>
