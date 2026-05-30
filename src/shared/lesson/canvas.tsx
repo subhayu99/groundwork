@@ -138,3 +138,121 @@ export function CellRow({ geom, values, tones, dim, markers, showIndex, fontSize
     </>
   );
 }
+
+/* ── Node graph (trees / graphs) — SVG nodes + edges in canvas space ───────── */
+
+export interface GNode { id: string; x: number; y: number; label?: ReactNode; sub?: ReactNode; tone?: Tone; shape?: "circle" | "rect"; r?: number; w?: number; h?: number; }
+export interface GEdge { from: string; to: string; tone?: Tone; dashed?: boolean; directed?: boolean; label?: string; }
+
+function nodeR(n: GNode, fallback: number) {
+  if (n.shape === "rect") return Math.min(n.w ?? fallback * 2.4, n.h ?? fallback * 1.5) / 2;
+  return n.r ?? fallback;
+}
+
+/** Draw positioned nodes + edges (covers trees, graphs, recursion trees). */
+export function NodeGraph({ nodes, edges = [], radius = 22, onNodeClick, cellEnabled }: {
+  nodes: GNode[]; edges?: GEdge[]; radius?: number; onNodeClick?: (id: string) => void; cellEnabled?: (id: string) => boolean;
+}): ReactNode {
+  const by = new Map(nodes.map((n) => [n.id, n]));
+  return (
+    <>
+      {edges.map((e, i) => {
+        const a = by.get(e.from), b = by.get(e.to);
+        if (!a || !b) return null;
+        const color = e.tone ? toneStyle[e.tone].border : "var(--line)";
+        let x2 = b.x, y2 = b.y;
+        if (e.directed) {
+          const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1, trim = nodeR(b, radius) + 2;
+          x2 = b.x - (dx / len) * trim; y2 = b.y - (dy / len) * trim;
+        }
+        return (
+          <g key={`e${i}`}>
+            <line x1={a.x} y1={a.y} x2={x2} y2={y2} style={{ stroke: color, transition: "stroke .3s" }} strokeWidth={2}
+              strokeDasharray={e.dashed ? "5 4" : undefined} markerEnd={e.directed ? `url(#${LESSON_ARROW_ID})` : undefined} />
+            {e.label && <text x={(a.x + x2) / 2} y={(a.y + y2) / 2 - 4} textAnchor="middle" className="font-mono pointer-events-none select-none" style={{ fontSize: 9, fill: "var(--text-muted)" }}>{e.label}</text>}
+          </g>
+        );
+      })}
+      {nodes.map((n) => {
+        const ts = toneStyle[n.tone ?? "idle"];
+        const enabled = onNodeClick ? (cellEnabled ? cellEnabled(n.id) : true) : false;
+        return (
+          <g key={n.id} style={{ cursor: enabled ? "pointer" : "default", outline: "none" }}
+            onClick={enabled ? () => onNodeClick!(n.id) : undefined}
+            onKeyDown={enabled ? (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onNodeClick!(n.id); } } : undefined}
+            tabIndex={enabled ? 0 : undefined} role={enabled ? "button" : undefined} aria-label={enabled ? `node ${n.id}` : undefined}>
+            {n.shape === "rect" ? (
+              <rect x={n.x - (n.w ?? radius * 2.4) / 2} y={n.y - (n.h ?? radius * 1.5) / 2} width={n.w ?? radius * 2.4} height={n.h ?? radius * 1.5} rx={6}
+                style={{ fill: ts.bg, stroke: ts.border, transition: "fill .3s, stroke .3s" }} strokeWidth={2} />
+            ) : (
+              <circle cx={n.x} cy={n.y} r={n.r ?? radius} style={{ fill: ts.bg, stroke: ts.border, transition: "fill .3s, stroke .3s" }} strokeWidth={2} />
+            )}
+            {n.label != null && <text x={n.x} y={n.sub != null ? n.y - 5 : n.y} textAnchor="middle" dominantBaseline="central" className="font-mono pointer-events-none select-none" style={{ fontSize: 12, fill: "var(--text)" }}>{n.label}</text>}
+            {n.sub != null && <text x={n.x} y={n.y + 9} textAnchor="middle" dominantBaseline="central" className="font-mono pointer-events-none select-none" style={{ fontSize: 8, fill: "var(--text-muted)" }}>{n.sub}</text>}
+          </g>
+        );
+      })}
+    </>
+  );
+}
+
+/* ── Grid (dfs / bfs / backtracking) — SVG cell matrix in canvas space ─────── */
+
+export interface GridGeom { x0: number; y0: number; cellPx: number; gap: number; cx: (r: number, c: number) => number; cy: (r: number, c: number) => number; }
+export function gridGeom(rows: number, cols: number, vw: number, y0: number, cellPx = 46, gap = 6): GridGeom {
+  const w = cols * cellPx + (cols - 1) * gap;
+  const x0 = (vw - w) / 2;
+  return { x0, y0, cellPx, gap, cx: (_r, c) => x0 + c * (cellPx + gap) + cellPx / 2, cy: (r) => y0 + r * (cellPx + gap) + cellPx / 2 };
+}
+export function GridCells({ rows, cols, geom, cell, onCellClick, cellEnabled }: {
+  rows: number; cols: number; geom: GridGeom;
+  cell: (r: number, c: number) => { tone?: Tone; content?: ReactNode; sub?: ReactNode };
+  onCellClick?: (r: number, c: number) => void; cellEnabled?: (r: number, c: number) => boolean;
+}): ReactNode {
+  const { x0, y0, cellPx, gap } = geom;
+  return (
+    <>
+      {Array.from({ length: rows }, (_, r) =>
+        Array.from({ length: cols }, (_, c) => {
+          const spec = cell(r, c), ts = toneStyle[spec.tone ?? "idle"];
+          const x = x0 + c * (cellPx + gap), y = y0 + r * (cellPx + gap);
+          const enabled = onCellClick ? (cellEnabled ? cellEnabled(r, c) : true) : false;
+          return (
+            <g key={`${r}-${c}`} style={{ cursor: enabled ? "pointer" : "default", outline: "none" }}
+              onClick={enabled ? () => onCellClick!(r, c) : undefined}
+              onKeyDown={enabled ? (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onCellClick!(r, c); } } : undefined}
+              tabIndex={enabled ? 0 : undefined} role={enabled ? "button" : undefined} aria-label={enabled ? `cell ${r},${c}` : undefined}>
+              <rect x={x} y={y} width={cellPx} height={cellPx} rx={7} style={{ fill: ts.bg, stroke: ts.border, transition: "fill .3s, stroke .3s" }} strokeWidth={2} />
+              {spec.content != null && <text x={x + cellPx / 2} y={y + cellPx / 2} textAnchor="middle" dominantBaseline="central" className="font-mono pointer-events-none select-none" style={{ fontSize: 13, fill: "var(--text)" }}>{spec.content}</text>}
+              {spec.sub != null && <text x={x + cellPx / 2} y={y + cellPx - 8} textAnchor="middle" className="font-mono pointer-events-none select-none" style={{ fontSize: 8, fill: "var(--accent-ink)" }}>{spec.sub}</text>}
+            </g>
+          );
+        }),
+      )}
+    </>
+  );
+}
+
+/* ── Stack/queue (stacks-queues / monotonic-stack / recursion) ─────────────── */
+
+export interface StackBox { key: string | number; label: ReactNode; sub?: ReactNode; tone?: Tone; }
+export function StackBoxes({ items, cx, top, width = 150, boxH = 28, gap = 6, topOnTop = true }: {
+  items: StackBox[]; cx: number; top: number; width?: number; boxH?: number; gap?: number; topOnTop?: boolean;
+}): ReactNode {
+  const ordered = topOnTop ? [...items].reverse() : items;
+  return (
+    <>
+      {ordered.map((it, i) => {
+        const ts = toneStyle[it.tone ?? "accent"];
+        const y = top + i * (boxH + gap);
+        return (
+          <g key={it.key}>
+            <rect x={cx - width / 2} y={y} width={width} height={boxH} rx={6} style={{ fill: ts.bg, stroke: ts.border, transition: "fill .3s, stroke .3s" }} strokeWidth={1.5} />
+            <text x={cx - width / 2 + 10} y={y + boxH / 2} dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text)" }}>{it.label}</text>
+            {it.sub != null && <text x={cx + width / 2 - 10} y={y + boxH / 2} textAnchor="end" dominantBaseline="central" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-muted)" }}>{it.sub}</text>}
+          </g>
+        );
+      })}
+    </>
+  );
+}
