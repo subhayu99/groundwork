@@ -182,6 +182,7 @@ export function LessonRuntime({
           <div ref={areaRef} className="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden">
             <div style={{ width: VW * scale, height: VH * scale }} className="relative shrink-0">
               <div
+                data-canvas-root
                 className="absolute top-0 left-0"
                 style={{ width: VW, height: VH, transform: `scale(${scale})`, transformOrigin: "top left" }}
               >
@@ -203,6 +204,7 @@ export function LessonRuntime({
                     {beat.panels.map((p, i) => (
                       <div
                         key={i}
+                        data-canvas-panel={p.variant ?? "main"}
                         className={
                           p.variant === "note"
                             ? "absolute rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] px-3 py-2 text-[12.5px] leading-snug text-[var(--text-muted)]"

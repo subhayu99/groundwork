@@ -63,7 +63,7 @@ function stackHeader(note: string) {
     <g>
       <text x={STACK_CX} y={STACK_TOP - 26} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>CALL STACK · newest on top</text>
       <Pill x={STACK_CX} y={STACK_TOP - 18} text="↑ working here" />
-      <text x={STACK_CX} y={STACK_TOP + 6 * (STACK_BH + STACK_GAP) + 6} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--text-faint)" }}>{note}</text>
+      <text x={STACK_CX} y={STACK_TOP + 5 * (STACK_BH + STACK_GAP) + 6} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--text-faint)" }}>{note}</text>
     </g>
   );
 }

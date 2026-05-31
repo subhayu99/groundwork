@@ -94,7 +94,7 @@ function AutoSlide({ api }: { api: BeatVisualApi }) {
     <g>
       <CellRow geom={G} values={ARR} tones={tones} />
       <Bracket x1={G.left(start)} x2={G.left(start) + K * G.stride - G.gap} y={G.y - 16} label={`sum = ${sum}`} color="var(--accent-ink)" />
-      <text x={VW / 2} y={G.y - 30} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}>
+      <text x={VW / 2} y={G.y - 46} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}>
         {done ? `all 8 windows done · only 2 operations per slide` : `window at start ${start} — subtract the leaver, add the newcomer (+2 ops, total ${ops})`}
       </text>
       <g onClick={() => setS(init())} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label="replay"

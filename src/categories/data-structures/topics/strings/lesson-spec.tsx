@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
-import { CellRow, rowGeom } from "@/shared/lesson/canvas";
+import { CellRow, Pill, rowGeom } from "@/shared/lesson/canvas";
 import stringsPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -187,7 +187,8 @@ function LockedFirst() {
   const tones: (Tone | undefined)[] = Array.from(HELLO).map((_, i) => (i === 0 ? "muted" : undefined));
   return (
     <g>
-      <CellRow geom={H} values={Array.from(HELLO)} tones={tones} markers={{ 0: "🔒 locked" }} showIndex />
+      <CellRow geom={H} values={Array.from(HELLO)} tones={tones} showIndex />
+      <Pill x={H.left(0) - 50} y={H.y + H.cellH / 2 - 8} text="🔒 locked" />
       <text x={VW / 2} y={H.y - 26} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
         s[0] = &apos;H&apos; is not allowed — strings are immutable
       </text>

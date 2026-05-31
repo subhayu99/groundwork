@@ -139,7 +139,7 @@ function AddNameWedge({ api }: { api: BeatVisualApi }) {
 
   return (
     <g>
-      <SetPills members={members} y={188} tones={tones} onClick={(i) => addName(members[i])} enabled label="set · unique members" />
+      <SetPills members={members} y={202} tones={tones} onClick={(i) => addName(members[i])} enabled label="set · unique members" />
 
       {/* control buttons row */}
       {btns.map((n, i) => {
@@ -311,8 +311,8 @@ function OpsVisual() {
 function FitVisual() {
   return (
     <g>
-      <SetPills members={["alice", "bob"]} y={196} label="set" />
-      <text x={VW / 2} y={250} textAnchor="middle" className="font-mono select-none"
+      <SetPills members={["alice", "bob"]} y={226} label="set" />
+      <text x={VW / 2} y={274} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 10, fill: "var(--text-faint)" }}>online users · seen URLs · visited spots · allow-list</text>
       <g transform="translate(0,16)">
         <TupleRow tones={TUPLE.map(() => "accent" as Tone)} />

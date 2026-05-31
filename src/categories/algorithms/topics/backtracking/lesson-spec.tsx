@@ -309,7 +309,7 @@ function AutoBacktrack({ api, showDepth }: { api: BeatVisualApi; showDepth?: boo
           color="var(--diff-easy)"
         />
       )}
-      <text x={gx} y={gy - 26} textAnchor="start" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--text-faint)" }}>
+      <text x={gx} y={gy - 32} textAnchor="start" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--text-faint)" }}>
         {`boards built ${s.attempts}`}
       </text>
       <text

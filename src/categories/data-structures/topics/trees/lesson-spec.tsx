@@ -208,7 +208,7 @@ function AutoBSTSearch({ api }: { api: BeatVisualApi }) {
     <g>
       <NodeGraph nodes={bstNodes(tone)} edges={BST_EDGES} radius={20} />
       <Caption
-        y={184}
+        y={200}
         tone={s.done ? "var(--diff-easy)" : "var(--text-faint)"}
         text={
           s.done

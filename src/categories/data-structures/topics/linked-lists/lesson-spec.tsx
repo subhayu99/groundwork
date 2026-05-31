@@ -415,10 +415,10 @@ function Generalize() {
 
       {/* divider hint */}
       <text x={380} y={cy} textAnchor="middle" dominantBaseline="central" style={{ fontSize: 22, fill: "var(--text-faint)" }}>→</text>
-      <text x={380} y={cy + 22} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>same node idea</text>
+      <text x={380} y={cy + 38} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>same node idea</text>
 
       {/* right: a tree — node sprouting two children */}
-      <text x={560} y={172} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>a tree: node → several children</text>
+      <text x={560} y={186} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--accent-ink)" }}>a tree: node → several children</text>
       <Arrow x1={root.x - 8} y1={root.y + r - 4} x2={childL.x + 6} y2={childL.y - r - 2} />
       <Arrow x1={root.x + 8} y1={root.y + r - 4} x2={childR.x - 6} y2={childR.y - r - 2} />
       {/* graph hint: an extra arbitrary arrow */}

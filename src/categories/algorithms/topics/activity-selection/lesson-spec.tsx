@@ -250,7 +250,7 @@ function SortAndPick({ api }: { api: BeatVisualApi }) {
       <HourAxis rows={MEETINGS.length} />
       <text
         x={btnCx}
-        y={ROW_TOP - 34}
+        y={btnY + 44}
         textAnchor="middle"
         className="font-mono select-none"
         style={{ fontSize: 11, fill: "var(--text-faint)" }}
@@ -387,7 +387,7 @@ function AutoGreedy({ api }: { api: BeatVisualApi }) {
       <HourAxis rows={MEETINGS.length} />
       <text
         x={AXIS_X + 4 * HOUR_PX}
-        y={ROW_TOP - 28}
+        y={yOf(MEETINGS.length) + 64}
         textAnchor="middle"
         className="font-mono select-none"
         style={{ fontSize: 11, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}

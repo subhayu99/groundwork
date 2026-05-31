@@ -126,7 +126,7 @@ function Boundary() {
         );
       })}
       <text x={sx + boundary * (bw + bg) - bg / 2} y={y - 28} textAnchor="middle" className="font-mono" style={{ fontSize: 11, fill: "var(--accent-ink)" }}>binary-search this boundary</text>
-      <text x={sx + boundary * (bw + bg) - bg / 2} y={y - 10} textAnchor="middle" style={{ fontSize: 18, fill: "var(--accent)" }}>▾</text>
+      <text x={sx + boundary * (bw + bg) - bg / 2} y={y - 2} textAnchor="middle" style={{ fontSize: 18, fill: "var(--accent)" }}>▾</text>
       <text x={sx + 2.5 * (bw + bg)} y={y + 60} textAnchor="middle" className="font-mono" style={{ fontSize: 10, fill: "var(--text-faint)" }}>too small</text>
       <text x={sx + 7.5 * (bw + bg)} y={y + 60} textAnchor="middle" className="font-mono" style={{ fontSize: 10, fill: "var(--text-faint)" }}>big enough</text>
     </g>

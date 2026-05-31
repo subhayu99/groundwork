@@ -352,7 +352,7 @@ function FinalState() {
       <BarsRow tones={tones} />
       <AnswerRow vals={ANSWER} tones={ansTones} />
       <WaitingStack idxs={leftover} label="never warmed → answer 0" />
-      <Bracket x1={barLeft(6)} x2={barLeft(7) + BAR_W} y={barTop(76) - 14}
+      <Bracket x1={barLeft(6)} x2={barLeft(7) + BAR_W} y={barTop(76) - 20}
         label="no warmer day ahead" color="var(--diff-med)" />
     </g>
   );
