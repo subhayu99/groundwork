@@ -5,6 +5,38 @@ Run while you slept. Read this top-to-bottom; it's the map.
 
 ---
 
+## Latest session — depth/sequence restore + 5 UX improvements (most recent)
+
+After the 20-topic conversion, a review pass restored what the concise rewrite had cut and
+fixed five UX issues. All committed on the branch; tsc clean · build 95 pages · 18/18 tests.
+
+**Depth / sequence / flow restored** — each beat now carries four fields (engine: `LessonBeat`):
+`label` (step name), `connector` (a lead-in linking to the previous beat), `detail` (the fuller
+explanation — paragraphs, `code`, named-principle callouts — restored from the old `derivation.tsx`),
+and `actionLabel` (forward Next-button text). The header shows **"step k of N · LABEL"**.
+
+**The 5 improvements (easiest→hardest, all done):**
+1. **Renamed "the wedge" → "the instinct"** everywhere (display text only; `interaction:"wedge"`/`id:"wedge"` untouched).
+2. **Header is a real navbar** — bigger/brighter, bordered, bold step label, visible breadcrumb + prev/next.
+3. **Zen / reveal-on-demand** (content-first, calm default): code panel **hidden by default**, revealed via a
+   slim **right-edge "</> code" tab** (its own position), and **auto-opens on the final beat** (the recap);
+   the **detail explanation stays open** but collapses to a stub **in its own lower-left spot**. Everything
+   expands/collapses from where it lives. Code toggle removed from the control bar.
+4. **Control↔label sync** — the Next button no longer shows instruction-style labels that clash with the
+   on-canvas controls (e.g. "Press play and watch" → "Make it a rule"); control-describing text now names the
+   real buttons.
+5. **Annotation overlaps fixed** — no on-canvas note/panel covers the visual or runs off the 860×470 canvas.
+
+**Also:** global animation speed knob `src/shared/lesson/pace.ts` (`PLAYBACK_SLOWDOWN`, currently 1.6 →
+~1.5 s/frame); raise it to slow every auto-play lesson at once.
+
+**Engine file:** `src/shared/lesson/LessonRuntime.tsx` (header, detail card, Zen reveal-on-demand,
+control bar, scroll-to-active-line). The lesson page wires it in
+`src/app/categories/[category]/[topic]/TopicPageClient.tsx` (passes `practice`, `nav`, `onComplete`,
+`initiallyCompleted`).
+
+---
+
 ## TL;DR — what's done
 
 The lesson UX is converted from "7 text cards beside a diagram" to the **annotated canvas** we
