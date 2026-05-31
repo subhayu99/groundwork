@@ -228,28 +228,50 @@ export const dp1dLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "Try the obvious thing",
       visual: <Staircase />,
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The setup",
         title: "How many ways to climb the stairs?",
         body: <>You&rsquo;re at the bottom of an <strong>8-step</strong> staircase. Each move you hop up 1 step or 2 steps. How many different routes reach the top? 1 step: 1 way. 2 steps: 2 ways. 3 steps: 3 ways. For 8, too many to count by hand.</>,
       }],
+      detail: (
+        <>
+          <p>Picture standing at the bottom of a staircase with <strong>8 steps</strong>. Every move, you may hop up either <strong>1 step</strong> or <strong>2 steps</strong> &mdash; your choice each time. The question is simple to ask: how many <em>different</em> routes get you all the way to the top?</p>
+          <p>For a 1-step staircase there&rsquo;s just one way (a single little hop). For 2 steps there are two ways (1 then 1, or one big 2). For 3 steps there are three ways (1+1+1, 1+2, or 2+1). The counts grow fast.</p>
+          <p>By the time you reach 8 steps, there are far more routes than you&rsquo;d want to list out by hand. We need a method, not patience.</p>
+        </>
+      ),
       arrows: [{ x1: 540, y1: 158, x2: 524, y2: 210 }],
       codeLabels: ["sig"],
     },
     {
       id: "obvious",
+      label: "The obvious thing",
+      connector: "We have the question; now reach for the most natural way to answer it.",
+      actionLabel: "Write the answer down once",
       visual: <Staircase showCounts />,
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The obvious thing",
         title: "A rule that re-does the same work over and over.",
         body: <>On step n, only your last move matters: you came from n&minus;1 or n&minus;2. So ways(n) = ways(n&minus;1) + ways(n&minus;2). (<strong>Recursion</strong> = a rule that calls itself on a smaller case.) But finding ways(8) keeps re-asking the same smaller questions.</>,
       }],
+      detail: (
+        <>
+          <p>Stand on step <code>n</code>. The only thing that decides how you arrived is your <em>last</em> move: either you took 1 step (so a moment ago you were on step <code>n&minus;1</code>), or you took 2 steps (so you were on step <code>n&minus;2</code>). Every route into step <code>n</code> passes through one of those two places.</p>
+          <p>So the number of ways to reach step <code>n</code> is just the ways to reach <code>n&minus;1</code> plus the ways to reach <code>n&minus;2</code>: <code>ways(n) = ways(n&minus;1) + ways(n&minus;2)</code>. That tiny rule is a <strong>recursion</strong> &mdash; a rule that answers a question by calling itself on smaller versions of the same question.</p>
+          <p>Here&rsquo;s the trap. To get <code>ways(8)</code> we ask for <code>ways(7)</code> and <code>ways(6)</code>. But <code>ways(7)</code> <em>also</em> needs <code>ways(6)</code> &mdash; so we compute <code>ways(6)</code> twice. Further down it&rsquo;s far worse: small cases like <code>ways(2)</code> get re-computed dozens of times. The work isn&rsquo;t hard. It&rsquo;s repeated.</p>
+        </>
+      ),
       arrows: [{ x1: 620, y1: 152, x2: 600, y2: 236 }],
       codeLabels: ["sig"],
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "If the same small questions keep coming back, what if we just refused to answer any of them twice?",
+      actionLabel: "Press play and watch",
       visual: (api) => <ToggleMemo api={api} />,
       panels: [
         {
@@ -262,44 +284,88 @@ export const dp1dLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> every sub-question has exactly one true answer. Computing it twice is pure waste &mdash; so write it down once.</>,
         },
       ],
+      detail: (
+        <>
+          <p>The picture on the right is a <strong>tree</strong> of calls &mdash; a branching diagram of who-asks-whom. Each circle is one call <code>ways(k)</code>; the lines drop to the two smaller calls it sets off. Look closely and you&rsquo;ll see the same numbers showing up again and again in different branches: that repetition <em>is</em> the wasted work.</p>
+          <p>Now toggle <strong>remember answers</strong>. The first time we compute some <code>ways(k)</code>, we jot the result down. The next time that exact call appears, we don&rsquo;t redo it &mdash; we just hand back the number we already wrote. On the diagram, those repeat calls light up green and effectively disappear, and the tree collapses to a fraction of its size.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The wedge:</strong> every sub-question has exactly one true answer. Computing it twice is pure waste &mdash; so write it down the first time, and reuse it forever after.
+          </div>
+        </>
+      ),
       codeLabels: [],
       interaction: "wedge",
     },
     {
       id: "derive",
+      label: "The derivation",
+      connector: "That “write it down, look it up” idea can be built two different ways — here are both.",
+      actionLabel: "Count the work",
       visual: <g>{dpRow(1, DP.map((_, i) => (i <= 1 ? "good" : undefined)), { 0: "dp0", 1: "dp1" })}<Bracket x1={G.left(0)} x2={G.left(1) + G.cellW} y={G.y - 14} label="the two base values" color="var(--diff-easy)" /></g>,
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The derivation",
         title: "Two flavours, same answer.",
         body: <>Top-down: keep the rule, add a notebook &mdash; check if it&rsquo;s written down before working, store it after. Bottom-up: drop recursion, fill a table from the smallest case up. dp[0]=1, dp[1]=1, then dp[i]=dp[i&minus;1]+dp[i&minus;2]. (dp[i] = ways to reach step i; [i] picks one slot.)</>,
       }],
+      detail: (
+        <>
+          <p><strong>Top-down (remember as you go).</strong> Keep the recursive rule exactly as it is, but give it a notebook &mdash; a lookup table that maps each <code>k</code> to its answer. Before doing any work for <code>ways(k)</code>, peek in the notebook; if the answer&rsquo;s already there, hand it straight back. Otherwise compute it once and write it down. No sub-question is ever solved twice.</p>
+          <p><strong>Bottom-up (fill a table).</strong> Drop recursion completely and build the answers from the smallest case upward in an array called <code>dp</code> (here <code>dp[i]</code> just means &ldquo;ways to reach step <code>i</code>&rdquo;, and the <code>[i]</code> picks out one slot of the array). Start with the two base values <code>dp[0] = 1</code> and <code>dp[1] = 1</code>, then walk forward filling <code>dp[i] = dp[i&minus;1] + dp[i&minus;2]</code>. By the time you reach any slot, the two it needs are already sitting there.</p>
+          <p>And notice: the bottom-up form only ever looks at the last two values, so you don&rsquo;t even need the whole array &mdash; two variables are enough.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The principle &mdash; information reuse:</strong> the same sub-question never gets solved twice. The whole speed-up comes from one move &mdash; <em>write it down so you can look it up.</em>
+          </div>
+        </>
+      ),
       arrows: [{ x1: 213, y1: 152, x2: 213, y2: G.y - 30 }],
       codeLabels: ["init_table"],
     },
     {
       id: "operations",
+      label: "The operations",
+      connector: "Both flavours kill the repeats — now let's count exactly how much work that saves.",
+      actionLabel: "Same shape, new problems",
       visual: (api) => <AutoTabulate api={api} />,
       panels: [{
         left: 40, top: 20, width: 580, variant: "main", label: "The operations",
         title: "From exponential to one quick pass.",
         body: <>Naive recursion roughly doubles its work per extra step &mdash; ways(40) calls itself a billion times. Filling each table slot once is <strong>O(n)</strong> (work grows in step with the n stairs). Keeping just the last two values is <strong>O(1)</strong> &mdash; a fixed cost at any height.</>,
       }],
+      detail: (
+        <>
+          <p><strong>Naive recursion</strong> roughly <em>doubles</em> its work for every extra step, because each call spawns two more. By the time you ask for <code>ways(40)</code> the function calls itself about a billion times &mdash; minutes of computing for a question with a one-line answer.</p>
+          <p><strong>Either fixed version</strong> &mdash; remember-as-you-go, or fill the table &mdash; computes each <code>i</code> from 0 up to <code>n</code> exactly once, doing a single addition each time. That total cost is <code>O(n)</code> (&ldquo;order n&rdquo;): the work grows in lock-step with how many stairs there are. Watch the row above fill itself, one slot per beat, left to right.</p>
+          <p>And memory: the top-down notebook holds <code>n+1</code> answers, but the bottom-up form only needs the last two numbers as it goes. That&rsquo;s <code>O(1)</code> (&ldquo;order one&rdquo;) &mdash; a fixed, tiny amount no matter how tall the staircase gets.</p>
+        </>
+      ),
       arrows: [{ x1: 430, y1: 152, x2: 430, y2: G.y - 44 }],
       codeLabels: ["loop", "recurrence", "answer"],
       interaction: "playback",
     },
     {
       id: "general",
+      label: "The generalization",
+      connector: "That one-pass speed-up isn't really about stairs — it shows up anywhere the same shape does.",
+      actionLabel: "Name the pattern",
       visual: <FamilyGallery />,
       panels: [{
         left: 40, top: 20, width: 580, variant: "main", label: "The generalization",
         title: "Anywhere n depends on smaller n.",
         body: <>The stairs aren&rsquo;t special. Any problem solved by a rule that reuses its own smaller answers gets this speed-up (below). You need two things: the parts must <em>overlap</em> (so there&rsquo;s something to reuse), and each part must have one fixed answer.</>,
       }],
+      detail: (
+        <>
+          <p>The stairs problem isn&rsquo;t special. Whenever a problem has a small rule that answers it in terms of <em>smaller</em> versions of itself, and that rule keeps asking for the same smaller answers over and over, this same trick rescues you.</p>
+          <p>Same shape, completely different stories: the <strong>edit distance</strong> between two words (fewest single-letter changes to turn one into the other), the <strong>fewest coins</strong> to make a given amount of change, <strong>knapsack</strong> (which items fit in a bag under a weight limit for the most value), and the <strong>cheapest path</strong> through a grid of costs. None of them look like a staircase, yet each is solved by the exact same write-it-down-and-reuse move.</p>
+          <p>Two ingredients are required. First, the answer must break into <em>overlapping</em> parts &mdash; if every sub-question were different, there&rsquo;d be nothing to reuse. Second, each sub-question must have one fixed answer that never changes, so it&rsquo;s safe to write down once and trust forever.</p>
+        </>
+      ),
       codeLabels: ["recurrence"],
     },
     {
       id: "name",
+      label: "The pattern",
+      connector: "Two ingredients, one repeatable move — it's time to give the whole thing its name.",
       visual: <g>{dpRow(8, DP.map((_, i) => (i === 8 ? "good" : "good")), { 8: "✓" })}<Caption y={G.y - 28} tone="var(--diff-easy)" text="the whole table, computed in one pass · dp[8] = 34" /></g>,
       panels: [
         {
@@ -312,6 +378,19 @@ export const dp1dLesson: LessonSpec = {
           body: <>Spot it on <strong>number of ways / minimum cost / maximum value</strong> problems where naive recursion explodes from repeated calls, and a greedy grab-the-best step gives the wrong answer.</>,
         },
       ],
+      detail: (
+        <>
+          <p>That&rsquo;s the name: <strong>Dynamic Programming</strong>. The dramatic phrase is misleading &mdash; nothing about it is &ldquo;dynamic&rdquo; in any everyday sense. It simply means: <em>solve overlapping sub-questions once, write the answers down, and look them up.</em></p>
+          <p>Reach for it when you spot these signals:</p>
+          <ul>
+            <li>a &ldquo;number of ways&rdquo; / &ldquo;minimum cost&rdquo; / &ldquo;maximum value&rdquo; question with a small recursive rule</li>
+            <li>the naive recursion blows up because the same call repeats again and again</li>
+            <li>you can describe the answer at <em>n</em> using answers at strictly smaller <em>n</em>&rsquo;s</li>
+            <li>grabbing the best-looking step right now (a <em>greedy</em> choice) gives the wrong answer, because later choices depend on earlier ones</li>
+          </ul>
+          <p>Open the code drawer for the Python: the loop form is what real production code looks like, and the remember-as-you-go recursion sits in the comment for readers who think recursively.</p>
+        </>
+      ),
       arrows: [{ x1: G.cx(8), y1: 230, x2: G.cx(8), y2: G.y - 4 }],
       codeLabels: ["answer"],
     },

@@ -402,6 +402,8 @@ export const dfsLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "How would the computer try?",
       visual: maze(null, emptySet, emptySet),
       panels: [
         {
@@ -422,11 +424,20 @@ export const dfsLesson: LessonSpec = {
           ),
         },
       ],
+      detail: (
+        <>
+          <p>Picture a small board, 5 squares wide and 5 squares tall. You begin in the top-left square, marked <strong>S</strong> for start, and you want to reach the bottom-right square, marked <strong>G</strong> for goal. Some squares are <strong>walls</strong> &mdash; solid blocks you cannot walk through. From any square you may step one square at a time: up, down, left, or right (never diagonally). The question is simply: <strong>is there a way through?</strong></p>
+          <p>Your eyes can trace a route through this little maze in about a second &mdash; you see the whole picture at once. A computer can&rsquo;t do that. It has no overview; it can only stand on one square and look at the squares right next to it. So to teach it to escape, we have to turn &ldquo;find a way&rdquo; into a step-by-step recipe it can follow one square at a time.</p>
+        </>
+      ),
       arrows: [{ x1: GG.cx(0, 0), y1: 150, x2: GG.cx(0, 0), y2: GG.cy(0, 0) - GG.cellPx / 2 - 4 }],
       codeLabels: ["sig"],
     },
     {
       id: "obvious",
+      label: "The obvious thing",
+      connector: "Since the computer can only see one cell at a time, what is the most naive thing it could try?",
+      actionLabel: "Walk and back up when stuck",
       visual: <Explosion />,
       panels: [
         {
@@ -448,10 +459,20 @@ export const dfsLesson: LessonSpec = {
           ),
         },
       ],
+      detail: (
+        <>
+          <p>The most naive idea is <strong>brute force</strong>: write out every possible string of moves &mdash; up-up-right, up-right-right, and so on &mdash; and test each one against the maze to see if it lands on the goal. But the count explodes. At every square you have up to four choices, so a sequence ten moves long already has over a million possibilities. The maze itself has only 25 squares, so almost all that effort is wasted re-walking the same ground.</p>
+          <p>Two cheap rules cut it down to size. First, <strong>never step onto a square you&rsquo;ve already visited.</strong> If you&rsquo;ve stood there before, you already explored everything reachable from it &mdash; going again teaches you nothing new. Second, <strong>turn around when you&rsquo;re stuck:</strong> if every neighbour of your square is a wall or already-visited, this square leads nowhere, so retreat to where you came from and try a different direction there.</p>
+          <p>Those two rules &mdash; mark-as-visited and back-up-when-stuck &mdash; are the entire idea. Instead of a million blind guesses, you walk the maze deliberately, touching each open square at most once.</p>
+        </>
+      ),
       codeLabels: [],
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "Those two rules describe a way of walking — so let's actually walk it by hand.",
+      actionLabel: "Press play and watch",
       visual: (api) => <ManualWalk api={api} />,
       panels: [
         {
@@ -483,11 +504,21 @@ export const dfsLesson: LessonSpec = {
           ),
         },
       ],
+      detail: (
+        <>
+          <p>Take the controls. Click any lit neighbour and the walker steps into it; every square it enters gets marked so it won&rsquo;t come back. Pick a direction, push as deep as you can, and keep going until you run out of new squares to enter.</p>
+          <p>When you&rsquo;re stuck &mdash; surrounded by walls and already-marked squares &mdash; press <strong>back up</strong>. That retreats one square to where you came from, so you can try a different direction from there. Watch the <em>trail</em>: it snakes outward, jams against a wall, retreats to the last spot where there was an untried choice, and pushes out again. That retreat-and-retry is the heart of the whole method.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The wedge:</strong> the maze starting from <em>any</em> square is just a smaller copy of the same question &mdash; <em>can I reach the goal from here?</em> If one of your neighbours can reach the goal, then so can you. That self-similarity is what lets one simple rule solve the whole maze.</div>
+        </>
+      ),
       codeLabels: ["recurse", "visit"],
       interaction: "wedge",
     },
     {
       id: "derive",
+      label: "The derivation",
+      connector: "You just did the walk by hand — now let's write down the exact rule so a computer can run it without you.",
+      actionLabel: "Count the work",
       visual: (api) => <AutoDfs api={api} />,
       panels: [
         {
@@ -509,11 +540,23 @@ export const dfsLesson: LessonSpec = {
           ),
         },
       ],
+      detail: (
+        <>
+          <p>Give the move a name: <code>find_path_from(cell, trail)</code>, where <code>trail</code> is the list of squares walked so far to reach this one. There are exactly three cases to handle.</p>
+          <p><strong>You&rsquo;re standing on the goal.</strong> Done &mdash; hand back the trail, which is the route that got you here.</p>
+          <p><strong>You&rsquo;re on any other square.</strong> First mark it visited so you never come back. Then, for each neighbour in turn: if it&rsquo;s open (not a wall) and not yet visited, ask it the very same question by calling <code>find_path_from(neighbour, trail + neighbour)</code>. If that call hands back a trail, you&rsquo;re finished &mdash; pass it straight up. If it hands back nothing, move on and try the next neighbour.</p>
+          <p><strong>You&rsquo;ve run out of neighbours.</strong> Hand back nothing. Whoever called you will then try <em>its</em> next direction. A function that solves a problem by calling itself on smaller copies of the same problem is using <strong>recursion</strong>, and breaking the big maze into &ldquo;solve the maze from each neighbour&rdquo; is called <em>decomposition</em>.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The principle &mdash; decomposition:</strong> the big maze is solved by solving each smaller maze that starts from a neighbour. Once you see that, the recursive rule writes itself.</div>
+        </>
+      ),
       codeLabels: ["found", "visit", "neighbors", "recurse", "backtrack"],
       interaction: "playback",
     },
     {
       id: "operations",
+      label: "The operations",
+      connector: "The rule is correct — but is it fast, and how much memory does all that diving cost?",
+      actionLabel: "Same shape, new problems",
       visual: (api) => <AutoDfs api={api} showStack />,
       panels: [
         {
@@ -534,11 +577,21 @@ export const dfsLesson: LessonSpec = {
           ),
         },
       ],
+      detail: (
+        <>
+          <p>Because every square gets marked visited the first time we stand on it, each square becomes the &ldquo;current&rdquo; square at most once. From each one we glance at its four neighbours. So the total work is <code>O(cells + walls)</code> &mdash; &ldquo;order cells-plus-walls&rdquo; just means the effort grows in step with how many squares there are plus how many connections we check between them. For a 5&times;5 grid that&rsquo;s a few dozen checks at the very most, not a million.</p>
+          <p>Now the memory cost. Each unfinished call to <code>find_path_from</code> is paused, waiting for the deeper call it made to come back. Those paused calls pile up on a <strong>stack</strong> &mdash; a stack is just a pile where the last thing added is the first thing removed, like a stack of plates. There&rsquo;s one paused call per square along the current trail, so the trail you see on screen <em>is</em> the stack. If the deepest dead-end is twenty squares in, the stack grows twenty deep before the walker starts retreating.</p>
+          <p>For a very wide, twisty maze that pile can get tall. Real systems sometimes replace the self-calling (recursive) walk with an explicit list of squares-still-to-visit that they manage by hand. It&rsquo;s the same algorithm &mdash; just different bookkeeping for where to go next.</p>
+        </>
+      ),
       codeLabels: ["visited", "recurse"],
       interaction: "playback",
     },
     {
       id: "general",
+      label: "The generalization",
+      connector: "Nothing in that walk actually depended on it being a grid of squares — so where else does it work?",
+      actionLabel: "Name the pattern",
       visual: <GraphDive />,
       panels: [
         {
@@ -558,6 +611,13 @@ export const dfsLesson: LessonSpec = {
           ),
         },
       ],
+      detail: (
+        <>
+          <p>Look back at the rule: a square was just &ldquo;a thing with neighbours.&rdquo; We never relied on it being a grid. Anything with neighbours works the same way &mdash; a folder with subfolders, a friend with friends, a webpage with links. The general name for such a thing-with-links is a <strong>node</strong> (think of it as a dot), and the whole web of dots-and-links is a <em>graph</em>. The walker doesn&rsquo;t care what the dots represent.</p>
+          <p>So the exact same walk shows up everywhere, just with a different story: crawl every page on a website, find every connected cluster in a social network, detect a loop in a list of which-task-depends-on-which, hunt through folders for a file, solve a sudoku by trying each empty cell and undoing bad guesses, or count separate islands on a map.</p>
+          <p>The trigger is always the same shape of question: &ldquo;<em>can I reach X from here?</em>&rdquo; or &ldquo;<em>what can I reach from here?</em>&rdquo; Whenever you hear that, this is the walk to reach for.</p>
+        </>
+      ),
       arrows: [{ x1: 240, y1: 150, x2: 240, y2: 226 }],
       codeLabels: ["neighbors", "recurse"],
     },
@@ -578,6 +638,8 @@ export const dfsLesson: LessonSpec = {
           key(4, 4),
         ]),
       ),
+      label: "The pattern",
+      connector: "You've built the whole walk from scratch — here's its name and the cues that tell you to reach for it.",
       panels: [
         {
           left: 40,
@@ -597,6 +659,19 @@ export const dfsLesson: LessonSpec = {
           ),
         },
       ],
+      detail: (
+        <>
+          <p>That&rsquo;s the name: <strong>Depth-First Search</strong>, or DFS. It&rsquo;s called <em>depth-first</em> because at each step you go as <em>deep</em> as you can &mdash; push along one path until you&rsquo;re stuck &mdash; before turning around to try anything else. The opposite habit, checking everything close before anything far, is a different walk (breadth-first) you&rsquo;ll meet next.</p>
+          <p>Reach for DFS when you see any of these signals:</p>
+          <ul>
+            <li>&ldquo;Is there a path / can I reach it / does it connect?&rdquo;</li>
+            <li>&ldquo;Visit every connected thing&rdquo; &mdash; count the separate clusters, or fill in a whole region.</li>
+            <li>&ldquo;Try a choice, undo it, try the next&rdquo; &mdash; puzzles like sudoku or placing queens on a chessboard.</li>
+            <li>The natural answer is recursive: each step looks just like the original problem, one size smaller.</li>
+          </ul>
+          <p>Open the code drawer to see the Python. The recursive helper does all the real work; the few lines around it just create the visited set and kick the walk off at the start.</p>
+        </>
+      ),
       arrows: [{ x1: GG.cx(GOAL[0], GOAL[1]), y1: 150, x2: GG.cx(GOAL[0], GOAL[1]), y2: GG.cy(GOAL[0], GOAL[1]) - GG.cellPx / 2 - 4 }],
       codeLabels: ["found"],
     },

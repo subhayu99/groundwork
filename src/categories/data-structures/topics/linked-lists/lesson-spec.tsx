@@ -497,27 +497,48 @@ export const linkedListsLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "I have the question",
       visual: <ArraySetup />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The setup", title: "Add one item to a sorted list — without disturbing the rest.",
         body: <>You keep friends in alphabetical order. A new friend belongs between the 2nd and 3rd. To open a gap, everyone after must slide down a spot. Fine for ten names &mdash; painful for ten million. Can we add one without bothering the rest?</>,
       }],
+      detail: (
+        <>
+          <p>Picture a tidy list of friends kept in alphabetical order. A new friend, <em>Charlie</em>, turns up and belongs right in the middle &mdash; between the 2nd and 3rd names. To open a slot for him, everyone from that point on has to shuffle down one place to make room.</p>
+          <p>That&rsquo;s no trouble for ten names. It gets painful for ten million. Is there a way to slip Charlie in <em>without</em> disturbing all the people who don&rsquo;t even care that he showed up?</p>
+        </>
+      ),
       arrows: [{ x1: GAP_X, y1: 150, x2: GAP_X, y2: ARR_G.y - 18 }],
       codeLabels: [],
     },
     {
       id: "obvious",
+      label: "The obvious thing",
+      connector: "We have the wish — add one item without disturbing the rest. Here's why the everyday tool, an array, can't grant it.",
+      actionLabel: "Free the positions",
       visual: (api) => <ArrayShiftPlayback api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Arrays force a domino effect.",
         body: <>In an array, an address is just a position in line. Drop a value into slot 2 and every later value physically shifts one place right &mdash; one insertion, <em>n</em> shoves, where <em>n</em> is how many items sit after it. The fixed positions forced the work.</>,
       }],
+      detail: (
+        <>
+          <p>An <strong>array</strong> is the everyday list most languages give you &mdash; a run of slots numbered <code>0, 1, 2, &hellip;</code>, where an item&rsquo;s &ldquo;address&rdquo; is simply its position in that run. To put Charlie in at slot 2, slot 3 has to become Dana, slot 4 has to become Eli, and so on down the line.</p>
+          <p>Every single name after Charlie has to physically move over by one. That&rsquo;s <em>n</em> shoves for one insertion &mdash; <code>n</code> being how many items sit after him &mdash; so the cost is <code>O(n)</code> (&ldquo;order n&rdquo;): the work grows in step with how many follow. The information never changed; it was the <em>fixed positions</em> that forced all the busywork.</p>
+          <p>So here&rsquo;s the question that cracks it open: what if positions weren&rsquo;t fixed at all?</p>
+        </>
+      ),
       arrows: [{ x1: 403, y1: 150, x2: 403, y2: 200 }],
       codeLabels: [],
       interaction: "playback",
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "So free the positions: instead of a fixed line, give each item an arrow that says where the next one lives.",
+      actionLabel: "Pointers are the trick",
       visual: (api) => <WedgeChain api={api} />,
       panels: [
         {
@@ -529,48 +550,95 @@ export const linkedListsLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> how many existing cards actually had to change &mdash; an insert? a remove?</>,
         },
       ],
+      detail: (
+        <>
+          <p>Look at the cards joined by arrows. Each card holds a value <em>and</em> an arrow that tells you where the next card lives. That arrow is a <strong>pointer</strong> &mdash; just a stored note saying &ldquo;the next thing is over <em>there</em>.&rdquo; The order of the list is carried by those arrows, not by where the cards happen to sit on screen.</p>
+          <p>Try it: click <em>insert after node 1</em> and watch what moves. Then click <em>remove the 3rd card</em>. Notice how almost nothing budges &mdash; we just re-aim one or two arrows, and every other card stays exactly where it was. No domino, no shuffle.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The wedge question:</strong> when you slide a new card in, how many of the cards that were already there actually had to change?
+          </div>
+        </>
+      ),
       arrows: [{ x1: 545, y1: 380, x2: WEDGE_G.nextCx(1) + 20, y2: 258 }],
       codeLabels: ["insert_new", "insert_relink"],
       interaction: "wedge",
     },
     {
       id: "structure",
+      label: "The structure",
+      connector: "Those cards-with-arrows have a real name and a fixed anatomy — let's open one up.",
+      actionLabel: "What's cheap?",
       visual: <Anatomy />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The structure", title: "A node: one value + the address of the next.",
         body: <>A linked list is a chain of small boxes called <strong>nodes</strong>. Each node carries a value plus a pointer to the next node. You start at the first node &mdash; the <strong>head</strong> &mdash; and follow arrows until <code>None</code> (Python&rsquo;s word for &ldquo;nothing here,&rdquo; the end).</>,
       }],
+      detail: (
+        <>
+          <p>Each card is really a <strong>node</strong> &mdash; a small box split into two compartments. The left holds the <em>value</em> (the data you care about); the right holds the <em>next</em> pointer (the address of the following node). A <strong>linked list</strong> is just a chain of these nodes hooked together by their next pointers.</p>
+          <p>To read the list you start at the very first node, called the <strong>head</strong>, and follow each arrow forward until one points at <code>None</code> &mdash; Python&rsquo;s word for &ldquo;nothing here,&rdquo; which marks the end of the chain.</p>
+          <p>The trade is plain. You give up <em>random access</em> &mdash; there&rsquo;s no instant <code>list[487]</code> to jump straight to the 488th item &mdash; and the nodes are scattered in memory rather than packed side by side. In return, you can insert or remove a node anywhere in <em>constant time</em>, as long as you&rsquo;re already standing next to the right spot.</p>
+        </>
+      ),
       arrows: [{ x1: 300, y1: 150, x2: ANATOMY_G.nextCx(2), y2: 248 }],
       codeLabels: ["node_class", "node_value", "node_next"],
     },
     {
       id: "operations",
+      label: "The operations",
+      connector: "Now that we know a node is value + next-pointer, let's price each thing you can do with the chain.",
+      actionLabel: "When it fits",
       visual: (api) => <FindWalk api={api} />,
       panels: [{
         left: 470, top: 20, width: 360, variant: "main", label: "The operations", title: "Cheap edits, expensive lookups.",
         body: <>Insert or remove where you&rsquo;re standing: <strong>O(1)</strong> &mdash; instant, same cost no matter how long the list. But find a value, or jump to the 50th item: <strong>O(n)</strong> &mdash; cost grows with the list&rsquo;s length (n) &mdash; you must walk from the head; there&rsquo;s no shortcut.</>,
       }],
+      detail: (
+        <>
+          <p><strong>Insert after a node you&rsquo;re already at:</strong> <code>O(1)</code> &mdash; &ldquo;constant time,&rdquo; meaning the cost is the same whether the list has five items or five million. You point the new node at whatever came next, then re-aim the current node&rsquo;s arrow at the new node. Two arrow changes and you&rsquo;re done.</p>
+          <p><strong>Remove the node after you:</strong> <code>O(1)</code> too &mdash; just one arrow change, re-routed to skip past the node you&rsquo;re dropping. The skipped node, now pointed at by nothing, gets cleaned up automatically.</p>
+          <p><strong>Find a value, or jump to the k-th item:</strong> <code>O(n)</code> &mdash; cost grows in step with the list&rsquo;s length <code>n</code>. Watch the walk above: there&rsquo;s no instant jump, so you start at the head and follow arrows one at a time until you arrive. The longer the list, the longer the walk &mdash; no shortcut.</p>
+        </>
+      ),
       arrows: [{ x1: 470, y1: 110, x2: OPS_G.valCx(0), y2: 208 }],
       codeLabels: ["insert_relink", "remove_relink", "traverse_init", "traverse_loop", "traverse_advance"],
       interaction: "playback",
     },
     {
       id: "general",
+      label: "When it fits",
+      connector: "Cheap edits, costly lookups — that profile rarely wins on its own, but the node-and-arrow idea behind it shows up everywhere.",
+      actionLabel: "Name it",
       visual: <Generalize />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "It's how other structures think.",
         body: <>You rarely reach for a raw linked list, but it&rsquo;s the model underneath others: a <strong>tree</strong> is nodes pointing to several children; a <strong>graph</strong> is nodes pointing anywhere. Master the chain and those come free.</>,
       }],
+      detail: (
+        <>
+          <p>Honest answer: in modern Python you almost never reach for a bare linked list. When you genuinely need fast edits in the middle, there&rsquo;s usually a more specialized tool &mdash; a <strong>deque</strong> (a double-ended queue, fast to add and drop at either end), an ordered map, or a tree.</p>
+          <p>You still need the linked list because it&rsquo;s the <em>mental model</em> the fancier structures are built on. A <strong>tree</strong> is just nodes where each one can point to several children instead of one next. A <strong>graph</strong> is nodes that can point at any other nodes at all. Get the chain &mdash; one node, one arrow &mdash; and those richer shapes come almost for free; the plain list is simply their simplest case.</p>
+        </>
+      ),
       arrows: [{ x1: 620, y1: 150, x2: 588, y2: 188 }],
       codeLabels: ["node_class", "node_next"],
     },
     {
       id: "name",
+      label: "The structure",
+      connector: "Trees, graphs, deques — they all trace back to the one shape you just built. Time to name it.",
       visual: <NameSummary />,
       panels: [{
         left: 150, top: 20, width: 580, variant: "main", label: "The structure", title: "Linked List.",
         body: <>That&rsquo;s the name. <strong>Singly linked</strong> = each node has one arrow (to next). <strong>Doubly linked</strong> = two arrows (next AND previous) so you can walk backwards. The big idea: position is not address &mdash; order is whatever the arrows say, and an edit costs one pointer swap.</>,
       }],
+      detail: (
+        <>
+          <p>That&rsquo;s the name: a <strong>linked list</strong>. It comes in two flavors. <em>Singly linked</em> means each node has just one arrow, pointing to the next node &mdash; you can only walk forward. <em>Doubly linked</em> means each node has two arrows, one to the next node and one to the previous one, so you can also walk backwards and unhook a node without first finding the one before it.</p>
+          <p>The big idea to carry away: <strong>position is not address</strong>. Order isn&rsquo;t set by where things sit in a row &mdash; it&rsquo;s whatever the arrows say. And because of that, inserting or removing costs exactly what it should: a single pointer swap, not a cascade of shoves.</p>
+          <p>Open the code drawer to see a tiny Python sketch of a node and the chain it forms.</p>
+        </>
+      ),
       arrows: [{ x1: 600, y1: 150, x2: 565, y2: 392 }],
       codeLabels: ["sig"],
     },

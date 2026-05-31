@@ -465,6 +465,28 @@ export const bfsLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "Why deep-first isn't enough",
+      detail: (
+        <>
+          <p>
+            This is the same five-by-five maze you have seen before: a small grid of
+            squares where <strong>S</strong> (top-left) is the start, <strong>G</strong>{" "}
+            (bottom-right) is the goal, and the dark filled squares are <strong>walls</strong>{" "}
+            you cannot step on. You move one square at a time, up, down, left or right.
+          </p>
+          <p>
+            But the question has changed. Before, we only asked &ldquo;is there a way out
+            at all?&rdquo; Now we ask <strong>&ldquo;what is the fewest steps?&rdquo;</strong>
+          </p>
+          <p>
+            That word <em>fewest</em> changes everything. A walker that dives deep down one
+            corridor might eventually reach G &mdash; but along a long, winding, scenic route.
+            We need a method that does not just <em>find</em> a path, it always reports the{" "}
+            <em>shortest</em> one.
+          </p>
+        </>
+      ),
       visual: flood(GG, null, emptyDist, false),
       panels: [
         {
@@ -497,6 +519,33 @@ export const bfsLesson: LessonSpec = {
     },
     {
       id: "obvious",
+      label: "The obvious thing",
+      connector: "Now that we want the fewest steps, the natural first idea is to just walk the maze — but does walking find the shortest way?",
+      actionLabel: "Walk outward by distance",
+      detail: (
+        <>
+          <p>
+            A <em>depth-first</em> walker plunges all the way down one corridor until it hits
+            a dead end, then backs up and tries the next branch. (&ldquo;Depth-first&rdquo;
+            just means: always go as deep as you can before trying anything sideways.) If the
+            goal happens to sit at the end of the very first corridor it tries, lucky &mdash;
+            it finds a path fast.
+          </p>
+          <p>
+            On <em>this</em> particular maze that happens to be 8 steps, which is the true
+            shortest. But that is luck, not a guarantee. On a different maze the same walker
+            could wander the long way around a wall before stumbling onto G. To be sure it had
+            the shortest, it would have to keep finding paths and remember the best one &mdash;
+            a ton of extra exploring.
+          </p>
+          <p>
+            There is a smarter order. What if, instead of going deep, we explored strictly{" "}
+            <strong>by distance</strong> &mdash; first every square one step from S, then every
+            square two steps away, then three? The very first time we touch G, that is as close
+            as it could ever possibly be.
+          </p>
+        </>
+      ),
       visual: <DfsContrast />,
       panels: [
         {
@@ -530,6 +579,30 @@ export const bfsLesson: LessonSpec = {
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "So instead of diving deep, let's grow outward by distance and watch what that buys us.",
+      actionLabel: "Press play and watch the ripple",
+      detail: (
+        <>
+          <p>
+            On the right, press <strong>play</strong> (or step one ring at a time). A ripple of
+            light spreads out from the start square. First it lights every square one step away.
+            Then every square one step from <em>those</em> &mdash; the two-step squares. Then
+            three steps, then four, growing outward like a circle in a pond.
+          </p>
+          <p>
+            The small number written on each square is its <strong>distance</strong> &mdash;
+            the smallest number of steps from S needed to reach it. The first moment the ripple
+            washes over G, the number on G <em>is</em> the answer.
+          </p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The wedge:</strong> the ripple grows in lockstep, one ring at a time. There
+            is no way a square <em>two</em> steps away gets touched before a square <em>one</em>{" "}
+            step away. So the instant we touch G, no shorter route can exist &mdash; we have
+            already checked every closer square first.
+          </div>
+        </>
+      ),
       visual: (api) => <Ripples api={api} />,
       panels: [
         {
@@ -568,6 +641,38 @@ export const bfsLesson: LessonSpec = {
     },
     {
       id: "derive",
+      label: "The derivation",
+      connector: "The ripple is the idea; now we need a piece of bookkeeping that makes a computer grow it in exactly that order.",
+      actionLabel: "Count the work",
+      detail: (
+        <>
+          <p>
+            Keep a <strong>queue</strong> &mdash; think of a line at a ticket counter: you join
+            at the <em>back</em>, and you always get called from the <em>front</em>, in the order
+            you arrived. (Computer people call this <em>first-in, first-out</em>.) Put the start
+            square in the line first, with distance 0.
+          </p>
+          <p>
+            <strong>Then loop:</strong> pull the square at the front of the line. If it is G, its
+            distance is the answer &mdash; stop. Otherwise look at each neighbouring square that
+            is open (not a wall) and that we have never seen before. Mark each one{" "}
+            <strong>seen</strong>, give it a distance of <em>mine plus one</em>, and send it to
+            the back of the line.
+          </p>
+          <p>
+            Marking a square <em>seen</em> the very moment it joins the line is the small but
+            crucial detail. (&ldquo;Seen&rdquo; is just a checklist of squares already added.) It
+            guarantees each square gets a distance exactly once &mdash; the smallest one possible
+            &mdash; and never sneaks back in with a larger number.
+          </p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The principle &mdash; keep a promise alive:</strong> because the line is
+            first-in-first-out, the distance of whatever we pull off the front only ever goes up,
+            never down. So the first time we pull G off the line, its distance is the smallest it
+            will ever be.
+          </div>
+        </>
+      ),
       visual: (api) => <AutoBfs api={api} />,
       panels: [
         {
@@ -610,6 +715,34 @@ export const bfsLesson: LessonSpec = {
     },
     {
       id: "operations",
+      label: "The operations",
+      connector: "Now that every square joins the line exactly once, we can count the total work and see how it stacks up against depth-first.",
+      actionLabel: "Same shape, new problems",
+      detail: (
+        <>
+          <p>
+            Because we mark a square seen the instant it enters the line, no square ever joins
+            twice. Let <strong>V</strong> stand for the open squares and <strong>E</strong> stand
+            for the connections between neighbouring squares. We touch each square once and each
+            connection a fixed number of times, so the total work is{" "}
+            <code>O(V + E)</code>. That <code>O(...)</code> notation just describes how the effort
+            <em>grows</em> as the maze gets bigger &mdash; here it grows in step with the number of
+            squares plus the number of connections, nothing worse.
+          </p>
+          <p>
+            <strong>Memory:</strong> the line holds the squares in the current ring and the next
+            ring at the same time. For a thin, snaking maze that is only a handful. For a wide-open
+            grid the line can briefly hold the whole edge of the expanding wave &mdash; but that is
+            still far smaller than the entire maze.
+          </p>
+          <p>
+            <strong>Versus depth-first:</strong> for the same maze, both do the same total amount
+            of work. The difference is purely in <em>what you reach first</em> &mdash; this method
+            reaches the <em>closest</em> squares first, which is exactly why only its first arrival
+            at G is guaranteed to be the shortest.
+          </p>
+        </>
+      ),
       visual: (api) => <AutoBfs api={api} frozen />,
       panels: [
         {
@@ -644,6 +777,34 @@ export const bfsLesson: LessonSpec = {
     },
     {
       id: "general",
+      label: "The generalization",
+      connector: "The maze was just a stage prop — strip it away and the same outward walk solves a whole family of 'closest first' problems.",
+      actionLabel: "Name the pattern",
+      detail: (
+        <>
+          <p>
+            A maze square is really just a <strong>node</strong> &mdash; a dot &mdash; joined to
+            other dots by <strong>edges</strong>, the lines between them. Anywhere the connections
+            all cost the same (one click is one click, one hop is one hop), this same outward walk
+            hands you the shortest route.
+          </p>
+          <p>
+            Same shape, different stories:
+          </p>
+          <ul>
+            <li>degrees of separation on a social network &mdash; &ldquo;how far is this person from me?&rdquo;</li>
+            <li>word ladders &mdash; turn <em>cat</em> into <em>dog</em> one letter at a time</li>
+            <li>routing a message across a network where every link weighs the same</li>
+            <li>walking a tree level by level, or broadcasting to your neighbours, then theirs, then theirs</li>
+          </ul>
+          <p>
+            When the connections are <em>not</em> equal-cost &mdash; a real road map where some
+            roads are longer &mdash; the walk needs a smarter line that always serves the
+            cheapest-so-far next (a <em>priority queue</em>, a line sorted by total cost). That is{" "}
+            <strong>Dijkstra&rsquo;s algorithm</strong> &mdash; same shape, smarter line.
+          </p>
+        </>
+      ),
       visual: <NetworkRipple />,
       panels: [
         {
@@ -669,6 +830,31 @@ export const bfsLesson: LessonSpec = {
     },
     {
       id: "name",
+      label: "The pattern",
+      connector: "Give the move its name — and the cues that tell you to reach for it next time.",
+      detail: (
+        <>
+          <p>
+            That is the name. <em>Breadth-first</em> &mdash; because we finish every square at
+            distance d before touching any square at distance d+1. The <em>queue</em> (that
+            first-in-first-out line) is the single thing that forces that order; pull from the
+            front, push to the back, and the rings come out perfectly sorted by distance.
+          </p>
+          <p>
+            <strong>Reach for it when you hear:</strong>
+          </p>
+          <ul>
+            <li>&ldquo;fewest steps&rdquo; or &ldquo;shortest path&rdquo; where every step costs the same</li>
+            <li>&ldquo;closest matching X&rdquo; on a network of equal-cost links</li>
+            <li>&ldquo;level by level&rdquo; anything &mdash; print a tree one level at a time, or broadcast outward</li>
+            <li>any problem where every move has the same cost</li>
+          </ul>
+          <p>
+            Open the drawer for the Python and you will see it: a queue, a seen-set, a loop. The
+            cleverness is entirely in the <em>order</em> things come off the line, not in the code.
+          </p>
+        </>
+      ),
       visual: <AutoBfs api={{ onActiveLine: () => {}, onInteractionDone: () => {} }} frozen />,
       panels: [
         {

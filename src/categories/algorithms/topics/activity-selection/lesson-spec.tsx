@@ -505,6 +505,23 @@ export const activitySelectionLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "How would you decide?",
+      detail: (
+        <>
+          <p>
+            You have one meeting room and a stack of booking requests. Each request is just two numbers: a <strong>start hour</strong> and an{" "}
+            <strong>end hour</strong>. Two meetings can share the room only if they don&rsquo;t <strong>overlap</strong> in time.
+          </p>
+          <p>
+            Touching at the edges is fine &mdash; if one meeting ends at 11 and the next starts at 11, the room is free in time. But 10&ndash;12
+            sitting next to 11&ndash;14 is a clash: at 11:30 both want the room. You can&rsquo;t make everyone happy.
+          </p>
+          <p>
+            So the real question is: <strong>how do you fit as many meetings as possible</strong> into that single room?
+          </p>
+        </>
+      ),
       visual: <StaticTimeline />,
       panels: [
         {
@@ -528,6 +545,29 @@ export const activitySelectionLesson: LessonSpec = {
     },
     {
       id: "obvious",
+      label: "The obvious thing",
+      connector: "Now that the only goal is to pack in the most meetings, what's the first plan that comes to mind?",
+      actionLabel: "Try ending earliest",
+      detail: (
+        <>
+          <p>
+            The careful, brute-force answer: try <em>every</em> possible group of meetings, throw out the ones that overlap, and keep the biggest
+            clash-free group. With seven meetings that&rsquo;s 128 groups to test &mdash; doable. But each extra meeting <em>doubles</em> the count, so
+            thirty meetings is already over a billion groups. Far too slow.
+          </p>
+          <p>
+            So you reach for a quick rule instead. <em>Shortest meeting first?</em> Sounds clever &mdash; short meetings free the room fast. But the
+            shortest meeting might sit right in the middle of the day and block both the morning <em>and</em> the afternoon. Wrong rule.
+          </p>
+          <p>
+            <em>Earliest start first?</em> Then the one meeting that runs 9&ndash;17 starts earliest and blocks the entire day. Also wrong.
+          </p>
+          <p>
+            Both guesses fail for the same reason: they look at the wrong number. What if we picked a rule based on{" "}
+            <strong>when each meeting frees the room</strong> &mdash; that is, its end time?
+          </p>
+        </>
+      ),
       visual: (
         <StaticTimeline
           states={(() => {
@@ -562,6 +602,25 @@ export const activitySelectionLesson: LessonSpec = {
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "That hunch — judge a meeting by when it frees the room — turns into one concrete move.",
+      actionLabel: "Press play and watch",
+      detail: (
+        <>
+          <p>
+            On the right is the day laid out as a timeline. Press <strong>sort by end</strong>: the meetings rearrange so the one that{" "}
+            <em>finishes earliest</em> sits on top.
+          </p>
+          <p>
+            Now step down the list. <strong>Accept</strong> a meeting if it starts on or after the last accepted one ended; otherwise{" "}
+            <strong>skip</strong> it. The very first meeting is always accepted &mdash; nobody has used the room yet, so nothing can clash with it.
+          </p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The intuition:</strong> picking the earliest-finishing meeting frees the room at the soonest possible moment. That can only help
+            &mdash; any later choice keeps the room busy longer and rules out more of what could come next.
+          </div>
+        </>
+      ),
       visual: (api) => <SortAndPick api={api} />,
       panels: [
         {
@@ -595,6 +654,30 @@ export const activitySelectionLesson: LessonSpec = {
     },
     {
       id: "derive",
+      label: "The derivation",
+      connector: "Watch that same move run on its own, and the whole method falls out in five lines.",
+      actionLabel: "Count the work",
+      detail: (
+        <>
+          <p>
+            The entire algorithm is five short steps. <strong>1.</strong> Sort the meetings by end time. <strong>2.</strong> Keep one number,{" "}
+            <code>last_end</code>, for when the room is next free. <strong>3.</strong> Walk down the sorted list. <strong>4.</strong> If a meeting starts
+            at or after <code>last_end</code>, accept it and set <code>last_end</code> to its end. <strong>5.</strong> Otherwise, skip it.
+          </p>
+          <p>
+            We start <code>last_end</code> at &ldquo;minus infinity&rdquo; &mdash; a stand-in for &ldquo;free since before time began&rdquo; &mdash; so
+            the first meeting always clears the check and is taken.
+          </p>
+          <p>
+            Why is this the <em>best</em> we can do? Suppose someone picks a different first meeting than ours. We can swap ours in: ours ends sooner or
+            at the same time, so anything that fit after their pick also fits after ours. The swap never costs us a meeting. So our locally best choice
+            &mdash; free the room earliest &mdash; is never worse than any other choice.
+          </p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The principle:</strong> the locally best choice (free the room first) is never worse than any other choice. So greed wins.
+          </div>
+        </>
+      ),
       visual: (api) => <AutoGreedy api={api} />,
       panels: [
         {
@@ -629,6 +712,26 @@ export const activitySelectionLesson: LessonSpec = {
     },
     {
       id: "operations",
+      label: "The operations",
+      connector: "Five lines that always win — but how much work is the computer actually doing?",
+      actionLabel: "Same shape, new problems",
+      detail: (
+        <>
+          <p>
+            Let <code>n</code> be the number of meetings. <strong>Sorting by end time</strong> costs <code>O(n log n)</code> &mdash; a way of saying the
+            cost grows a little faster than <code>n</code> itself, but only slightly: a thousand meetings is about ten thousand small comparisons, not a
+            million.
+          </p>
+          <p>
+            <strong>The walk</strong> through the sorted list costs <code>O(n)</code> &mdash; the work grows in step with the number of meetings, one
+            quick check apiece.
+          </p>
+          <p>
+            For memory we keep just one running number (<code>last_end</code>) and the list of accepted meetings &mdash; no extra bookkeeping. So the
+            sort is the only pricey part; everything after it is a single clean pass.
+          </p>
+        </>
+      ),
       visual: <StaticTimeline states={finalStates()} free={17} />,
       panels: [
         {
@@ -652,6 +755,30 @@ export const activitySelectionLesson: LessonSpec = {
     },
     {
       id: "general",
+      label: "The generalization",
+      connector: "That swap argument was the real engine — and it powers a whole family of problems beyond meetings.",
+      actionLabel: "Name the pattern",
+      detail: (
+        <>
+          <p>
+            <strong>Greedy</strong> means: at each step take the locally best choice and never look back. It&rsquo;s allowed whenever you can argue the
+            swap &mdash; &ldquo;if anyone else made a different choice first, I could swap mine in without losing.&rdquo;
+          </p>
+          <p>
+            The same shape shows up everywhere intervals or sorted choices appear: scheduling jobs on a single machine, fitting talks into one
+            conference track, picking the most non-overlapping tasks on a timeline.
+          </p>
+          <p>
+            But greedy isn&rsquo;t magic. Try making 6 from coins worth <code>{"{1, 3, 4}"}</code>: greedy grabs the biggest coin that fits &mdash; 4
+            &mdash; then is forced into 1 + 1, three coins total. The real best is 3 + 3, only two coins. Here no clean swap exists, so the locally best
+            grab actively blocks the global best.
+          </p>
+          <p>
+            When that happens you need <strong>dynamic programming</strong> &mdash; the approach that&rsquo;s allowed to step back and retry other
+            combinations. Greedy only wins when no backtracking is ever needed.
+          </p>
+        </>
+      ),
       visual: <GreedyVsDP />,
       panels: [
         {
@@ -675,6 +802,28 @@ export const activitySelectionLesson: LessonSpec = {
     },
     {
       id: "name",
+      label: "The pattern",
+      connector: "So give this whole move its name — and the signals that tell you to reach for it.",
+      detail: (
+        <>
+          <p>
+            That&rsquo;s the name: <strong>greedy</strong>. The hard part was never the code &mdash; it&rsquo;s knowing greed is <em>allowed</em>. The
+            test is the swap argument: if the locally best choice is never worse than any other choice, you can stop second-guessing and just take it.
+          </p>
+          <p>
+            <strong>Pattern signals</strong> &mdash; reach for greedy when you see:
+          </p>
+          <ul>
+            <li>&ldquo;Fit the most non-overlapping things into one slot&rdquo;</li>
+            <li>&ldquo;Minimum number of X to cover all Y&rdquo; on intervals or a sorted axis</li>
+            <li>&ldquo;Pick the cheapest available edge / job / coin&rdquo; with a local-best rule</li>
+            <li>Anywhere the locally best choice provably can&rsquo;t block the overall best</li>
+          </ul>
+          <p>
+            Open the Code panel to see the Python: five lines of real work, one of them a sort.
+          </p>
+        </>
+      ),
       visual: <StaticTimeline states={finalStates()} />,
       panels: [
         {

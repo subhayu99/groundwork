@@ -457,6 +457,28 @@ export const backtrackingLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "How would you search?",
+      detail: (
+        <>
+          <p>
+            You have a 6&times;6 chessboard &mdash; six rows and six columns of squares &mdash; and
+            six chess <strong>queens</strong>. The job: place all six so that{" "}
+            <strong>no two of them attack each other</strong>. A queen attacks in straight lines and
+            diagonally as far as it likes, so no two queens may share a row, a column, or a diagonal.
+          </p>
+          <p>
+            At a glance you can tell it&rsquo;s possible &mdash; but also that it&rsquo;s tight. Every
+            queen you place lights up a whole cross-and-X of forbidden squares, ruling out a big chunk
+            of the board for the next one.
+          </p>
+          <p>
+            Your eye spots a safe square instantly. A computer can&rsquo;t &ldquo;see&rdquo; the board
+            &mdash; it has to test squares one at a time. So the real question is: how should it{" "}
+            <em>search</em>?
+          </p>
+        </>
+      ),
       // demo queen at row 0, col 2 with its whole line of fire lit "bad".
       visual: board([2], attackedBy([2]), null),
       panels: [
@@ -482,6 +504,29 @@ export const backtrackingLesson: LessonSpec = {
     },
     {
       id: "obvious",
+      label: "The obvious thing",
+      connector: "Now that a computer has to test squares one at a time, the first idea is to just test all of them — so how many boards is that?",
+      actionLabel: "Stop building dead branches",
+      detail: (
+        <>
+          <p>
+            The blind way is <strong>brute force</strong> &mdash; literally try every possibility and
+            keep the ones that are legal. Since two queens can never share a row, each of the six rows
+            holds exactly one queen, so the only real choice is <em>which column</em> on each row.
+            That&rsquo;s six picks from six columns: <code>6<sup>6</sup> = 46,656</code> boards to check.
+          </p>
+          <p>
+            That number is doable for a computer &mdash; but it&rsquo;s wasteful. The real problem
+            isn&rsquo;t the total count; it&rsquo;s how many of those boards{" "}
+            <em>could never possibly work</em>.
+          </p>
+          <p>
+            The moment you put the first queen in column 0, every single board whose second queen also
+            sits in column 0 is dead on arrival &mdash; like the two red queens shown here, doomed the
+            instant they shared a column. Why even bother building them?
+          </p>
+        </>
+      ),
       visual: <Explosion />,
       panels: [
         {
@@ -506,6 +551,29 @@ export const backtrackingLesson: LessonSpec = {
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "So instead of building whole dead boards, build a partial one and check it as you go.",
+      actionLabel: "Press play and watch",
+      detail: (
+        <>
+          <p>
+            Your turn on the board to the right. Place a queen in row 0 wherever you like &mdash; the
+            squares it attacks light up red. Now drop to row 1: you can only click a square the row-0
+            queen <em>doesn&rsquo;t</em> attack. Keep filling rows top to bottom, one safe (blue) square
+            at a time.
+          </p>
+          <p>
+            Sooner or later you may reach a row with <em>no</em> safe square left. That means the
+            partial board you&rsquo;ve built so far is a <strong>dead end</strong> &mdash; nothing you
+            add can rescue it. Press <strong>undo</strong> to pull the last queen back off, and try a
+            different column in the row above instead. That single undo is the whole idea.
+          </p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The wedge:</strong> don&rsquo;t finish a guess before checking it can still win. Test
+            at every step, and quit a branch the moment it can&rsquo;t reach a full board.
+          </div>
+        </>
+      ),
       visual: (api) => <ManualPlace api={api} />,
       panels: [
         {
@@ -545,6 +613,37 @@ export const backtrackingLesson: LessonSpec = {
     },
     {
       id: "derive",
+      label: "The derivation",
+      connector: "Now turn that place-check-undo motion you just did by hand into a rule a computer can repeat on its own.",
+      actionLabel: "Count the work",
+      detail: (
+        <>
+          <p>
+            Write a function <code>place(placed)</code>, where <code>placed</code> is a list of the
+            columns chosen so far &mdash; one entry per row already filled. So <code>[1, 3]</code> means
+            row 0&rsquo;s queen is in column 1 and row 1&rsquo;s is in column 3.
+          </p>
+          <p>
+            <strong>Base case</strong> (the &ldquo;we&rsquo;re done with this path&rdquo; check): if{" "}
+            <code>placed</code> already has six entries, the board is full and legal &mdash; record this
+            solution and return.
+          </p>
+          <p>
+            <strong>Recursive case:</strong> the next row to fill is <code>len(placed)</code>. For each
+            column 0 to 5, if a queen there wouldn&rsquo;t share a column or diagonal with any queen
+            already down, add that column and call <code>place</code> one row deeper. That self-call is{" "}
+            <strong>recursion</strong> &mdash; a function that solves a smaller version of the same job by
+            calling itself. When it returns, <strong>pop</strong> that column back off. The pop is the
+            &ldquo;undo&rdquo;: without it the list would only ever grow and we&rsquo;d never try the
+            other columns.
+          </p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The principle &mdash; pruning:</strong> every time we reject a column, we skip every
+            board that would have started with it &mdash; a whole branch of possibilities we never even
+            build.
+          </div>
+        </>
+      ),
       visual: board([1, 3, 0], attackedBy([1, 3, 0]), 3),
       panels: [
         {
@@ -583,6 +682,31 @@ export const backtrackingLesson: LessonSpec = {
     },
     {
       id: "operations",
+      label: "The operations",
+      connector: "Now that the search runs itself, count how much work the prune actually saves.",
+      actionLabel: "Same shape, new problems",
+      detail: (
+        <>
+          <p>
+            Without the safety check, the search would build all <code>6<sup>6</sup> = 46,656</code>
+            boards. With the check, it touches only a tiny fraction &mdash; a few hundred partial boards,
+            not tens of thousands. Watch <em>boards built</em> climb on the right and{" "}
+            <em>solutions</em> settle on 4.
+          </p>
+          <p>
+            The worst-case math is still <strong>exponential</strong> &mdash; meaning the work can balloon
+            wildly as the board grows, and there are puzzles where the prune barely helps. But for the
+            queens the prune bites hard, and for sudoku it bites even harder. The whole technique is to{" "}
+            <em>fail early</em>: catch a doomed path the instant it&rsquo;s doomed.
+          </p>
+          <p>
+            <strong>Memory</strong> stays tiny. The only thing being held is the chain of paused{" "}
+            <code>place</code> calls &mdash; the <strong>call stack</strong>, the pile of half-finished
+            function calls waiting to resume &mdash; and it&rsquo;s at most six deep, one paused call per
+            row, plus a single list of six columns. That&rsquo;s it.
+          </p>
+        </>
+      ),
       visual: (api) => <AutoBacktrack api={api} showDepth />,
       panels: [
         {
@@ -609,6 +733,31 @@ export const backtrackingLesson: LessonSpec = {
     },
     {
       id: "general",
+      label: "The generalization",
+      connector: "That same fail-early motion isn't really about queens at all — it fits any puzzle built one piece at a time.",
+      actionLabel: "Name the pattern",
+      detail: (
+        <>
+          <p>
+            The six-queens puzzle was never really about chess. Strip away the board and what&rsquo;s
+            left is: build an answer one choice at a time, and the instant a partial answer becomes
+            impossible, abandon <em>every</em> way of continuing it.
+          </p>
+          <p>
+            Same shape, totally different stories &mdash; just like the panels show:
+          </p>
+          <ul>
+            <li><strong>Sudoku:</strong> drop a digit in a cell, check the row/column/box rule, undo if it breaks.</li>
+            <li><strong>Map / graph coloring:</strong> color a region, check no neighbor clashes, undo if it does.</li>
+            <li><strong>Valid bracket strings:</strong> add a <code>(</code> or <code>)</code>, check it&rsquo;s still balanceable, undo if not.</li>
+            <li><strong>Subset sum:</strong> include a number, check you haven&rsquo;t overshot the target, undo if you have.</li>
+          </ul>
+          <p>
+            The check at each step is what separates this from blind guessing. The sharper the check, the
+            bigger the prune, the faster the whole thing runs.
+          </p>
+        </>
+      ),
       visual: <Gallery />,
       panels: [
         {
@@ -632,6 +781,34 @@ export const backtrackingLesson: LessonSpec = {
     },
     {
       id: "name",
+      label: "The pattern",
+      connector: "Now that you've seen the shape repeat across puzzles, give the move its name and the cues that flag it.",
+      detail: (
+        <>
+          <p>
+            That&rsquo;s the name: <strong>backtracking</strong>. Under the hood it&rsquo;s{" "}
+            <strong>depth-first search</strong> &mdash; dig all the way down one path before trying any
+            others &mdash; with a constraint check at every step. The <em>back</em> in backtracking is the
+            undo: the recursion pops its frame off the call stack and the caller moves on to its next
+            option.
+          </p>
+          <p>
+            <strong>Pattern signals &mdash; reach for it when you see:</strong>
+          </p>
+          <ul>
+            <li>&ldquo;Find all&rdquo; or &ldquo;count all&rdquo; arrangements that satisfy some rule.</li>
+            <li>&ldquo;Is there any&rdquo; assignment that satisfies the rule.</li>
+            <li>You can describe a partial answer and tell mid-way whether it&rsquo;s still feasible.</li>
+            <li>The answer is built up by a sequence of choices, not by a single formula.</li>
+          </ul>
+          <p>
+            One detail when you read the code: saving a finished board uses <code>placed[:]</code> &mdash; a
+            frozen <em>copy</em> of the list, so that later undos can&rsquo;t reach back and erase a
+            solution you already recorded. The safety check is the engine; the recursion writes itself.
+            (Six queens has 4 solutions in all.)
+          </p>
+        </>
+      ),
       visual: board(SOLUTION, noAttacks, null),
       panels: [
         {

@@ -376,16 +376,27 @@ export const monotonicStackLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "How would you do it?",
       visual: <SetupState />,
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The setup", title: "Eight cold days. When does it warm up?",
         body: <>For each day, count the days until a warmer one. If a warmer day is two ahead, the answer is <strong>2</strong>; if none ever comes, <strong>0</strong>. Eight days is easy &mdash; a weather app holds a whole year.</>,
       }],
+      detail: (
+        <>
+          <p>You&rsquo;re looking at a week and a day of weather forecasts. For each day someone asks: &ldquo;How many days until a warmer one?&rdquo; If today is 72&deg; and the next warmer day is the day after tomorrow, the answer is <strong>2</strong>. If no warmer day ever comes, the answer is <strong>0</strong>.</p>
+          <p>Eight days isn&rsquo;t a lot. But the same question shows up on a phone weather app with a year of data, and on a temperature sensor logging a reading every second &mdash; millions of points. The <em>shape</em> of the answer &mdash; how the work grows as the data grows &mdash; is what matters.</p>
+        </>
+      ),
       arrows: [{ x1: 150, y1: 150, x2: barCx(0), y2: barTop(TEMPS[0]) - 14 }],
       codeLabels: ["sig"],
     },
     {
       id: "obvious",
+      label: "The obvious thing",
+      connector: "Now that the question is on the table, what's the first method anyone would reach for?",
+      actionLabel: "Remember who's still waiting",
       visual: (api) => <NaiveScan api={api} />,
       panels: [
         {
@@ -397,12 +408,22 @@ export const monotonicStackLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">The waste:</strong> the same later days get re-read over and over. What could we remember instead?</>,
         },
       ],
+      detail: (
+        <>
+          <p>For each day, walk forward day by day until you find one that&rsquo;s warmer. Write down the gap. If you reach the end without finding one, the answer is <strong>0</strong>.</p>
+          <p>It&rsquo;s honest work. It also does a <em>lot</em> of repeat reading. The cold morning at the start has to scan most of the week to find its warmer day, and the day after it scans almost as far, and so on. Eight days is fine; a million is not &mdash; you&rsquo;re looking at roughly the <strong>square</strong> of the size. That worst case is called <code>O(n&sup2;)</code> (&ldquo;order n squared&rdquo;): if you double the number of days <code>n</code>, the work goes up about four-fold.</p>
+          <p>So the real question is: what&rsquo;s the repeated work we could <em>remember</em> instead of redoing?</p>
+        </>
+      ),
       arrows: [{ x1: barCx(2), y1: 152, x2: barCx(2), y2: barTop(TEMPS[2]) - 14 }],
       codeLabels: [],
       interaction: "playback",
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "Here's what to remember: instead of re-scanning forward, keep a line of the days that haven't found their answer yet.",
+      actionLabel: "Press play and watch",
       visual: (api) => <ManualWalk api={api} />,
       panels: [
         {
@@ -414,23 +435,49 @@ export const monotonicStackLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> if each day is added to the line once and sent home once, how much total work is that?</>,
         },
       ],
+      detail: (
+        <>
+          <p>Walk through the days left to right, one at a time. Keep a <strong>line</strong> of days that haven&rsquo;t found a warmer day yet. Each day arrives and asks the same question: &ldquo;Am I warmer than the last person standing in line?&rdquo;</p>
+          <p><strong>Yes:</strong> today is that person&rsquo;s answer &mdash; they were waiting for exactly this. Send them home with the gap (how many days they waited). Now ask the <em>new</em> last person the same question. Keep sending people home as long as today beats them.</p>
+          <p><strong>No:</strong> today isn&rsquo;t warmer, so it can&rsquo;t answer anyone yet. It joins the back of the line and waits its turn.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>Try it:</strong> press the right-side controls to step through the days one click at a time. Watch the line <em>grow</em> when today is cold and empty <em>out</em> when today is warm.
+          </div>
+        </>
+      ),
       arrows: [{ x1: 300, y1: 150, x2: STK_CX, y2: STK_TOP - 4 }],
       codeLabels: ["while_pop", "record", "push"],
       interaction: "wedge",
     },
     {
       id: "derive",
+      label: "The derivation",
+      connector: "You watched the line in action — now pin down the exact rule, because \"the last person in line\" is really a stack.",
+      actionLabel: "Count the work",
       visual: (api) => <AutoWalk api={api} />,
       panels: [{
         left: 60, top: 18, width: 470, variant: "main", label: "The derivation", title: "A stack of indices. Pop while today wins.",
         body: <>Store each day&rsquo;s <strong>index</strong> (its position, 0&ndash;7), not its temperature, so we can subtract to get the gap. For each new day, while the top day is cooler, <strong>pop</strong> it (remove the top) and record <code>answer = today &minus; that day</code>. Then add today. Anyone left over stays 0.</>,
       }],
+      detail: (
+        <>
+          <p>That &ldquo;line&rdquo; is exactly a <strong>stack</strong> &mdash; a pile where you only ever add to the top and take from the top, like a stack of plates. The last day in only talks to the newest arrival, which is just what we want. We push the day&rsquo;s <em>index</em> (its position, 0 to 7), not its temperature, so that later we can <em>subtract</em> two positions to get the gap.</p>
+          <p>For each new day <code>i</code>: while the stack isn&rsquo;t empty <em>and</em> today&rsquo;s temperature is greater than the temperature at the top index <code>j</code>, <strong>pop</strong> <code>j</code> (take it off the top) and write <code>answer[j] = i - j</code> &mdash; the number of days that day waited. Then <strong>push</strong> <code>i</code> onto the stack.</p>
+          <p>At the end, anyone still sitting on the stack never found a warmer day. Their answer was already set to <strong>0</strong> from the start, so there&rsquo;s nothing more to do.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The principle:</strong> each day is pushed exactly once and popped at most once. The total work across the whole walk is bounded &mdash; even though a single warm day might pop a long line all at once.
+          </div>
+        </>
+      ),
       arrows: [{ x1: 300, y1: 150, x2: STK_CX, y2: STK_TOP - 4 }],
       codeLabels: ["loop", "while_pop", "pop", "record", "push"],
       interaction: "playback",
     },
     {
       id: "operations",
+      label: "The operations",
+      connector: "That \"a single warm day might pop a long line\" sounds expensive — so let's actually count the work and see.",
+      actionLabel: "Same trick, new questions",
       visual: (api) => <AutoWalk api={api} />,
       panels: [
         {
@@ -442,25 +489,66 @@ export const monotonicStackLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">Watch the counter:</strong> total pushes + pops climbs toward its cap of 2 &times; 8 = 16, never past it.</>,
         },
       ],
+      detail: (
+        <>
+          <p>A single warm day can pop everyone who was waiting &mdash; that one step might do a dozen pops at once. Looked at in isolation, it seems expensive.</p>
+          <p>But here&rsquo;s the trick: every pop is <em>paid for</em> by a push that already happened. A day can only be removed once, and only after it was added once. So the total pushes plus pops across the whole walk is at most <code>2n</code> &mdash; twice the number of days. That&rsquo;s <code>O(n)</code> total work (&ldquo;order n&rdquo;: the cost grows in simple step with how many days there are, <em>not</em> the square). Spread over all the days, it works out to a flat, near-instant cost per day on average.</p>
+          <p>That&rsquo;s the whole pitch: pay a little extra <em>sometimes</em>, save on average. The expensive steps are rare and pre-paid by all the cheap ones &mdash; and there&rsquo;s a name for that idea, coming in a moment.</p>
+        </>
+      ),
       codeLabels: ["while_pop", "pop", "push"],
       interaction: "playback",
     },
     {
       id: "general",
+      label: "The generalization",
+      connector: "Since the cost is just one cheap pass, the same machine is worth reusing — and it has nothing to do with weather.",
+      actionLabel: "Name the pattern",
       visual: <StoryFamily />,
       panels: [{
         left: 540, top: 60, width: 290, variant: "main", label: "The generalization", title: "Next/previous thing with a property.",
         body: <>The trick isn&rsquo;t about temperatures. It fits any &ldquo;for each item, what&rsquo;s the next or previous one that&rsquo;s bigger / smaller / taller / cheaper?&rdquo; Same shape every time: walk once, keep a stack of waiters, let each item answer everyone it beats.</>,
       }],
+      detail: (
+        <>
+          <p>The stack trick isn&rsquo;t really about temperatures. It works any time the question has the shape &ldquo;for each item, what&rsquo;s the <strong>next</strong> (or <strong>previous</strong>) one that&rsquo;s bigger / smaller / warmer / taller / cheaper?&rdquo;</p>
+          <p>Same idea, different stories:</p>
+          <ul>
+            <li>the largest rectangle that fits under a row of bars,</li>
+            <li>how long a stock kept rising before the price you&rsquo;re looking at,</li>
+            <li>the next paint color that&rsquo;s lighter than the current one,</li>
+            <li>daily warmest temperatures (the one you just solved).</li>
+          </ul>
+          <p>The shape is always the same: <em>walk once</em>, keep a stack of the things still waiting, and let each new item answer everyone it beats.</p>
+        </>
+      ),
       codeLabels: ["loop", "while_pop", "push"],
     },
     {
       id: "name",
+      label: "The pattern",
+      connector: "All those problems share one machine — so give it its name, plus the cues that tell you to reach for it.",
       visual: <FinalState />,
       panels: [{
         left: 60, top: 20, width: 470, variant: "main", label: "The pattern", title: "Monotonic Stack.",
         body: <>&ldquo;Monotonic&rdquo; means temperatures inside only go one way: coolest at the bottom, colder up top. Cheap-on-average cost, where rare costly steps are pre-paid by cheap ones, is called <strong>amortized</strong>. Spot it on &ldquo;next/previous bigger-smaller&rdquo; and &ldquo;largest rectangle.&rdquo;</>,
       }],
+      detail: (
+        <>
+          <p>That&rsquo;s the name. The stack is &ldquo;<strong>monotonic</strong>&rdquo; because the values inside it always go in one direction &mdash; here, cooler at the bottom up to colder near the top. The moment a new value would break that order, you pop until the order holds again.</p>
+          <p>And the cost trick &mdash; cheap on average because the rare expensive steps are pre-paid by all the cheap ones &mdash; has a name too: <strong>amortized</strong> cost (think of it like a subscription: a few big-feeling moments, but spread out it&rsquo;s a flat low price per item).</p>
+          <p><strong>Pattern signals &mdash; reach for it when you see:</strong></p>
+          <ul>
+            <li>&ldquo;for each element, find the next/previous one that is bigger/smaller&rdquo;</li>
+            <li>&ldquo;days until X happens&rdquo; or &ldquo;span of consecutive smaller values&rdquo;</li>
+            <li>&ldquo;largest rectangle / max area under a row&rdquo;</li>
+            <li>one pass through the data, with total work bounded by a few times the length</li>
+          </ul>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>Next:</strong> open the Code panel to see the Python. Each line maps to one of the rules you just derived &mdash; the loop, the pop-while-warmer, and the push.
+          </div>
+        </>
+      ),
       arrows: [{ x1: 320, y1: 150, x2: barCx(6), y2: barTop(TEMPS[6]) - 14 }],
       codeLabels: ["done"],
     },

@@ -343,27 +343,49 @@ export const setsTuplesLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "I have the question",
       visual: <SetupVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The setup", title: "Two small containers. Two different jobs.",
         body: <>Tonight you track who&rsquo;s in a chat room &mdash; you only care &ldquo;is alice here, yes or no?&rdquo;, not when she arrived. Down the hall, weather arrives as one packet: <code>(date, latitude, temperature)</code>. Both are containers, but with opposite rules.</>,
       }],
+      detail: (
+        <>
+          <p>Tonight you&rsquo;re tracking who&rsquo;s logged into a chat room. You don&rsquo;t care <em>when</em> they arrived, and you don&rsquo;t want to count the same person twice if they log in again. You only care about one thing: <em>is alice in the room, or not?</em></p>
+          <p>Down the hall, someone is logging weather readings. Each one is <code>(date, latitude, temperature)</code> &mdash; three values that belong together as a single packet. You&rsquo;d never sneak in a fourth value, and you&rsquo;d never swap out the second.</p>
+          <p>Both of these are <strong>containers</strong> (things that hold a bunch of values), but the rules they live by are opposite. One cares about <em>membership</em>; the other cares about <em>keeping a fixed shape</em>.</p>
+        </>
+      ),
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 188 }],
       codeLabels: ["set_def", "tuple_def"],
     },
     {
       id: "scan",
+      label: "The obvious thing",
+      connector: "Before reaching for anything special — what happens if you just throw both jobs into a plain list?",
+      actionLabel: "What do these need?",
       visual: (api) => <ScanPlayback api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Stuff a list. Scan when you need it.",
         body: <>The easy move: keep everyone in a plain list. To check for alice you scan chip after chip until you hit her or run out &mdash; slow if the list is long. And nothing stops a second &ldquo;alice&rdquo; sneaking in. It works, but it doesn&rsquo;t fit.</>,
       }],
+      detail: (
+        <>
+          <p>You could just keep a plain <strong>list</strong> of everyone logged in (a list is an ordered row of values). To check whether alice is there, you walk along the chips one at a time until you find her or run off the end. If five people are online that&rsquo;s fine; if a million are online, you might check nearly a million chips. That cost is <code>O(n)</code> (&ldquo;order n&rdquo; &mdash; the work grows in step with the number of items <code>n</code>).</p>
+          <p>A list has another gap for this job: nothing stops a second &ldquo;alice&rdquo; from sneaking in. The list happily holds duplicates, even though for a chat room a person is either present or not.</p>
+          <p>You could also stuff the weather reading into a list and grab values by position 0, 1, 2 &mdash; but a future you might forget which slot is the latitude, and nothing stops the list from growing a fourth slot. Both setups <em>work</em>; neither is doing what the data actually wants.</p>
+        </>
+      ),
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 208 }],
       codeLabels: [],
       interaction: "playback",
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "The list shrugged at duplicates and let the packet grow — so watch what these two purpose-built containers do instead when you push on them.",
+      actionLabel: "Identity vs grouping",
       visual: (api) => <AddNameWedge api={api} />,
       panels: [
         {
@@ -375,46 +397,98 @@ export const setsTuplesLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what does each container&rsquo;s <em>refusal</em> tell you it&rsquo;s for?</>,
         },
       ],
+      detail: (
+        <>
+          <p>On the canvas is a small <strong>set</strong>. Add a name, then add one that&rsquo;s already in there. The set doesn&rsquo;t care &mdash; a name is either in or out, full stop. There&rsquo;s no order, no count, no &ldquo;second alice.&rdquo; That refusal to keep duplicates is the whole point of a set.</p>
+          <p>Below it is a <strong>tuple</strong> &mdash; the fixed weather packet. Try to change a slot, or try to add a fourth value. Both attempts fail. The tuple is <em>immutable</em> (a fancy word meaning &ldquo;can&rsquo;t be changed once it&rsquo;s made&rdquo;): its shape is locked the instant you create it.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The wedge question:</strong> what does each container&rsquo;s <em>refusal</em>{" "}&mdash; the set rejecting a duplicate, the tuple rejecting any change &mdash; tell you about what it&rsquo;s really for?
+          </div>
+        </>
+      ),
       codeLabels: ["set_add", "set_add_dup"],
       interaction: "wedge",
     },
     {
       id: "structures",
+      label: "The structures",
+      connector: "Those two refusals aren't quirks — they fall straight out of how each container is built underneath.",
+      actionLabel: "What's the cost?",
       visual: <BucketsVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The structures", title: "A set is a hash map's keys. A tuple is a fixed packet.",
         body: <>A <strong>hash map</strong> jumps straight to any item by its name (its &ldquo;key&rdquo;) in one step. A set is a hash map keeping only keys: &ldquo;is x in the set?&rdquo; is one such jump, and re-adding x does nothing. A tuple is the opposite &mdash; a fixed packet where slot 0 is <em>always</em> the date.</>,
       }],
+      detail: (
+        <>
+          <p>A <strong>hash map</strong> is a container with numbered cubbies, where a quick bit of math on a value (its <em>hash</em>) tells you exactly which cubby it lives in &mdash; so you can jump straight to it in one step instead of searching. The value you look things up by is called its <strong>key</strong>.</p>
+          <p>A <strong>set</strong> is just a hash map that kept only the keys and threw away everything else. &ldquo;Is x in the set?&rdquo; is one of those one-step jumps to a cubby. And adding the same value twice changes nothing &mdash; the cubby it lands in already holds it. <em>That</em> is why the set shrugged at the duplicate.</p>
+          <p>A <strong>tuple</strong> is the opposite kind of container: an ordered, fixed-size packet that can&rsquo;t be changed after you build it. The slots are positional &mdash; slot 0 is <em>always</em> the date, slot 1 <em>always</em> the latitude. You can&rsquo;t edit a slot and you can&rsquo;t add a fourth. <em>That</em> is why poking the packet failed.</p>
+        </>
+      ),
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 200 }],
       codeLabels: ["set_def", "set_add_dup", "tuple_def"],
     },
     {
       id: "operations",
+      label: "The operations",
+      connector: "Once you know a set is hash-cubbies and a tuple is a locked packet, the speed of every move on them follows for free.",
+      actionLabel: "When each fits",
       visual: <OpsVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Sets are hash-fast. Tuples are basically free.",
         body: <>Set: add, remove, and &ldquo;in&rdquo; each cost <code>O(1)</code> &mdash; same time however big it grows; combining two costs about the smaller one. Tuple: grab any slot instantly, read all <code>n</code> items in <code>O(n)</code>. Being unchangeable lets a tuple live inside a set; a list can&rsquo;t.</>,
       }],
+      detail: (
+        <>
+          <p><strong>Set.</strong> Adding, removing, and asking &ldquo;is x in here?&rdquo; (the <code>in</code> check) all cost <code>O(1)</code> on average &mdash; &ldquo;order 1&rdquo;, meaning the time stays roughly the same no matter how many items the set holds, because you jump straight to the right cubby. Combining two sets &mdash; their <em>overlap</em> (items in both), <em>merge</em> (items in either), or <em>leftovers</em> (in one but not the other) &mdash; costs about the size of the smaller set. There&rsquo;s no order and no <code>set[i]</code>, since cubbies aren&rsquo;t numbered for you.</p>
+          <p><strong>Tuple.</strong> Grabbing any slot by its position is <code>O(1)</code> &mdash; instant. Reading all of it from front to back is <code>O(n)</code> (&ldquo;order n&rdquo; &mdash; cost grows in step with the number of items <code>n</code>). And there&rsquo;s no way to change a tuple at all.</p>
+          <p>That last point is the quiet payoff: because a tuple can never change, it&rsquo;s safe to use it as a <strong>key in a hash map</strong> or as a <strong>member of a set</strong> &mdash; its cubby will never move. A list, which can change at any moment, can&rsquo;t be trusted that way.</p>
+        </>
+      ),
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 186 }],
       codeLabels: ["set_ops", "tuple_immutable", "tuple_key"],
     },
     {
       id: "fit",
+      label: "When they fit",
+      connector: "With the costs settled, the choice between them stops being about syntax and becomes about the question you're asking.",
+      actionLabel: "Name them",
       visual: <FitVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When they fit", title: "Set for “is X here?”. Tuple for “X, Y, Z stay together.”",
         body: <>Reach for a set whenever you&rsquo;d ask &ldquo;contains? unique? in both? in one but not the other?&rdquo; &mdash; online users, seen URLs, allow-lists. Reach for a tuple when several values describe one thing whose shape never changes, and you pull the pieces back out by position: <code>date, lat, temp = reading</code>.</>,
       }],
+      detail: (
+        <>
+          <p>Reach for a <strong>set</strong> the moment your question sounds like &ldquo;does this contain x?&rdquo;, &ldquo;are these all unique?&rdquo;, &ldquo;what&rsquo;s in both?&rdquo;, or &ldquo;what&rsquo;s in one but not the other?&rdquo;. Real examples: the set of users currently online, the set of URLs a crawler has already seen, the set of places already visited, an allow-list of permitted accounts.</p>
+          <p>Reach for a <strong>tuple</strong> when several values together describe <em>one thing</em> and that shape never changes:</p>
+          <ul>
+            <li><code>(x, y)</code> &mdash; a point on a map</li>
+            <li><code>(row, col)</code> &mdash; a spot in a grid</li>
+            <li><code>(date, lat, temp)</code> &mdash; a single weather reading</li>
+          </ul>
+          <p>And because the shape is fixed, you can pull the pieces straight back out by position in one line &mdash; <code>date, lat, temp = reading</code> &mdash; which is also how a function hands back several results at once.</p>
+        </>
+      ),
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 178 }],
       codeLabels: ["set_in", "tuple_unpack"],
     },
     {
       id: "name",
+      label: "Set and Tuple",
+      connector: "Now that you know exactly when to grab each one, give the two tools their names — and the deeper move they share.",
       visual: <NameVisual />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The structures", title: "Set and Tuple.",
         body: <>That&rsquo;s the name. Python writes a set with curly braces <code>{"{1, 2, 3}"}</code> and a tuple with parentheses <code>(1, 2, 3)</code>. The deeper move both make: they <em>say what the data is for</em>. A list stays silent. A set says &ldquo;membership matters.&rdquo; A tuple says &ldquo;these are one thing.&rdquo;</>,
       }],
+      detail: (
+        <>
+          <p>That&rsquo;s the name. In Python you write a <strong>set</strong> with curly braces &mdash; <code>{"{1, 2, 3}"}</code> &mdash; and a <strong>tuple</strong> with parentheses &mdash; <code>(1, 2, 3)</code>. They look tiny, but they pull their weight.</p>
+          <p>The deeper move both of them make: they <em>say what the data is for</em>. A plain list is so flexible that it stays silent about your intent &mdash; it could be anything. A set announces &ldquo;membership is what matters here.&rdquo; A tuple announces &ldquo;these values are one fixed thing.&rdquo; Choosing the right container is half about speed and half about telling the next reader &mdash; including future you &mdash; what you meant.</p>
+        </>
+      ),
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 188 }],
       codeLabels: ["set_def", "tuple_def"],
     },

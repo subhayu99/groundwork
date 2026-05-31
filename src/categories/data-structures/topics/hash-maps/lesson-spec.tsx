@@ -264,26 +264,47 @@ export const hashMapsLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "I have the question",
       visual: idleRow(),
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The setup", title: "A phone book of ten thousand names. Find Alice.",
         body: <>A phone book &mdash; ten thousand names, in no order. Someone asks for Alice&rsquo;s number. You don&rsquo;t know her page, or even if she&rsquo;s listed. Every answer costs work. How much does finding one name cost?</>,
       }],
+      detail: (
+        <>
+          <p>Picture a real phone book with ten thousand names and numbers &mdash; and, to make it hard, they&rsquo;re in <em>no</em> order at all. Someone walks up and asks, &ldquo;What&rsquo;s Alice&rsquo;s number?&rdquo;</p>
+          <p>You don&rsquo;t know which page she&rsquo;s on. You don&rsquo;t even know if she&rsquo;s in the book at all. The only way to answer is to do some <strong>work</strong> &mdash; flip pages, read names, compare. The whole question of this lesson is: how much work does finding <em>one</em> name have to cost?</p>
+        </>
+      ),
       codeLabels: [],
     },
     {
       id: "scan",
+      label: "The obvious thing",
+      connector: "With no order to lean on, the only sure way to answer is to look at the names yourself.",
+      actionLabel: "Compute, don't search",
       visual: (api) => <LinearScan api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Open page one. Start reading.",
         body: <>The simple way: <strong>scan</strong> &mdash; read names top to bottom until you hit Alice. If she&rsquo;s the 4,872nd, that&rsquo;s 4,872 reads; if missing, all ten thousand. The work grows in step with the count of names &mdash; we call that <strong>O(n)</strong>. What if the name told you the page?</>,
       }],
+      detail: (
+        <>
+          <p>The simplest approach: start at the top and read every name in turn until you hit <em>Alice</em>. This is called a <strong>linear scan</strong> &mdash; &ldquo;linear&rdquo; because the work goes up in a straight line with the size of the book. If she&rsquo;s the 4,872nd name, that&rsquo;s 4,872 reads. If she isn&rsquo;t in the book at all, you read all ten thousand before you can say so.</p>
+          <p>Computer people write that worst case as <strong><code>O(n)</code></strong> (&ldquo;order n&rdquo;): the cost grows in step with <code>n</code>, the number of names. Double the book and you double the work. Sorting the book first would let you use a smarter search &mdash; about 14 checks for ten thousand &mdash; but that still isn&rsquo;t free, and you&rsquo;d have to keep it sorted every time someone is added.</p>
+          <p>So here&rsquo;s the real question: what if there were <em>no searching at all</em>? What if the name itself <em>told you</em> the page?</p>
+        </>
+      ),
       arrows: [{ x1: ROW.cx(1), y1: 184, x2: ROW.cx(1), y2: ROW.y - 4 }],
       codeLabels: [],
       interaction: "playback",
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "That last question — what if the name told you the page? — is exactly the move we make now.",
+      actionLabel: "Compute the address",
       visual: (api) => <HashAddress api={api} />,
       panels: [
         {
@@ -295,22 +316,46 @@ export const hashMapsLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what if every key knew where to find itself?</>,
         },
       ],
+      detail: (
+        <>
+          <p>Click a name above. A <strong>hash function</strong> &mdash; a fixed recipe that turns the letters of a name into a number &mdash; reads its characters and hands you a box number. It doesn&rsquo;t look anything up; it just <em>computes</em>, the way <code>3 + 4</code> always gives <code>7</code>. Same name in, same number out, every time.</p>
+          <p>The raw number can be huge, so we take it <code>mod 16</code> &mdash; the <em>remainder</em> after dividing by 16 &mdash; which always lands between 0 and 15, one of our boxes. Try a name that isn&rsquo;t even in the book: you still get a box instantly, because the recipe never searches &mdash; it computes.</p>
+          <p>And here&rsquo;s why it matters: the answer is <em>one hop</em>, whether the book holds ten names or ten million. The size of the book never enters into it.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The wedge question:</strong> what if every key knew where to find itself?
+          </div>
+        </>
+      ),
       codeLabels: ["hm_slot"],
       interaction: "wedge",
     },
     {
       id: "structure",
+      label: "The structure",
+      connector: "Now that a name can name its own box, we just need the row of boxes to drop names into.",
+      actionLabel: "What's the actual cost?",
       visual: (api) => <DropIntoBuckets api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The structure", title: "An array of boxes, addressed by the hash.",
         body: <>A hash map is two parts: a numbered row of slots called <strong>buckets</strong> (jumping to box <code>arr[i]</code> is instant, however many there are), plus the hash function. To store a name, hash it and drop it in that box. Most boxes hold one; some get crowded.</>,
       }],
+      detail: (
+        <>
+          <p>A <strong>hash map</strong> is just two simple pieces glued together.</p>
+          <p>The first piece is an <strong>array of boxes</strong> &mdash; a numbered row of slots, here called <strong>buckets</strong>. An array is the most basic store there is, and its superpower is that jumping straight to box number <code>i</code> (written <code>arr[i]</code>) is <em>instant</em> &mdash; the computer leaps right to it without scanning past the others, no matter how many boxes there are.</p>
+          <p>The second piece is the <strong>hash function</strong> from the last step: feed it a key &mdash; a name, a number, anything &mdash; and it produces a box number. A good hash spreads keys evenly so no single box gets overloaded.</p>
+          <p>Put them together and storing is trivial: hash the name to get a box, drop it in. Finding it later is the same move &mdash; hash, then look in that one box. No searching anywhere, just arithmetic. Watch the names rain into their computed boxes; most boxes end up with one name, a few get crowded.</p>
+        </>
+      ),
       arrows: [{ x1: GRID.cx(0, 0), y1: 178, x2: GRID.cx(0, 0), y2: GRID.cy(0, 0) - GRID.cellPx / 2 - 4 }],
       codeLabels: ["hm_put_slot", "hm_put_append"],
       interaction: "playback",
     },
     {
       id: "operations",
+      label: "The operations",
+      connector: "We watched a few boxes get crowded as names landed — so what does that crowding cost us?",
+      actionLabel: "When it fits",
       visual: <CollisionGrid />,
       panels: [
         {
@@ -322,25 +367,57 @@ export const hashMapsLesson: LessonSpec = {
           body: <>Box 2 holds three names &mdash; <code>fawn, eli, june</code>. Looking one up still walks only that one short box, never the whole table.</>,
         },
       ],
+      detail: (
+        <>
+          <p>The three everyday moves &mdash; <strong>insert</strong> (add a key), <strong>look up</strong> (find its value), and <strong>delete</strong> &mdash; all cost <strong><code>O(1)</code></strong> on average. <code>O(1)</code> means <em>constant time</em>: the cost stays flat whether the table holds ten keys or ten million, because hashing jumps straight to the right box. Notice the word <em>average</em> &mdash; that&rsquo;s the honest version, and here are the two wrinkles behind it.</p>
+          <p>First, <strong>collisions</strong>. Sometimes two different keys hash to the <em>same</em> box &mdash; on the canvas, box 2 holds three names at once. We handle it by <strong>chaining</strong>: each box keeps a tiny list, and both keys live there side by side. To look one up, you hash to the box and then walk only that short list &mdash; never the whole table. As long as boxes stay short, this barely costs anything.</p>
+          <p>Second, <strong>resizing</strong>. When the table gets too full, we build a bigger array and re-drop every key into it. That one step is <code>O(n)</code> &mdash; it touches all <code>n</code> keys &mdash; so it&rsquo;s genuinely slow. But it happens so rarely that, spread across the many cheap inserts around it, the cost-per-insert <em>averaged out</em> is still tiny. That&rsquo;s the whole meaning of &ldquo;O(1) on average&rdquo;: the one slow step is rare enough to vanish in the average.</p>
+        </>
+      ),
       arrows: [{ x1: GRID.cx(0, 2), y1: 178, x2: GRID.cx(0, 2), y2: GRID.cy(0, 2) - GRID.cellPx / 2 - 4 }],
       codeLabels: ["hm_put_scan", "hm_put_overwrite", "hm_get_scan"],
     },
     {
       id: "fit",
+      label: "When it fits",
+      connector: "Now that the costs are clear and almost always cheap, the useful question is: when do you reach for one?",
+      actionLabel: "Name the structure",
       visual: <FitBoard />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "Lookups by key. Counting. Caching. Most things.",
         body: <>Reach for a hash map whenever you&rsquo;d say &ldquo;given X, find Y&rdquo; &mdash; counting how often each word appears, saving (<strong>caching</strong>) a slow result to reuse, removing duplicates, joining two datasets. The one thing it can&rsquo;t do: keep order, or answer &ldquo;all keys between A and M.&rdquo;</>,
       }],
+      detail: (
+        <>
+          <p>The simplest tell: reach for a hash map any time you can phrase the job as <strong>&ldquo;given X, find Y&rdquo;</strong> &mdash; given a name, find a number; given a word, find its count. If you have a key and want the thing attached to it, this is the tool.</p>
+          <p>That covers an enormous amount of real work:</p>
+          <ul>
+            <li><strong>Counting</strong> &mdash; how many times each word appears in a document (the word is the key, the count is the value).</li>
+            <li><strong>Caching</strong> &mdash; saving the result of a slow computation under its inputs, so the next time the same inputs show up you reuse the answer instead of redoing the work.</li>
+            <li><strong>Deduplicating</strong> &mdash; remembering what you&rsquo;ve already seen so you can drop repeats from a stream.</li>
+            <li><strong>Joining</strong> &mdash; matching up two datasets on a shared field, like stitching orders to customers by id.</li>
+          </ul>
+          <p>The one thing a hash map <em>cannot</em> do is keep things in any meaningful order, or answer a <strong>range</strong> question like &ldquo;all keys between A and M.&rdquo; The boxes are scattered by the hash on purpose, so order is gone. When you need order or ranges, you reach for a <strong>tree</strong> instead.</p>
+        </>
+      ),
       codeLabels: ["lookup", "membership"],
     },
     {
       id: "name",
+      label: "The pattern",
+      connector: "You've now built the whole idea from scratch — so here's the name you'll meet it under everywhere.",
       visual: <SummaryCard />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Hash map. A dictionary, in Python.",
         body: <>That&rsquo;s the named pattern: hash map, hash table, <strong>dictionary</strong> (a store of key&rarr;value pairs) &mdash; same idea everywhere. Python&rsquo;s <code>dict</code> is one; so are JavaScript&rsquo;s <code>Map</code> and Java&rsquo;s <code>HashMap</code>. The principle underneath: spend memory to never search.</>,
       }],
+      detail: (
+        <>
+          <p>Different languages give this same idea different names: <em>hash map</em>, <em>hash table</em>, <strong>dictionary</strong>, <em>associative array</em>. They all mean the one thing you just built &mdash; a store of <strong>key&rarr;value pairs</strong>, where you hand it a key and it hands you back the value in one hop.</p>
+          <p>You already use these constantly. Python&rsquo;s <code>dict</code> is a hash map. So is JavaScript&rsquo;s <code>Map</code> (and, loosely, its plain objects), Java&rsquo;s <code>HashMap</code>, and Go&rsquo;s <code>map</code>. It&rsquo;s the workhorse data structure of everyday programming &mdash; the thing you reach for without even thinking.</p>
+          <p>And underneath it all sits one of the deepest ideas in computer science: <strong>trade space for time</strong>. We set aside a big array of boxes &mdash; spending memory we didn&rsquo;t strictly need &mdash; precisely so we never have to search. That trade is why <code>phone[&ldquo;alice&rdquo;]</code> finds Alice&rsquo;s number in a single step instead of ten thousand.</p>
+        </>
+      ),
       codeLabels: ["dict_init", "insert", "lookup"],
     },
   ],

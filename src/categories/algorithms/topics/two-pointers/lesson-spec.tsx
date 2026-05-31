@@ -214,25 +214,46 @@ export const twoPointersLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "I see the setup",
       visual: idleRow(),
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The setup", title: "Ten cards on a table. Find the pair that adds up.",
         body: <>Ten number cards lie in a row, smallest to largest. A friend names a total &mdash; say <strong>17</strong> &mdash; and asks for two cards that add up to it exactly. The question: how few cards must you touch?</>,
       }],
+      detail: (
+        <>
+          <p>Picture ten cards laid out in a row, smallest on the left, largest on the right. A friend points at a number &mdash; let&rsquo;s say <code>17</code> &mdash; and asks: &ldquo;Find me two cards that add up to exactly this.&rdquo;</p>
+          <p>You&rsquo;re allowed to pick any two cards, lift them up, check their total, and put them back. The real question isn&rsquo;t <em>can</em> you do it &mdash; it&rsquo;s how <strong>few</strong> cards you have to touch before you&rsquo;re sure. That &ldquo;how few&rdquo; is the whole game here.</p>
+        </>
+      ),
       codeLabels: ["sig"],
     },
     {
       id: "brute",
+      label: "The obvious thing",
+      connector: "Before getting clever, what does the honest, no-tricks way actually cost?",
+      actionLabel: "Sorted should mean something",
       visual: <BruteForce />,
       panels: [{
         left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "Try every pair until one works.",
         body: <>The honest way: pick one card, test it against every other. Nothing sums to 17? Pick the next, test the rest. For ten cards that&rsquo;s up to <strong>45</strong> tries &mdash; you touch cards over and over. The cards are <strong>sorted</strong>, but we haven&rsquo;t used that.</>,
       }],
+      detail: (
+        <>
+          <p>The honest answer: pick the first card, then test it against every other card. If nothing sums to <code>17</code>, pick the second card and test it against every card after it. Then the third, and so on. This is the <strong>brute-force</strong> way &mdash; try every possible pair and hope one fits.</p>
+          <p>For ten cards that&rsquo;s <code>9 + 8 + 7 + &hellip; + 1 = 45</code> pairs to inspect, and you end up touching the same cards over and over. Scale it up: a thousand cards means roughly half a million pairs. We call this <code>O(n&sup2;)</code> work (&ldquo;order n-squared&rdquo;) &mdash; meaning if the number of cards <code>n</code> doubles, the effort roughly <em>quadruples</em>.</p>
+          <p>Here&rsquo;s the waste: the cards are already <strong>sorted</strong>, smallest to largest, and we haven&rsquo;t used that fact at all. Surely the order is worth something.</p>
+        </>
+      ),
       arrows: [{ x1: G.cx(5), y1: 300, x2: G.cx(5), y2: G.y + G.cellH + 4 }],
       codeLabels: [],
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "If checking every pair wastes the sorted order, start at the two ends and let the order guide you.",
+      actionLabel: "I see the pattern",
       visual: (api) => <MoveTheFingers api={api} />,
       panels: [
         {
@@ -244,11 +265,23 @@ export const twoPointersLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> too small &rarr; move which finger to grow the sum? Too big &rarr; which one to shrink it?</>,
         },
       ],
+      detail: (
+        <>
+          <p>Put your left finger on the smallest card and your right finger on the largest. We&rsquo;ll call them <code>L</code> and <code>R</code> &mdash; just names for &ldquo;the card the left finger is on&rdquo; and &ldquo;the card the right finger is on.&rdquo; Add the two numbers together. Then use the buttons to move whichever finger you like, and just <em>watch</em> what the sum does.</p>
+          <p>Don&rsquo;t reach for a strategy yet. Notice the feel of it: when does each finger want to move? What does it mean when the total comes out too small? Too big? The answer is hiding in plain sight because the cards are sorted &mdash; moving <code>L</code> right always lands on a bigger card, moving <code>R</code> left always lands on a smaller one.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The wedge question:</strong> if the sum is too small, which finger could you move to make it bigger? If the sum is too big, which one could you move to shrink it?
+          </div>
+        </>
+      ),
       codeLabels: ["compute", "compare"],
       interaction: "wedge",
     },
     {
       id: "derive",
+      label: "The derivation",
+      connector: "You felt which finger to move — now here's the reason it's always the right call.",
+      actionLabel: "Count the work",
       visual: <RetireSide />,
       panels: [
         {
@@ -260,34 +293,73 @@ export const twoPointersLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">Why it works:</strong> sorted is a promise the cards keep &mdash; each comparison cuts a whole side, not one pair.</>,
         },
       ],
+      detail: (
+        <>
+          <p>Call the fingers <code>L</code> and <code>R</code>, and look at the total <code>arr[L] + arr[R]</code> &mdash; the left card plus the right card.</p>
+          <p><strong>Too small?</strong> Remember <code>R</code> is sitting on the biggest card left in play. So pairing <code>arr[L]</code> with <em>anything</em> between <code>L</code> and <code>R</code> can only be smaller still &mdash; every one of those pairs is also too small. That means <code>arr[L]</code> can never be part of the answer, so we throw it away for good and step <code>L</code> one card to the right.</p>
+          <p><strong>Too big?</strong> The mirror image. Every pair using <code>arr[R]</code> with anything from <code>L</code> to <code>R</code> is also too big, so we retire <code>R</code> and step it one card to the left.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The principle:</strong>{" "}being sorted is a promise the cards keep. Each single comparison lets us eliminate a whole side of the remaining cards at once &mdash; not just one pair.
+          </div>
+        </>
+      ),
       codeLabels: ["compute", "less", "move_left", "greater", "move_right"],
     },
     {
       id: "win",
+      label: "The win",
+      connector: "If one look retires a whole side, count how many looks the whole search can possibly take.",
+      actionLabel: "Watch it converge",
       visual: <WinStat />,
       panels: [{
         left: 150, top: 26, width: 560, variant: "main", label: "The win", title: "Forty-five pairs becomes nine comparisons.",
         body: <>Trying every pair takes up to <code>n &times; (n &minus; 1) / 2</code> &mdash; with <code>n</code> (the card count) = 10, that&rsquo;s 45. Two fingers touch each card once: <code>L</code> only moves right, <code>R</code> only left. They meet in at most <code>n &minus; 1</code> = 9 steps.</>,
       }],
+      detail: (
+        <>
+          <p>Put the two costs side by side. Brute force inspects up to <code>n &times; (n &minus; 1) / 2</code> pairs &mdash; here <code>n</code> is the card count, so with <code>n = 10</code> that&rsquo;s 45 comparisons. That formula is <code>O(n&sup2;)</code> work: double the cards and the effort roughly quadruples.</p>
+          <p>The two fingers, by contrast, touch each card at most once. <code>L</code> only ever moves right, <code>R</code> only ever moves left, and they march toward each other until they meet. So after at most <code>n &minus; 1</code> = 9 steps the search is over. That&rsquo;s <code>O(n)</code> work (&ldquo;order n&rdquo;) &mdash; the effort grows in simple step with the number of cards, not with its square.</p>
+          <p>Forty-five collapses to nine, and the gap only widens as the row gets longer. Press play next and watch the fingers actually converge.</p>
+        </>
+      ),
       codeLabels: ["loop", "compute", "compare", "found"],
     },
     {
       id: "run",
+      label: "The win, watched",
+      connector: "Nine steps on paper — here it is happening, the retired cards fading out one move at a time.",
+      actionLabel: "Try it elsewhere",
       visual: (api) => <AutoTwoPointers api={api} />,
       panels: [{
         left: 150, top: 18, width: 560, variant: "main", label: "Watch it converge", title: "Press play — the fingers walk inward.",
         body: <>The two fingers start at the ends and step inward, each move shrinking what&rsquo;s left. Faded cards are retired &mdash; out of play for good. When the sum lands on 17, the pair turns green. This board finishes in well under nine looks.</>,
       }],
+      detail: (
+        <>
+          <p>Press play and watch the rule from the last two beats run on its own. The two fingers start at the far ends and step inward one move at a time, and every move shrinks the part of the row still in play.</p>
+          <p>The faded cards aren&rsquo;t just dimmed for looks &mdash; they&rsquo;re the ones we <em>retired</em>, gone for good because we proved they couldn&rsquo;t be part of the answer. When <code>arr[L] + arr[R]</code> finally lands on <code>17</code>, that pair turns green and the search stops. Count the moves: this board reaches the answer in well under the nine looks the worst case allows, because the fingers often meet the target before they ever get close to each other.</p>
+        </>
+      ),
       codeLabels: ["loop", "compute", "compare", "found"],
       interaction: "playback",
     },
     {
       id: "general",
+      label: "The generalization",
+      connector: "The cards were just one excuse to use the fingers — the same move answers questions that have nothing to do with sums.",
+      actionLabel: "Name the pattern",
       visual: <PalindromeScene />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The generalization", title: "Same fingers. New questions.",
         body: <>The fingers don&rsquo;t care <em>what</em> they compare. Is a word a palindrome (reads the same backward)? One finger at each end, step inward while letters match. They just need a <strong>direction</strong>: order, symmetry, or height.</>,
       }],
+      detail: (
+        <>
+          <p>Try a different question with the same two fingers: is this word a <strong>palindrome</strong> &mdash; does it read the same forwards and backwards, like <em>racecar</em>? Put one finger at each end and compare the letters. If they match, both fingers step inward. The first time they don&rsquo;t, it&rsquo;s not a palindrome. Same convergence, about <code>n / 2</code> moves &mdash; roughly half as many steps as there are letters.</p>
+          <p>Or a question with no list to search at all: given the heights of vertical lines, which two hold the most water between them? Two fingers at the ends, always move the <em>shorter</em> one inward, because the short line is the bottleneck. Same pattern again.</p>
+          <p>The fingers genuinely don&rsquo;t care <em>what</em> they&rsquo;re comparing. All they need is that the thing underneath has a <em>direction</em> &mdash; sorted order, symmetry, height &mdash; that tells each finger which way to step.</p>
+        </>
+      ),
       codeLabels: ["loop", "compare"],
     },
     {
@@ -297,10 +369,25 @@ export const twoPointersLesson: LessonSpec = {
         ARR.map((_, i) => i !== 2 && i !== 6),
         { 2: "✓", 6: "✓" },
       ),
+      label: "The pattern",
+      connector: "You've used it, proved it, and stretched it — here's its name and the cues that should make you reach for it.",
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Two Pointers.",
         body: <>That&rsquo;s the name. Reach for it whenever a row has a <strong>direction</strong> &mdash; sorted order, symmetry, a one-way pattern &mdash; and one comparison can retire a whole side. Signals: &ldquo;sorted array + pair sum&rdquo;; &ldquo;palindrome&rdquo;; &ldquo;container with most water.&rdquo;</>,
       }],
+      detail: (
+        <>
+          <p>That&rsquo;s the name: <strong>Two Pointers</strong>. The &ldquo;pointers&rdquo; are just the two fingers &mdash; markers that each remember a position in the row. The pattern fits whenever a line of data has a <em>direction</em> (sorted order, symmetry, or some one-way pattern) and a single comparison can rule out a whole side of what&rsquo;s left, instead of just one item.</p>
+          <p>Reach for it when you spot signals like these:</p>
+          <ul>
+            <li>a &ldquo;sorted array&rdquo; plus a &ldquo;pair sum&rdquo; or &ldquo;target&rdquo;</li>
+            <li>&ldquo;palindrome&rdquo; or &ldquo;symmetric&rdquo;</li>
+            <li>&ldquo;remove duplicates in place&rdquo;</li>
+            <li>&ldquo;container with most water&rdquo; or &ldquo;trap rainwater&rdquo;</li>
+          </ul>
+          <p>Open the Code panel to see exactly how the two fingers look written out in Python.</p>
+        </>
+      ),
       arrows: [
         { x1: G.cx(2), y1: G.y + G.cellH + 34, x2: G.cx(2), y2: G.y + G.cellH + 4 },
         { x1: G.cx(6), y1: G.y + G.cellH + 34, x2: G.cx(6), y2: G.y + G.cellH + 4 },

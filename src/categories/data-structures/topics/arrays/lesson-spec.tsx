@@ -173,26 +173,47 @@ export const arraysLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "I have the question",
       visual: idleRow(ARR.map((_, i) => (i === TARGET ? "active" : undefined))),
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The setup", title: "A thousand books. Find the 487th.",
         body: <>You&rsquo;re shelving a thousand books and a friend says &ldquo;hand me book number 487.&rdquo; You don&rsquo;t care what it is &mdash; only that it sits at that <strong>position</strong>. How fast can you reach it? (Picture this short row 1,000 long.)</>,
       }],
+      detail: (
+        <>
+          <p>You&rsquo;re organizing a thousand books, and your friend asks: &ldquo;hand me book number four-eighty-seven.&rdquo;</p>
+          <p>You don&rsquo;t care which book it is. You don&rsquo;t care about its title. You just need the one that&rsquo;s in <em>position 487</em> &mdash; the 487th spot in the row. The only question that matters is: how fast can you get to it?</p>
+        </>
+      ),
       arrows: [{ x1: G.cx(TARGET), y1: 150, x2: G.cx(TARGET), y2: G.y - 4 }],
       codeLabels: [],
     },
     {
       id: "pile",
+      label: "The obvious thing",
+      connector: "Before we can speed it up, look at the slowest honest way to store those books.",
+      actionLabel: "What changes if we rearrange?",
       visual: <PileCount />,
       panels: [{
         left: 150, top: 332, width: 580, variant: "main", label: "The obvious thing", title: "A pile of books. Count from the top.",
         body: <>Simplest storage: a pile. To reach book 487 you lift the top one, then the next, then the next &mdash; 487 lifts for one question. Ask for a different book and you start over. The cost grows with the position you&rsquo;re asked about.</>,
       }],
+      detail: (
+        <>
+          <p>The simplest way to store the books: stack them in a pile. To get book 487, you lift the top one (that&rsquo;s 1), the next (2), the next (3)&hellip; all the way down to 487. That&rsquo;s 487 lifts just to answer one question.</p>
+          <p>And every time the question changes &mdash; book 53? book 921? &mdash; you start from the top again. The amount of work grows with whatever position you&rsquo;re asked about.</p>
+          <p>The problem isn&rsquo;t the books. It&rsquo;s the <em>pile</em> &mdash; the way they&rsquo;re arranged forces you to count through everything in front of the one you want.</p>
+        </>
+      ),
       arrows: [{ x1: G.cx(6), y1: 332, x2: G.cx(6), y2: G.y + G.cellH + 26 }],
       codeLabels: [],
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "Now that the pile makes you count from the top, change one thing — give every position a fixed home.",
+      actionLabel: "Storage decides speed",
       visual: (api) => <DragToSlot api={api} />,
       panels: [
         {
@@ -204,21 +225,43 @@ export const arraysLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what changed about the books? Nothing. What changed about the <em>arrangement</em>?</>,
         },
       ],
+      detail: (
+        <>
+          <p>Now imagine the books laid out on a long shelf instead of stacked. Each slot is exactly the same size: slot 0, slot 1, slot 2&hellip; slot 999. A slot&rsquo;s number is its <strong>index</strong> &mdash; just the position, counting from zero.</p>
+          <p>You no longer reach book 487 by lifting 487 books off a pile. You walk straight to slot 487. Click any slot in the picture and watch: you land on it in one step, no counting through the ones before it.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The wedge question:</strong> what changed about the books? Nothing. What changed about the <em>arrangement</em> &mdash; and why did that alone make the lookup instant?
+          </div>
+        </>
+      ),
       codeLabels: ["index_read"],
       interaction: "wedge",
     },
     {
       id: "structure",
+      label: "The structure",
+      connector: "That one-step jump isn't magic — it's arithmetic, and the even spacing of the slots is what makes it work.",
+      actionLabel: "What operations cost what?",
       visual: <MemoryRuler />,
       panels: [{
         left: 150, top: 18, width: 560, variant: "main", label: "The structure", title: "Same-size slots, packed side by side.",
         body: <>That row of equal slots is an <strong>array</strong>. Slots are all one size, sitting side by side with no gaps. So slot <code>i</code>&rsquo;s spot is just <code>base + i × size</code> &mdash; one bit of arithmetic, the same work whether the row is a thousand or a million. That fixed effort is called <strong>constant time</strong>.</>,
       }],
+      detail: (
+        <>
+          <p>That row of equal slots is an <strong>array</strong>. Two things make it special: every element is the same size, and they sit right next to each other in <strong>memory</strong> (the computer&rsquo;s row of numbered storage spots) with no gaps between them.</p>
+          <p>Because the spacing is perfectly even, the computer can <em>compute</em> where slot <code>i</code> lives instead of walking to it: its address is <code>base + i &times; size</code> &mdash; the start of the row, plus <code>i</code> steps of one slot each. (<code>base</code> is where the row begins; <code>size</code> is how wide one slot is.)</p>
+          <p>That little bit of arithmetic is a single CPU instruction. The work is the same whether the array holds a thousand books or a million &mdash; reaching slot 487 costs exactly as much either way. Work that doesn&rsquo;t grow with the size of the data like this is called <strong>constant time</strong>, written <code>O(1)</code>.</p>
+        </>
+      ),
       arrows: [{ x1: G.cx(TARGET), y1: 150, x2: G.cx(TARGET), y2: G.y - 4 }],
       codeLabels: ["index_read"],
     },
     {
       id: "operations",
+      label: "The operations",
+      connector: "Reaching a slot is free — but not every operation gets to ride that arithmetic, so let's price them out.",
+      actionLabel: "When does this fit?",
       visual: (api) => <AutoInsert api={api} />,
       panels: [
         {
@@ -230,25 +273,56 @@ export const arraysLesson: LessonSpec = {
           body: <>Append at the end is O(1) too &mdash; on average. Once in a while the shelf is full and the books are copied to a bigger one.</>,
         },
       ],
+      detail: (
+        <>
+          <p>Call the number of items in the array <code>n</code>. Here&rsquo;s what each common move costs:</p>
+          <ul>
+            <li><strong>Read / write by index:</strong> <code>O(1)</code> &mdash; instant at any size; just the <code>base + i &times; size</code> address math.</li>
+            <li><strong>Append at the end:</strong> <code>O(1)</code> on average &mdash; you stay next to the last element. (Now and then a full shelf is copied into a bigger one.)</li>
+            <li><strong>Insert in the middle:</strong> <code>O(n)</code> &mdash; every element after the insertion point shifts right one slot to make room. Watch the tail slide over.</li>
+            <li><strong>Find a value (no index):</strong> <code>O(n)</code> &mdash; with no position to jump to, you scan until you spot it.</li>
+          </ul>
+          <p>The pattern: anything tied to a known <em>position</em> is cheap; anything that makes you <em>move</em> or <em>search</em> the items costs work that grows with <code>n</code>.</p>
+        </>
+      ),
       codeLabels: ["append", "insert_mid", "delete"],
       interaction: "playback",
     },
     {
       id: "fit",
+      label: "When it fits",
+      connector: "With every operation priced, the rule for when to use an array writes itself.",
+      actionLabel: "Name the structure",
       visual: <CostCard />,
       panels: [{
         left: 560, top: 240, width: 280, variant: "note", label: "When it fits",
         body: <>Reach for arrays when the work is read-by-position, append, or scan start-to-end. Pick other layouts (later lessons) when you constantly insert or delete in the middle.</>,
       }],
+      detail: (
+        <>
+          <p>Arrays are the default choice for almost any sequence of things. Reach for one whenever the work looks like: <em>read by position, add to the end, or scan from start to finish</em> &mdash; all the cheap moves.</p>
+          <p>Reach for something else when the work is dominated by <em>inserting and deleting in the middle</em>, because you&rsquo;ll pay <code>O(n)</code> (cost growing with the list size) on every single edit as the tail keeps shifting.</p>
+          <p>Those middle-heavy workloads are exactly what other structures are built for &mdash; <strong>linked lists</strong> (items chained together so each points to the next, instead of sitting in a fixed row), <strong>trees</strong>, or <strong>hash maps</strong>. You&rsquo;ll meet them in later lessons; for now, just know the array&rsquo;s sweet spot and its weak spot.</p>
+        </>
+      ),
       codeLabels: ["loop"],
     },
     {
       id: "name",
+      label: "The pattern",
+      connector: "You've earned the name — and you already know the one line that makes the whole thing tick.",
       visual: idleRow(ARR.map((_, i) => (i === TARGET ? "good" : undefined)), undefined, { [TARGET]: "arr[i]" }),
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Array. List, in Python.",
         body: <>That&rsquo;s the name. In many languages an array&rsquo;s size is fixed; Python&rsquo;s <code>list</code> is a <strong>dynamic array</strong> &mdash; it grows when you append, same cost model. Every <code>arr[i]</code> you see does that <code>base + i × size</code> jump. That one line is why arrays are everywhere.</>,
       }],
+      detail: (
+        <>
+          <p>That&rsquo;s the name: an <strong>array</strong>. In low-level languages an array has a fixed size you set up front. In Python, the everyday <code>list</code> is a <strong>dynamic array</strong> &mdash; same idea, but it quietly grows itself whenever you append. The cost model you just learned is identical either way.</p>
+          <p>So when you see <code>arr[i]</code> in code, the runtime is doing that <code>base + i &times; size</code> jump under the hood &mdash; one instant step to any position. That single line is the whole reason arrays show up everywhere, from the pixels on this screen to the rows in a spreadsheet.</p>
+          <p>Open the Code panel to see the handful of operations you&rsquo;ll actually reach for day to day.</p>
+        </>
+      ),
       arrows: [{ x1: G.cx(TARGET), y1: 150, x2: G.cx(TARGET), y2: G.y - 4 }],
       codeLabels: ["setup", "length"],
     },
