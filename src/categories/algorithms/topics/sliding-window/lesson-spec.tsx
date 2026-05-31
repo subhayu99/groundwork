@@ -225,7 +225,7 @@ export const slidingWindowLesson: LessonSpec = {
         </g>
       ),
       panels: [{
-        left: 150, top: 344, width: 580, variant: "main", label: "The obvious thing", title: "Add three. Slide. Add three. Slide.",
+        left: 150, top: 24, width: 580, variant: "main", label: "The obvious thing", title: "Add three. Slide. Add three. Slide.",
         body: <>The first idea: just do it. Add the three numbers in each of the 8 windows &mdash; 24 additions. But side-by-side windows <strong>share two numbers</strong>, so you keep re-adding what you just added.</>,
       }],
       detail: (
@@ -235,7 +235,7 @@ export const slidingWindowLesson: LessonSpec = {
           <p>Look at the second window next to the first. They <strong>share two of their three</strong> numbers. So you add those two numbers, then a moment later you slide over and add the very same two again. And then again on the next slide. You&rsquo;re paying full price for arithmetic you already did.</p>
         </>
       ),
-      arrows: [{ x1: G.cx(2), y1: 344, x2: G.cx(2), y2: G.y + G.cellH + 40 }],
+      arrows: [{ x1: G.cx(2), y1: 168, x2: G.cx(2), y2: G.y - 4 }],
       codeLabels: ["sig"],
     },
     {

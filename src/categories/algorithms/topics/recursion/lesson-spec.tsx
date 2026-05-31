@@ -297,7 +297,7 @@ function NamedPattern() {
     <g>
       <NodeGraph nodes={nodes} edges={EDGES} />
       <text x={TBY.get("root")!.x} y={TBY.get("root")!.y - 22} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 11, fill: "var(--diff-easy)" }}>19MB ✓</text>
-      <Bracket x1={file.x - 42} x2={file.x + 42} y={file.y + 22} label="base case — a file knows its size" color="var(--diff-easy)" />
+      <Bracket x1={file.x - 42} x2={file.x + 42} y={file.y + 34} label="base case — a file knows its size" color="var(--diff-easy)" />
       <Bracket x1={folder.x - 42} x2={folder.x + 156} y={folder.y - 16} label="recursive case — ask each child, add up" color="var(--accent-ink)" />
     </g>
   );
@@ -321,7 +321,7 @@ function MidRecursion() {
   return (
     <g>
       <NodeGraph nodes={nodes} edges={edges} />
-      <Bracket x1={TBY.get("app")!.x - 42} x2={TBY.get("app")!.x + 42} y={TBY.get("app")!.y + 22} label="base case: return 8, stop" color="var(--diff-easy)" />
+      <Bracket x1={TBY.get("app")!.x - 42} x2={TBY.get("app")!.x + 42} y={TBY.get("app")!.y + 34} label="base case: return 8, stop" color="var(--diff-easy)" />
       {stackHeader("recursing in — newest call on top")}
       <StackBoxes items={items} cx={STACK_CX} top={STACK_TOP} width={STACK_W} boxH={STACK_BH} gap={STACK_GAP} />
     </g>

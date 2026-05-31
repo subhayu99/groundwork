@@ -430,7 +430,7 @@ export const dfsLesson: LessonSpec = {
           <p>Your eyes can trace a route through this little maze in about a second &mdash; you see the whole picture at once. A computer can&rsquo;t do that. It has no overview; it can only stand on one square and look at the squares right next to it. So to teach it to escape, we have to turn &ldquo;find a way&rdquo; into a step-by-step recipe it can follow one square at a time.</p>
         </>
       ),
-      arrows: [{ x1: GG.cx(0, 0), y1: 150, x2: GG.cx(0, 0), y2: GG.cy(0, 0) - GG.cellPx / 2 - 4 }],
+      arrows: [{ x1: GG.cx(0, 0), y1: 162, x2: GG.cx(0, 0), y2: GG.cy(0, 0) - GG.cellPx / 2 - 4 }],
       codeLabels: ["sig"],
     },
     {
@@ -491,9 +491,9 @@ export const dfsLesson: LessonSpec = {
           ),
         },
         {
-          left: 588,
-          top: 374,
-          width: 252,
+          left: 20,
+          top: 300,
+          width: 250,
           variant: "note",
           body: (
             <>
@@ -561,7 +561,7 @@ export const dfsLesson: LessonSpec = {
       panels: [
         {
           left: 40,
-          top: 18,
+          top: 8,
           width: 780,
           variant: "main",
           label: "The operations",
@@ -596,7 +596,7 @@ export const dfsLesson: LessonSpec = {
       panels: [
         {
           left: 40,
-          top: 18,
+          top: 8,
           width: 560,
           variant: "main",
           label: "The generalization",
@@ -618,7 +618,7 @@ export const dfsLesson: LessonSpec = {
           <p>The trigger is always the same shape of question: &ldquo;<em>can I reach X from here?</em>&rdquo; or &ldquo;<em>what can I reach from here?</em>&rdquo; Whenever you hear that, this is the walk to reach for.</p>
         </>
       ),
-      arrows: [{ x1: 240, y1: 150, x2: 240, y2: 226 }],
+      arrows: [{ x1: 240, y1: 162, x2: 240, y2: 226 }],
       codeLabels: ["neighbors", "recurse"],
     },
     {
@@ -672,7 +672,7 @@ export const dfsLesson: LessonSpec = {
           <p>Open the code drawer to see the Python. The recursive helper does all the real work; the few lines around it just create the visited set and kick the walk off at the start.</p>
         </>
       ),
-      arrows: [{ x1: GG.cx(GOAL[0], GOAL[1]), y1: 150, x2: GG.cx(GOAL[0], GOAL[1]), y2: GG.cy(GOAL[0], GOAL[1]) - GG.cellPx / 2 - 4 }],
+      arrows: [{ x1: GG.cx(GOAL[0], GOAL[1]), y1: 162, x2: GG.cx(GOAL[0], GOAL[1]), y2: GG.cy(GOAL[0], GOAL[1]) - GG.cellPx / 2 - 4 }],
       codeLabels: ["found"],
     },
   ],

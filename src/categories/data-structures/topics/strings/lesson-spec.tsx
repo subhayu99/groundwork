@@ -292,7 +292,7 @@ export const stringsLesson: LessonSpec = {
       visual: (api) => <AutoScan api={api} />,
       panels: [
         {
-          left: 150, top: 320, width: 580, variant: "main", label: "The obvious thing", title: "Walk it box by box.",
+          left: 150, top: 18, width: 580, variant: "main", label: "The obvious thing", title: "Walk it box by box.",
           body: <>Start at box 0. Compare the next five letters to <code>brown</code>. No match? Slide one box right and retry. That&rsquo;s 15 starting spots &mdash; about 75 checks. Slow, but it works.</>,
         },
       ],
@@ -303,7 +303,7 @@ export const stringsLesson: LessonSpec = {
           <p>One thing to notice while it runs: jumping straight to position 10 to start a comparison is no harder than starting at position 0. You can land on <em>any</em> letter in a single step. So reading individual letters isn&rsquo;t the slow part &mdash; which hints that text behaves a lot like a plain row of boxes.</p>
         </>
       ),
-      arrows: [{ x1: G.cx(2), y1: 318, x2: G.cx(2), y2: G.y + G.cellH + 4 }],
+      arrows: [{ x1: G.cx(2), y1: 150, x2: G.cx(2), y2: G.y - 4 }],
       codeLabels: ["find"],
       interaction: "playback",
     },
@@ -367,7 +367,7 @@ export const stringsLesson: LessonSpec = {
           body: <>Reading one letter <code>s[i]</code> is <strong>O(1)</strong> &mdash; &ldquo;O(...)&rdquo; just describes how cost grows; O(1) means instant, the same however long the string is. But every edit copies the whole thing into a new string. Watch the counter climb.</>,
         },
         {
-          left: 540, top: 372, width: 290, variant: "note",
+          left: 540, top: 352, width: 290, variant: "note",
           body: <>The trap: gluing letters on with <code>+=</code> in a loop re-copies everything each time and quietly explodes. Build a list and join once instead.</>,
         },
       ],

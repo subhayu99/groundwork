@@ -196,7 +196,7 @@ export const arraysLesson: LessonSpec = {
       actionLabel: "What changes if we rearrange?",
       visual: <PileCount />,
       panels: [{
-        left: 150, top: 332, width: 580, variant: "main", label: "The obvious thing", title: "A pile of books. Count from the top.",
+        left: 150, top: 326, width: 580, variant: "main", label: "The obvious thing", title: "A pile of books. Count from the top.",
         body: <>Simplest storage: a pile. To reach book 487 you lift the top one, then the next, then the next &mdash; 487 lifts for one question. Ask for a different book and you start over. The cost grows with the position you&rsquo;re asked about.</>,
       }],
       detail: (
@@ -206,7 +206,7 @@ export const arraysLesson: LessonSpec = {
           <p>The problem isn&rsquo;t the books. It&rsquo;s the <em>pile</em> &mdash; the way they&rsquo;re arranged forces you to count through everything in front of the one you want.</p>
         </>
       ),
-      arrows: [{ x1: G.cx(6), y1: 332, x2: G.cx(6), y2: G.y + G.cellH + 26 }],
+      arrows: [{ x1: G.cx(6), y1: 326, x2: G.cx(6), y2: G.y + G.cellH + 26 }],
       codeLabels: [],
     },
     {

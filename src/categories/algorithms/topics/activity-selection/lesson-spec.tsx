@@ -583,7 +583,7 @@ export const activitySelectionLesson: LessonSpec = {
       panels: [
         {
           left: 150,
-          top: 300,
+          top: 22,
           width: 590,
           variant: "main",
           label: "The obvious thing",
@@ -597,7 +597,7 @@ export const activitySelectionLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: allHandsX, y1: 300, x2: allHandsX, y2: yOf(allHandsRow) + ROW_H + 4 }],
+      arrows: [{ x1: allHandsX, y1: 178, x2: allHandsX, y2: yOf(allHandsRow) - 4 }],
       codeLabels: [],
     },
     {
@@ -627,7 +627,7 @@ export const activitySelectionLesson: LessonSpec = {
         {
           left: 150,
           top: 18,
-          width: 560,
+          width: 480,
           variant: "main",
           label: "The instinct",
           title: "Sort by end time. Always take the one that frees the room soonest.",
@@ -639,9 +639,9 @@ export const activitySelectionLesson: LessonSpec = {
           ),
         },
         {
-          left: 592,
-          top: 206,
-          width: 240,
+          left: 646,
+          top: 20,
+          width: 198,
           variant: "note",
           body: (
             <>
@@ -684,7 +684,7 @@ export const activitySelectionLesson: LessonSpec = {
         {
           left: 150,
           top: 18,
-          width: 580,
+          width: 480,
           variant: "main",
           label: "The derivation",
           title: "Sort once. Walk once. Track when the room is free.",
@@ -697,9 +697,9 @@ export const activitySelectionLesson: LessonSpec = {
           ),
         },
         {
-          left: 592,
-          top: 206,
-          width: 240,
+          left: 646,
+          top: 20,
+          width: 198,
           variant: "note",
           body: (
             <>
@@ -737,7 +737,7 @@ export const activitySelectionLesson: LessonSpec = {
       panels: [
         {
           left: 150,
-          top: 300,
+          top: 22,
           width: 590,
           variant: "main",
           label: "The operations",
@@ -751,7 +751,7 @@ export const activitySelectionLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: xOf(13), y1: 300, x2: xOf(13), y2: yOf(MEETINGS.length - 1) + ROW_H + 4 }],
+      arrows: [{ x1: xOf(13), y1: 178, x2: xOf(13), y2: 196 }],
       codeLabels: ["sort", "loop"],
     },
     {
@@ -830,7 +830,7 @@ export const activitySelectionLesson: LessonSpec = {
         {
           left: 150,
           top: 18,
-          width: 600,
+          width: 480,
           variant: "main",
           label: "The pattern",
           title: "Greedy.",
@@ -843,9 +843,9 @@ export const activitySelectionLesson: LessonSpec = {
           ),
         },
         {
-          left: 592,
-          top: 206,
-          width: 240,
+          left: 646,
+          top: 20,
+          width: 198,
           variant: "note",
           body: (
             <>
@@ -854,7 +854,7 @@ export const activitySelectionLesson: LessonSpec = {
           ),
         },
       ],
-      arrows: [{ x1: 712, y1: 250, x2: xOf(15), y2: yOf(MEETINGS.length - 1) + ROW_H / 2 }],
+      arrows: [{ x1: 744, y1: 158, x2: 715, y2: yOf(MEETINGS.length - 1) + ROW_H / 2 }],
       codeLabels: ["sig", "sort", "result_init", "last_end", "loop", "compatible", "select", "update", "result"],
     },
   ],

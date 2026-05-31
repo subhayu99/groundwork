@@ -594,7 +594,7 @@ export const backtrackingLesson: LessonSpec = {
         },
         {
           left: 562,
-          top: 372,
+          top: 350,
           width: 280,
           variant: "note",
           body: (
@@ -665,7 +665,7 @@ export const backtrackingLesson: LessonSpec = {
         },
         {
           left: 562,
-          top: 372,
+          top: 350,
           width: 280,
           variant: "note",
           body: (

@@ -161,7 +161,7 @@ function DropIntoBuckets({ api }: { api: BeatVisualApi }) {
             content: <tspan style={{ fontSize: 10 }}>{names.length ? names.join(",") : i}</tspan>,
           };
         }} />
-      <text x={VW / 2} y={GRID.y0 - 14} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: s.done ? "var(--diff-easy)" : "var(--text-faint)" }}>
+      <text x={VW / 2} y={GRID.y0 - 28} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: s.done ? "var(--diff-easy)" : "var(--text-faint)" }}>
         {s.done ? "every name landed in a computed box — no searching" : `dropping names into boxes… ${s.n}/${NAMES.length}`}
       </text>
       <g onClick={() => setS(init())} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label="replay"
@@ -185,7 +185,7 @@ function CollisionGrid() {
             content: <tspan style={{ fontSize: 9 }}>{names.length ? names.join(",") : i}</tspan>,
           };
         }} />
-      <text x={VW / 2} y={GRID.y0 - 14} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+      <text x={VW / 2} y={GRID.y0 - 28} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
         13 names in 16 boxes · yellow = more than one name shares a box — chain them
       </text>
     </g>
@@ -347,7 +347,7 @@ export const hashMapsLesson: LessonSpec = {
           <p>Put them together and storing is trivial: hash the name to get a box, drop it in. Finding it later is the same move &mdash; hash, then look in that one box. No searching anywhere, just arithmetic. Watch the names rain into their computed boxes; most boxes end up with one name, a few get crowded.</p>
         </>
       ),
-      arrows: [{ x1: GRID.cx(0, 0), y1: 178, x2: GRID.cx(0, 0), y2: GRID.cy(0, 0) - GRID.cellPx / 2 - 4 }],
+      arrows: [{ x1: GRID.cx(0, 0), y1: 188, x2: GRID.cx(0, 0), y2: GRID.cy(0, 0) - GRID.cellPx / 2 - 4 }],
       codeLabels: ["hm_put_slot", "hm_put_append"],
       interaction: "playback",
     },
@@ -374,7 +374,7 @@ export const hashMapsLesson: LessonSpec = {
           <p>Second, <strong>resizing</strong>. When the table gets too full, we build a bigger array and re-drop every key into it. That one step is <code>O(n)</code> &mdash; it touches all <code>n</code> keys &mdash; so it&rsquo;s genuinely slow. But it happens so rarely that, spread across the many cheap inserts around it, the cost-per-insert <em>averaged out</em> is still tiny. That&rsquo;s the whole meaning of &ldquo;O(1) on average&rdquo;: the one slow step is rare enough to vanish in the average.</p>
         </>
       ),
-      arrows: [{ x1: GRID.cx(0, 2), y1: 178, x2: GRID.cx(0, 2), y2: GRID.cy(0, 2) - GRID.cellPx / 2 - 4 }],
+      arrows: [{ x1: GRID.cx(0, 2), y1: 188, x2: GRID.cx(0, 2), y2: GRID.cy(0, 2) - GRID.cellPx / 2 - 4 }],
       codeLabels: ["hm_put_scan", "hm_put_overwrite", "hm_get_scan"],
     },
     {

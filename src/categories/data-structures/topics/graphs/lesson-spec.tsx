@@ -145,7 +145,7 @@ function AutoBFS({ api }: { api: BeatVisualApi }) {
   return (
     <g>
       <NodeGraph nodes={nodes} edges={edges} />
-      <text x={VW / 2} y={170} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}>
+      <text x={VW / 2} y={180} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: done ? "var(--diff-easy)" : "var(--text-faint)" }}>
         {done ? `visited all in order: ${order.join(" → ")}` : current === null ? "starting from alice…" : `now visiting ${current} — its friends join the line`}
       </text>
       <g onClick={() => { setS(init()); api.onActiveLine([]); }} style={{ cursor: "pointer" }} tabIndex={0} role="button" aria-label="replay"
@@ -258,7 +258,7 @@ export const graphsLesson: LessonSpec = {
           body: <>Click anyone &mdash; the people they&rsquo;re directly friends with light up. Each click just reads one person&rsquo;s list of friends, following the lines in any direction.</>,
         },
         {
-          left: 540, top: 372, width: 290, variant: "note",
+          left: 565, top: 382, width: 285, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> what is the smallest amount of record-keeping needed to answer &ldquo;who&rsquo;s connected to whom?&rdquo;</>,
         },
       ],

@@ -261,7 +261,7 @@ export const twoPointersLesson: LessonSpec = {
           body: <>Put one finger &mdash; call it <code>L</code> &mdash; on the smallest card, one (<code>R</code>) on the largest. <em><code>arr[L]</code> just means the card the L finger points at.</em> Add the two. Use the buttons: when the sum is too small, which finger makes it bigger?</>,
         },
         {
-          left: 540, top: 372, width: 290, variant: "note",
+          left: 600, top: 360, width: 252, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> too small &rarr; move which finger to grow the sum? Too big &rarr; which one to shrink it?</>,
         },
       ],
@@ -289,7 +289,7 @@ export const twoPointersLesson: LessonSpec = {
           body: <>Too small? <code>R</code> is already the biggest card left, so <em>every</em> pair using <code>arr[L]</code> is too small &mdash; never look at it again, step <code>L</code> right. Too big? Mirror it: step <code>R</code> left. One look retires a whole side.</>,
         },
         {
-          left: 540, top: 372, width: 290, variant: "note",
+          left: 600, top: 360, width: 252, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">Why it works:</strong> sorted is a promise the cards keep &mdash; each comparison cuts a whole side, not one pair.</>,
         },
       ],

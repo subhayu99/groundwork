@@ -302,7 +302,7 @@ function OpsVisual() {
       <g transform="translate(0,18)">
         <TupleRow tones={TUPLE.map(() => "accent" as Tone)} />
       </g>
-      <text x={VW / 2} y={TG.y + TG.cellH + 22} textAnchor="middle" className="font-mono select-none"
+      <text x={VW / 2} y={TG.y + TG.cellH + 56} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 11, fill: "var(--diff-easy)" }}>slot i → O(1) · read all → O(n) · being fixed lets a tuple live inside a set</text>
     </g>
   );
@@ -317,7 +317,7 @@ function FitVisual() {
       <g transform="translate(0,16)">
         <TupleRow tones={TUPLE.map(() => "accent" as Tone)} />
       </g>
-      <text x={VW / 2} y={TG.y + TG.cellH + 24} textAnchor="middle" className="font-mono select-none"
+      <text x={VW / 2} y={TG.y + TG.cellH + 56} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 10, fill: "var(--text-faint)" }}>(x, y) points · (row, col) grid spots · (date, lat, temp) readings</text>
     </g>
   );
@@ -393,7 +393,7 @@ export const setsTuplesLesson: LessonSpec = {
           body: <>Add a name to the set, then add one already in &mdash; it shrugs: no &ldquo;second alice.&rdquo; Now poke the packet: change a slot or add a fourth. Both refuse &mdash; a tuple is <em>immutable</em> (can&rsquo;t change once made).</>,
         },
         {
-          left: 626, top: 384, width: 218, variant: "note",
+          left: 648, top: 372, width: 200, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> what does each container&rsquo;s <em>refusal</em> tell you it&rsquo;s for?</>,
         },
       ],

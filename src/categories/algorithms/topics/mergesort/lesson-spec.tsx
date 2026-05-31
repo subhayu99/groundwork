@@ -288,7 +288,7 @@ export const mergesortLesson: LessonSpec = {
       actionLabel: "Split. Sort. Merge.",
       visual: idleRow(ARR.map((_, i) => (i === 0 || i === 1 ? "muted" : undefined))),
       panels: [{
-        left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "Swap neighbours until nothing's backwards.",
+        left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Swap neighbours until nothing's backwards.",
         body: <>The first idea: walk left to right, swap any pair that&rsquo;s out of order, repeat. It works but crawls &mdash; each swap fixes one tiny disagreement, so moving a card far means swapping it past every neighbour. Double the cards and the work roughly <em>quadruples</em>.</>,
       }],
       detail: (
@@ -298,7 +298,7 @@ export const mergesortLesson: LessonSpec = {
           <p>What we really want is a way to move information across the row in big chunks instead of one nudge at a time.</p>
         </>
       ),
-      arrows: [{ x1: G.cx(0) + G.stride / 2, y1: 300, x2: G.cx(0) + G.stride / 2, y2: G.y + G.cellH + 4 }],
+      arrows: [{ x1: G.cx(0) + G.stride / 2, y1: 150, x2: G.cx(0) + G.stride / 2, y2: G.y - 6 }],
       codeLabels: [],
     },
     {
@@ -313,7 +313,7 @@ export const mergesortLesson: LessonSpec = {
           body: <>Pretend the two halves are already sorted. Finishing is easy: walk both with two fingers, always take the smaller card &mdash; one pass, each card seen once. The only question left is &ldquo;how do I sort a half?&rdquo; Same trick, smaller. <strong>Use the buttons under the row: split all the way down, then merge.</strong></>,
         },
         {
-          left: 540, top: 372, width: 290, variant: "note",
+          left: 558, top: 352, width: 272, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> keep cutting until each piece is a single card &mdash; and one card is already in order. Then merge the pieces back, two at a time.</>,
         },
       ],

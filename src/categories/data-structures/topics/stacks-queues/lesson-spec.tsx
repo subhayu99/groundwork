@@ -249,7 +249,7 @@ export const stacksQueuesLesson: LessonSpec = {
           body: <>Both start with a few items. On the stack press <em>push</em> (add) and <em>pop</em> (remove the newest) &mdash; both touch the <strong>top</strong>. On the queue press <em>add</em> and <em>remove</em> &mdash; add joins the back, remove takes the front.</>,
         },
         {
-          left: 548, top: 372, width: 290, variant: "note",
+          left: 190, top: 402, width: 480, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> if you promise to only ever touch the ends, what suddenly becomes free?</>,
         },
       ],

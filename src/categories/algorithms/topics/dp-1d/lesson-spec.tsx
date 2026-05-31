@@ -280,7 +280,7 @@ export const dp1dLesson: LessonSpec = {
           body: <>This branching picture of who-calls-whom is a <strong>tree</strong>; each circle is one call ways(k). Notice how the same numbers repeat. Toggle <strong>remember answers</strong>: the second time a call comes back, hand over the answer we wrote down. The green calls vanish.</>,
         },
         {
-          left: 540, top: 372, width: 290, variant: "note",
+          left: 560, top: 348, width: 280, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> every sub-question has exactly one true answer. Computing it twice is pure waste &mdash; so write it down once.</>,
         },
       ],

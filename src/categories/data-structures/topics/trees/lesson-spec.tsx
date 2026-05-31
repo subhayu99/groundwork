@@ -344,7 +344,7 @@ export const treesLesson: LessonSpec = {
           body: <>Each box here is a <strong>node</strong> &mdash; one person. A node remembers only its direct reports; that single link from one node to another is a <strong>pointer</strong>. Click anyone: only their branch lights. You didn&rsquo;t search the company &mdash; you followed pointers down.</>,
         },
         {
-          left: 540, top: 372, width: 290, variant: "note",
+          left: 556, top: 380, width: 290, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> what does &ldquo;a child&rdquo; look like in this structure &mdash; and how is it different from a sibling next to it?</>,
         },
       ],

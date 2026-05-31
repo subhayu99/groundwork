@@ -445,7 +445,7 @@ export const monotonicStackLesson: LessonSpec = {
           </div>
         </>
       ),
-      arrows: [{ x1: 300, y1: 150, x2: STK_CX, y2: STK_TOP - 4 }],
+      arrows: [{ x1: 300, y1: 150, x2: STK_CX - 96, y2: STK_TOP + 4 }],
       codeLabels: ["while_pop", "record", "push"],
       interaction: "wedge",
     },
@@ -469,7 +469,7 @@ export const monotonicStackLesson: LessonSpec = {
           </div>
         </>
       ),
-      arrows: [{ x1: 300, y1: 150, x2: STK_CX, y2: STK_TOP - 4 }],
+      arrows: [{ x1: 300, y1: 150, x2: STK_CX - 96, y2: STK_TOP + 4 }],
       codeLabels: ["loop", "while_pop", "pop", "record", "push"],
       interaction: "playback",
     },

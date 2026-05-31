@@ -546,7 +546,7 @@ export const linkedListsLesson: LessonSpec = {
           body: <>Meet cards joined by arrows. Each holds a value AND an arrow saying where the next card lives &mdash; that arrow is a <strong>pointer</strong>. Order lives in the arrows, not in where cards sit. Use the buttons under the chain to insert, then remove, and count what changed.</>,
         },
         {
-          left: 545, top: 372, width: 290, variant: "note",
+          left: 24, top: 394, width: 330, variant: "note",
           body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> how many existing cards actually had to change &mdash; an insert? a remove?</>,
         },
       ],
@@ -559,7 +559,7 @@ export const linkedListsLesson: LessonSpec = {
           </div>
         </>
       ),
-      arrows: [{ x1: 545, y1: 380, x2: WEDGE_G.nextCx(1) + 20, y2: 258 }],
+      arrows: [{ x1: 290, y1: 392, x2: WEDGE_G.nextCx(1) + 20, y2: 290 }],
       codeLabels: ["insert_new", "insert_relink"],
       interaction: "wedge",
     },
