@@ -41,12 +41,26 @@ export function LessonRuntime({
   const { code: PY, labelToLine } = useMemo(() => prepareCode(spec.codeSource), [spec.codeSource]);
 
   const [b, setB] = useState(0);
-  const [showCode, setShowCode] = useState(true);
+  // Calm by default: code starts hidden (content first — it never pops up to
+  // scare a new learner), and auto-reveals on the final beat (the recap) unless
+  // the learner has manually set it. The fuller explanation (detail) stays open
+  // by default since it IS the content. Both expand/collapse from their own spot.
+  const [showCode, setShowCode] = useState(false);
+  const [showDetail, setShowDetail] = useState(true);
+  const codeTouched = useRef(false);
   const [liveLabels, setLiveLabels] = useState<(string | number)[] | null>(null);
   const [interacted, setInteracted] = useState<Record<string, boolean>>({});
   const [completed, setCompleted] = useState(!!initiallyCompleted);
   const beat = spec.beats[b];
   const last = spec.beats.length - 1;
+
+  // Code follows the beat: shown on the last beat (the recap), hidden elsewhere —
+  // until the learner clicks the code tab, after which their choice sticks.
+  useEffect(() => {
+    if (codeTouched.current) return;
+    setShowCode(b === last);
+  }, [b, last]);
+  const toggleCode = () => { codeTouched.current = true; setShowCode((v) => !v); };
 
   // Reset the live (emitted) highlight whenever the beat changes, so a stale
   // line never lingers when leaving a playback/wedge beat.
@@ -212,72 +226,102 @@ export function LessonRuntime({
             </div>
           </div>
 
-          {/* detail card — restores the old derivation depth in the empty lower space; always visible */}
+          {/* detail — the fuller explanation. Open by default (content first); it
+              collapses to a stub in this same spot, so the learner always knows
+              where it lives and where to click to bring it back. */}
           {beat.detail && (
-            <AnimatePresence mode="wait">
-              <motion.div key={beat.id}
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.25 }}
-                className="shrink-0 w-full max-w-[780px] mx-auto max-h-[34vh] overflow-auto rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_70%,transparent)] px-5 py-4">
-                {beat.label && (
-                  <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--accent-ink)] mb-1.5">{beat.label}</div>
-                )}
-                {beat.connector && (
-                  <p className="text-[13px] italic text-[var(--text-faint)] mb-2">{beat.connector}</p>
-                )}
-                <div className="text-[14px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
-                  {beat.detail}
-                </div>
-              </motion.div>
-            </AnimatePresence>
+            <div className="shrink-0 w-full max-w-[780px] mx-auto">
+              {showDetail ? (
+                <AnimatePresence mode="wait">
+                  <motion.div key={beat.id}
+                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.25 }}
+                    className="max-h-[34vh] overflow-auto rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_70%,transparent)] px-5 py-4">
+                    <div className="flex items-center justify-between gap-3 mb-1.5">
+                      {beat.label
+                        ? <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--accent-ink)]">{beat.label}</div>
+                        : <span />}
+                      <button onClick={() => setShowDetail(false)} aria-label="collapse explanation" title="collapse"
+                        className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 15l-6-6-6 6" /></svg>
+                      </button>
+                    </div>
+                    {beat.connector && (
+                      <p className="text-[13px] italic text-[var(--text-faint)] mb-2">{beat.connector}</p>
+                    )}
+                    <div className="text-[14px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
+                      {beat.detail}
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              ) : (
+                <button onClick={() => setShowDetail(true)} title="read the full explanation"
+                  className="w-full flex items-center gap-2 rounded-2xl border border-dashed border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_40%,transparent)] px-5 py-2.5 text-left hover:border-[var(--line-strong)]">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--text-faint)]"><path d="M6 9l6 6 6-6" /></svg>
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--accent-ink)]">{beat.label ?? "the idea"}</span>
+                  <span className="text-[13px] text-[var(--text-muted)]">— read the full explanation</span>
+                </button>
+              )}
+            </div>
           )}
         </div>
 
-        {/* RIGHT — the code as a floating card that pops in/out (one toggle, in the controls).
-            Practice questions live below the code so the lesson is self-contained — no second page. */}
-        <AnimatePresence>
-          {showCode && (
-            <motion.div
-              initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 24 }} transition={{ duration: 0.22, ease: [0.22, 0.65, 0.3, 1] }}
-              className="w-full xl:w-[46%] xl:max-w-[680px] xl:min-w-[420px] self-center flex flex-col gap-3 max-h-full"
-            >
-              {/* code card hugs its content (caps + scrolls only if the file is long) */}
-              <div className="flex flex-col max-h-[58vh] rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40 overflow-hidden">
-                <div className="shrink-0 flex items-center gap-2 px-4 py-2.5 border-b border-[var(--line-faint)]">
+        {/* RIGHT — code (+ practice), reveal-on-demand. Calm by default: a slim tab
+            on the right edge opens it in place; it auto-opens on the recap beat.
+            Both the tab and the code card's collapse live in the same spot. */}
+        {showCode ? (
+          <motion.div
+            initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.22, ease: [0.22, 0.65, 0.3, 1] }}
+            className="w-full xl:w-[46%] xl:max-w-[680px] xl:min-w-[420px] self-center flex flex-col gap-3 max-h-full"
+          >
+            {/* code card hugs its content (caps + scrolls only if the file is long) */}
+            <div className="flex flex-col max-h-[58vh] rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40 overflow-hidden">
+              <div className="shrink-0 flex items-center justify-between gap-2 px-4 py-2.5 border-b border-[var(--line-faint)]">
+                <div className="flex items-center gap-2 min-w-0">
                   <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">algorithm.py</span>
-                  <span className="font-mono text-[10px] text-[var(--accent-ink)]">▶ line follows the beat</span>
+                  <span className="font-mono text-[10px] text-[var(--accent-ink)] truncate">▶ line follows the beat</span>
                 </div>
-                <div ref={codeScrollRef} className="min-h-0 overflow-auto p-1">
-                  <CodeHighlight code={PY} highlightedLines={activeLines} />
-                </div>
+                <button onClick={toggleCode} aria-label="hide code" title="hide code"
+                  className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+                </button>
               </div>
-              {practice && practice.length > 0 && (
-                <div className="max-h-[30vh] overflow-auto rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40">
-                  <div className="sticky top-0 flex items-center gap-2 px-4 py-2.5 border-b border-[var(--line-faint)] bg-[var(--bg-card)]">
-                    <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">practice</span>
-                    <span className="font-mono text-[10px] text-[var(--text-faint)] normal-case">· try these next</span>
-                  </div>
-                  <ul className="p-2 flex flex-col gap-1.5">
-                    {practice.map((p) => (
-                      <li key={p.href}>
-                        <a href={p.href}
-                          className="group flex items-center justify-between gap-3 rounded-lg border border-[var(--line-faint)] px-3 py-2 hover:border-[var(--line-strong)] hover:bg-[var(--bg-inset)]">
-                          <span className="text-[13px] text-[var(--text)]">{p.title}</span>
-                          <span className="flex items-center gap-2 shrink-0">
-                            {p.difficulty && (
-                              <span className="font-mono text-[9.5px] uppercase tracking-wider px-1.5 py-0.5 rounded text-[var(--text-faint)] border border-[var(--line-faint)]">{p.difficulty}</span>
-                            )}
-                            <span className="text-[var(--text-faint)] group-hover:text-[var(--accent-ink)]">→</span>
-                          </span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+              <div ref={codeScrollRef} className="min-h-0 overflow-auto p-1">
+                <CodeHighlight code={PY} highlightedLines={activeLines} />
+              </div>
+            </div>
+            {practice && practice.length > 0 && (
+              <div className="max-h-[30vh] overflow-auto rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40">
+                <div className="sticky top-0 flex items-center gap-2 px-4 py-2.5 border-b border-[var(--line-faint)] bg-[var(--bg-card)]">
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">practice</span>
+                  <span className="font-mono text-[10px] text-[var(--text-faint)] normal-case">· try these next</span>
                 </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <ul className="p-2 flex flex-col gap-1.5">
+                  {practice.map((p) => (
+                    <li key={p.href}>
+                      <a href={p.href}
+                        className="group flex items-center justify-between gap-3 rounded-lg border border-[var(--line-faint)] px-3 py-2 hover:border-[var(--line-strong)] hover:bg-[var(--bg-inset)]">
+                        <span className="text-[13px] text-[var(--text)]">{p.title}</span>
+                        <span className="flex items-center gap-2 shrink-0">
+                          {p.difficulty && (
+                            <span className="font-mono text-[9.5px] uppercase tracking-wider px-1.5 py-0.5 rounded text-[var(--text-faint)] border border-[var(--line-faint)]">{p.difficulty}</span>
+                          )}
+                          <span className="text-[var(--text-faint)] group-hover:text-[var(--accent-ink)]">→</span>
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </motion.div>
+        ) : (
+          <button onClick={toggleCode} title="show the code (algorithm.py)" aria-label="show code"
+            className="self-center shrink-0 inline-flex xl:flex-col items-center gap-2 rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] px-4 py-2.5 xl:px-2.5 xl:py-5 text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--line-strong)] transition-colors">
+            <span className="font-mono text-[13px]">&lt;/&gt;</span>
+            <span className="font-mono text-[10px] uppercase tracking-wider xl:[writing-mode:vertical-rl] xl:rotate-180">code</span>
+          </button>
+        )}
       </div>
 
       {/* controls — a full-width bar, always centered in the viewport (independent
@@ -296,12 +340,6 @@ export function LessonRuntime({
             title={gated ? "Try the interaction on the canvas first" : undefined}
             className="min-h-[40px] px-4 rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] disabled:opacity-40">
             {b === last ? (completed ? "Completed ✓" : "Finish ✓") : (beat.actionLabel ? `${beat.actionLabel} →` : "Next →")}
-          </button>
-          <div className="w-px h-6 bg-[var(--line)] mx-0.5" />
-          <button onClick={() => setShowCode((v) => !v)} aria-pressed={showCode}
-            title={showCode ? "Hide the code panel" : "Show the code panel"}
-            className="inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-lg border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--line-strong)] hover:text-[var(--text)] font-mono text-[11px]">
-            <span>&lt;/&gt;</span> {showCode ? "Hide code" : "Code"}
           </button>
         </div>
         {gated && <div className="font-mono text-[10px] text-[var(--accent-ink)]">↑ try it on the canvas to continue</div>}
