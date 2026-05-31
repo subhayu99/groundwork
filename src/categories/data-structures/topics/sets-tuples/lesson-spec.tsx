@@ -383,18 +383,18 @@ export const setsTuplesLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "The list shrugged at duplicates and let the packet grow — so watch what these two purpose-built containers do instead when you push on them.",
       actionLabel: "Identity vs grouping",
       visual: (api) => <AddNameWedge api={api} />,
       panels: [
         {
-          left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Add a name twice. Then poke the packet.",
+          left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Add a name twice. Then poke the packet.",
           body: <>Add a name to the set, then add one already in &mdash; it shrugs: no &ldquo;second alice.&rdquo; Now poke the packet: change a slot or add a fourth. Both refuse &mdash; a tuple is <em>immutable</em> (can&rsquo;t change once made).</>,
         },
         {
           left: 626, top: 384, width: 218, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what does each container&rsquo;s <em>refusal</em> tell you it&rsquo;s for?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> what does each container&rsquo;s <em>refusal</em> tell you it&rsquo;s for?</>,
         },
       ],
       detail: (
@@ -402,7 +402,7 @@ export const setsTuplesLesson: LessonSpec = {
           <p>On the canvas is a small <strong>set</strong>. Add a name, then add one that&rsquo;s already in there. The set doesn&rsquo;t care &mdash; a name is either in or out, full stop. There&rsquo;s no order, no count, no &ldquo;second alice.&rdquo; That refusal to keep duplicates is the whole point of a set.</p>
           <p>Below it is a <strong>tuple</strong> &mdash; the fixed weather packet. Try to change a slot, or try to add a fourth value. Both attempts fail. The tuple is <em>immutable</em> (a fancy word meaning &ldquo;can&rsquo;t be changed once it&rsquo;s made&rdquo;): its shape is locked the instant you create it.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> what does each container&rsquo;s <em>refusal</em>{" "}&mdash; the set rejecting a duplicate, the tuple rejecting any change &mdash; tell you about what it&rsquo;s really for?
+            <strong>The instinct question:</strong> what does each container&rsquo;s <em>refusal</em>{" "}&mdash; the set rejecting a duplicate, the tuple rejecting any change &mdash; tell you about what it&rsquo;s really for?
           </div>
         </>
       ),

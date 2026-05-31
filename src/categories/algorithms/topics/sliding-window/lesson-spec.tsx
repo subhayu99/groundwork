@@ -240,18 +240,18 @@ export const slidingWindowLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "Since neighbouring windows overlap so much, let's stop calculating and just watch what actually moves.",
       actionLabel: "I think I see it",
       visual: (api) => <DragWindow api={api} />,
       panels: [
         {
-          left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Drag the window. Watch only what changes.",
+          left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Drag the window. Watch only what changes.",
           body: <>Your turn. Tap a cell to nudge the window one step. Don&rsquo;t do mental math &mdash; just watch the cells. One number drops out of the left edge, one new number joins on the right, and the middle one doesn&rsquo;t move at all.</>,
         },
         {
           left: 250, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> when you slide by one, how many numbers actually change &mdash; and how many stay exactly where they were?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> when you slide by one, how many numbers actually change &mdash; and how many stay exactly where they were?</>,
         },
       ],
       detail: (
@@ -259,7 +259,7 @@ export const slidingWindowLesson: LessonSpec = {
           <p>Your turn. Tap a cell to the left or right of the window to nudge it one step that way. Then do it again. Then again.</p>
           <p>Don&rsquo;t do any math in your head &mdash; just <em>watch the cells</em>. Which numbers are inside the window before you move? Which ones after? You&rsquo;ll see that only the two edges change: one number drops off the left, one new number joins on the right, and everything in the middle stays exactly where it was.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> when you slide the window by one, how many numbers actually change &mdash; and how many stay exactly where they were?
+            <strong>The instinct question:</strong> when you slide the window by one, how many numbers actually change &mdash; and how many stay exactly where they were?
           </div>
         </>
       ),
@@ -300,12 +300,12 @@ export const slidingWindowLesson: LessonSpec = {
       visual: <CounterRace />,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "The win", title: "Two operations beat k, and the gap grows.",
-        body: <>The obvious way adds <code>k</code> numbers every slide (here k=3); the wedge way adds just 2. Small lead now. But with a window of 100 across a million numbers, the obvious way does about fifty times the work for the same answer.</>,
+        body: <>The obvious way adds <code>k</code> numbers every slide (here k=3); the instinct way adds just 2. Small lead now. But with a window of 100 across a million numbers, the obvious way does about fifty times the work for the same answer.</>,
       }],
       detail: (
         <>
-          <p>Watch the two counters race. The obvious way piles up <code>k</code> additions on every slide &mdash; here <code>k</code> (the window width) is 3. The wedge way adds only 2, no matter how wide the window gets. With <code>k=3</code> that&rsquo;s a small lead.</p>
-          <p>Now stretch it: a window of 100 numbers sliding across a million. The obvious way does about <em>fifty times</em> as much work for the exact same answers. The shape of the task didn&rsquo;t change at all &mdash; only the bookkeeping did. That widening gap is the whole point of the wedge.</p>
+          <p>Watch the two counters race. The obvious way piles up <code>k</code> additions on every slide &mdash; here <code>k</code> (the window width) is 3. The instinct way adds only 2, no matter how wide the window gets. With <code>k=3</code> that&rsquo;s a small lead.</p>
+          <p>Now stretch it: a window of 100 numbers sliding across a million. The obvious way does about <em>fifty times</em> as much work for the exact same answers. The shape of the task didn&rsquo;t change at all &mdash; only the bookkeeping did. That widening gap is the whole point of the instinct.</p>
         </>
       ),
       arrows: [{ x1: G.cx(8), y1: 150, x2: 610, y2: 222 }],

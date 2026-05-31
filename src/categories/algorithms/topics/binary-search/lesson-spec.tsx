@@ -12,7 +12,7 @@ const TARGET = 27; // index 6
 const VW = 860, VH = 470;
 const G = rowGeom(ARR.length, VW, 250);
 
-/* ── interactive: click a page, half the book goes dark (the wedge) ───────── */
+/* ── interactive: click a page, half the book goes dark (the instinct) ───────── */
 function ClickToHalve({ api }: { api: BeatVisualApi }) {
   const [lo, setLo] = useState(0);
   const [hi, setHi] = useState(ARR.length - 1);
@@ -181,18 +181,18 @@ export const binarySearchLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "Here's the move that answers that — one comparison that tells you which way to go.",
       actionLabel: "Halve, then halve again",
       visual: (api) => <ClickToHalve api={api} />,
       panels: [
         {
-          left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Guess a page — half the book vanishes.",
+          left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Guess a page — half the book vanishes.",
           body: <>Click any page. Land on a number bigger than 27? Because the book is sorted, <em>everything to its right is bigger too</em> &mdash; all gone, in one look. Smaller? the left half goes. That&rsquo;s the whole trick.</>,
         },
         {
           left: 250, top: 366, width: 360, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> if every guess halves what&rsquo;s left, how many guesses until one page remains?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> if every guess halves what&rsquo;s left, how many guesses until one page remains?</>,
         },
       ],
       detail: (

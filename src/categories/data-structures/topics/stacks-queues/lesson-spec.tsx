@@ -239,18 +239,18 @@ export const stacksQueuesLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "So here's the promise that fixes the expensive case: never reach into the middle — only ever touch the ends.",
       actionLabel: "Restrict, then optimize",
       visual: (api) => <PushPopStack api={api} />,
       panels: [
         {
-          left: 60, top: 18, width: 740, variant: "main", label: "The wedge", title: "Touch only the ends. Watch which end each move uses.",
+          left: 60, top: 18, width: 740, variant: "main", label: "The instinct", title: "Touch only the ends. Watch which end each move uses.",
           body: <>Both start with a few items. On the stack press <em>push</em> (add) and <em>pop</em> (remove the newest) &mdash; both touch the <strong>top</strong>. On the queue press <em>add</em> and <em>remove</em> &mdash; add joins the back, remove takes the front.</>,
         },
         {
           left: 548, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> if you promise to only ever touch the ends, what suddenly becomes free?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> if you promise to only ever touch the ends, what suddenly becomes free?</>,
         },
       ],
       detail: (
@@ -258,7 +258,7 @@ export const stacksQueuesLesson: LessonSpec = {
           <p>On the canvas are the two structures, each holding a few items. On the left one, press <em>push</em> (add an item) and <em>pop</em> (take one off) and watch where they land &mdash; both happen at the <strong>top</strong>, the same end. On the right one, press <em>add</em> and <em>remove</em>: add joins the back, remove takes the front, so the two moves happen at <em>opposite</em> ends.</p>
           <p>Notice that the underlying row of items is not special &mdash; it&rsquo;s still just an array. What changed is the <em>promise about where you&rsquo;re allowed to touch it</em>. Neither structure ever reaches into the middle, so nothing ever has to shuffle over to fill a gap.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> if you decide in advance that the only places you&rsquo;ll ever touch are the ends, what suddenly becomes free?
+            <strong>The instinct question:</strong> if you decide in advance that the only places you&rsquo;ll ever touch are the ends, what suddenly becomes free?
           </div>
         </>
       ),
@@ -301,7 +301,7 @@ export const stacksQueuesLesson: LessonSpec = {
       detail: (
         <>
           <p>On a <strong>stack</strong>, the three moves are <code>push</code> (add to the top), <code>pop</code> (take the top off), and <code>peek</code> (look at the top without removing it). All three are <code>O(1)</code> &mdash; instant, the same cost whether the stack holds three items or three million, because each one touches only the top. There&rsquo;s no looking up an item in the middle; if you need that, a stack is the wrong tool.</p>
-          <p>On a <strong>queue</strong>, adding at the back (<code>enqueue</code>) and removing from the front (<code>dequeue</code>) are both <code>O(1)</code> too &mdash; <em>but only if you store it the right way.</em> In Python that&rsquo;s a <code>collections.deque</code> (say &ldquo;deck&rdquo;: a row purpose-built to be fast at both ends). A plain list looks fine, but its front-removal <code>pop(0)</code> secretly shuffles everything left, so it&rsquo;s <code>O(n)</code> &mdash; the very cost the wedge was meant to kill.</p>
+          <p>On a <strong>queue</strong>, adding at the back (<code>enqueue</code>) and removing from the front (<code>dequeue</code>) are both <code>O(1)</code> too &mdash; <em>but only if you store it the right way.</em> In Python that&rsquo;s a <code>collections.deque</code> (say &ldquo;deck&rdquo;: a row purpose-built to be fast at both ends). A plain list looks fine, but its front-removal <code>pop(0)</code> secretly shuffles everything left, so it&rsquo;s <code>O(n)</code> &mdash; the very cost the instinct was meant to kill.</p>
         </>
       ),
       codeLabels: ["push", "pop", "peek"],

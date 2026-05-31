@@ -247,19 +247,19 @@ export const graphsLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "Since no single shape can hold these links, stop fighting them — just follow one link at a time and see what the bare minimum is.",
       actionLabel: "Nodes plus edges",
       visual: (api) => <ClickNeighbors api={api} />,
       panels: [
         {
-          left: 60, top: 20, width: 600, variant: "main", label: "The wedge",
+          left: 60, top: 20, width: 600, variant: "main", label: "The instinct",
           title: "Click a person. Follow their links.",
           body: <>Click anyone &mdash; the people they&rsquo;re directly friends with light up. Each click just reads one person&rsquo;s list of friends, following the lines in any direction.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what is the smallest amount of record-keeping needed to answer &ldquo;who&rsquo;s connected to whom?&rdquo;</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> what is the smallest amount of record-keeping needed to answer &ldquo;who&rsquo;s connected to whom?&rdquo;</>,
         },
       ],
       detail: (
@@ -267,7 +267,7 @@ export const graphsLesson: LessonSpec = {
           <p>On the right is a small social network. Click any person and their <em>direct</em> friends light up. Click one of those, and <em>their</em> friends light up in turn. You&rsquo;re just walking along the lines.</p>
           <p>Notice what each click actually costs: looking up one person&rsquo;s list of friends. Nothing more. And notice the lines run in every direction &mdash; not down from a single top, but across, between, and back &mdash; which is exactly why a tree couldn&rsquo;t hold this. Here, that&rsquo;s the whole point.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> what&rsquo;s the smallest amount of record-keeping the structure needs to answer &ldquo;who&rsquo;s connected to whom?&rdquo;
+            <strong>The instinct question:</strong> what&rsquo;s the smallest amount of record-keeping the structure needs to answer &ldquo;who&rsquo;s connected to whom?&rdquo;
           </div>
         </>
       ),

@@ -269,19 +269,19 @@ export const dp1dLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "If the same small questions keep coming back, what if we just refused to answer any of them twice?",
       actionLabel: "Press play and watch",
       visual: (api) => <ToggleMemo api={api} />,
       panels: [
         {
-          left: 40, top: 20, width: 560, variant: "main", label: "The wedge",
+          left: 40, top: 20, width: 560, variant: "main", label: "The instinct",
           title: "Solve each question once. Look it up after.",
           body: <>This branching picture of who-calls-whom is a <strong>tree</strong>; each circle is one call ways(k). Notice how the same numbers repeat. Toggle <strong>remember answers</strong>: the second time a call comes back, hand over the answer we wrote down. The green calls vanish.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> every sub-question has exactly one true answer. Computing it twice is pure waste &mdash; so write it down once.</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> every sub-question has exactly one true answer. Computing it twice is pure waste &mdash; so write it down once.</>,
         },
       ],
       detail: (
@@ -289,7 +289,7 @@ export const dp1dLesson: LessonSpec = {
           <p>The picture on the right is a <strong>tree</strong> of calls &mdash; a branching diagram of who-asks-whom. Each circle is one call <code>ways(k)</code>; the lines drop to the two smaller calls it sets off. Look closely and you&rsquo;ll see the same numbers showing up again and again in different branches: that repetition <em>is</em> the wasted work.</p>
           <p>Now toggle <strong>remember answers</strong>. The first time we compute some <code>ways(k)</code>, we jot the result down. The next time that exact call appears, we don&rsquo;t redo it &mdash; we just hand back the number we already wrote. On the diagram, those repeat calls light up green and effectively disappear, and the tree collapses to a fraction of its size.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge:</strong> every sub-question has exactly one true answer. Computing it twice is pure waste &mdash; so write it down the first time, and reuse it forever after.
+            <strong>The instinct:</strong> every sub-question has exactly one true answer. Computing it twice is pure waste &mdash; so write it down the first time, and reuse it forever after.
           </div>
         </>
       ),

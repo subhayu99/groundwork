@@ -309,18 +309,18 @@ export const stringsLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "If landing on any letter is instant, let's feel that for ourselves — drag the window and watch.",
       actionLabel: "Same machinery, different content",
       visual: (api) => <SlideTheWindow api={api} />,
       panels: [
         {
-          left: 24, top: 18, width: 480, variant: "main", label: "The wedge", title: "Drag the highlight. Read underneath.",
+          left: 24, top: 18, width: 480, variant: "main", label: "The instinct", title: "Drag the highlight. Read underneath.",
           body: <>Drag the slider to pick a starting box. The five letters under the highlight are your candidate. Slide it across. Landing on box 12 is no harder than box 2 &mdash; jumping straight to any single letter is one quick, instant lookup.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> if reading any letter is instant, what actually makes a string <em>different</em> from a plain row of letter-boxes?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> if reading any letter is instant, what actually makes a string <em>different</em> from a plain row of letter-boxes?</>,
         },
       ],
       detail: (
@@ -328,7 +328,7 @@ export const stringsLesson: LessonSpec = {
           <p>Drag the slider to choose a starting box. The five highlighted letters are your <strong>candidate</strong> &mdash; the stretch you&rsquo;d compare against <code>brown</code> right now. Slide it back and forth across the sentence.</p>
           <p>As you move, notice the cost: hopping all the way to box 12 is no slower than reaching box 2. Reading a single letter is one instant <strong>address lookup</strong> &mdash; the computer keeps the letters in a neat numbered row, so &ldquo;give me letter 12&rdquo; goes straight there without counting past the others. That&rsquo;s exactly how a plain array of boxes behaves.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> if reading any letter is instant, what is actually <em>different</em> about a string versus a plain row of character-boxes? Anything at all?
+            <strong>The instinct question:</strong> if reading any letter is instant, what is actually <em>different</em> about a string versus a plain row of character-boxes? Anything at all?
           </div>
         </>
       ),

@@ -579,7 +579,7 @@ export const bfsLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "So instead of diving deep, let's grow outward by distance and watch what that buys us.",
       actionLabel: "Press play and watch the ripple",
       detail: (
@@ -596,7 +596,7 @@ export const bfsLesson: LessonSpec = {
             washes over G, the number on G <em>is</em> the answer.
           </p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge:</strong> the ripple grows in lockstep, one ring at a time. There
+            <strong>The instinct:</strong> the ripple grows in lockstep, one ring at a time. There
             is no way a square <em>two</em> steps away gets touched before a square <em>one</em>{" "}
             step away. So the instant we touch G, no shorter route can exist &mdash; we have
             already checked every closer square first.
@@ -610,7 +610,7 @@ export const bfsLesson: LessonSpec = {
           top: 18,
           width: 480,
           variant: "main",
-          label: "The wedge",
+          label: "The instinct",
           title: "Spread a ripple outward, one ring at a time.",
           body: (
             <>
@@ -629,7 +629,7 @@ export const bfsLesson: LessonSpec = {
           variant: "note",
           body: (
             <>
-              <strong className="text-[var(--accent-ink)]">The wedge:</strong> a cell
+              <strong className="text-[var(--accent-ink)]">The instinct:</strong> a cell
               two steps away can never light before a one-step cell. So the first
               touch of G is the shortest &mdash; nothing closer was skipped.
             </>

@@ -373,18 +373,18 @@ export const recursionLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "That repeated job — the same work on every folder — is the crack to lever open.",
       actionLabel: "Let the function call itself",
       visual: (api) => <AskAFolder api={api} />,
       panels: [
         {
-          left: 60, top: 18, width: 740, variant: "main", label: "The wedge", title: "Open a folder — it’s a smaller copy of the same problem.",
+          left: 60, top: 18, width: 740, variant: "main", label: "The instinct", title: "Open a folder — it’s a smaller copy of the same problem.",
           body: <>Click any folder to ask its total. Inside you always find the same shape: some files with sizes, some more folders. So a folder&rsquo;s total is its own files plus each inner folder&rsquo;s total &mdash; the <strong>same problem, on fewer items.</strong></>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> if a folder is made of smaller folders just like it, can the rule for the whole be the rule for a part?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> if a folder is made of smaller folders just like it, can the rule for the whole be the rule for a part?</>,
         },
       ],
       detail: (
@@ -392,7 +392,7 @@ export const recursionLesson: LessonSpec = {
           <p>Click any folder in the picture to peek inside. Notice what you find: files (each with a size) and more folders. The smaller folders have the <em>same shape</em> as the big one &mdash; some files, some folders. Nothing about a subfolder looks different from the folder you started with; it&rsquo;s just smaller.</p>
           <p>So if you already knew the size of every subfolder, the answer for the outer folder would be easy: add up the file sizes you can see, plus the size of each subfolder. Done. The hard part isn&rsquo;t the adding &mdash; it&rsquo;s that the subfolders are themselves unsolved.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge:</strong> each subfolder is <em>the same problem</em> as the original, just on fewer items.
+            <strong>The instinct:</strong> each subfolder is <em>the same problem</em> as the original, just on fewer items.
           </div>
         </>
       ),

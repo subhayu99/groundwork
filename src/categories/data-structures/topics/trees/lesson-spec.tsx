@@ -333,19 +333,19 @@ export const treesLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "So let the shape lead: instead of a flat table, give each person a direct link to their reports — then ask for a branch again.",
       actionLabel: "Each node points to its kids",
       visual: (api) => <ClickToBranch api={api} />,
       panels: [
         {
-          left: 40, top: 20, width: 600, variant: "main", label: "The wedge",
+          left: 40, top: 20, width: 600, variant: "main", label: "The instinct",
           title: "Click a person. Their branch lights up.",
           body: <>Each box here is a <strong>node</strong> &mdash; one person. A node remembers only its direct reports; that single link from one node to another is a <strong>pointer</strong>. Click anyone: only their branch lights. You didn&rsquo;t search the company &mdash; you followed pointers down.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what does &ldquo;a child&rdquo; look like in this structure &mdash; and how is it different from a sibling next to it?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> what does &ldquo;a child&rdquo; look like in this structure &mdash; and how is it different from a sibling next to it?</>,
         },
       ],
       detail: (
@@ -353,7 +353,7 @@ export const treesLesson: LessonSpec = {
           <p>The chart on the canvas is the same org laid out by its real shape. Each box is a <strong>node</strong> &mdash; one person. A node keeps just one piece of wiring: a list of the people directly below it, its <em>direct reports</em>. That single link from one node down to another is called a <strong>pointer</strong> &mdash; literally an arrow that says &ldquo;the thing I&rsquo;m connected to lives over here.&rdquo;</p>
           <p>Click anyone in the middle and watch: only their branch lights up. You didn&rsquo;t scan the whole company row by row like the flat table forced you to. You started at the person you clicked and simply <em>followed their pointers downward</em> &mdash; from them to their reports, to those reports&rsquo; reports, and so on. The structure did the navigating for you.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> what does &ldquo;a child&rdquo; look like in this structure &mdash; and how is it different from a <em>sibling</em>, the node sitting right next to it?
+            <strong>The instinct question:</strong> what does &ldquo;a child&rdquo; look like in this structure &mdash; and how is it different from a <em>sibling</em>, the node sitting right next to it?
           </div>
         </>
       ),

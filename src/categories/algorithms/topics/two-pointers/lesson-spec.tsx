@@ -251,18 +251,18 @@ export const twoPointersLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "If checking every pair wastes the sorted order, start at the two ends and let the order guide you.",
       actionLabel: "I see the pattern",
       visual: (api) => <MoveTheFingers api={api} />,
       panels: [
         {
-          left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Two fingers. One at each end. Move them.",
+          left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Two fingers. One at each end. Move them.",
           body: <>Put one finger &mdash; call it <code>L</code> &mdash; on the smallest card, one (<code>R</code>) on the largest. <em><code>arr[L]</code> just means the card the L finger points at.</em> Add the two. Use the buttons: when the sum is too small, which finger makes it bigger?</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> too small &rarr; move which finger to grow the sum? Too big &rarr; which one to shrink it?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> too small &rarr; move which finger to grow the sum? Too big &rarr; which one to shrink it?</>,
         },
       ],
       detail: (
@@ -270,7 +270,7 @@ export const twoPointersLesson: LessonSpec = {
           <p>Put your left finger on the smallest card and your right finger on the largest. We&rsquo;ll call them <code>L</code> and <code>R</code> &mdash; just names for &ldquo;the card the left finger is on&rdquo; and &ldquo;the card the right finger is on.&rdquo; Add the two numbers together. Then use the buttons to move whichever finger you like, and just <em>watch</em> what the sum does.</p>
           <p>Don&rsquo;t reach for a strategy yet. Notice the feel of it: when does each finger want to move? What does it mean when the total comes out too small? Too big? The answer is hiding in plain sight because the cards are sorted &mdash; moving <code>L</code> right always lands on a bigger card, moving <code>R</code> left always lands on a smaller one.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> if the sum is too small, which finger could you move to make it bigger? If the sum is too big, which one could you move to shrink it?
+            <strong>The instinct question:</strong> if the sum is too small, which finger could you move to make it bigger? If the sum is too big, which one could you move to shrink it?
           </div>
         </>
       ),

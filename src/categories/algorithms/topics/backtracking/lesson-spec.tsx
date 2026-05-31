@@ -551,7 +551,7 @@ export const backtrackingLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "So instead of building whole dead boards, build a partial one and check it as you go.",
       actionLabel: "Press play and watch",
       detail: (
@@ -569,7 +569,7 @@ export const backtrackingLesson: LessonSpec = {
             different column in the row above instead. That single undo is the whole idea.
           </p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge:</strong> don&rsquo;t finish a guess before checking it can still win. Test
+            <strong>The instinct:</strong> don&rsquo;t finish a guess before checking it can still win. Test
             at every step, and quit a branch the moment it can&rsquo;t reach a full board.
           </div>
         </>
@@ -581,7 +581,7 @@ export const backtrackingLesson: LessonSpec = {
           top: 16,
           width: 560,
           variant: "main",
-          label: "The wedge",
+          label: "The instinct",
           title: "Place a queen. Check. Undo when stuck.",
           body: (
             <>
@@ -599,7 +599,7 @@ export const backtrackingLesson: LessonSpec = {
           variant: "note",
           body: (
             <>
-              <strong className="text-[var(--accent-ink)]">The wedge:</strong>{" "}
+              <strong className="text-[var(--accent-ink)]">The instinct:</strong>{" "}
               don&rsquo;t finish a guess before checking it can still win. Test at
               every step, and quit a branch the instant it can&rsquo;t reach a full
               board.

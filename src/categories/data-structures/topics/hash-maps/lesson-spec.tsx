@@ -302,18 +302,18 @@ export const hashMapsLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "That last question — what if the name told you the page? — is exactly the move we make now.",
       actionLabel: "Compute the address",
       visual: (api) => <HashAddress api={api} />,
       panels: [
         {
-          left: 150, top: 22, width: 580, variant: "main", label: "The wedge", title: "Pick a name. Watch its address appear.",
+          left: 150, top: 22, width: 580, variant: "main", label: "The instinct", title: "Pick a name. Watch its address appear.",
           body: <>Click a name and a <strong>hash function</strong> &mdash; a recipe that turns the letters into a number &mdash; hands you a box. It searches nothing; it computes a number, then takes it mod 16 (the remainder, landing in box 0&ndash;15). One hop, however huge the book.</>,
         },
         {
           left: 250, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what if every key knew where to find itself?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> what if every key knew where to find itself?</>,
         },
       ],
       detail: (
@@ -322,7 +322,7 @@ export const hashMapsLesson: LessonSpec = {
           <p>The raw number can be huge, so we take it <code>mod 16</code> &mdash; the <em>remainder</em> after dividing by 16 &mdash; which always lands between 0 and 15, one of our boxes. Try a name that isn&rsquo;t even in the book: you still get a box instantly, because the recipe never searches &mdash; it computes.</p>
           <p>And here&rsquo;s why it matters: the answer is <em>one hop</em>, whether the book holds ten names or ten million. The size of the book never enters into it.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> what if every key knew where to find itself?
+            <strong>The instinct question:</strong> what if every key knew where to find itself?
           </div>
         </>
       ),

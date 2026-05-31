@@ -211,18 +211,18 @@ export const arraysLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "Now that the pile makes you count from the top, change one thing — give every position a fixed home.",
       actionLabel: "Storage decides speed",
       visual: (api) => <DragToSlot api={api} />,
       panels: [
         {
-          left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Give every position a fixed home.",
+          left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Give every position a fixed home.",
           body: <>Now lay the books on a long shelf, every slot the same size: slot 0, slot 1 &hellip; slot 999. The slot&rsquo;s number is its <strong>index</strong> (the position, counting from 0). <em>Click any slot</em> &mdash; you walk straight there in one step, no counting.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> what changed about the books? Nothing. What changed about the <em>arrangement</em>?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> what changed about the books? Nothing. What changed about the <em>arrangement</em>?</>,
         },
       ],
       detail: (
@@ -230,7 +230,7 @@ export const arraysLesson: LessonSpec = {
           <p>Now imagine the books laid out on a long shelf instead of stacked. Each slot is exactly the same size: slot 0, slot 1, slot 2&hellip; slot 999. A slot&rsquo;s number is its <strong>index</strong> &mdash; just the position, counting from zero.</p>
           <p>You no longer reach book 487 by lifting 487 books off a pile. You walk straight to slot 487. Click any slot in the picture and watch: you land on it in one step, no counting through the ones before it.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> what changed about the books? Nothing. What changed about the <em>arrangement</em> &mdash; and why did that alone make the lookup instant?
+            <strong>The instinct question:</strong> what changed about the books? Nothing. What changed about the <em>arrangement</em> &mdash; and why did that alone make the lookup instant?
           </div>
         </>
       ),

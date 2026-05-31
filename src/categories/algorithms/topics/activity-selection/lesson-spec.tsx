@@ -602,7 +602,7 @@ export const activitySelectionLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "That hunch — judge a meeting by when it frees the room — turns into one concrete move.",
       actionLabel: "Press play and watch",
       detail: (
@@ -628,7 +628,7 @@ export const activitySelectionLesson: LessonSpec = {
           top: 18,
           width: 560,
           variant: "main",
-          label: "The wedge",
+          label: "The instinct",
           title: "Sort by end time. Always take the one that frees the room soonest.",
           body: (
             <>
@@ -644,7 +644,7 @@ export const activitySelectionLesson: LessonSpec = {
           variant: "note",
           body: (
             <>
-              <strong className="text-[var(--accent-ink)]">The wedge:</strong> the dashed line marks when the room next opens. Freeing it soonest rules out the least.
+              <strong className="text-[var(--accent-ink)]">The instinct:</strong> the dashed line marks when the room next opens. Freeing it soonest rules out the least.
             </>
           ),
         },

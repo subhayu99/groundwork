@@ -421,18 +421,18 @@ export const monotonicStackLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "Here's what to remember: instead of re-scanning forward, keep a line of the days that haven't found their answer yet.",
       actionLabel: "Press play and watch",
       visual: (api) => <ManualWalk api={api} />,
       panels: [
         {
-          left: 60, top: 18, width: 470, variant: "main", label: "The wedge", title: "Keep a line of days still waiting.",
+          left: 60, top: 18, width: 470, variant: "main", label: "The instinct", title: "Keep a line of days still waiting.",
           body: <>Walk left to right. Keep a <strong>stack</strong> &mdash; a line where you only add to and remove from the <em>same end</em>, the back. Each new day asks the last in line: &ldquo;Warmer than you?&rdquo; <strong>Yes</strong> &rarr; send them home with the gap. <strong>No</strong> &rarr; join the back and wait.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> if each day is added to the line once and sent home once, how much total work is that?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> if each day is added to the line once and sent home once, how much total work is that?</>,
         },
       ],
       detail: (

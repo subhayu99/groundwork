@@ -216,7 +216,7 @@ function ArrayShiftPlayback({ api }: { api: BeatVisualApi }) {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   BEAT 3 — the wedge: insert / remove on the chain, count pointer edits
+   BEAT 3 — the instinct: insert / remove on the chain, count pointer edits
    ════════════════════════════════════════════════════════════════════════════ */
 type ChainState = { values: number[]; touched: number[]; relinkAt: number | null; edits: number; note: string; acted: boolean };
 function wedgeInit(): ChainState {
@@ -536,18 +536,18 @@ export const linkedListsLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "So free the positions: instead of a fixed line, give each item an arrow that says where the next one lives.",
       actionLabel: "Pointers are the trick",
       visual: (api) => <WedgeChain api={api} />,
       panels: [
         {
-          left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Each card points to the next.",
+          left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Each card points to the next.",
           body: <>Meet cards joined by arrows. Each holds a value AND an arrow saying where the next card lives &mdash; that arrow is a <strong>pointer</strong>. Order lives in the arrows, not in where cards sit. Try an insert, then a remove, and count what changed.</>,
         },
         {
           left: 545, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> how many existing cards actually had to change &mdash; an insert? a remove?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> how many existing cards actually had to change &mdash; an insert? a remove?</>,
         },
       ],
       detail: (
@@ -555,7 +555,7 @@ export const linkedListsLesson: LessonSpec = {
           <p>Look at the cards joined by arrows. Each card holds a value <em>and</em> an arrow that tells you where the next card lives. That arrow is a <strong>pointer</strong> &mdash; just a stored note saying &ldquo;the next thing is over <em>there</em>.&rdquo; The order of the list is carried by those arrows, not by where the cards happen to sit on screen.</p>
           <p>Try it: click <em>insert after node 1</em> and watch what moves. Then click <em>remove the 3rd card</em>. Notice how almost nothing budges &mdash; we just re-aim one or two arrows, and every other card stays exactly where it was. No domino, no shuffle.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> when you slide a new card in, how many of the cards that were already there actually had to change?
+            <strong>The instinct question:</strong> when you slide a new card in, how many of the cards that were already there actually had to change?
           </div>
         </>
       ),

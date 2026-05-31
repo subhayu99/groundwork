@@ -470,7 +470,7 @@ export const dfsLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "Those two rules describe a way of walking — so let's actually walk it by hand.",
       actionLabel: "Press play and watch",
       visual: (api) => <ManualWalk api={api} />,
@@ -480,7 +480,7 @@ export const dfsLesson: LessonSpec = {
           top: 18,
           width: 560,
           variant: "main",
-          label: "The wedge",
+          label: "The instinct",
           title: "Pick a direction. Dig deep. Back up when stuck.",
           body: (
             <>
@@ -497,7 +497,7 @@ export const dfsLesson: LessonSpec = {
           variant: "note",
           body: (
             <>
-              <strong className="text-[var(--accent-ink)]">The wedge:</strong>{" "}
+              <strong className="text-[var(--accent-ink)]">The instinct:</strong>{" "}
               the maze from any cell is a smaller copy of the same question &mdash;{" "}
               <em>can I reach G from here?</em>
             </>
@@ -508,7 +508,7 @@ export const dfsLesson: LessonSpec = {
         <>
           <p>Take the controls. Click any lit neighbour and the walker steps into it; every square it enters gets marked so it won&rsquo;t come back. Pick a direction, push as deep as you can, and keep going until you run out of new squares to enter.</p>
           <p>When you&rsquo;re stuck &mdash; surrounded by walls and already-marked squares &mdash; press <strong>back up</strong>. That retreats one square to where you came from, so you can try a different direction from there. Watch the <em>trail</em>: it snakes outward, jams against a wall, retreats to the last spot where there was an untried choice, and pushes out again. That retreat-and-retry is the heart of the whole method.</p>
-          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The wedge:</strong> the maze starting from <em>any</em> square is just a smaller copy of the same question &mdash; <em>can I reach the goal from here?</em> If one of your neighbours can reach the goal, then so can you. That self-similarity is what lets one simple rule solve the whole maze.</div>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The instinct:</strong> the maze starting from <em>any</em> square is just a smaller copy of the same question &mdash; <em>can I reach the goal from here?</em> If one of your neighbours can reach the goal, then so can you. That self-similarity is what lets one simple rule solve the whole maze.</div>
         </>
       ),
       codeLabels: ["recurse", "visit"],

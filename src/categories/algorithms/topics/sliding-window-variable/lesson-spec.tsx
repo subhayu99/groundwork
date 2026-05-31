@@ -238,7 +238,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
     },
     {
       id: "wedge",
-      label: "The wedge",
+      label: "The instinct",
       connector: "If re-reading from scratch is the waste, the fix is to never start over — so let's give the stretch two ends we can nudge by hand.",
       actionLabel: "Two motions, one rule",
       detail: (
@@ -246,19 +246,19 @@ export const slidingWindowVariableLesson: LessonSpec = {
           <p>On the right is a small word with two <strong>markers</strong> &mdash; just labels sitting under the boxes. <code>L</code> marks the left edge of your current stretch; <code>R</code> marks the right edge. Press <em>expand</em> to pull the next letter on the right into the window. Press <em>contract</em> to drop the leftmost letter off the window.</p>
           <p>Try to find the longest valid (no-repeat) stretch using only those two buttons. The thing to notice: you <em>never</em> have to start over. You only ever grow the right edge or shrink the left edge &mdash; the work you already did stays done.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The wedge question:</strong> when does <code>R</code> <em>want</em> to move? When does <code>L</code> <em>have</em> to move? Are they ever moving for the same reason?
+            <strong>The instinct question:</strong> when does <code>R</code> <em>want</em> to move? When does <code>L</code> <em>have</em> to move? Are they ever moving for the same reason?
           </div>
         </>
       ),
       visual: (api) => <ManualWindow api={api} />,
       panels: [
         {
-          left: 150, top: 18, width: 560, variant: "main", label: "The wedge", title: "Two ends. Move them by hand.",
+          left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Two ends. Move them by hand.",
           body: <>Two <strong>markers</strong> (just labels under the row): <code>L</code> on the left edge of your run, <code>R</code> on the right. <em>Expand</em> adds the next letter on the right; <em>contract</em> drops the leftmost. Find the longest no-repeat run &mdash; notice you never restart.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> when does <code>R</code> <em>want</em> to move? When does <code>L</code> <em>have</em> to move? Are they ever moving for the same reason?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> when does <code>R</code> <em>want</em> to move? When does <code>L</code> <em>have</em> to move? Are they ever moving for the same reason?</>,
         },
       ],
       codeLabels: [],
