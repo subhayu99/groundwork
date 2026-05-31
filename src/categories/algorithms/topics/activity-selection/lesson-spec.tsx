@@ -120,9 +120,8 @@ function FreeAt({ hour, rows }: { hour: number; rows: number }) {
   return (
     <g style={{ transition: "all .3s" }}>
       <line x1={x} y1={yTop} x2={x} y2={yBot} stroke="var(--diff-easy)" strokeWidth={1.5} strokeDasharray="5 4" />
-      <text x={x} y={yTop - 4} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--diff-easy)" }}>
-        free at {hour}
-      </text>
+      {/* the dashed line marks "free from this hour"; label omitted to avoid colliding
+          with the hour-axis numbers + bottom caption in this cramped lower band */}
     </g>
   );
 }

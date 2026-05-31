@@ -48,7 +48,7 @@ function DragWindow({ api }: { api: BeatVisualApi }) {
     <g>
       <CellRow geom={G} values={ARR} tones={tones} onCellClick={(i) => go(i <= start ? start - 1 : start + 1)} cellEnabled={() => true} />
       <Bracket x1={G.left(start)} x2={G.left(start) + K * G.stride - G.gap} y={G.y - 16} label={`window · k=${K}`} color="var(--accent-ink)" />
-      <text x={VW / 2} y={G.y - 30} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+      <text x={VW / 2} y={G.y - 46} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
         {moved ? `one number left, one joined — middle stayed put · sum = ${sum}` : "drag the window: tap a cell left or right of it"}
       </text>
       {/* step buttons (touch friendly) */}
