@@ -1,7 +1,79 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Tone, toneStyle } from "@/shared/viz/tones";
+
+/**
+ * Map a visual tone to the algorithmic STATE it encodes, as a spoken word for
+ * screen readers (so the aria-label conveys *why* a cell is highlighted, not
+ * just its value). "idle" carries no state, so it returns undefined.
+ */
+function toneState(tone: Tone | undefined): string | undefined {
+  switch (tone) {
+    case "active": return "active";
+    case "visited": return "visited";
+    case "trail": return "on path";
+    case "good": return "valid";
+    case "bad": return "invalid";
+    case "muted": return "out of play";
+    case "wall": return "wall";
+    case "start": return "start";
+    case "goal": return "goal";
+    case "accent": return "selected";
+    default: return undefined;
+  }
+}
+
+/** Join the non-empty descriptors after the base name into an aria-label. */
+function withState(base: string, ...parts: (string | undefined | false)[]): string {
+  const extra = parts.filter((p): p is string => Boolean(p));
+  return extra.length ? `${base}, ${extra.join(", ")}` : base;
+}
+
+const FOCUS_RING_COLOR = "var(--accent-sky)";
+
+/**
+ * A focusable SVG <g> that, while focused, paints a visible focus ring overlay.
+ * Native `outline` is unreliable on SVG elements inside a CSS-scaled plane, so
+ * we draw the ring ourselves (3px stroke, 2px offset) and toggle it on
+ * focus/blur. Children render the actual shape + labels.
+ */
+function FocusableGroup({
+  enabled, onActivate, ariaLabel, style, ring, children,
+}: {
+  enabled: boolean;
+  onActivate: () => void;
+  ariaLabel: string;
+  style?: React.CSSProperties;
+  /** Geometry for the ring overlay, in canvas coordinates. */
+  ring: { x: number; y: number; w: number; h: number; rx: number } | { cx: number; cy: number; r: number };
+  children: ReactNode;
+}): ReactNode {
+  const [focused, setFocused] = useState(false);
+  if (!enabled) return <g style={style}>{children}</g>;
+  const offset = 2;
+  return (
+    <g
+      style={style}
+      onClick={onActivate}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onActivate(); } }}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      tabIndex={0}
+      role="button"
+      aria-label={ariaLabel}
+    >
+      {children}
+      {focused && ("r" in ring ? (
+        <circle cx={ring.cx} cy={ring.cy} r={ring.r + offset}
+          fill="none" stroke={FOCUS_RING_COLOR} strokeWidth={3} className="pointer-events-none" />
+      ) : (
+        <rect x={ring.x - offset} y={ring.y - offset} width={ring.w + offset * 2} height={ring.h + offset * 2}
+          rx={ring.rx + offset} fill="none" stroke={FOCUS_RING_COLOR} strokeWidth={3} className="pointer-events-none" />
+      ))}
+    </g>
+  );
+}
 
 /**
  * Shared SVG drawing helpers for annotated-canvas lesson beats. Every beat draws
@@ -110,15 +182,17 @@ export function CellRow({ geom, values, tones, dim, markers, showIndex, fontSize
         const isDim = dim?.[i];
         const ts = toneStyle[tone];
         const enabled = onCellClick ? (cellEnabled ? cellEnabled(i) : true) : false;
+        // Speak the algorithmic state the cell encodes: its role marker (lo/hi/mid/…),
+        // tone (active/visited/…), or that it's been eliminated/dimmed out of play.
+        const ariaLabel = withState(`cell ${i}, value ${v}`, markers?.[i], toneState(tone), isDim && "eliminated");
         return (
-          <g
+          <FocusableGroup
             key={i}
-            style={{ opacity: isDim ? 0.28 : 1, transition: "opacity .3s", cursor: enabled ? "pointer" : "default", outline: "none" }}
-            onClick={enabled ? () => onCellClick!(i) : undefined}
-            onKeyDown={enabled ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onCellClick!(i); } } : undefined}
-            tabIndex={enabled ? 0 : undefined}
-            role={enabled ? "button" : undefined}
-            aria-label={enabled ? `cell ${i}, value ${v}` : undefined}
+            enabled={enabled}
+            onActivate={() => onCellClick!(i)}
+            ariaLabel={ariaLabel}
+            style={{ opacity: isDim ? 0.28 : 1, transition: "opacity .3s", cursor: enabled ? "pointer" : "default" }}
+            ring={{ x: geom.left(i), y, w: cellW, h: cellH, rx: 8 }}
           >
             <rect x={geom.left(i)} y={y} width={cellW} height={cellH} rx={8}
               style={{ fill: ts.bg, stroke: ts.border, transition: "fill .3s, stroke .3s" }} strokeWidth={2} />
@@ -132,7 +206,7 @@ export function CellRow({ geom, values, tones, dim, markers, showIndex, fontSize
               </text>
             )}
             {markers?.[i] && <Pill x={geom.cx(i)} y={y + cellH + 7} text={markers[i]} />}
-          </g>
+          </FocusableGroup>
         );
       })}
     </>
@@ -176,20 +250,26 @@ export function NodeGraph({ nodes, edges = [], radius = 22, onNodeClick, cellEna
       {nodes.map((n) => {
         const ts = toneStyle[n.tone ?? "idle"];
         const enabled = onNodeClick ? (cellEnabled ? cellEnabled(n.id) : true) : false;
+        const isRect = n.shape === "rect";
+        const rw = n.w ?? radius * 2.4, rh = n.h ?? radius * 1.5;
+        const ring = isRect
+          ? { x: n.x - rw / 2, y: n.y - rh / 2, w: rw, h: rh, rx: 6 }
+          : { cx: n.x, cy: n.y, r: n.r ?? radius };
         return (
-          <g key={n.id} style={{ cursor: enabled ? "pointer" : "default", outline: "none" }}
-            onClick={enabled ? () => onNodeClick!(n.id) : undefined}
-            onKeyDown={enabled ? (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onNodeClick!(n.id); } } : undefined}
-            tabIndex={enabled ? 0 : undefined} role={enabled ? "button" : undefined} aria-label={enabled ? `node ${n.id}` : undefined}>
-            {n.shape === "rect" ? (
-              <rect x={n.x - (n.w ?? radius * 2.4) / 2} y={n.y - (n.h ?? radius * 1.5) / 2} width={n.w ?? radius * 2.4} height={n.h ?? radius * 1.5} rx={6}
+          <FocusableGroup key={n.id} enabled={enabled}
+            onActivate={() => onNodeClick!(n.id)}
+            ariaLabel={withState(`node ${n.id}`, toneState(n.tone))}
+            style={{ cursor: enabled ? "pointer" : "default" }}
+            ring={ring}>
+            {isRect ? (
+              <rect x={n.x - rw / 2} y={n.y - rh / 2} width={rw} height={rh} rx={6}
                 style={{ fill: ts.bg, stroke: ts.border, transition: "fill .3s, stroke .3s" }} strokeWidth={2} />
             ) : (
               <circle cx={n.x} cy={n.y} r={n.r ?? radius} style={{ fill: ts.bg, stroke: ts.border, transition: "fill .3s, stroke .3s" }} strokeWidth={2} />
             )}
             {n.label != null && <text x={n.x} y={n.sub != null ? n.y - 5 : n.y} textAnchor="middle" dominantBaseline="central" className="font-mono pointer-events-none select-none" style={{ fontSize: 12, fill: "var(--text)" }}>{n.label}</text>}
             {n.sub != null && <text x={n.x} y={n.y + 9} textAnchor="middle" dominantBaseline="central" className="font-mono pointer-events-none select-none" style={{ fontSize: 8, fill: "var(--text-muted)" }}>{n.sub}</text>}
-          </g>
+          </FocusableGroup>
         );
       })}
     </>
@@ -218,14 +298,15 @@ export function GridCells({ rows, cols, geom, cell, onCellClick, cellEnabled }: 
           const x = x0 + c * (cellPx + gap), y = y0 + r * (cellPx + gap);
           const enabled = onCellClick ? (cellEnabled ? cellEnabled(r, c) : true) : false;
           return (
-            <g key={`${r}-${c}`} style={{ cursor: enabled ? "pointer" : "default", outline: "none" }}
-              onClick={enabled ? () => onCellClick!(r, c) : undefined}
-              onKeyDown={enabled ? (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onCellClick!(r, c); } } : undefined}
-              tabIndex={enabled ? 0 : undefined} role={enabled ? "button" : undefined} aria-label={enabled ? `cell ${r},${c}` : undefined}>
+            <FocusableGroup key={`${r}-${c}`} enabled={enabled}
+              onActivate={() => onCellClick!(r, c)}
+              ariaLabel={withState(`cell ${r},${c}`, toneState(spec.tone))}
+              style={{ cursor: enabled ? "pointer" : "default" }}
+              ring={{ x, y, w: cellPx, h: cellPx, rx: 7 }}>
               <rect x={x} y={y} width={cellPx} height={cellPx} rx={7} style={{ fill: ts.bg, stroke: ts.border, transition: "fill .3s, stroke .3s" }} strokeWidth={2} />
               {spec.content != null && <text x={x + cellPx / 2} y={y + cellPx / 2} textAnchor="middle" dominantBaseline="central" className="font-mono pointer-events-none select-none" style={{ fontSize: 13, fill: "var(--text)" }}>{spec.content}</text>}
               {spec.sub != null && <text x={x + cellPx / 2} y={y + cellPx - 8} textAnchor="middle" className="font-mono pointer-events-none select-none" style={{ fontSize: 8, fill: "var(--accent-ink)" }}>{spec.sub}</text>}
-            </g>
+            </FocusableGroup>
           );
         }),
       )}

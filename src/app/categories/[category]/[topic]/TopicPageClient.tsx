@@ -64,11 +64,23 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
       prev: prevT ? { name: prevT.name, href: `/categories/${prevT.category}/${prevT.key}` } : undefined,
       next: nextT ? { name: nextT.name, href: `/categories/${nextT.category}/${nextT.key}` } : undefined,
     };
+    const prerequisites = (bundle.meta.prerequisites ?? [])
+      .map((k) => {
+        const t = all.find((x) => x.key === k);
+        if (!t) return null;
+        return {
+          name: t.name,
+          href: `/categories/${t.category}/${t.key}`,
+          completed: getTopicProgress(t.category, t.key).derivation.completed,
+        };
+      })
+      .filter(Boolean) as { name: string; href: string; completed: boolean }[];
     return (
       <LessonRuntime
         spec={lessonSpec}
         practice={practice}
         nav={nav}
+        prerequisites={prerequisites}
         initiallyCompleted={everCompleted}
         onComplete={() => {
           emitEvent({ type: "topic_completed", category: categoryKey, topic: topicKey });

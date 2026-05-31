@@ -16,10 +16,20 @@ export default function Home() {
         <h1 className="text-5xl font-semibold text-[var(--text)] mb-3">
           First principles, not patterns.
         </h1>
-        <p className="text-lg text-[var(--text-muted)] mb-12 max-w-2xl">
+        <p className="text-lg text-[var(--text-muted)] mb-6 max-w-2xl">
           Learn the seven ideas underneath every algorithm. Derive each pattern from scratch &mdash;
           never memorize a name without understanding what it&rsquo;s made of.
         </p>
+
+        <div className="mb-12 flex flex-wrap items-center gap-3">
+          <Link
+            href="/categories/algorithms/binary-search"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[var(--bg)] transition-opacity hover:opacity-90"
+          >
+            Start with Binary Search &rarr;
+          </Link>
+          <span className="text-sm text-[var(--text-muted)]">New here? Derive it in 7 steps.</span>
+        </div>
 
         <div className="mb-8">
           <ResumeBanner />
