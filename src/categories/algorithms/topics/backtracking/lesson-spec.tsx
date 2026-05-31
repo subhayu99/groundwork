@@ -553,7 +553,7 @@ export const backtrackingLesson: LessonSpec = {
       id: "wedge",
       label: "The instinct",
       connector: "So instead of building whole dead boards, build a partial one and check it as you go.",
-      actionLabel: "Press play and watch",
+      actionLabel: "Make it a rule",
       detail: (
         <>
           <p>

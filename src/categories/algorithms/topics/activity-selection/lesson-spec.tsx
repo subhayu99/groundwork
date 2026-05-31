@@ -547,7 +547,7 @@ export const activitySelectionLesson: LessonSpec = {
       id: "obvious",
       label: "The obvious thing",
       connector: "Now that the only goal is to pack in the most meetings, what's the first plan that comes to mind?",
-      actionLabel: "Try ending earliest",
+      actionLabel: "Judge by end time",
       detail: (
         <>
           <p>
@@ -604,16 +604,17 @@ export const activitySelectionLesson: LessonSpec = {
       id: "wedge",
       label: "The instinct",
       connector: "That hunch — judge a meeting by when it frees the room — turns into one concrete move.",
-      actionLabel: "Press play and watch",
+      actionLabel: "Why it always wins",
       detail: (
         <>
           <p>
-            On the right is the day laid out as a timeline. Press <strong>sort by end</strong>: the meetings rearrange so the one that{" "}
-            <em>finishes earliest</em> sits on top.
+            The day is laid out as a timeline in the visual. Press the <strong>sort by end</strong> button below it: the meetings rearrange so the one
+            that <em>finishes earliest</em> sits on top.
           </p>
           <p>
-            Now step down the list. <strong>Accept</strong> a meeting if it starts on or after the last accepted one ended; otherwise{" "}
-            <strong>skip</strong> it. The very first meeting is always accepted &mdash; nobody has used the room yet, so nothing can clash with it.
+            Now press <strong>step</strong> to walk down the list one meeting at a time. Each step <strong>accepts</strong> a meeting if it starts on or
+            after the last accepted one ended; otherwise it <strong>skips</strong> it. The very first meeting is always accepted &mdash; nobody has used
+            the room yet, so nothing can clash with it. (Use <strong>↺ reset</strong> to start over.)
           </p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
             <strong>The intuition:</strong> picking the earliest-finishing meeting frees the room at the soonest possible moment. That can only help
@@ -820,7 +821,7 @@ export const activitySelectionLesson: LessonSpec = {
             <li>Anywhere the locally best choice provably can&rsquo;t block the overall best</li>
           </ul>
           <p>
-            Open the Code panel to see the Python: five lines of real work, one of them a sort.
+            Open the <strong>&lt;/&gt; code</strong> tab on the right to see the Python: five lines of real work, one of them a sort.
           </p>
         </>
       ),
@@ -837,7 +838,7 @@ export const activitySelectionLesson: LessonSpec = {
             <>
               That&rsquo;s the name. The hard part isn&rsquo;t the code &mdash; it&rsquo;s knowing greed is allowed (the swap test). Spot it when you
               see &ldquo;fit the most non-overlapping things&rdquo;, &ldquo;minimum X to cover all Y&rdquo;, or any time the locally best choice
-              can&rsquo;t block the overall best. Open the code &mdash; five lines, one sort.
+              can&rsquo;t block the overall best. Open the <strong>&lt;/&gt; code</strong> tab &mdash; five lines, one sort.
             </>
           ),
         },

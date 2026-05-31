@@ -310,7 +310,7 @@ export const stringsLesson: LessonSpec = {
     {
       id: "wedge",
       label: "The instinct",
-      connector: "If landing on any letter is instant, let's feel that for ourselves — drag the window and watch.",
+      connector: "If landing on any letter is instant, let's feel that for ourselves — drag the slider under the row and read what's underneath.",
       actionLabel: "Same machinery, different content",
       visual: (api) => <SlideTheWindow api={api} />,
       panels: [

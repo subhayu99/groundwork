@@ -183,7 +183,7 @@ export const binarySearchLesson: LessonSpec = {
       id: "wedge",
       label: "The instinct",
       connector: "Here's the move that answers that — one comparison that tells you which way to go.",
-      actionLabel: "Halve, then halve again",
+      actionLabel: "Make it a rule",
       visual: (api) => <ClickToHalve api={api} />,
       panels: [
         {

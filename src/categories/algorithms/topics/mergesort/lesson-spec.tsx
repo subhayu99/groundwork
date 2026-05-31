@@ -261,7 +261,7 @@ export const mergesortLesson: LessonSpec = {
     {
       id: "setup",
       label: "The setup",
-      actionLabel: "Try the obvious thing",
+      actionLabel: "The obvious recipe",
       visual: (
         <g>
           {idleRow()}
@@ -305,12 +305,12 @@ export const mergesortLesson: LessonSpec = {
       id: "wedge",
       label: "The instinct",
       connector: "If single swaps move cards too slowly, what if we could move a whole side at once?",
-      actionLabel: "Press play and watch",
+      actionLabel: "Make it a rule",
       visual: (api) => <SplitMerge api={api} />,
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Cut in half. Sort each half. Merge them.",
-          body: <>Pretend the two halves are already sorted. Finishing is easy: walk both with two fingers, always take the smaller card &mdash; one pass, each card seen once. The only question left is &ldquo;how do I sort a half?&rdquo; Same trick, smaller. <strong>Press split, then merge.</strong></>,
+          body: <>Pretend the two halves are already sorted. Finishing is easy: walk both with two fingers, always take the smaller card &mdash; one pass, each card seen once. The only question left is &ldquo;how do I sort a half?&rdquo; Same trick, smaller. <strong>Use the buttons under the row: split all the way down, then merge.</strong></>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
@@ -321,7 +321,7 @@ export const mergesortLesson: LessonSpec = {
         <>
           <p>Here&rsquo;s the instinct. Pretend, just for a moment, that the left half of the row and the right half are each <em>already</em> sorted. Then finishing the whole row is easy: put one finger at the front of each half and compare. Whichever finger points at the smaller card, take that card and slide that finger forward. Keep going and the cards come out in perfect order &mdash; a single left-to-right pass where each card is touched once. That step is called a <strong>merge</strong>.</p>
           <p>So the hard question shrinks to a smaller version of itself: how do you sort a half? The same way &mdash; cut it in half, sort the two pieces, merge them. The pieces keep getting smaller until each is a <em>single card</em>, and a single card is already sorted, so the splitting stops there. A rule that solves a problem by calling itself on a smaller piece is called <strong>recursion</strong>.</p>
-          <p>Press <strong>split</strong> on the right and watch the row break into halves, quarters, then singletons. Then press <strong>merge</strong> and watch the sorted pieces fuse back upward.</p>
+          <p>Use the <strong>split</strong> button under the row and the row breaks into halves, quarters, then singletons. Once every piece is a single card the button becomes <strong>merge</strong> &mdash; keep pressing it and the sorted pieces fuse back together. <strong>↺ reset</strong> sends the cards back to their starting jumble.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The instinct:</strong> sorting halves and merging them is far less work than swap-by-swap, because the merge moves cards from one side to the other in one clean sweep instead of one nudge at a time.</div>
         </>
       ),

@@ -246,8 +246,8 @@ export const slidingWindowLesson: LessonSpec = {
       visual: (api) => <DragWindow api={api} />,
       panels: [
         {
-          left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Drag the window. Watch only what changes.",
-          body: <>Your turn. Tap a cell to nudge the window one step. Don&rsquo;t do mental math &mdash; just watch the cells. One number drops out of the left edge, one new number joins on the right, and the middle one doesn&rsquo;t move at all.</>,
+          left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Move the window. Watch only what changes.",
+          body: <>Your turn. Tap a cell beside the window &mdash; or use the <strong>&ldquo;&lsaquo; left&rdquo;</strong> / <strong>&ldquo;right &rsaquo;&rdquo;</strong> buttons under the row &mdash; to nudge it one step. Don&rsquo;t do mental math; just watch the cells. One number drops out of the left edge, one new number joins on the right, and the middle one doesn&rsquo;t move at all.</>,
         },
         {
           left: 250, top: 372, width: 290, variant: "note",
@@ -256,7 +256,7 @@ export const slidingWindowLesson: LessonSpec = {
       ],
       detail: (
         <>
-          <p>Your turn. Tap a cell to the left or right of the window to nudge it one step that way. Then do it again. Then again.</p>
+          <p>Your turn. Tap a cell to the left or right of the window &mdash; or use the &ldquo;&lsaquo; left&rdquo; / &ldquo;right &rsaquo;&rdquo; buttons under the row &mdash; to nudge it one step that way. Then do it again. Then again.</p>
           <p>Don&rsquo;t do any math in your head &mdash; just <em>watch the cells</em>. Which numbers are inside the window before you move? Which ones after? You&rsquo;ll see that only the two edges change: one number drops off the left, one new number joins on the right, and everything in the middle stays exactly where it was.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
             <strong>The instinct question:</strong> when you slide the window by one, how many numbers actually change &mdash; and how many stay exactly where they were?
@@ -296,7 +296,7 @@ export const slidingWindowLesson: LessonSpec = {
       id: "win",
       label: "The win",
       connector: "Now that each slide costs just two operations, let's put a number on how much that actually saves.",
-      actionLabel: "Watch it run",
+      actionLabel: "See the payoff",
       visual: <CounterRace />,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "The win", title: "Two operations beat k, and the gap grows.",
@@ -317,11 +317,11 @@ export const slidingWindowLesson: LessonSpec = {
       id: "playback",
       label: "The win, watched",
       connector: "We've counted the savings on paper — now let the code run it live and see the total barely move.",
-      actionLabel: "Try it on a different question",
+      actionLabel: "A different question",
       visual: (api) => <AutoSlide api={api} />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "Watch it run", title: "The window marches; the total just nudges.",
-        body: <>Press play in your mind: the window slides cell by cell. At each step the code subtracts the leaver and adds the newcomer &mdash; the <code>loop</code> line repeating two operations &mdash; and records the new sum. Eight answers, almost no arithmetic.</>,
+        body: <>The window slides across the row on its own, cell by cell. At each step the code subtracts the leaver and adds the newcomer &mdash; the <code>loop</code> line repeating two operations &mdash; and records the new sum. Eight answers, almost no arithmetic. Use <strong>&ldquo;&#8635; replay&rdquo;</strong> under the visual to watch it again.</>,
       }],
       detail: (
         <>
@@ -365,7 +365,7 @@ export const slidingWindowLesson: LessonSpec = {
       visual: <Signals />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Sliding Window.",
-        body: <>That&rsquo;s the name. You&rsquo;ll spot it whenever you look at side-by-side stretches of a row and the answer can be <strong>nudged</strong> as the window moves instead of rebuilt each time. The full Python is docked on the right &mdash; trace one pass.</>,
+        body: <>That&rsquo;s the name. You&rsquo;ll spot it whenever you look at side-by-side stretches of a row and the answer can be <strong>nudged</strong> as the window moves instead of rebuilt each time. Open the <strong>code</strong> tab on the right for the full Python &mdash; trace one pass.</>,
       }],
       detail: (
         <>
@@ -376,7 +376,7 @@ export const slidingWindowLesson: LessonSpec = {
             <li>&ldquo;longest / shortest window satisfying X&rdquo;</li>
             <li>&ldquo;count substrings with property Y&rdquo;</li>
           </ul>
-          <p>The full Python is docked on the right &mdash; trace a single pass through it and you&rsquo;ll see every move you just made by hand.</p>
+          <p>Open the <strong>code</strong> tab on the right for the full Python &mdash; trace a single pass through it and you&rsquo;ll see every move you just made by hand.</p>
         </>
       ),
       codeLabels: ["sig", "init_window", "init_results", "loop", "slide", "record", "result"],

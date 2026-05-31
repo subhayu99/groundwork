@@ -336,7 +336,7 @@ export const recursionLesson: LessonSpec = {
     {
       id: "setup",
       label: "The setup",
-      actionLabel: "Try the obvious thing",
+      actionLabel: "The obvious first idea",
       visual: <TreeScene nodes={treeNodes({ shown: () => null })} edges={EDGES} />,
       panels: [{
         left: 150, top: 24, width: 580, variant: "main", label: "The setup", title: "How big is your Downloads folder?",
@@ -427,8 +427,8 @@ export const recursionLesson: LessonSpec = {
     {
       id: "operations",
       label: "The operations",
-      connector: "The rule is written; now watch it actually run, and count how much work it does.",
-      actionLabel: "Watch the memory",
+      connector: "The rule is written; now see it actually run, and count how much work it does.",
+      actionLabel: "How tall the pile gets",
       visual: (api) => <AutoRecurse api={api} />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The operations", title: "Each item is touched once; calls pile up in a stack.",
@@ -436,7 +436,7 @@ export const recursionLesson: LessonSpec = {
       }],
       detail: (
         <>
-          <p>Press play and follow the run. Every node in the tree &mdash; every file, every folder &mdash; gets looked at exactly one time. We write that cost as <code>O(n)</code>: the work grows in step with how many items <em>n</em> are in the tree (folders included). Twice as many items, roughly twice the work &mdash; no hidden blow-up.</p>
+          <p>The run plays on its own &mdash; just follow it (the <strong>&#8634; replay</strong> button under the stack restarts it). Every node in the tree &mdash; every file, every folder &mdash; gets looked at exactly one time. We write that cost as <code>O(n)</code>: the work grows in step with how many items <em>n</em> are in the tree (folders included). Twice as many items, roughly twice the work &mdash; no hidden blow-up.</p>
           <p>Now watch the panel on the right. The <strong>call stack</strong> is the computer&rsquo;s to-do list of recipes it has started but not yet finished. Each time <code>folder_size</code> opens a folder and calls itself on a child, a new entry is stacked on top &mdash; the newest, innermost call always sits on top. That call has to finish before the one beneath it can continue.</p>
           <p>As each call returns its answer, its entry is removed and the total bubbles up to the folder waiting below. The stack grows as we dive in and <em>drains</em> back to empty once every call has returned &mdash; that&rsquo;s the moment the root finally reads its full size.</p>
         </>

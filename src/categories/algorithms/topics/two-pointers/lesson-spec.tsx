@@ -309,7 +309,7 @@ export const twoPointersLesson: LessonSpec = {
       id: "win",
       label: "The win",
       connector: "If one look retires a whole side, count how many looks the whole search can possibly take.",
-      actionLabel: "Watch it converge",
+      actionLabel: "See it converge",
       visual: <WinStat />,
       panels: [{
         left: 150, top: 26, width: 560, variant: "main", label: "The win", title: "Forty-five pairs becomes nine comparisons.",
@@ -319,7 +319,7 @@ export const twoPointersLesson: LessonSpec = {
         <>
           <p>Put the two costs side by side. Brute force inspects up to <code>n &times; (n &minus; 1) / 2</code> pairs &mdash; here <code>n</code> is the card count, so with <code>n = 10</code> that&rsquo;s 45 comparisons. That formula is <code>O(n&sup2;)</code> work: double the cards and the effort roughly quadruples.</p>
           <p>The two fingers, by contrast, touch each card at most once. <code>L</code> only ever moves right, <code>R</code> only ever moves left, and they march toward each other until they meet. So after at most <code>n &minus; 1</code> = 9 steps the search is over. That&rsquo;s <code>O(n)</code> work (&ldquo;order n&rdquo;) &mdash; the effort grows in simple step with the number of cards, not with its square.</p>
-          <p>Forty-five collapses to nine, and the gap only widens as the row gets longer. Press play next and watch the fingers actually converge.</p>
+          <p>Forty-five collapses to nine, and the gap only widens as the row gets longer. Next, see the fingers actually converge.</p>
         </>
       ),
       codeLabels: ["loop", "compute", "compare", "found"],
@@ -328,15 +328,15 @@ export const twoPointersLesson: LessonSpec = {
       id: "run",
       label: "The win, watched",
       connector: "Nine steps on paper — here it is happening, the retired cards fading out one move at a time.",
-      actionLabel: "Try it elsewhere",
+      actionLabel: "Where else it fits",
       visual: (api) => <AutoTwoPointers api={api} />,
       panels: [{
-        left: 150, top: 18, width: 560, variant: "main", label: "Watch it converge", title: "Press play — the fingers walk inward.",
-        body: <>The two fingers start at the ends and step inward, each move shrinking what&rsquo;s left. Faded cards are retired &mdash; out of play for good. When the sum lands on 17, the pair turns green. This board finishes in well under nine looks.</>,
+        left: 150, top: 18, width: 560, variant: "main", label: "Watch it converge", title: "The fingers walk inward on their own.",
+        body: <>The two fingers start at the ends and step inward by themselves, each move shrinking what&rsquo;s left. Faded cards are retired &mdash; out of play for good. When the sum lands on 17, the pair turns green. Use <strong>&ldquo;↺ replay&rdquo;</strong> under the visual to run it again. This board finishes in well under nine looks.</>,
       }],
       detail: (
         <>
-          <p>Press play and watch the rule from the last two beats run on its own. The two fingers start at the far ends and step inward one move at a time, and every move shrinks the part of the row still in play.</p>
+          <p>The rule from the last two beats now runs on its own &mdash; just watch. The two fingers start at the far ends and step inward one move at a time, and every move shrinks the part of the row still in play.</p>
           <p>The faded cards aren&rsquo;t just dimmed for looks &mdash; they&rsquo;re the ones we <em>retired</em>, gone for good because we proved they couldn&rsquo;t be part of the answer. When <code>arr[L] + arr[R]</code> finally lands on <code>17</code>, that pair turns green and the search stops. Count the moves: this board reaches the answer in well under the nine looks the worst case allows, because the fingers often meet the target before they ever get close to each other.</p>
         </>
       ),

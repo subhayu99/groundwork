@@ -423,7 +423,7 @@ export const monotonicStackLesson: LessonSpec = {
       id: "wedge",
       label: "The instinct",
       connector: "Here's what to remember: instead of re-scanning forward, keep a line of the days that haven't found their answer yet.",
-      actionLabel: "Press play and watch",
+      actionLabel: "Make it a rule",
       visual: (api) => <ManualWalk api={api} />,
       panels: [
         {
@@ -441,7 +441,7 @@ export const monotonicStackLesson: LessonSpec = {
           <p><strong>Yes:</strong> today is that person&rsquo;s answer &mdash; they were waiting for exactly this. Send them home with the gap (how many days they waited). Now ask the <em>new</em> last person the same question. Keep sending people home as long as today beats them.</p>
           <p><strong>No:</strong> today isn&rsquo;t warmer, so it can&rsquo;t answer anyone yet. It joins the back of the line and waits its turn.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>Try it:</strong> press the right-side controls to step through the days one click at a time. Watch the line <em>grow</em> when today is cold and empty <em>out</em> when today is warm.
+            <strong>Try it:</strong> use the &ldquo;send day&rdquo; button under the visual to send each day into the line one click at a time, and &ldquo;&#8634; reset&rdquo; to start over. Watch the line <em>grow</em> when today is cold and empty <em>out</em> when today is warm.
           </div>
         </>
       ),

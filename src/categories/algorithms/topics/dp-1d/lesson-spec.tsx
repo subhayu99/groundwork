@@ -229,7 +229,7 @@ export const dp1dLesson: LessonSpec = {
     {
       id: "setup",
       label: "The setup",
-      actionLabel: "Try the obvious thing",
+      actionLabel: "The natural rule",
       visual: <Staircase />,
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The setup",
@@ -250,7 +250,7 @@ export const dp1dLesson: LessonSpec = {
       id: "obvious",
       label: "The obvious thing",
       connector: "We have the question; now reach for the most natural way to answer it.",
-      actionLabel: "Write the answer down once",
+      actionLabel: "Stop the repeats",
       visual: <Staircase showCounts />,
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The obvious thing",
@@ -271,7 +271,7 @@ export const dp1dLesson: LessonSpec = {
       id: "wedge",
       label: "The instinct",
       connector: "If the same small questions keep coming back, what if we just refused to answer any of them twice?",
-      actionLabel: "Press play and watch",
+      actionLabel: "Make it a rule",
       visual: (api) => <ToggleMemo api={api} />,
       panels: [
         {

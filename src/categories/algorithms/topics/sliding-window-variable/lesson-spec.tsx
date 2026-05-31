@@ -243,8 +243,8 @@ export const slidingWindowVariableLesson: LessonSpec = {
       actionLabel: "Two motions, one rule",
       detail: (
         <>
-          <p>On the right is a small word with two <strong>markers</strong> &mdash; just labels sitting under the boxes. <code>L</code> marks the left edge of your current stretch; <code>R</code> marks the right edge. Press <em>expand</em> to pull the next letter on the right into the window. Press <em>contract</em> to drop the leftmost letter off the window.</p>
-          <p>Try to find the longest valid (no-repeat) stretch using only those two buttons. The thing to notice: you <em>never</em> have to start over. You only ever grow the right edge or shrink the left edge &mdash; the work you already did stays done.</p>
+          <p>The row of letters has two <strong>markers</strong> &mdash; just labels sitting under the boxes. <code>L</code> marks the left edge of your current stretch; <code>R</code> marks the right edge. Use the buttons under the row: <em>expand R &rarr;</em> pulls the next letter on the right into the window, and <em>contract L &rarr;</em> drops the leftmost letter off the window. (The <em>&#8634;</em> button resets both ends to the start.)</p>
+          <p>Try to find the longest valid (no-repeat) stretch using just those two move buttons. The thing to notice: you <em>never</em> have to start over. You only ever grow the right edge or shrink the left edge &mdash; the work you already did stays done.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
             <strong>The instinct question:</strong> when does <code>R</code> <em>want</em> to move? When does <code>L</code> <em>have</em> to move? Are they ever moving for the same reason?
           </div>
@@ -254,7 +254,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Two ends. Move them by hand.",
-          body: <>Two <strong>markers</strong> (just labels under the row): <code>L</code> on the left edge of your run, <code>R</code> on the right. <em>Expand</em> adds the next letter on the right; <em>contract</em> drops the leftmost. Find the longest no-repeat run &mdash; notice you never restart.</>,
+          body: <>Two <strong>markers</strong> (just labels under the row): <code>L</code> on the left edge of your run, <code>R</code> on the right. With the buttons under the row, <em>expand R</em> adds the next letter on the right; <em>contract L</em> drops the leftmost. Find the longest no-repeat run &mdash; notice you never restart.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",

@@ -521,7 +521,7 @@ export const bfsLesson: LessonSpec = {
       id: "obvious",
       label: "The obvious thing",
       connector: "Now that we want the fewest steps, the natural first idea is to just walk the maze — but does walking find the shortest way?",
-      actionLabel: "Walk outward by distance",
+      actionLabel: "Explore by distance instead",
       detail: (
         <>
           <p>
@@ -581,11 +581,13 @@ export const bfsLesson: LessonSpec = {
       id: "wedge",
       label: "The instinct",
       connector: "So instead of diving deep, let's grow outward by distance and watch what that buys us.",
-      actionLabel: "Press play and watch the ripple",
+      actionLabel: "Why the first touch wins",
       detail: (
         <>
           <p>
-            On the right, press <strong>play</strong> (or step one ring at a time). A ripple of
+            Use the buttons to the right of the maze: <strong>▶ play</strong> runs it on its own,
+            or <strong>step ring</strong> advances one ring at a time (and <strong>↺ reset</strong>{" "}
+            starts over). A ripple of
             light spreads out from the start square. First it lights every square one step away.
             Then every square one step from <em>those</em> &mdash; the two-step squares. Then
             three steps, then four, growing outward like a circle in a pond.
@@ -614,7 +616,8 @@ export const bfsLesson: LessonSpec = {
           title: "Spread a ripple outward, one ring at a time.",
           body: (
             <>
-              Press <strong>play</strong> (or step). A ripple of light spreads from{" "}
+              Use <strong>▶ play</strong> or <strong>step ring</strong> on the right of the
+              maze. A ripple of light spreads from{" "}
               <strong>S</strong>: cells one step away, then two, then three. The small
               number on each cell is its <strong>distance</strong> &mdash; the fewest
               steps from S to reach it. The instant the ripple touches <strong>G</strong>,

@@ -403,7 +403,7 @@ export const dfsLesson: LessonSpec = {
     {
       id: "setup",
       label: "The setup",
-      actionLabel: "How would the computer try?",
+      actionLabel: "The naive idea",
       visual: maze(null, emptySet, emptySet),
       panels: [
         {
@@ -437,7 +437,7 @@ export const dfsLesson: LessonSpec = {
       id: "obvious",
       label: "The obvious thing",
       connector: "Since the computer can only see one cell at a time, what is the most naive thing it could try?",
-      actionLabel: "Walk and back up when stuck",
+      actionLabel: "Two rules that tame it",
       visual: <Explosion />,
       panels: [
         {
@@ -472,7 +472,7 @@ export const dfsLesson: LessonSpec = {
       id: "wedge",
       label: "The instinct",
       connector: "Those two rules describe a way of walking — so let's actually walk it by hand.",
-      actionLabel: "Press play and watch",
+      actionLabel: "Make it a rule",
       visual: (api) => <ManualWalk api={api} />,
       panels: [
         {

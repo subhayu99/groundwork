@@ -220,7 +220,7 @@ export const graphsLesson: LessonSpec = {
         <>
           <p>Some questions aren&rsquo;t about a single value or a tidy ranking &mdash; they&rsquo;re about how things are <strong>connected</strong>. Who&rsquo;s friends with whom. Which web pages link to which. Which roads join which towns. Which bus stops a route passes through.</p>
           <p>These connections don&rsquo;t flow neatly in one direction. Friendships go both ways. Web links point sideways and in circles. Bus routes loop through the same stop twice. The relationships are <em>arbitrary</em> &mdash; they can run between any two things, in any pattern.</p>
-          <p>On the right are eight people, and a line between two of them means &ldquo;these two are friends.&rdquo; We need a structure that can hold connections this free-form &mdash; and let us answer questions about them.</p>
+          <p>In the diagram below are eight people, and a line between two of them means &ldquo;these two are friends.&rdquo; We need a structure that can hold connections this free-form &mdash; and let us answer questions about them.</p>
         </>
       ),
       codeLabels: ["sig"],
@@ -240,7 +240,7 @@ export const graphsLesson: LessonSpec = {
         <>
           <p>A <em>tree</em> is the neat shape we already know &mdash; like a family chart. There&rsquo;s one person at the top, each person below has exactly one parent above them, and no line ever loops back up. Everything flows in one direction.</p>
           <p>So you might try to root your friends into a tree: pick one person, hang their friends underneath as children, then their friends&rsquo; friends below that. The first couple of levels work fine.</p>
-          <p>Then you reach a friend who is <em>already</em> on the chart from another branch &mdash; two people who share a friend, say. A tree has no slot for that second connection. So you either throw the link away (and lose real information), or you admit this just isn&rsquo;t a tree. On the right, every link a tree must drop is drawn red and dashed.</p>
+          <p>Then you reach a friend who is <em>already</em> on the chart from another branch &mdash; two people who share a friend, say. A tree has no slot for that second connection. So you either throw the link away (and lose real information), or you admit this just isn&rsquo;t a tree. In the diagram below, every link a tree must drop is drawn red and dashed.</p>
         </>
       ),
       codeLabels: [],
@@ -264,7 +264,7 @@ export const graphsLesson: LessonSpec = {
       ],
       detail: (
         <>
-          <p>On the right is a small social network. Click any person and their <em>direct</em> friends light up. Click one of those, and <em>their</em> friends light up in turn. You&rsquo;re just walking along the lines.</p>
+          <p>In the diagram below is a small social network. Click any person and their <em>direct</em> friends light up. Click one of those, and <em>their</em> friends light up in turn. You&rsquo;re just walking along the lines. To start over, use the &ldquo;↺ reset&rdquo; button below the people.</p>
           <p>Notice what each click actually costs: looking up one person&rsquo;s list of friends. Nothing more. And notice the lines run in every direction &mdash; not down from a single top, but across, between, and back &mdash; which is exactly why a tree couldn&rsquo;t hold this. Here, that&rsquo;s the whole point.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
             <strong>The instinct question:</strong> what&rsquo;s the smallest amount of record-keeping the structure needs to answer &ldquo;who&rsquo;s connected to whom?&rdquo;
@@ -289,7 +289,7 @@ export const graphsLesson: LessonSpec = {
         <>
           <p>The answer is a <strong>graph</strong>: a set of <em>nodes</em> (the dots &mdash; here, one per person; also called <em>vertices</em>) and a set of <em>edges</em> (the lines &mdash; each one connecting a pair of nodes).</p>
           <p>Edges come in a few flavours. An edge can be <em>directed</em> &mdash; a one-way arrow, like a web link or a follow on social media. Or <em>undirected</em> &mdash; symmetric, true both ways, like a friendship or a road between two towns (that&rsquo;s what we have here). An edge can also be <em>weighted</em>, carrying a number such as distance or travel time.</p>
-          <p>How do you store it? An <strong>adjacency list</strong>: a lookup table (a <em>hash map</em> &mdash; the dictionary type that jumps straight to an entry by its key, no scanning) from each node to the list of its neighbors. That&rsquo;s the whole structure, and on the right you can see the full graph written out as just that table.</p>
+          <p>How do you store it? An <strong>adjacency list</strong>: a lookup table (a <em>hash map</em> &mdash; the dictionary type that jumps straight to an entry by its key, no scanning) from each node to the list of its neighbors. That&rsquo;s the whole structure, and in the diagram below you can see the full graph written out as just that table.</p>
         </>
       ),
       codeLabels: ["add_edge_a", "add_edge_b"],
@@ -303,7 +303,7 @@ export const graphsLesson: LessonSpec = {
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The operations",
         title: "Walk it: nearest friends first.",
-        body: <>Watch a <em>breadth-first search</em>: start at alice, visit her friends, then theirs, in rings. A &ldquo;seen&rdquo; set stops loops &mdash; and finds the shortest chain between people.</>,
+        body: <>Watch a <em>breadth-first search</em> play out on its own: start at alice, visit her friends, then theirs, in rings. A &ldquo;seen&rdquo; set stops loops &mdash; and finds the shortest chain between people. Use the &ldquo;↺ replay&rdquo; button below to run it again.</>,
       }],
       detail: (
         <>
