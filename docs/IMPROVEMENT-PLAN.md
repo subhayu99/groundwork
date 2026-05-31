@@ -20,9 +20,10 @@
 - [ ] **Phase 2 — Correctness & content quick-wins** (per-topic fan-out)
 - [ ] **Phase 3 — Jargon tap-to-define** (shared component + content fan-out)
 - [ ] **Phase 4 — Pedagogy: prediction gates + retrieval checkpoints** ⚠️ REVIEW-GATED (pilot binary-search first)
-- [ ] **Phase 5 — Cognitive-load layout polish** (final-beat staging, mobile code strip)
+- [ ] **Phase 5 — Cognitive-load layout polish + IMMERSION RESTRUCTURE** (see `docs/IMMERSION-RESTRUCTURE.md`) ⚠️ partly taste-gated
 - [ ] **Phase 6 — Depth & rigor** ⚠️ REVIEW-GATED (hard tier, dp-2d, more practice)
 - [ ] **Phase 7 — Retention & growth** ⚠️ REVIEW-GATED (schema migration, streak, spaced review, share, SEO)
+- [ ] **Phase 8 — Focus Mode + visual persistence** ⚠️ NEW, from `docs/IMMERSION-RESTRUCTURE.md` (chrome melts to canvas+caption+Next+spine; keep the visual mounted across beats and animate only the incremental change — biggest immersion lever, largest engine change; pilot on binary-search)
 
 ⚠️ = do NOT auto-run; confirm scope with Subhayu first (large, product-defining, or migration-risk).
 
@@ -130,12 +131,26 @@ The headline pedagogical upgrade (delivers the "Socratic" promise). **Pilot on b
 
 ---
 
-## PHASE 5 — Cognitive-load layout polish
+## PHASE 5 — Cognitive-load layout polish + IMMERSION RESTRUCTURE
 
-- **Stage the final beat:** split each topic's last beat into (1) synced code w/ live line, then (2) summary + practice — done per `lesson-spec` (add beats) + a LessonRuntime tweak if needed.
-- **Mobile co-visibility:** pin a thin 2-line "active code line + neighbours" strip under the canvas on `<430px` (tap to expand). Keeps left↔right sync alive on phones.
-- **Detail card:** optional collapsed-by-default "go deeper" disclosure to cut the panel/card double-read.
-- Acceptance: climax beat no longer stacks code+summary+practice at once; mobile shows visual + live line together.
+> **Full spec: `docs/IMMERSION-RESTRUCTURE.md`** (4-architect audit, 2026-06-01). Thesis: the
+> layout reads **text → diagram → text** (bright on-canvas panel up top, a small floating diagram,
+> a near-verbatim detail card at the bottom), so the diagram — the thing to think *inside* — is a
+> hyphen between two text blocks. Re-arrange (not redesign) into **one annotated scene** where the
+> enlarged diagram is the hero. Most moves below are S/M and fold here; **Focus Mode** + **visual
+> persistence** are larger/new (Phase 8). The taste forks at the end of that doc need Subhayu's call.
+
+Prioritized moves (from the immersion report):
+- **Demote beat-0 chrome (S):** BUILDS ON → header chip; prereq nudge → one-line strip; collapse top to ~32px from beat 1 (reclaim ~110-200px). Extends Phase 1.
+- **Differentiate panel vs detail by role (S):** panel = one-line anchored takeaway; rail = deeper why/how only — never restate. (= PRODUCT-ASSESSMENT #3.)
+- **Promote the connector (S):** animate the transition lead-in in first on beat entry (out of the card footnote).
+- **Enlarge + left-bias the visual (M):** raise the scale clamp, bias to width; reserve the flank for panel + rail.
+- **Re-home the detail card into the empty lower/side flank as a top-aligned reading rail beside the diagram (M)** — collapsed-by-default past beat 0. *The biggest single move — executes Subhayu's "use the empty lower space for the cards" and closes the visual↔text void.*
+- **Accreting "what we've established" spine (M):** one lit line per completed beat in the reclaimed flank.
+- **Stage the climax across two sub-beats (M):** 7a = canvas + synced code one line at a time (no practice); 7b = name + summary + practice. (= P5 final-beat staging + PRODUCT-ASSESSMENT #4.)
+- **Code as overlay drawer, not stage rebuild (M):** reserve the gutter, hold the visual stable, draw a line↔cell connector on open.
+- **Mobile canvas-first (M):** diagram top ~60%, short panel beneath (not over) the cells, sticky one-line code strip, detail bottom-sheet, single fixed bottom action bar.
+- Acceptance: diagram is the visual hero; no panel/card double-read; climax no longer stacks code+summary+practice; mobile shows visual + active code line together; no on-canvas-panel-over-cells overlap on mobile.
 
 ---
 
