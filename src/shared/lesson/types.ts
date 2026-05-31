@@ -49,10 +49,21 @@ export type BeatInteraction = "none" | "playback" | "wedge";
 export interface LessonBeat {
   /** Stable key (used for animation + nav). */
   id: string;
+  /** Step label for the numbered sequence, e.g. "The wedge". Shown as "Step k of N · <label>". */
+  label?: string;
+  /** A short connective lead-in that links this beat to the previous one (rebuilds the
+   *  narrative thread). Rendered as a quiet italic line atop the detail card. Empty/omit for beat 1. */
+  connector?: string;
   /** Visual drawn in canvas space (an <svg> group's contents). */
   visual: BeatVisual;
-  /** Text panels placed on the plane. */
+  /** Text panels placed on the plane (the concise on-canvas hook). */
   panels: LessonPanel[];
+  /** The fuller explanation, restored from the old derivation depth. Rendered ALWAYS-VISIBLE
+   *  in a card in the lower area (rich JSX: paragraphs, <code>, an optional callout). */
+  detail?: ReactNode;
+  /** Forward-looking label for the advance button (revives the old actionLabel thread),
+   *  e.g. "Use the sortedness". Falls back to "Next" when absent. */
+  actionLabel?: string;
   /** Connectors from panels to elements. */
   arrows?: LessonArrow[];
   /** `@sync` labels in `codeSource` to highlight (fallback when the visual isn't emitting). */

@@ -134,10 +134,17 @@ export function LessonRuntime({
           </nav>
         )}
 
-        {/* center — topic title */}
-        <div className="flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
-          <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--text-muted)]">{spec.topicTitle}</span>
+        {/* center — topic title + step indicator (restores the numbered 1→N sequence) */}
+        <div className="flex flex-col items-center gap-0.5">
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--text-muted)]">{spec.topicTitle}</span>
+          </div>
+          {beat.label && (
+            <div className="font-mono text-[10px] tracking-wider text-[var(--text-faint)]">
+              step {b + 1} of {spec.beats.length} · <span className="uppercase text-[var(--accent-ink)]">{beat.label}</span>
+            </div>
+          )}
         </div>
 
         {/* right — jump to the previous / next topic */}
@@ -205,6 +212,25 @@ export function LessonRuntime({
             </div>
           </div>
 
+          {/* detail card — restores the old derivation depth in the empty lower space; always visible */}
+          {beat.detail && (
+            <AnimatePresence mode="wait">
+              <motion.div key={beat.id}
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.25 }}
+                className="shrink-0 w-full max-w-[780px] mx-auto max-h-[34vh] overflow-auto rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_70%,transparent)] px-5 py-4">
+                {beat.label && (
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--accent-ink)] mb-1.5">{beat.label}</div>
+                )}
+                {beat.connector && (
+                  <p className="text-[13px] italic text-[var(--text-faint)] mb-2">{beat.connector}</p>
+                )}
+                <div className="text-[14px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
+                  {beat.detail}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          )}
         </div>
 
         {/* RIGHT — the code as a floating card that pops in/out (one toggle, in the controls).
@@ -269,7 +295,7 @@ export function LessonRuntime({
           <button onClick={goNext} disabled={gated}
             title={gated ? "Try the interaction on the canvas first" : undefined}
             className="min-h-[40px] px-4 rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] disabled:opacity-40">
-            {b === last ? (completed ? "Completed ✓" : "Finish ✓") : "Next →"}
+            {b === last ? (completed ? "Completed ✓" : "Finish ✓") : (beat.actionLabel ? `${beat.actionLabel} →` : "Next →")}
           </button>
           <div className="w-px h-6 bg-[var(--line)] mx-0.5" />
           <button onClick={() => setShowCode((v) => !v)} aria-pressed={showCode}

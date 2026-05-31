@@ -144,26 +144,46 @@ export const binarySearchLesson: LessonSpec = {
   beats: [
     {
       id: "setup",
+      label: "The setup",
+      actionLabel: "I have the question",
       visual: idleRow(undefined, undefined, { 7: "mid" }),
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "The setup", title: "A sorted phone book. Find 27.",
         body: <>You&rsquo;re holding a sorted phone book &mdash; a thousand names in order. You wouldn&rsquo;t start at page one. You&rsquo;d flip to the <strong>middle</strong>, see if you&rsquo;ve gone too far, and throw away half. Then again.</>,
       }],
+      detail: (
+        <>
+          <p>Picture a real phone book: a thousand names in alphabetical order, and someone asks you to find one specific name. You&rsquo;d never read it cover to cover from page one.</p>
+          <p>You flip to the <strong>middle</strong> and look. If that page comes <em>after</em> the name you want, the whole back half is useless &mdash; ignore it. If it comes <em>before</em>, the front half is gone. Either way, one glance throws away half the book. Then you repeat the same move on whatever&rsquo;s left.</p>
+        </>
+      ),
       arrows: [{ x1: G.cx(7), y1: 150, x2: G.cx(7), y2: G.y - 4 }],
       codeLabels: ["sig"],
     },
     {
       id: "scan",
+      label: "The obvious thing",
+      connector: "So the order is right there in the book — why does reading page by page still feel like wasted effort?",
+      actionLabel: "Use the sortedness",
       visual: idleRow(ARR.map((_, i) => (i === 6 ? "good" : i < 6 ? "muted" : undefined)), ARR.map((_, i) => i > 6)),
       panels: [{
         left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "Checking one by one wastes the order.",
         body: <>The plain way: page 1, page 2, page 3 &hellip; up to a thousand checks. But the book is <strong>sorted</strong>, and that barely helped. Each page only said &ldquo;not here&rdquo; &mdash; never <em>how far</em> off you were.</>,
       }],
+      detail: (
+        <>
+          <p>The obvious method: read every page in order &mdash; page 1, page 2, page 3 &mdash; until you hit the name. For a thousand pages that&rsquo;s up to a thousand checks. This is a <strong>linear scan</strong>, and its cost is <code>O(n)</code> (&ldquo;order n&rdquo;): the work grows in step with the number of items <code>n</code> &mdash; double the book, double the worst case.</p>
+          <p>The frustrating part: the book is already sorted, and the scan barely uses that. Each page you flip past only says &ldquo;not here&rdquo; &mdash; never <em>how far away</em> the name still is. Could a single comparison tell us where it <em>is</em>, not just where it isn&rsquo;t?</p>
+        </>
+      ),
       arrows: [{ x1: G.cx(3), y1: 300, x2: G.cx(3), y2: G.y + G.cellH + 4 }],
       codeLabels: [],
     },
     {
       id: "wedge",
+      label: "The wedge",
+      connector: "Here's the move that answers that — one comparison that tells you which way to go.",
+      actionLabel: "Halve, then halve again",
       visual: (api) => <ClickToHalve api={api} />,
       panels: [
         {
@@ -175,44 +195,100 @@ export const binarySearchLesson: LessonSpec = {
           body: <><strong className="text-[var(--accent-ink)]">The wedge:</strong> if every guess halves what&rsquo;s left, how many guesses until one page remains?</>,
         },
       ],
+      detail: (
+        <>
+          <p>Click any cell to guess. Because the array is sorted, the moment you land on a number <em>bigger</em> than the target, every number to its right is bigger too &mdash; so they all vanish at once, even though you never looked at them one by one. Land on a <em>smaller</em> number and the whole left side disappears instead.</p>
+          <p>One comparison eliminates half of everything still in play. That is the entire trick &mdash; and exactly what the linear scan was throwing away.</p>
+        </>
+      ),
       codeLabels: ["greater", "hi_update"],
       interaction: "wedge",
     },
     {
       id: "derive",
+      label: "The derivation",
+      connector: "Now turn that one move into a repeatable rule a computer can follow — two markers and a middle check.",
+      actionLabel: "Count the work",
       visual: (api) => <AutoBinarySearch api={api} />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The derivation", title: "Two markers. Always check the middle.",
         body: <>Keep two markers &mdash; <code>lo</code> at the start, <code>hi</code> at the end of what&rsquo;s still possible. Check the middle. Match? done. Too small? the answer&rsquo;s to the right, move <code>lo</code> past it. Too big? move <code>hi</code> before it. <span className="text-[var(--accent-ink)]">Each check drops a whole half.</span></>,
       }],
+      detail: (
+        <>
+          <p>Hold two markers: <code>lo</code> at the start and <code>hi</code> at the end of the part that could still contain the target &mdash; so the answer, if it exists, is somewhere in <code>[lo, hi]</code>.</p>
+          <p>Each round, look at the middle: <code>mid = (lo + hi) / 2</code> (rounded down to a whole index). Three outcomes:</p>
+          <ul>
+            <li><code>arr[mid] == target</code> &mdash; done, return <code>mid</code>.</li>
+            <li><code>arr[mid] &lt; target</code> &mdash; the answer is to the right, move <code>lo = mid + 1</code>.</li>
+            <li><code>arr[mid] &gt; target</code> &mdash; the answer is to the left, move <code>hi = mid - 1</code>.</li>
+          </ul>
+          <p>Stop when <code>lo &gt; hi</code>: the search space is empty, so the target isn&rsquo;t there.</p>
+          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+            <strong>The principle &mdash; search space pruning:</strong> every comparison eliminates an entire side, not just one element.
+          </div>
+        </>
+      ),
       codeLabels: ["init", "loop", "mid"],
       interaction: "playback",
     },
     {
       id: "win",
+      label: "The win",
+      connector: "Counting the work shows the real payoff — and it scales almost for free.",
+      actionLabel: "Same shape, different problems",
       visual: <HalvingCascade />,
       panels: [{
         left: 150, top: 30, width: 560, variant: "main", label: "The win", title: "Halving a million takes about twenty steps.",
         body: <>Checking a thousand pages one by one: up to 1,000 looks. Halving: about 10. A million? one-by-one needs a million; halving needs about 20. That gap is why sorted data everywhere &mdash; from search to database indexes &mdash; runs on this.</>,
       }],
+      detail: (
+        <>
+          <p>Compare the costs head to head. A thousand items one by one: up to 1,000 looks. Halving repeatedly: about 10. Bump it to a million &mdash; one-by-one needs a million, halving needs about 20.</p>
+          <p>That &ldquo;about 10/20&rdquo; is <code>log&#8322;</code> (&ldquo;log base two&rdquo;): how many times you can halve a pile before one item remains. Big-O calls it <code>O(log n)</code> &mdash; work that grows by just one extra step each time the data <em>doubles</em>. That gap is why sorted-data tools everywhere lean on it, from Python&rsquo;s <code>bisect</code> to the index pages (B-trees) your database uses to find a row fast.</p>
+        </>
+      ),
       codeLabels: ["loop", "mid"],
     },
     {
       id: "general",
+      label: "The generalization",
+      connector: "And the same shape solves problems that don't even look like searching a list.",
+      actionLabel: "Name the pattern",
       visual: <Boundary />,
       panels: [{
         left: 150, top: 26, width: 560, variant: "main", label: "The generalization", title: "Anywhere answers flip from “no” to “yes.”",
         body: <>The phone-book version finds an exact value. The deeper one finds the <strong>boundary</strong> between &ldquo;too small&rdquo; and &ldquo;big enough&rdquo; &mdash; e.g. &ldquo;smallest ship that finishes in 14 days?&rdquo; No list at all, but bigger is always easier, so guess the middle and halve.</>,
       }],
+      detail: (
+        <>
+          <p>The phone-book version finds an exact value. The deeper version finds the <strong>boundary</strong> between &ldquo;too small&rdquo; and &ldquo;big enough.&rdquo; Example: &ldquo;What&rsquo;s the smallest ship that finishes all deliveries in 14 days?&rdquo; There&rsquo;s no list to search at all.</p>
+          <p>But the answers line up in one direction &mdash; the bigger the ship, the easier the job, so once a size works, every larger size works too. That one-way property is called <strong>monotonicity</strong>, and it&rsquo;s all binary search needs. Guess the middle, ask &ldquo;does this work?&rdquo;, throw away half. Small to big, easy to hard, no to yes &mdash; one check halves it.</p>
+        </>
+      ),
       codeLabels: ["compare", "less", "greater"],
     },
     {
       id: "name",
+      label: "The pattern",
+      connector: "Give the move its name — and the cues that tell you to reach for it next time.",
       visual: idleRow(ARR.map((_, i) => (i === 6 ? "good" : undefined)), ARR.map((_, i) => i !== 6)),
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Binary Search.",
         body: <>That&rsquo;s the name. You&rsquo;ll spot it when you see: a sorted list + find a value; &ldquo;smallest / largest value such that&hellip;&rdquo;; &ldquo;minimum X to make all Y work&rdquo;; or any &ldquo;does this work?&rdquo; that flips from no to yes exactly once as you turn a dial.</>,
       }],
+      detail: (
+        <>
+          <p>That&rsquo;s the name: <strong>binary search</strong>. Two conventions are worth knowing, because mixing them up is the classic off-by-one bug: <em>closed bounds</em> &mdash; loop while <code>lo &lt;= hi</code>, with <code>hi</code> = the last index (what you just watched); or <em>half-open</em> &mdash; loop while <code>lo &lt; hi</code>, with <code>hi</code> = one-past-the-end. Both are correct; pick one and stop second-guessing.</p>
+          <p>Reach for it when you see:</p>
+          <ul>
+            <li>a <strong>sorted list</strong> + find a value (or its insert position)</li>
+            <li>&ldquo;smallest / largest value such that&hellip;&rdquo;</li>
+            <li>&ldquo;minimum X to make all Y work&rdquo;</li>
+            <li>any &ldquo;does this work?&rdquo; that flips from no to yes once as you turn a dial</li>
+          </ul>
+        </>
+      ),
       arrows: [{ x1: G.cx(6), y1: G.y + G.cellH + 34, x2: G.cx(6), y2: G.y + G.cellH + 4 }],
       codeLabels: ["found"],
     },
