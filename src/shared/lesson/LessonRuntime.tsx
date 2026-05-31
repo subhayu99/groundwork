@@ -117,46 +117,46 @@ export function LessonRuntime({
 
   return (
     <main className="h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] overflow-hidden">
-      <div className="shrink-0 relative flex items-center justify-center pt-3 pb-2 px-4 min-h-[40px]">
+      <div className="shrink-0 relative flex items-center justify-center px-5 py-3 min-h-[58px] border-b border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_35%,transparent)]">
         {/* left — breadcrumb back to home / the category (the category page lists every topic) */}
         {nav && (
-          <nav className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 font-mono text-[11px]">
+          <nav className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-[13px]">
             <Link href={nav.homeHref} aria-label="Home"
-              className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
-              <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
-              <span className="hidden sm:inline">Groundwork</span>
+              className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)] transition-colors">
+              <span className="inline-block w-2.5 h-2.5 rotate-45 bg-[var(--accent-sky)]" />
+              <span className="font-medium hidden sm:inline">Groundwork</span>
             </Link>
             <span className="text-[var(--line-strong)]">/</span>
             <Link href={nav.categoryHref}
-              className="px-2 py-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
+              className="px-2.5 py-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)] transition-colors">
               {nav.categoryName}
             </Link>
           </nav>
         )}
 
         {/* center — topic title + step indicator (restores the numbered 1→N sequence) */}
-        <div className="flex flex-col items-center gap-0.5">
+        <div className="flex flex-col items-center gap-1">
           <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
-            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--text-muted)]">{spec.topicTitle}</span>
+            <span className="inline-block w-2.5 h-2.5 rotate-45 bg-[var(--accent-sky)]" />
+            <span className="font-mono text-[13px] uppercase tracking-[0.18em] text-[var(--text)]">{spec.topicTitle}</span>
           </div>
           {beat.label && (
-            <div className="font-mono text-[10px] tracking-wider text-[var(--text-faint)]">
-              step {b + 1} of {spec.beats.length} · <span className="uppercase text-[var(--accent-ink)]">{beat.label}</span>
+            <div className="font-mono text-[12px] tracking-wider text-[var(--text-muted)]">
+              step {b + 1} of {spec.beats.length} · <span className="uppercase font-semibold text-[var(--accent-ink)]">{beat.label}</span>
             </div>
           )}
         </div>
 
         {/* right — jump to the previous / next topic */}
         {nav && (nav.prev || nav.next) && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 font-mono text-[11px]">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[13px]">
             {nav.prev && (
               <Link href={nav.prev.href} title={`Previous topic: ${nav.prev.name}`}
-                className="px-2 py-1 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">‹ prev</Link>
+                className="px-3 py-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)] transition-colors">‹ prev</Link>
             )}
             {nav.next && (
               <Link href={nav.next.href} title={`Next topic: ${nav.next.name}`}
-                className="px-2 py-1 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">next ›</Link>
+                className="px-3 py-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)] transition-colors">next ›</Link>
             )}
           </div>
         )}
