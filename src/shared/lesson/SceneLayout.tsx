@@ -183,7 +183,7 @@ export function SceneLayout({
       {/* ── THE SCENE ───────────────────────────────────────────────────────
           Read ACROSS: [ hero diagram | reading rail + spine ]. The diagram is the
           left-biased hero; the rail uses the previously-empty flank. */}
-      <div className="flex-1 min-h-0 flex flex-col xl:flex-row gap-4 px-3 sm:px-5 pt-3 pb-2 min-w-0 xl:items-center justify-center">
+      <div className={`flex-1 min-h-0 flex flex-col xl:flex-row gap-4 px-3 sm:px-5 pt-3 pb-2 min-w-0 xl:items-center justify-center transition-[padding] duration-200 ${showCode ? "xl:pr-[660px]" : ""}`}>
         {/* HERO — the bordered, rounded, enlarged diagram plane. Left-biased and
             given the lion's share of the width so it is unmistakably the hero.
             DESKTOP (xl+): the box is sized to the CANVAS ASPECT RATIO
@@ -289,7 +289,7 @@ export function SceneLayout({
             top-aligned block: the "why?" toggle/detail first, then the
             established-spine directly beneath it (no pinned-to-bottom gap).
             Hidden in Focus Mode except the spine; hidden on mobile (bottom sheet). */}
-        <aside className="hidden xl:flex w-[330px] shrink-0 flex-col gap-3 self-center max-h-full min-h-0">
+        <aside className={`w-[330px] shrink-0 flex-col gap-3 self-center max-h-full min-h-0 ${showCode ? "hidden" : "hidden xl:flex"}`}>
           {/* the reading rail — deeper why/how (beat.detail). Collapsed-by-default
               past beat 0 to a "why?" tab; open on setup. */}
           {!focus && beat.detail && (
@@ -422,7 +422,7 @@ export function SceneLayout({
       {/* ── ACTION BAR ──────────────────────────────────────────────────────
           One bar: Back · stepper · (why/code on mobile) · big Next. On mobile the
           forward action is the unmistakable primary; code + why are secondary. */}
-      <div className="shrink-0 flex items-center gap-2 sm:gap-4 px-3 sm:px-5 pt-1 pb-3 border-t border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_30%,transparent)]">
+      <div className="relative z-30 shrink-0 flex items-center gap-2 sm:gap-4 px-3 sm:px-5 pt-1 pb-3 border-t border-[var(--line)] bg-[var(--bg)]">
         <button onClick={() => setB((x) => Math.max(0, x - 1))} disabled={b === 0}
           className="min-h-[40px] px-3 sm:px-4 rounded-lg border border-[var(--line)] text-[var(--text-muted)] disabled:opacity-40 hover:border-[var(--line-strong)] text-[14px]">← Back</button>
 
