@@ -300,47 +300,47 @@ export function SceneLayout({
             top-aligned block: the "why?" toggle/detail first, then the
             established-spine directly beneath it (no pinned-to-bottom gap).
             Hidden in Focus Mode except the spine; hidden on mobile (bottom sheet). */}
-        {/* TOP-anchored (self-start), not centered — so expanding the "why?" card
-            grows the body DOWNWARD and the header stays put. (Centering made the
-            whole block re-center on expand, so the toggle drifted up and you had to
-            chase it to collapse.) */}
-        <aside className={`w-[330px] shrink-0 flex-col gap-3 self-start max-h-full min-h-0 ${showCode ? "hidden" : "hidden xl:flex"}`}>
-          {/* the reading rail — deeper why/how (beat.detail). The HEADER ROW is the
-              single toggle: clicking it expands OR collapses, from the SAME spot
-              (no separate top-right collapse button). The chevron rotates to show
-              state; the body expands in place beneath it. Collapsed-by-default past
-              beat 0. */}
-          {/* kept in Focus Mode too — Focus melts the top chrome, not the card */}
-          {beat.detail && (
-            <div className="flex flex-col min-h-0 rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_55%,transparent)] overflow-hidden">
-              <button onClick={() => setShowDetail((v) => !v)} aria-expanded={showDetail}
-                title={showDetail ? "hide the explanation" : "read the deeper why / how"}
-                className="shrink-0 flex items-center gap-2 px-4 py-2.5 text-left hover:bg-[var(--bg-inset)] transition-colors">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[var(--accent-ink)]"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg>
-                <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--accent-ink)]">why?</span>
-                {!showDetail && <span className="text-[12.5px] text-[var(--text-muted)] truncate">— the deeper reason</span>}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                  className={`ml-auto shrink-0 text-[var(--text-faint)] transition-transform ${showDetail ? "rotate-90" : ""}`}><path d="M9 6l6 6-6 6" /></svg>
-              </button>
-              <AnimatePresence initial={false}>
-                {showDetail && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: [0.22, 0.65, 0.3, 1] }}
-                    className="overflow-hidden border-t border-[var(--line-faint)]">
-                    <div className="min-h-0 overflow-auto px-4 py-3 text-[13.5px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
-                      {beat.detail}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
+        {/* The flank fills the column height; a fixed top spacer places the "why?"
+            header around the vertical CENTRE (where it looked right) AND pins it
+            there. The card body expands DOWNWARD (capped + scrollable) into the
+            space below, so the header never moves on toggle. Card + spine grouped.
+            Kept in Focus Mode (Focus melts the top chrome, not the card); hidden
+            when code is open / on mobile. */}
+        <aside className={`w-[330px] shrink-0 flex-col self-stretch min-h-0 ${showCode ? "hidden" : "hidden xl:flex"}`}>
+          <div aria-hidden className="shrink-0 h-[34%]" />
+          <div className="shrink-0 flex flex-col gap-3 min-h-0">
+            {/* the reading rail — the HEADER ROW is the single toggle (same spot to
+                expand AND collapse; chevron rotates; body opens in place below). */}
+            {beat.detail && (
+              <div className="rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_55%,transparent)] overflow-hidden">
+                <button onClick={() => setShowDetail((v) => !v)} aria-expanded={showDetail}
+                  title={showDetail ? "hide the explanation" : "read the deeper why / how"}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-left hover:bg-[var(--bg-inset)] transition-colors">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[var(--accent-ink)]"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg>
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--accent-ink)]">why?</span>
+                  {!showDetail && <span className="text-[12.5px] text-[var(--text-muted)] truncate">— the deeper reason</span>}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    className={`ml-auto shrink-0 text-[var(--text-faint)] transition-transform ${showDetail ? "rotate-90" : ""}`}><path d="M9 6l6 6-6 6" /></svg>
+                </button>
+                <AnimatePresence initial={false}>
+                  {showDetail && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: [0.22, 0.65, 0.3, 1] }}
+                      className="overflow-hidden border-t border-[var(--line-faint)]">
+                      <div className="max-h-[32vh] overflow-auto px-4 py-3 text-[13.5px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
+                        {beat.detail}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
 
-          {/* the accreting spine — "what we've established so far", grouped
-              directly beneath the why? rail. Past beats are quiet ticks; the
-              current beat is lit. Each Next adds a line. */}
-          <SceneSpine lines={spineLines} current={b} />
+            {/* the accreting spine — "what we've established so far", grouped
+                directly beneath the why? card. */}
+            <SceneSpine lines={spineLines} current={b} />
+          </div>
         </aside>
       </div>
 
