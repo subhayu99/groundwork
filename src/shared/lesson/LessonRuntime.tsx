@@ -57,8 +57,12 @@ export function useLessonEngine(spec: LessonSpec, {
   initiallyCompleted?: boolean;
   onComplete?: () => void;
   /** Per-layout scale tuning. Scene biases to width and raises the cap so the
-   *  hero diagram claims its plane; classic keeps the established min/max fit. */
-  scaleClamp?: { min: number; max: number; biasWidth: boolean };
+   *  hero diagram claims its plane; classic keeps the established min/max fit.
+   *  `widthFill` (scene only) scales the diagram up past a pure width-fit so the
+   *  on-plane CONTENT fills the box width and the canvas's empty side margins
+   *  overflow/clip — the diagram reads comfortably large (esp. on mobile) instead
+   *  of floating as a thin strip. The box clips the empty overflow (overflow-hidden). */
+  scaleClamp?: { min: number; max: number; biasWidth: boolean; widthFill?: number };
 } = {}) {
   const { width: VW, height: VH } = spec.canvas;
   const { code: PY, labelToLine } = useMemo(() => prepareCode(spec.codeSource), [spec.codeSource]);
@@ -110,9 +114,13 @@ export function useLessonEngine(spec: LessonSpec, {
       const w = el.clientWidth, h = el.clientHeight;
       if (w > 0 && h > 0) {
         // Scene biases toward filling width (so wide-aspect diagrams enlarge into
-        // the side space); classic fits both axes. Both clamp to a min/max.
+        // the side space); classic fits both axes. `widthFill` (>1) scales up past
+        // pure width-fit so the diagram's CONTENT fills the box and the canvas's
+        // empty side margins overflow/clip — never a thin floating strip. Both
+        // clamp to a min/max.
+        const widthFill = scaleClamp.widthFill ?? 1;
         const fit = scaleClamp.biasWidth
-          ? Math.min(w / VW, (h / VH) * 1.18)
+          ? Math.min((w / VW) * widthFill, (h / VH) * 1.18)
           : Math.min(w / VW, h / VH);
         setScale(Math.max(scaleClamp.min, Math.min(fit, scaleClamp.max)));
       }
@@ -121,7 +129,7 @@ export function useLessonEngine(spec: LessonSpec, {
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [showCode, VW, VH, scaleClamp.biasWidth, scaleClamp.min, scaleClamp.max]);
+  }, [showCode, VW, VH, scaleClamp.biasWidth, scaleClamp.min, scaleClamp.max, scaleClamp.widthFill]);
 
   const api: BeatVisualApi = useMemo(() => ({
     onActiveLine: (labels) => {

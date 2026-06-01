@@ -35,7 +35,10 @@ export function SceneLayout({
   const e = useLessonEngine(spec, {
     initiallyCompleted,
     onComplete,
-    scaleClamp: { min: 0.4, max: 2.4, biasWidth: true },
+    // widthFill > 1: scale the diagram up so its CONTENT fills the box width and
+    // the canvas's empty side margins overflow/clip — the diagram reads large
+    // (esp. on mobile, where it was a thin strip) rather than floating small.
+    scaleClamp: { min: 0.4, max: 2.4, biasWidth: true, widthFill: 1.12 },
   });
   const {
     VW, VH, PY, b, setB, last, beat,
@@ -50,6 +53,20 @@ export function SceneLayout({
   // state so the two viewports don't fight over one boolean).
   const [mobileDetail, setMobileDetail] = useState(false);
 
+  // Mobile detection via the SAME breakpoint the layout uses for its mobile
+  // arrangement (Tailwind `xl` = 1280px; below it the rail/captions swap). Done
+  // client-side after mount so SSR/hydration stays stable (server renders desktop
+  // defaults; this flips on the client where matchMedia exists).
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mql = window.matchMedia("(max-width: 1279px)");
+    const sync = () => setIsMobile(mql.matches);
+    sync();
+    mql.addEventListener("change", sync);
+    return () => mql.removeEventListener("change", sync);
+  }, []);
+
   // The reading rail is open on beat 0 (setup/orientation) and collapses to a
   // "why?" tab from beat 1 onward — reveal-on-demand. The engine's showDetail is
   // the source of truth; we steer its default on each beat change unless the
@@ -57,6 +74,16 @@ export function SceneLayout({
   useEffect(() => {
     setShowDetail(b === 0);
   }, [b, setShowDetail]);
+
+  // Focus Mode default differs by viewport (report §4): DESKTOP is opt-in (manual
+  // FOCUS toggle only — never auto-engaged here). MOBILE auto-engages Focus from
+  // beat 1 onward (canvas-first), but keeps beat 0 chrome visible for orientation.
+  // Steered on each beat change so a manual exit (toggle / Esc / tap) sticks for
+  // the current beat and only re-engages when the learner advances.
+  useEffect(() => {
+    if (!isMobile) return;
+    setFocus(b >= 1);
+  }, [b, isMobile]);
 
   // Esc exits Focus Mode (the report's required exit affordance).
   useEffect(() => {
@@ -156,26 +183,38 @@ export function SceneLayout({
       {/* ── THE SCENE ───────────────────────────────────────────────────────
           Read ACROSS: [ hero diagram | reading rail + spine ]. The diagram is the
           left-biased hero; the rail uses the previously-empty flank. */}
-      <div className="flex-1 min-h-0 flex flex-col xl:flex-row gap-4 px-3 sm:px-5 pt-3 pb-2 min-w-0">
+      <div className="flex-1 min-h-0 flex flex-col xl:flex-row gap-4 px-3 sm:px-5 pt-3 pb-2 min-w-0 xl:items-center justify-center">
         {/* HERO — the bordered, rounded, enlarged diagram plane. Left-biased and
-            given the lion's share of the width so it is unmistakably the hero. */}
-        <section className="flex-1 min-w-0 flex flex-col gap-2 min-h-0">
-          <div className="relative flex-1 min-h-0 rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden">
-            {/* connector lead-in — animates in first at the threshold of the beat */}
-            {beat.connector && (
-              <AnimatePresence mode="wait">
-                <motion.div key={beat.id}
-                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="absolute top-0 inset-x-0 z-10 px-4 sm:px-6 py-2 text-[12.5px] italic text-[var(--text-faint)] bg-[color-mix(in_oklab,var(--bg-card)_55%,transparent)] border-b border-[var(--line-faint)]">
-                  {beat.connector}
-                </motion.div>
-              </AnimatePresence>
-            )}
-
-            {/* the canvas plane (scaled). Wrapper biases the diagram toward the
-                left so the reading rail sits in the right flank, never on it. */}
-            <div ref={areaRef} className="absolute inset-0 flex items-center justify-center xl:justify-start xl:pl-[3%] overflow-hidden pt-7">
+            given the lion's share of the width so it is unmistakably the hero.
+            DESKTOP (xl+): the box is sized to the CANVAS ASPECT RATIO
+            (spec.canvas, ≈1.83:1) with a max-height, and vertically centered in
+            the column — so a wide-but-short diagram hugs its box instead of
+            floating in a tall empty frame. MOBILE: the canvas claims a generous
+            top band of the viewport (it is the most-visible region, never a thin
+            strip), so the diagram renders comfortably large at full mobile width. */}
+        <section className="flex-1 min-w-0 flex flex-col gap-2 min-h-0 justify-start xl:justify-center">
+          {/* connector lead-in — a quiet italic line ABOVE the box (never overlaps
+              the diagram or its on-canvas panels), animates in at the threshold of
+              the beat. Lifting it out of the box is what keeps the enlarged panel
+              from colliding with it. */}
+          {beat.connector && (
+            <AnimatePresence mode="wait">
+              <motion.div key={beat.id}
+                initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="shrink-0 px-1 text-[12.5px] italic leading-snug text-[var(--text-faint)]">
+                {beat.connector}
+              </motion.div>
+            </AnimatePresence>
+          )}
+          <div
+            style={{ aspectRatio: `${VW} / ${VH}` }}
+            className="relative w-full max-h-full self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden">
+            {/* the canvas plane (scaled), centered in its box. Centering keeps the
+                widthFill overflow symmetric — only the canvas's empty side margins
+                clip, never the live cells — while the reading rail lives in its own
+                separate flank column (the aside), not over the plane. */}
+            <div ref={areaRef} className="absolute inset-0 flex items-center justify-center overflow-hidden">
               <div style={{ width: VW * scale, height: VH * scale }} className="relative shrink-0">
                 <div
                   data-canvas-root
@@ -246,10 +285,11 @@ export function SceneLayout({
           </div>
         </section>
 
-        {/* RIGHT FLANK — reading rail + accreting spine. Desktop: a fixed-width
-            column top-aligned with the diagram (read across). Hidden in Focus
-            Mode except the spine; hidden on mobile (moves to the bottom sheet). */}
-        <aside className="hidden xl:flex w-[330px] shrink-0 flex-col gap-3 min-h-0">
+        {/* RIGHT FLANK — reading rail + accreting spine, grouped as one calm,
+            top-aligned block: the "why?" toggle/detail first, then the
+            established-spine directly beneath it (no pinned-to-bottom gap).
+            Hidden in Focus Mode except the spine; hidden on mobile (bottom sheet). */}
+        <aside className="hidden xl:flex w-[330px] shrink-0 flex-col gap-3 self-center max-h-full min-h-0">
           {/* the reading rail — deeper why/how (beat.detail). Collapsed-by-default
               past beat 0 to a "why?" tab; open on setup. */}
           {!focus && beat.detail && (
@@ -281,9 +321,10 @@ export function SceneLayout({
             )
           )}
 
-          {/* the accreting spine — "what we've established so far". Past beats are
-              quiet ticks; the current beat is lit. Each Next adds a line. */}
-          <SceneSpine lines={spineLines} current={b} compact={focus} />
+          {/* the accreting spine — "what we've established so far", grouped
+              directly beneath the why? rail. Past beats are quiet ticks; the
+              current beat is lit. Each Next adds a line. */}
+          <SceneSpine lines={spineLines} current={b} />
         </aside>
       </div>
 
@@ -294,13 +335,19 @@ export function SceneLayout({
       <AnimatePresence>
         {showCode && (
           <>
+            {/* Scrim restricted to the reserved right drawer/gutter region only —
+                the diagram on the left stays FULLY LIT (no full-viewport backdrop).
+                On mobile the drawer is full-width, so its scrim spans the width too,
+                but the diagram sits above it (upper viewport) and reads clearly.
+                The faint click-catcher to its left only closes the drawer; it does
+                not dim the canvas. */}
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
-              className="fixed inset-0 z-20 bg-black/30" onClick={toggleCode} aria-hidden="true" />
+              className="fixed inset-0 z-20 sm:right-[560px] xl:right-[620px] bg-transparent" onClick={toggleCode} aria-hidden="true" />
             <motion.div
               initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 40 }}
               transition={{ duration: 0.24, ease: [0.22, 0.65, 0.3, 1] }}
-              className="fixed top-0 right-0 z-20 h-full w-full sm:w-[560px] xl:w-[620px] flex flex-col gap-3 p-3 sm:p-4"
+              className="fixed top-0 right-0 z-20 h-full w-full sm:w-[560px] xl:w-[620px] flex flex-col gap-3 p-3 sm:p-4 bg-[color-mix(in_oklab,var(--bg)_55%,transparent)] sm:bg-black/30"
               role="dialog" aria-label="algorithm.py"
             >
               <div className="flex flex-col max-h-[62vh] rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-2xl shadow-black/40 overflow-hidden">
@@ -438,9 +485,9 @@ export function SceneLayout({
  * beats are quiet ticks, the current beat is lit, future beats are dimmed. It
  * persists and grows across beats — the visible spine of the derivation.
  */
-function SceneSpine({ lines, current, compact }: { lines: string[]; current: number; compact?: boolean }) {
+function SceneSpine({ lines, current }: { lines: string[]; current: number }) {
   return (
-    <div className={`shrink-0 rounded-2xl border border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_40%,transparent)] px-4 py-3 ${compact ? "" : "mt-auto"}`}>
+    <div className="shrink-0 rounded-2xl border border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_40%,transparent)] px-4 py-3">
       <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--text-faint)] mb-2">what we&rsquo;ve established</div>
       <ol className="flex flex-col gap-1.5">
         {lines.map((line, i) => {
