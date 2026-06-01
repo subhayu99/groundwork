@@ -64,6 +64,11 @@ export interface LessonBeat {
   /** Forward-looking label for the advance button (revives the old actionLabel thread),
    *  e.g. "Use the sortedness". Falls back to "Next" when absent. */
   actionLabel?: string;
+  /** One short line — "what we've established" — for the accreting spine in the
+   *  scene layout. Once this beat is completed it stays as a quiet ticked line;
+   *  the current beat is highlighted. Falls back to `label` when absent.
+   *  (Scene layout only; ignored by the classic layout.) */
+  takeaway?: string;
   /** Connectors from panels to elements. */
   arrows?: LessonArrow[];
   /** `@sync` labels in `codeSource` to highlight (fallback when the visual isn't emitting). */
@@ -79,4 +84,10 @@ export interface LessonSpec {
   /** Raw `algorithm.py` source (with `@sync:` anchors) for the docked code panel. */
   codeSource: string;
   beats: LessonBeat[];
+  /** Lesson layout. Default/undefined = "classic" (the established top-to-bottom
+   *  composition used by every topic). "scene" opts into the immersive one-scene
+   *  layout: hero diagram in a confidently-boxed plane, a collapsible right reading
+   *  rail, an accreting "what we've established" spine, and a Focus Mode. Opt-in per
+   *  topic — does not change any classic-layout topic. */
+  layout?: "classic" | "scene";
 }

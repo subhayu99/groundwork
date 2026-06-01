@@ -139,6 +139,9 @@ const idleRow = (tones?: (Tone | undefined)[], dim?: boolean[], markers?: Record
 
 export const binarySearchLesson: LessonSpec = {
   topicTitle: "binary search · find 27",
+  // PILOT: opt into the one-scene immersive layout. Binary search only — every
+  // other topic stays on the classic layout (no `layout` field = "classic").
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: binarySearchPy as string,
   beats: [
@@ -146,6 +149,7 @@ export const binarySearchLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I have the question",
+      takeaway: "A sorted phone book — find one name without reading it all.",
       visual: idleRow(undefined, undefined, { 7: "mid" }),
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "The setup", title: "A sorted phone book. Find 27.",
@@ -165,6 +169,7 @@ export const binarySearchLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "So the order is right there in the book — why does reading page by page still feel like wasted effort?",
       actionLabel: "Use the sortedness",
+      takeaway: "Reading page by page is O(n) — and wastes the sorted order.",
       visual: idleRow(ARR.map((_, i) => (i === 6 ? "good" : i < 6 ? "muted" : undefined)), ARR.map((_, i) => i > 6)),
       panels: [{
         left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "Checking one by one wastes the order.",
@@ -184,6 +189,7 @@ export const binarySearchLesson: LessonSpec = {
       label: "The instinct",
       connector: "Here's the move that answers that — one comparison that tells you which way to go.",
       actionLabel: "Make it a rule",
+      takeaway: "One comparison eliminates a whole half — because it's sorted.",
       visual: (api) => <ClickToHalve api={api} />,
       panels: [
         {
@@ -209,6 +215,7 @@ export const binarySearchLesson: LessonSpec = {
       label: "The derivation",
       connector: "Now turn that one move into a repeatable rule a computer can follow — two markers and a middle check.",
       actionLabel: "Count the work",
+      takeaway: "Two markers (lo, hi) + always check the middle = the rule.",
       visual: (api) => <AutoBinarySearch api={api} />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The derivation", title: "Two markers. Always check the middle.",
@@ -237,6 +244,7 @@ export const binarySearchLesson: LessonSpec = {
       label: "The win",
       connector: "Counting the work shows the real payoff — and it scales almost for free.",
       actionLabel: "Same shape, different problems",
+      takeaway: "Halving is O(log n) — a million items in ~20 steps.",
       visual: <HalvingCascade />,
       panels: [{
         left: 150, top: 30, width: 560, variant: "main", label: "The win", title: "Halving a million takes about twenty steps.",
@@ -255,6 +263,7 @@ export const binarySearchLesson: LessonSpec = {
       label: "The generalization",
       connector: "And the same shape solves problems that don't even look like searching a list.",
       actionLabel: "Name the pattern",
+      takeaway: "Works on any monotonic “no → yes” boundary, not just lists.",
       visual: <Boundary />,
       panels: [{
         left: 150, top: 26, width: 560, variant: "main", label: "The generalization", title: "Anywhere answers flip from “no” to “yes.”",
@@ -272,6 +281,7 @@ export const binarySearchLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "Give the move its name — and the cues that tell you to reach for it next time.",
+      takeaway: "It’s Binary Search — reach for it on sorted / “smallest such that”.",
       visual: idleRow(ARR.map((_, i) => (i === 6 ? "good" : undefined)), ARR.map((_, i) => i !== 6)),
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Binary Search.",

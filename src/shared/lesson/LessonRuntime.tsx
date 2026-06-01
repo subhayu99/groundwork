@@ -7,6 +7,7 @@ import { CodeHighlight } from "@/shared/code/CodeHighlight";
 import { prepareCode, resolveLines } from "@/shared/code/syncAnchors";
 import { ArrowDefs, Arrow } from "./canvas";
 import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
+import { SceneLayout } from "./SceneLayout";
 import type { BeatVisualApi, LessonSpec } from "./types";
 
 /**
@@ -15,6 +16,13 @@ import type { BeatVisualApi, LessonSpec } from "./types";
  * right with the active line(s) following the beat. Fills the viewport; the
  * canvas scales to its area; the code pane collapses. Hosts interactive beats
  * (playback emits the live code line; a wedge beat gates "Next" until acted on).
+ *
+ * Two layouts share ONE engine (`useLessonEngine`): the established "classic"
+ * top-to-bottom composition (every topic), and an opt-in "scene" composition
+ * (`spec.layout === "scene"`) that re-arranges the SAME pieces — hero diagram,
+ * a collapsible reading rail, an accreting spine, a Focus Mode. Nothing is
+ * forked: the scene layout consumes the engine and the same canvas/code
+ * primitives, so the classic path is untouched for non-pilot topics.
  */
 export type LessonPracticeLink = { title: string; href: string; difficulty?: string };
 export type LessonNav = {
@@ -25,21 +33,33 @@ export type LessonNav = {
   next?: { name: string; href: string };
 };
 
-export function LessonRuntime({
-  spec,
-  practice,
-  nav,
-  onComplete,
-  initiallyCompleted,
-  prerequisites,
-}: {
+export type LessonRuntimeProps = {
   spec: LessonSpec;
   practice?: LessonPracticeLink[];
   nav?: LessonNav;
   onComplete?: () => void;
   initiallyCompleted?: boolean;
   prerequisites?: PrereqItem[];
-}) {
+};
+
+/**
+ * The shared lesson engine: all beat/code/detail/interaction state and the
+ * canvas scale-to-fit, with the derived per-beat values. Both layouts call it,
+ * so the behavior (auto-open code on the recap, wedge gating, the deferred
+ * onActiveLine, the live-region step, scale clamp) is single-sourced. The two
+ * layouts differ only in arrangement.
+ */
+export function useLessonEngine(spec: LessonSpec, {
+  initiallyCompleted,
+  onComplete,
+  scaleClamp = { min: 0.3, max: 1.9, biasWidth: false },
+}: {
+  initiallyCompleted?: boolean;
+  onComplete?: () => void;
+  /** Per-layout scale tuning. Scene biases to width and raises the cap so the
+   *  hero diagram claims its plane; classic keeps the established min/max fit. */
+  scaleClamp?: { min: number; max: number; biasWidth: boolean };
+} = {}) {
   const { width: VW, height: VH } = spec.canvas;
   const { code: PY, labelToLine } = useMemo(() => prepareCode(spec.codeSource), [spec.codeSource]);
 
@@ -54,10 +74,6 @@ export function LessonRuntime({
   const [liveLabels, setLiveLabels] = useState<(string | number)[] | null>(null);
   const [interacted, setInteracted] = useState<Record<string, boolean>>({});
   const [completed, setCompleted] = useState(!!initiallyCompleted);
-  // The prerequisite nudge is advisory only: it shows once at the very start of
-  // a fresh lesson and is dismissed (never re-shown) the moment the learner
-  // chooses to continue. It NEVER gates navigation.
-  const [prereqDismissed, setPrereqDismissed] = useState(false);
   const beat = spec.beats[b];
   const last = spec.beats.length - 1;
 
@@ -86,19 +102,26 @@ export function LessonRuntime({
   // Fit the fixed-size canvas (svg + the absolutely-positioned panels, together)
   // to whatever area the column gives it — so it fills the desktop viewport.
   const areaRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.85);
+  const [scale, setScale] = useState(scaleClamp.biasWidth ? 1 : 0.85);
   useEffect(() => {
     const el = areaRef.current;
     if (!el) return;
     const measure = () => {
       const w = el.clientWidth, h = el.clientHeight;
-      if (w > 0 && h > 0) setScale(Math.max(0.3, Math.min(w / VW, h / VH, 1.9)));
+      if (w > 0 && h > 0) {
+        // Scene biases toward filling width (so wide-aspect diagrams enlarge into
+        // the side space); classic fits both axes. Both clamp to a min/max.
+        const fit = scaleClamp.biasWidth
+          ? Math.min(w / VW, (h / VH) * 1.18)
+          : Math.min(w / VW, h / VH);
+        setScale(Math.max(scaleClamp.min, Math.min(fit, scaleClamp.max)));
+      }
     };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [showCode, VW, VH]);
+  }, [showCode, VW, VH, scaleClamp.biasWidth, scaleClamp.min, scaleClamp.max]);
 
   const api: BeatVisualApi = useMemo(() => ({
     onActiveLine: (labels) => {
@@ -135,6 +158,49 @@ export function LessonRuntime({
       onComplete?.();
     }
   };
+
+  return {
+    VW, VH, PY,
+    b, setB, last, beat,
+    showCode, setShowCode, toggleCode,
+    showDetail, setShowDetail,
+    completed,
+    areaRef, scale,
+    api, gated, activeLines, visualNode,
+    codeScrollRef, goNext,
+  };
+}
+
+export type LessonEngine = ReturnType<typeof useLessonEngine>;
+
+export function LessonRuntime(props: LessonRuntimeProps) {
+  if (props.spec.layout === "scene") return <SceneLayout {...props} />;
+  return <ClassicLessonRuntime {...props} />;
+}
+
+/**
+ * The established layout, unchanged for every classic topic. It renders the
+ * shared engine's state in the original top-to-bottom composition.
+ */
+function ClassicLessonRuntime({
+  spec,
+  practice,
+  nav,
+  onComplete,
+  initiallyCompleted,
+  prerequisites,
+}: LessonRuntimeProps) {
+  const e = useLessonEngine(spec, { initiallyCompleted, onComplete });
+  const {
+    VW, VH, PY, b, setB, last, beat,
+    showCode, toggleCode, showDetail, setShowDetail,
+    completed, areaRef, scale, api, gated, activeLines, visualNode,
+    codeScrollRef, goNext,
+  } = e;
+  // The prerequisite nudge is advisory only: it shows once at the very start of
+  // a fresh lesson and is dismissed (never re-shown) the moment the learner
+  // chooses to continue. It NEVER gates navigation.
+  const [prereqDismissed, setPrereqDismissed] = useState(false);
 
   return (
     <main className="h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] overflow-hidden">
