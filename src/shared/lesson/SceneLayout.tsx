@@ -300,7 +300,11 @@ export function SceneLayout({
             top-aligned block: the "why?" toggle/detail first, then the
             established-spine directly beneath it (no pinned-to-bottom gap).
             Hidden in Focus Mode except the spine; hidden on mobile (bottom sheet). */}
-        <aside className={`w-[330px] shrink-0 flex-col gap-3 self-center max-h-full min-h-0 ${showCode ? "hidden" : "hidden xl:flex"}`}>
+        {/* TOP-anchored (self-start), not centered — so expanding the "why?" card
+            grows the body DOWNWARD and the header stays put. (Centering made the
+            whole block re-center on expand, so the toggle drifted up and you had to
+            chase it to collapse.) */}
+        <aside className={`w-[330px] shrink-0 flex-col gap-3 self-start max-h-full min-h-0 ${showCode ? "hidden" : "hidden xl:flex"}`}>
           {/* the reading rail — deeper why/how (beat.detail). The HEADER ROW is the
               single toggle: clicking it expands OR collapses, from the SAME spot
               (no separate top-right collapse button). The chevron rotates to show
