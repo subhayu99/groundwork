@@ -301,35 +301,36 @@ export function SceneLayout({
             established-spine directly beneath it (no pinned-to-bottom gap).
             Hidden in Focus Mode except the spine; hidden on mobile (bottom sheet). */}
         <aside className={`w-[330px] shrink-0 flex-col gap-3 self-center max-h-full min-h-0 ${showCode ? "hidden" : "hidden xl:flex"}`}>
-          {/* the reading rail — deeper why/how (beat.detail). Collapsed-by-default
-              past beat 0 to a "why?" tab; open on setup. */}
-          {!focus && beat.detail && (
-            showDetail ? (
-              <div className="flex flex-col min-h-0 rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_70%,transparent)]">
-                <div className="shrink-0 flex items-center justify-between gap-2 px-4 py-2 border-b border-[var(--line-faint)]">
-                  <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--accent-ink)]">{beat.label ?? "why"}</span>
-                  <button onClick={() => setShowDetail(false)} aria-label="collapse explanation" title="collapse"
-                    className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
-                  </button>
-                </div>
-                <AnimatePresence mode="wait">
-                  <motion.div key={beat.id}
-                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-                    transition={{ duration: 0.25 }}
-                    className="min-h-0 overflow-auto px-4 py-3 text-[13.5px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
-                    {beat.detail}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            ) : (
-              <button onClick={() => setShowDetail(true)} title="read the deeper why / how"
-                className="shrink-0 flex items-center gap-2 rounded-2xl border border-dashed border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_40%,transparent)] px-4 py-2.5 text-left hover:border-[var(--line-strong)]">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent-ink)]"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg>
+          {/* the reading rail — deeper why/how (beat.detail). The HEADER ROW is the
+              single toggle: clicking it expands OR collapses, from the SAME spot
+              (no separate top-right collapse button). The chevron rotates to show
+              state; the body expands in place beneath it. Collapsed-by-default past
+              beat 0. */}
+          {/* kept in Focus Mode too — Focus melts the top chrome, not the card */}
+          {beat.detail && (
+            <div className="flex flex-col min-h-0 rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_55%,transparent)] overflow-hidden">
+              <button onClick={() => setShowDetail((v) => !v)} aria-expanded={showDetail}
+                title={showDetail ? "hide the explanation" : "read the deeper why / how"}
+                className="shrink-0 flex items-center gap-2 px-4 py-2.5 text-left hover:bg-[var(--bg-inset)] transition-colors">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[var(--accent-ink)]"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg>
                 <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--accent-ink)]">why?</span>
-                <span className="text-[12.5px] text-[var(--text-muted)]">— the deeper reason</span>
+                {!showDetail && <span className="text-[12.5px] text-[var(--text-muted)] truncate">— the deeper reason</span>}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  className={`ml-auto shrink-0 text-[var(--text-faint)] transition-transform ${showDetail ? "rotate-90" : ""}`}><path d="M9 6l6 6-6 6" /></svg>
               </button>
-            )
+              <AnimatePresence initial={false}>
+                {showDetail && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: [0.22, 0.65, 0.3, 1] }}
+                    className="overflow-hidden border-t border-[var(--line-faint)]">
+                    <div className="min-h-0 overflow-auto px-4 py-3 text-[13.5px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
+                      {beat.detail}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           )}
 
           {/* the accreting spine — "what we've established so far", grouped
@@ -367,10 +368,8 @@ export function SceneLayout({
                     <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">algorithm.py</span>
                     <span className="font-mono text-[10px] text-[var(--accent-ink)] truncate">▶ line follows the beat</span>
                   </div>
-                  <button onClick={toggleCode} aria-label="hide code" title="hide code"
-                    className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
-                  </button>
+                  {/* no close button here — the single CODE/HIDE-CODE toggle lives
+                      in the control bar (same place to open and close). */}
                 </div>
                 <div ref={codeScrollRef} className="min-h-0 overflow-auto p-1">
                   <CodeHighlight code={PY} highlightedLines={activeLines} />
@@ -457,15 +456,16 @@ export function SceneLayout({
 
         <div className="flex-1" />
 
-        {/* code affordance — secondary; opens the overlay. (Hidden in Focus until
-            you want it; the report keeps code reveal-on-demand even in focus.) */}
-        {!showCode && (
-          <button onClick={toggleCode} title="show the code (algorithm.py)" aria-label="show code"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--line)] px-2.5 py-1.5 text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--line-strong)] transition-colors">
-            <span className="font-mono text-[13px]">&lt;/&gt;</span>
-            <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider">code</span>
-          </button>
-        )}
+        {/* code affordance — a SINGLE toggle that stays in the SAME place whether
+            the drawer is open or closed (label flips code → hide code; highlighted
+            while open). This is the only show/hide control — no separate close
+            button inside the drawer. */}
+        <button onClick={toggleCode} aria-pressed={showCode}
+          title={showCode ? "hide the code" : "show the code (algorithm.py)"} aria-label={showCode ? "hide code" : "show code"}
+          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-colors ${showCode ? "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)]" : "border-[var(--line)] text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--line-strong)]"}`}>
+          <span className="font-mono text-[13px]">&lt;/&gt;</span>
+          <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider">{showCode ? "hide code" : "code"}</span>
+        </button>
 
         {/* mobile-only "why?" — opens the bottom sheet */}
         {beat.detail && (
