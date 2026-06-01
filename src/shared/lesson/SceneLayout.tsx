@@ -95,6 +95,30 @@ export function SceneLayout({
     return () => window.removeEventListener("keydown", onKey);
   }, [focus]);
 
+  // Align the rail card's TOP with the TOP of the diagram's caption band. The box
+  // is vertically centred, so its top isn't a fixed offset — we measure the box's
+  // top relative to the row and pad the (full-height) rail by that amount, so the
+  // "why?" header lines up exactly with the visual header. Re-measured on beat
+  // change (connector height shifts the box), code toggle, focus, and resize.
+  const asideRef = useRef<HTMLElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [railTop, setRailTop] = useState(0);
+  useEffect(() => {
+    const measure = () => {
+      const aside = asideRef.current, box = boxRef.current;
+      if (!aside || !box) return;
+      // measured relative to the aside's own top (its border-box top is unaffected
+      // by its paddingTop), so applying this as paddingTop lands the card top exactly
+      // on the box top — no double-counting of the row's padding.
+      setRailTop(Math.max(0, Math.round(box.getBoundingClientRect().top - aside.getBoundingClientRect().top)));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (boxRef.current) ro.observe(boxRef.current);
+    window.addEventListener("resize", measure);
+    return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
+  }, [b, showCode, focus]);
+
   const hasUnmetPrereq = !!prerequisites && prerequisites.some((p) => !p.completed);
   const showNudge = hasUnmetPrereq && !prereqDismissed && !initiallyCompleted && b === 0;
   const isSetup = b === 0;
@@ -210,6 +234,7 @@ export function SceneLayout({
             </AnimatePresence>
           )}
           <div
+            ref={boxRef}
             style={{ aspectRatio: `${VW} / ${VH}` }}
             className="relative w-full max-h-full self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden">
             {/* MAIN caption — a CONSISTENT title band pinned to the top of the box
@@ -302,14 +327,13 @@ export function SceneLayout({
             top-aligned block: the "why?" toggle/detail first, then the
             established-spine directly beneath it (no pinned-to-bottom gap).
             Hidden in Focus Mode except the spine; hidden on mobile (bottom sheet). */}
-        {/* The flank fills the column height; a fixed top spacer places the "why?"
-            header around the vertical CENTRE (where it looked right) AND pins it
-            there. The card body expands DOWNWARD (capped + scrollable) into the
-            space below, so the header never moves on toggle. Card + spine grouped.
-            Kept in Focus Mode (Focus melts the top chrome, not the card); hidden
-            when code is open / on mobile. */}
-        <aside className={`w-[330px] shrink-0 flex-col self-stretch min-h-0 ${showCode ? "hidden" : "hidden xl:flex"}`}>
-          <div aria-hidden className="shrink-0 h-[34%]" />
+        {/* The flank fills the column height; railTop (measured) pads it so the
+            "why?" header's TOP aligns with the TOP of the diagram's caption band.
+            The header stays pinned there and the card body expands DOWNWARD
+            (capped + scrollable), so it never moves on toggle. Card + spine
+            grouped. Kept in Focus Mode (Focus melts the top chrome, not the card);
+            hidden when code is open / on mobile. */}
+        <aside ref={asideRef} style={{ paddingTop: railTop }} className={`w-[330px] shrink-0 flex-col self-stretch min-h-0 ${showCode ? "hidden" : "hidden xl:flex"}`}>
           <div className="shrink-0 flex flex-col gap-3 min-h-0">
             {/* the reading rail — the HEADER ROW is the single toggle (same spot to
                 expand AND collapse; chevron rotates; body opens in place below). */}
