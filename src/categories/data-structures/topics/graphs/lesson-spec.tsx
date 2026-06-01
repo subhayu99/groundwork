@@ -203,6 +203,7 @@ function AdjacencyList() {
 
 export const graphsLesson: LessonSpec = {
   topicTitle: "graphs · who knows whom",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: graphsPy as string,
   beats: [
@@ -210,6 +211,7 @@ export const graphsLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I have the question",
+      takeaway: "Some questions are about connections — friends, links, roads — that run any which way.",
       visual: idleGraph(),
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The setup",
@@ -230,6 +232,7 @@ export const graphsLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Before inventing something new, try bending these connections into a shape we already know — a tree.",
       actionLabel: "Free the connections",
+      takeaway: "A tree can't hold links that loop back — forcing one drops real connections.",
       visual: <ForcedTree />,
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The obvious thing",
@@ -250,6 +253,7 @@ export const graphsLesson: LessonSpec = {
       label: "The instinct",
       connector: "Since no single shape can hold these links, stop fighting them — just follow one link at a time and see what the bare minimum is.",
       actionLabel: "Nodes plus edges",
+      takeaway: "Each step only needs one person's list of friends — that's the bare minimum to store.",
       visual: (api) => <ClickNeighbors api={api} />,
       panels: [
         {
@@ -279,6 +283,7 @@ export const graphsLesson: LessonSpec = {
       label: "The structure",
       connector: "If one click only ever needs one person's friend-list, that tells us exactly what to store.",
       actionLabel: "What operations?",
+      takeaway: "A graph is dots (nodes) and lines (edges), stored as a lookup from each node to its neighbors.",
       visual: <AdjacencyList />,
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The structure",
@@ -299,6 +304,7 @@ export const graphsLesson: LessonSpec = {
       label: "The operations",
       connector: "With the graph stored as that neighbor table, the interesting part begins: what you can run on top of it.",
       actionLabel: "When it fits",
+      takeaway: "Walk it with BFS/DFS in O(V+E); a 'seen' set stops loops and finds shortest chains.",
       visual: (api) => <AutoBFS api={api} />,
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The operations",
@@ -324,6 +330,7 @@ export const graphsLesson: LessonSpec = {
       label: "When it fits",
       connector: "Once you can store connections and walk them, the question becomes: which real problems are actually shaped like this?",
       actionLabel: "Name it",
+      takeaway: "Reach for a graph whenever relationships matter and links can loop back.",
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "When it fits",
         title: "Anywhere you say 'the links between X.'",
@@ -341,6 +348,7 @@ export const graphsLesson: LessonSpec = {
       id: "name",
       label: "The structure",
       connector: "Everything fits the same shape — so give that shape its name.",
+      takeaway: "It's a Graph — a tiny neighbor table whose richness is the walks you run on it.",
       visual: idleGraph(),
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The structure",

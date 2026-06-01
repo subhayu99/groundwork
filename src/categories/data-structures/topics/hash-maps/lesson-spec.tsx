@@ -259,6 +259,7 @@ const idleRow = (tones?: (Tone | undefined)[]) => <CellRow geom={ROW} values={NA
 
 export const hashMapsLesson: LessonSpec = {
   topicTitle: "hash maps · find Alice's number",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: hash_mapsPy as string,
   beats: [
@@ -266,6 +267,7 @@ export const hashMapsLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I have the question",
+      takeaway: "An unordered phone book — find one name without paying for the whole book.",
       visual: idleRow(),
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The setup", title: "A phone book of ten thousand names. Find Alice.",
@@ -284,6 +286,7 @@ export const hashMapsLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "With no order to lean on, the only sure way to answer is to look at the names yourself.",
       actionLabel: "Compute, don't search",
+      takeaway: "Reading name by name is O(n) — work grows with the size of the book.",
       visual: (api) => <LinearScan api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Open page one. Start reading.",
@@ -305,6 +308,7 @@ export const hashMapsLesson: LessonSpec = {
       label: "The instinct",
       connector: "That last question — what if the name told you the page? — is exactly the move we make now.",
       actionLabel: "Compute the address",
+      takeaway: "A hash turns the key itself into a box number — one hop, no searching.",
       visual: (api) => <HashAddress api={api} />,
       panels: [
         {
@@ -334,6 +338,7 @@ export const hashMapsLesson: LessonSpec = {
       label: "The structure",
       connector: "Now that a name can name its own box, we just need the row of boxes to drop names into.",
       actionLabel: "What's the actual cost?",
+      takeaway: "A hash map = an array of buckets + the hash that addresses them.",
       visual: (api) => <DropIntoBuckets api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The structure", title: "An array of boxes, addressed by the hash.",
@@ -356,6 +361,7 @@ export const hashMapsLesson: LessonSpec = {
       label: "The operations",
       connector: "We watched a few boxes get crowded as names landed — so what does that crowding cost us?",
       actionLabel: "When it fits",
+      takeaway: "Insert, look up, delete are O(1) on average — chaining absorbs collisions.",
       visual: <CollisionGrid />,
       panels: [
         {
@@ -382,6 +388,7 @@ export const hashMapsLesson: LessonSpec = {
       label: "When it fits",
       connector: "Now that the costs are clear and almost always cheap, the useful question is: when do you reach for one?",
       actionLabel: "Name the structure",
+      takeaway: "Reach for it on “given X, find Y”; reach for a tree when you need order.",
       visual: <FitBoard />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "Lookups by key. Counting. Caching. Most things.",
@@ -406,6 +413,7 @@ export const hashMapsLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "You've now built the whole idea from scratch — so here's the name you'll meet it under everywhere.",
+      takeaway: "It’s the hash map / dictionary — trade memory so you never search.",
       visual: <SummaryCard />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Hash map. A dictionary, in Python.",

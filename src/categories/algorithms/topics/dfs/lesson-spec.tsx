@@ -397,6 +397,8 @@ function GraphDive() {
 
 export const dfsLesson: LessonSpec = {
   topicTitle: "depth-first search · escape the maze",
+  // Opt into the one-scene immersive layout (proven on binary-search).
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: dfsPy as string,
   beats: [
@@ -404,6 +406,7 @@ export const dfsLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "The naive idea",
+      takeaway: "A maze: reach G from S, seeing only one cell at a time.",
       visual: maze(null, emptySet, emptySet),
       panels: [
         {
@@ -438,6 +441,7 @@ export const dfsLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Since the computer can only see one cell at a time, what is the most naive thing it could try?",
       actionLabel: "Two rules that tame it",
+      takeaway: "Trying every move blindly explodes — so: never revisit, and back up when stuck.",
       visual: <Explosion />,
       panels: [
         {
@@ -473,6 +477,7 @@ export const dfsLesson: LessonSpec = {
       label: "The instinct",
       connector: "Those two rules describe a way of walking — so let's actually walk it by hand.",
       actionLabel: "Make it a rule",
+      takeaway: "Dig deep down one path; back up when stuck — the maze from any cell is the same question, smaller.",
       visual: (api) => <ManualWalk api={api} />,
       panels: [
         {
@@ -519,6 +524,7 @@ export const dfsLesson: LessonSpec = {
       label: "The derivation",
       connector: "You just did the walk by hand — now let's write down the exact rule so a computer can run it without you.",
       actionLabel: "Count the work",
+      takeaway: "The rule: mark visited, then ask each neighbour the same question — a function that calls itself (recursion).",
       visual: (api) => <AutoDfs api={api} />,
       panels: [
         {
@@ -557,6 +563,7 @@ export const dfsLesson: LessonSpec = {
       label: "The operations",
       connector: "The rule is correct — but is it fast, and how much memory does all that diving cost?",
       actionLabel: "Same shape, new problems",
+      takeaway: "Each cell visited once — O(cells + walls); memory is the stack, as deep as the longest detour.",
       visual: (api) => <AutoDfs api={api} showStack />,
       panels: [
         {
@@ -592,6 +599,7 @@ export const dfsLesson: LessonSpec = {
       label: "The generalization",
       connector: "Nothing in that walk actually depended on it being a grid of squares — so where else does it work?",
       actionLabel: "Name the pattern",
+      takeaway: "A cell is just a node with neighbours — the same walk crawls graphs: files, links, friends.",
       visual: <GraphDive />,
       panels: [
         {
@@ -640,6 +648,7 @@ export const dfsLesson: LessonSpec = {
       ),
       label: "The pattern",
       connector: "You've built the whole walk from scratch — here's its name and the cues that tell you to reach for it.",
+      takeaway: "It's Depth-First Search — reach for it on “is there a path?”, “visit everything connected”, or “try, undo, retry”.",
       panels: [
         {
           left: 40,

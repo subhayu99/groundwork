@@ -452,6 +452,7 @@ const SOLUTION = [1, 3, 5, 0, 2, 4];
 
 export const backtrackingLesson: LessonSpec = {
   topicTitle: "backtracking · six queens, no clashes",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: backtrackingPy as string,
   beats: [
@@ -459,6 +460,7 @@ export const backtrackingLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "How would you search?",
+      takeaway: "Place six queens so none attack — and a computer can’t just see a safe square.",
       detail: (
         <>
           <p>
@@ -507,6 +509,7 @@ export const backtrackingLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Now that a computer has to test squares one at a time, the first idea is to just test all of them — so how many boards is that?",
       actionLabel: "Stop building dead branches",
+      takeaway: "Trying every board (46,656 of them) wastes effort on boards doomed from the first clash.",
       detail: (
         <>
           <p>
@@ -554,6 +557,7 @@ export const backtrackingLesson: LessonSpec = {
       label: "The instinct",
       connector: "So instead of building whole dead boards, build a partial one and check it as you go.",
       actionLabel: "Make it a rule",
+      takeaway: "Build one piece at a time, check as you go, and undo the moment a path can’t win.",
       detail: (
         <>
           <p>
@@ -616,6 +620,7 @@ export const backtrackingLesson: LessonSpec = {
       label: "The derivation",
       connector: "Now turn that place-check-undo motion you just did by hand into a rule a computer can repeat on its own.",
       actionLabel: "Count the work",
+      takeaway: "A function that places a safe column, recurses one row deeper, then pops it back off — that pop is the undo.",
       detail: (
         <>
           <p>
@@ -685,6 +690,7 @@ export const backtrackingLesson: LessonSpec = {
       label: "The operations",
       connector: "Now that the search runs itself, count how much work the prune actually saves.",
       actionLabel: "Same shape, new problems",
+      takeaway: "Failing early touches a few hundred boards, not 46,656 — and memory stays tiny (six paused calls).",
       detail: (
         <>
           <p>
@@ -736,6 +742,7 @@ export const backtrackingLesson: LessonSpec = {
       label: "The generalization",
       connector: "That same fail-early motion isn't really about queens at all — it fits any puzzle built one piece at a time.",
       actionLabel: "Name the pattern",
+      takeaway: "The same place-check-undo shape solves sudoku, map coloring, valid brackets, subset sum.",
       detail: (
         <>
           <p>
@@ -783,6 +790,7 @@ export const backtrackingLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "Now that you've seen the shape repeat across puzzles, give the move its name and the cues that flag it.",
+      takeaway: "It’s Backtracking — depth-first search with a check at every step; reach for it on “find all / is there any”.",
       detail: (
         <>
           <p>

@@ -330,6 +330,7 @@ function MidRecursion() {
 
 export const recursionLesson: LessonSpec = {
   topicTitle: "recursion · how big is your Downloads folder?",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: recursionPy as string,
   beats: [
@@ -337,6 +338,7 @@ export const recursionLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "The obvious first idea",
+      takeaway: "One folder size means adding up files hidden at unknown depth.",
       visual: <TreeScene nodes={treeNodes({ shown: () => null })} edges={EDGES} />,
       panels: [{
         left: 150, top: 24, width: 580, variant: "main", label: "The setup", title: "How big is your Downloads folder?",
@@ -356,6 +358,7 @@ export const recursionLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Now that one number has to come from files hidden at unknown depth, the first instinct is to just go in and grab them all.",
       actionLabel: "Notice the repeat",
+      takeaway: "You can't write loops for a depth you don't know in advance.",
       visual: <NaiveScan />,
       panels: [{
         left: 150, top: 24, width: 600, variant: "main", label: "The obvious thing", title: "Loops inside loops inside loops.",
@@ -376,6 +379,7 @@ export const recursionLesson: LessonSpec = {
       label: "The instinct",
       connector: "That repeated job — the same work on every folder — is the crack to lever open.",
       actionLabel: "Let the function call itself",
+      takeaway: "Each subfolder is the same problem, just on fewer items.",
       visual: (api) => <AskAFolder api={api} />,
       panels: [
         {
@@ -404,6 +408,7 @@ export const recursionLesson: LessonSpec = {
       label: "The derivation",
       connector: "If a subfolder is just a smaller copy of the same question, then the rule that answers the whole can answer the part — so let's write that rule down.",
       actionLabel: "Count the work",
+      takeaway: "The rule: a file returns its size; a folder asks each child and adds up.",
       visual: <MidRecursion />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The derivation", title: "Write the rule. The function calls itself.",
@@ -429,6 +434,7 @@ export const recursionLesson: LessonSpec = {
       label: "The operations",
       connector: "The rule is written; now see it actually run, and count how much work it does.",
       actionLabel: "How tall the pile gets",
+      takeaway: "Every item is touched once (O(n)); calls wait in a stack until they return.",
       visual: (api) => <AutoRecurse api={api} />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The operations", title: "Each item is touched once; calls pile up in a stack.",
@@ -449,6 +455,7 @@ export const recursionLesson: LessonSpec = {
       label: "The memory cost",
       connector: "Those piled-up calls aren't free — they take memory, so the next question is how tall the pile can get.",
       actionLabel: "Same shape, new questions",
+      takeaway: "Memory cost = the deepest nesting, not the total number of items.",
       visual: <ResolvedPeak />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The memory cost", title: "The stack only gets as tall as the deepest folder.",
@@ -469,6 +476,7 @@ export const recursionLesson: LessonSpec = {
       label: "The generalization",
       connector: "A folder tree was just the example; the same self-calling trick fits a whole family of shapes.",
       actionLabel: "Name the pattern",
+      takeaway: "Anything built from smaller copies of itself yields to the same trick.",
       visual: <SameShape />,
       panels: [{
         left: 150, top: 24, width: 580, variant: "main", label: "The generalization", title: "Tree-shaped data is everywhere.",
@@ -492,6 +500,7 @@ export const recursionLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "All those examples share one move with one name — here it is, plus the cues that tell you to reach for it.",
+      takeaway: "It's Recursion — a base case plus a self-call on a smaller piece.",
       visual: <NamedPattern />,
       panels: [{
         left: 150, top: 24, width: 600, variant: "main", label: "The pattern", title: "Recursion.",

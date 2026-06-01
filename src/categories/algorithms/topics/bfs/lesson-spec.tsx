@@ -460,6 +460,7 @@ function NetworkRipple() {
 
 export const bfsLesson: LessonSpec = {
   topicTitle: "breadth-first search · the fewest steps out",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: bfsPy as string,
   beats: [
@@ -467,6 +468,7 @@ export const bfsLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "Why deep-first isn't enough",
+      takeaway: "A maze from S to G — now we want the fewest steps, not just any way out.",
       detail: (
         <>
           <p>
@@ -522,6 +524,7 @@ export const bfsLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Now that we want the fewest steps, the natural first idea is to just walk the maze — but does walking find the shortest way?",
       actionLabel: "Explore by distance instead",
+      takeaway: "Diving deep finds a path, but not always the shortest one.",
       detail: (
         <>
           <p>
@@ -582,6 +585,7 @@ export const bfsLesson: LessonSpec = {
       label: "The instinct",
       connector: "So instead of diving deep, let's grow outward by distance and watch what that buys us.",
       actionLabel: "Why the first touch wins",
+      takeaway: "Grow outward one ring at a time — the first touch of G is the shortest.",
       detail: (
         <>
           <p>
@@ -647,6 +651,7 @@ export const bfsLesson: LessonSpec = {
       label: "The derivation",
       connector: "The ripple is the idea; now we need a piece of bookkeeping that makes a computer grow it in exactly that order.",
       actionLabel: "Count the work",
+      takeaway: "A first-in-first-out queue (+ a seen-set) grows the ripple in exact order.",
       detail: (
         <>
           <p>
@@ -721,6 +726,7 @@ export const bfsLesson: LessonSpec = {
       label: "The operations",
       connector: "Now that every square joins the line exactly once, we can count the total work and see how it stacks up against depth-first.",
       actionLabel: "Same shape, new problems",
+      takeaway: "Each cell joins once, so the work is O(V + E) — and the closest is reached first.",
       detail: (
         <>
           <p>
@@ -783,6 +789,7 @@ export const bfsLesson: LessonSpec = {
       label: "The generalization",
       connector: "The maze was just a stage prop — strip it away and the same outward walk solves a whole family of 'closest first' problems.",
       actionLabel: "Name the pattern",
+      takeaway: "On any equal-cost graph this outward walk gives the shortest route.",
       detail: (
         <>
           <p>
@@ -835,6 +842,7 @@ export const bfsLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "Give the move its name — and the cues that tell you to reach for it next time.",
+      takeaway: "It's Breadth-First Search — reach for it on “fewest steps” / “level by level”.",
       detail: (
         <>
           <p>

@@ -189,6 +189,7 @@ const idleRow = (tones?: (Tone | undefined)[], dim?: boolean[], markers?: Record
 
 export const slidingWindowVariableLesson: LessonSpec = {
   topicTitle: "variable sliding window · longest run with no repeats",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: sliding_window_variablePy as string,
   beats: [
@@ -196,6 +197,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I have the question",
+      takeaway: "Find the longest run with no repeated letter — length is whatever fits the rule.",
       detail: (
         <>
           <p>You&rsquo;re looking at a row of letters &mdash; the word <code>abracadabra</code> laid out one box per letter. A friend asks: &ldquo;What&rsquo;s the longest stretch you can read in a row without saying the same letter twice?&rdquo;</p>
@@ -220,6 +222,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Now that we know the rule we're protecting, what's the most direct way to hunt for the longest stretch that keeps it?",
       actionLabel: "Reuse what's already valid",
+      takeaway: "Trying every start is O(n²) — it keeps re-reading letters it already checked.",
       detail: (
         <>
           <p>The most direct method: pick a starting box, then walk rightward adding letters until one repeats; note how long that clean stretch got. Do that from every possible start, and keep the longest you ever saw.</p>
@@ -241,6 +244,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       label: "The instinct",
       connector: "If re-reading from scratch is the waste, the fix is to never start over — so let's give the stretch two ends we can nudge by hand.",
       actionLabel: "Two motions, one rule",
+      takeaway: "Two ends, L and R, that only ever nudge forward — so work already done stays done.",
       detail: (
         <>
           <p>The row of letters has two <strong>markers</strong> &mdash; just labels sitting under the boxes. <code>L</code> marks the left edge of your current stretch; <code>R</code> marks the right edge. Use the buttons under the row: <em>expand R &rarr;</em> pulls the next letter on the right into the window, and <em>contract L &rarr;</em> drops the leftmost letter off the window. (The <em>&#8634;</em> button resets both ends to the start.)</p>
@@ -269,6 +273,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       label: "The derivation",
       connector: "You just felt the two motions by hand — now let's pin them into one rule a computer can repeat.",
       actionLabel: "Count the work",
+      takeaway: "R grows while the rule holds; on a repeat, a lookup table jumps L just past the duplicate.",
       detail: (
         <>
           <p>Walk <code>R</code> across the word one box at a time. At each step, ask a single question: does the letter at <code>R</code> already appear inside the current window?</p>
@@ -292,6 +297,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       label: "The win",
       connector: "Now that each end only ever moves one direction, let's tally how much work that actually costs.",
       actionLabel: "Same shape, new problems",
+      takeaway: "Each letter is touched twice — that's O(n), linear time instead of squared.",
       detail: (
         <>
           <p>Count the moves. Each letter enters the window at most once (when <code>R</code> passes over it) and leaves at most once (when <code>L</code> passes over it). That&rsquo;s about <code>2n</code> moves in total &mdash; written <code>O(n)</code>, meaning the work grows in step with how long the word is, no faster.</p>
@@ -313,6 +319,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       label: "The generalization",
       connector: "That linear cost wasn't special to “no repeats” — the same two-ended dance works for a whole family of rules.",
       actionLabel: "Name it",
+      takeaway: "Swap the rule, keep the motion — it fits any rule that breaks once you cross a line.",
       detail: (
         <>
           <p>The trick works whenever the window has a <em>rule that breaks cleanly the moment you cross a line</em>. Swap the rule, keep the motion. A few examples:</p>
@@ -336,6 +343,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "We've seen it work and seen it generalize — so let's give the move its name and the cues that flag it next time.",
+      takeaway: "It's the Variable Sliding Window — reach for it on “longest / shortest run such that…”.",
       detail: (
         <>
           <p>That&rsquo;s the name: <strong>Sliding Window (Variable)</strong>. It&rsquo;s the same family as the fixed-size sliding window, but this one <em>breathes</em> &mdash; the right edge expands when it can, the left edge contracts when it must. (For our word, the longest no-repeat run is <code>brac</code>, length 4.)</p>

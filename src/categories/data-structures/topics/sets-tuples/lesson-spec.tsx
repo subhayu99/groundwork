@@ -338,6 +338,7 @@ function NameVisual() {
 
 export const setsTuplesLesson: LessonSpec = {
   topicTitle: "sets & tuples · membership vs. one fixed packet",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: setsTuplesPy as string,
   beats: [
@@ -345,6 +346,7 @@ export const setsTuplesLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I have the question",
+      takeaway: "Two containers, opposite rules: one tracks membership, one keeps a fixed shape.",
       visual: <SetupVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The setup", title: "Two small containers. Two different jobs.",
@@ -365,6 +367,7 @@ export const setsTuplesLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Before reaching for anything special — what happens if you just throw both jobs into a plain list?",
       actionLabel: "What do these need?",
+      takeaway: "A plain list works but doesn't fit: scanning is O(n), and it can't refuse a duplicate.",
       visual: (api) => <ScanPlayback api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Stuff a list. Scan when you need it.",
@@ -386,6 +389,7 @@ export const setsTuplesLesson: LessonSpec = {
       label: "The instinct",
       connector: "The list shrugged at duplicates and let the packet grow — so watch what these two purpose-built containers do instead when you push on them.",
       actionLabel: "Identity vs grouping",
+      takeaway: "A set refuses duplicates; a tuple refuses any change — each refusal reveals its purpose.",
       visual: (api) => <AddNameWedge api={api} />,
       panels: [
         {
@@ -414,6 +418,7 @@ export const setsTuplesLesson: LessonSpec = {
       label: "The structures",
       connector: "Those two refusals aren't quirks — they fall straight out of how each container is built underneath.",
       actionLabel: "What's the cost?",
+      takeaway: "A set is a hash map's keys (one-hop lookup); a tuple is an ordered, locked packet.",
       visual: <BucketsVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The structures", title: "A set is a hash map's keys. A tuple is a fixed packet.",
@@ -434,6 +439,7 @@ export const setsTuplesLesson: LessonSpec = {
       label: "The operations",
       connector: "Once you know a set is hash-cubbies and a tuple is a locked packet, the speed of every move on them follows for free.",
       actionLabel: "When each fits",
+      takeaway: "Set add/in/remove are O(1); a tuple's fixed shape lets it live inside a set or as a key.",
       visual: <OpsVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Sets are hash-fast. Tuples are basically free.",
@@ -454,6 +460,7 @@ export const setsTuplesLesson: LessonSpec = {
       label: "When they fit",
       connector: "With the costs settled, the choice between them stops being about syntax and becomes about the question you're asking.",
       actionLabel: "Name them",
+      takeaway: "Use a set for “is X here? / unique?”; use a tuple when several values are one fixed thing.",
       visual: <FitVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When they fit", title: "Set for “is X here?”. Tuple for “X, Y, Z stay together.”",
@@ -478,6 +485,7 @@ export const setsTuplesLesson: LessonSpec = {
       id: "name",
       label: "Set and Tuple",
       connector: "Now that you know exactly when to grab each one, give the two tools their names — and the deeper move they share.",
+      takeaway: "Set {…} and tuple (…): both declare intent — a list stays silent about what the data is for.",
       visual: <NameVisual />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The structures", title: "Set and Tuple.",

@@ -371,6 +371,7 @@ function SetupState() {
 
 export const monotonicStackLesson: LessonSpec = {
   topicTitle: "monotonic stack · eight cold days, when does it warm up?",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: monotonic_stackPy as string,
   beats: [
@@ -378,6 +379,7 @@ export const monotonicStackLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "How would you do it?",
+      takeaway: "For each day, count the days until a warmer one (0 if none).",
       visual: <SetupState />,
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The setup", title: "Eight cold days. When does it warm up?",
@@ -397,6 +399,7 @@ export const monotonicStackLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Now that the question is on the table, what's the first method anyone would reach for?",
       actionLabel: "Remember who's still waiting",
+      takeaway: "Re-scanning forward from each day is O(n²) — too much repeat reading.",
       visual: (api) => <NaiveScan api={api} />,
       panels: [
         {
@@ -424,6 +427,7 @@ export const monotonicStackLesson: LessonSpec = {
       label: "The instinct",
       connector: "Here's what to remember: instead of re-scanning forward, keep a line of the days that haven't found their answer yet.",
       actionLabel: "Make it a rule",
+      takeaway: "Keep a waiting line: a warmer day sends cooler ones home with their gap.",
       visual: (api) => <ManualWalk api={api} />,
       panels: [
         {
@@ -454,6 +458,7 @@ export const monotonicStackLesson: LessonSpec = {
       label: "The derivation",
       connector: "You watched the line in action — now pin down the exact rule, because \"the last person in line\" is really a stack.",
       actionLabel: "Count the work",
+      takeaway: "The line is a stack of indices: pop while today is warmer, then push today.",
       visual: (api) => <AutoWalk api={api} />,
       panels: [{
         left: 60, top: 18, width: 470, variant: "main", label: "The derivation", title: "A stack of indices. Pop while today wins.",
@@ -478,6 +483,7 @@ export const monotonicStackLesson: LessonSpec = {
       label: "The operations",
       connector: "That \"a single warm day might pop a long line\" sounds expensive — so let's actually count the work and see.",
       actionLabel: "Same trick, new questions",
+      takeaway: "Each day is pushed once and popped once: at most 2n work, so O(n) total.",
       visual: (api) => <AutoWalk api={api} />,
       panels: [
         {
@@ -504,6 +510,7 @@ export const monotonicStackLesson: LessonSpec = {
       label: "The generalization",
       connector: "Since the cost is just one cheap pass, the same machine is worth reusing — and it has nothing to do with weather.",
       actionLabel: "Name the pattern",
+      takeaway: "Same machine answers any \"next/previous bigger-or-smaller\" question.",
       visual: <StoryFamily />,
       panels: [{
         left: 540, top: 60, width: 290, variant: "main", label: "The generalization", title: "Next/previous thing with a property.",
@@ -528,6 +535,7 @@ export const monotonicStackLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "All those problems share one machine — so give it its name, plus the cues that tell you to reach for it.",
+      takeaway: "It's a Monotonic Stack — one-way order inside, amortized O(n) cost.",
       visual: <FinalState />,
       panels: [{
         left: 60, top: 20, width: 470, variant: "main", label: "The pattern", title: "Monotonic Stack.",

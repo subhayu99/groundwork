@@ -255,6 +255,7 @@ function DivideConquer() {
 
 export const mergesortLesson: LessonSpec = {
   topicTitle: "mergesort · sort eight cards",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: mergesortPy as string,
   beats: [
@@ -262,6 +263,7 @@ export const mergesortLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "The obvious recipe",
+      takeaway: "Eight cards in a jumble — and computers do this on millions of rows.",
       visual: (
         <g>
           {idleRow()}
@@ -286,6 +288,7 @@ export const mergesortLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Eight by eye was easy — so what’s the most obvious recipe a computer could follow?",
       actionLabel: "Split. Sort. Merge.",
+      takeaway: "Swapping neighbours works but is O(n²) — moving a card far is slow.",
       visual: idleRow(ARR.map((_, i) => (i === 0 || i === 1 ? "muted" : undefined))),
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Swap neighbours until nothing's backwards.",
@@ -306,6 +309,7 @@ export const mergesortLesson: LessonSpec = {
       label: "The instinct",
       connector: "If single swaps move cards too slowly, what if we could move a whole side at once?",
       actionLabel: "Make it a rule",
+      takeaway: "Split to single cards, then merge sorted halves in one clean sweep.",
       visual: (api) => <SplitMerge api={api} />,
       panels: [
         {
@@ -333,6 +337,7 @@ export const mergesortLesson: LessonSpec = {
       label: "The derivation",
       connector: "You just did it by hand — now turn that split-sort-merge move into a rule a computer can repeat.",
       actionLabel: "Count the work",
+      takeaway: "sort() calls itself on each half; one card is the base case; merge combines.",
       visual: (api) => <AutoMergesort api={api} />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The derivation", title: "A recipe that calls itself, plus a two-finger merge.",
@@ -355,6 +360,7 @@ export const mergesortLesson: LessonSpec = {
       label: "The operations",
       connector: "The rule clearly works — but is it actually faster than swapping? Count the steps.",
       actionLabel: "Same shape, new problems",
+      takeaway: "log n levels × n cards per level = O(n log n) — millions, not trillions.",
       visual: <CostLevels />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The operations", title: "Halve down a few levels; one walk per level.",
@@ -376,6 +382,7 @@ export const mergesortLesson: LessonSpec = {
       label: "The generalization",
       connector: "That n log n win wasn’t luck — it comes from a shape that shows up far beyond sorting.",
       actionLabel: "Name the pattern",
+      takeaway: "Split, solve each half, cheaply combine — the same shape solves many problems.",
       visual: <DivideConquer />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The generalization", title: "Divide and conquer is everywhere.",
@@ -395,6 +402,7 @@ export const mergesortLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "It’s the textbook face of that divide-and-conquer shape — so give it its name and learn to spot it.",
+      takeaway: "It’s Mergesort — reach for it on big sorts needing dependable speed.",
       visual: (
         <g>
           {sortedRow()}

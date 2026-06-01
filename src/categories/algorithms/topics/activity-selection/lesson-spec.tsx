@@ -499,6 +499,7 @@ const allHandsRow = MEETINGS.findIndex((m) => m.id === "m5");
 
 export const activitySelectionLesson: LessonSpec = {
   topicTitle: "activity selection · fit the most meetings",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: activity_selectionPy as string,
   beats: [
@@ -506,6 +507,7 @@ export const activitySelectionLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "How would you decide?",
+      takeaway: "One room, many requests — fit the most that don’t overlap.",
       detail: (
         <>
           <p>
@@ -547,6 +549,7 @@ export const activitySelectionLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Now that the only goal is to pack in the most meetings, what's the first plan that comes to mind?",
       actionLabel: "Judge by end time",
+      takeaway: "Testing every group is too slow; “shortest” and “earliest start” both lie.",
       detail: (
         <>
           <p>
@@ -604,6 +607,7 @@ export const activitySelectionLesson: LessonSpec = {
       label: "The instinct",
       connector: "That hunch — judge a meeting by when it frees the room — turns into one concrete move.",
       actionLabel: "Why it always wins",
+      takeaway: "Sort by end time, then always take the meeting that frees the room soonest.",
       detail: (
         <>
           <p>
@@ -629,7 +633,7 @@ export const activitySelectionLesson: LessonSpec = {
           width: 480,
           variant: "main",
           label: "The instinct",
-          title: "Sort by end time. Always take the one that frees the room soonest.",
+          title: "Sort by end time; take the one that frees the room soonest.",
           body: (
             <>
               Press <strong>sort by end</strong> &mdash; the meetings reorder so the earliest-finishing one is on top. Then step through: keep a
@@ -657,6 +661,7 @@ export const activitySelectionLesson: LessonSpec = {
       label: "The derivation",
       connector: "Watch that same move run on its own, and the whole method falls out in five lines.",
       actionLabel: "Count the work",
+      takeaway: "Sort once, walk once, track when the room is free — and a swap proves it’s best.",
       detail: (
         <>
           <p>
@@ -715,6 +720,7 @@ export const activitySelectionLesson: LessonSpec = {
       label: "The operations",
       connector: "Five lines that always win — but how much work is the computer actually doing?",
       actionLabel: "Same shape, new problems",
+      takeaway: "The sort (O(n log n)) is the only cost; the walk is one clean O(n) pass.",
       detail: (
         <>
           <p>
@@ -758,6 +764,7 @@ export const activitySelectionLesson: LessonSpec = {
       label: "The generalization",
       connector: "That swap argument was the real engine — and it powers a whole family of problems beyond meetings.",
       actionLabel: "Name the pattern",
+      takeaway: "Greedy wins only when the swap holds; when it can’t (coins {1,3,4}), you need DP.",
       detail: (
         <>
           <p>
@@ -804,6 +811,7 @@ export const activitySelectionLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "So give this whole move its name — and the signals that tell you to reach for it.",
+      takeaway: "It’s Greedy — reach for it on “fit the most” / “min X to cover all Y”.",
       detail: (
         <>
           <p>

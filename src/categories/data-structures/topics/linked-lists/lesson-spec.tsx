@@ -492,6 +492,7 @@ function NameSummary() {
 
 export const linkedListsLesson: LessonSpec = {
   topicTitle: "linked lists · order lives in the arrows, not the positions",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: linkedListPy as string,
   beats: [
@@ -499,6 +500,7 @@ export const linkedListsLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I have the question",
+      takeaway: "Adding one item to a sorted list shouldn't disturb the rest.",
       visual: <ArraySetup />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The setup", title: "Add one item to a sorted list — without disturbing the rest.",
@@ -518,6 +520,7 @@ export const linkedListsLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "We have the wish — add one item without disturbing the rest. Here's why the everyday tool, an array, can't grant it.",
       actionLabel: "Free the positions",
+      takeaway: "An array's fixed positions force n shoves per insert — O(n).",
       visual: (api) => <ArrayShiftPlayback api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Arrays force a domino effect.",
@@ -539,6 +542,7 @@ export const linkedListsLesson: LessonSpec = {
       label: "The instinct",
       connector: "So free the positions: instead of a fixed line, give each item an arrow that says where the next one lives.",
       actionLabel: "Pointers are the trick",
+      takeaway: "Give each card an arrow to the next — order lives in the arrows.",
       visual: (api) => <WedgeChain api={api} />,
       panels: [
         {
@@ -568,6 +572,7 @@ export const linkedListsLesson: LessonSpec = {
       label: "The structure",
       connector: "Those cards-with-arrows have a real name and a fixed anatomy — let's open one up.",
       actionLabel: "What's cheap?",
+      takeaway: "A node = one value + the address of the next node.",
       visual: <Anatomy />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The structure", title: "A node: one value + the address of the next.",
@@ -588,6 +593,7 @@ export const linkedListsLesson: LessonSpec = {
       label: "The operations",
       connector: "Now that we know a node is value + next-pointer, let's price each thing you can do with the chain.",
       actionLabel: "When it fits",
+      takeaway: "Edits where you stand are O(1); finding or jumping is O(n).",
       visual: (api) => <FindWalk api={api} />,
       panels: [{
         left: 470, top: 20, width: 360, variant: "main", label: "The operations", title: "Cheap edits, expensive lookups.",
@@ -609,6 +615,7 @@ export const linkedListsLesson: LessonSpec = {
       label: "When it fits",
       connector: "Cheap edits, costly lookups — that profile rarely wins on its own, but the node-and-arrow idea behind it shows up everywhere.",
       actionLabel: "Name it",
+      takeaway: "The node-and-arrow idea is the model under trees and graphs.",
       visual: <Generalize />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "It's how other structures think.",
@@ -627,6 +634,7 @@ export const linkedListsLesson: LessonSpec = {
       id: "name",
       label: "The structure",
       connector: "Trees, graphs, deques — they all trace back to the one shape you just built. Time to name it.",
+      takeaway: "It's a Linked List — position is not address; order is the arrows.",
       visual: <NameSummary />,
       panels: [{
         left: 150, top: 20, width: 580, variant: "main", label: "The structure", title: "Linked List.",

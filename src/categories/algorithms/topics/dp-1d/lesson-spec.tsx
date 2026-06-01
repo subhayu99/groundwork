@@ -223,6 +223,7 @@ function FamilyGallery() {
 
 export const dp1dLesson: LessonSpec = {
   topicTitle: "dynamic programming · ways to climb 8 stairs",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: dp_1dPy as string,
   beats: [
@@ -230,6 +231,7 @@ export const dp1dLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "The natural rule",
+      takeaway: "Count the routes up an 8-step staircase, hopping 1 or 2 at a time.",
       visual: <Staircase />,
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The setup",
@@ -251,6 +253,7 @@ export const dp1dLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "We have the question; now reach for the most natural way to answer it.",
       actionLabel: "Stop the repeats",
+      takeaway: "ways(n) = ways(n−1) + ways(n−2) — but naive recursion redoes the same calls.",
       visual: <Staircase showCounts />,
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The obvious thing",
@@ -272,6 +275,7 @@ export const dp1dLesson: LessonSpec = {
       label: "The instinct",
       connector: "If the same small questions keep coming back, what if we just refused to answer any of them twice?",
       actionLabel: "Make it a rule",
+      takeaway: "Solve each sub-question once, write it down, and look it up after.",
       visual: (api) => <ToggleMemo api={api} />,
       panels: [
         {
@@ -301,6 +305,7 @@ export const dp1dLesson: LessonSpec = {
       label: "The derivation",
       connector: "That “write it down, look it up” idea can be built two different ways — here are both.",
       actionLabel: "Count the work",
+      takeaway: "Two builds: a recursion with a notebook, or a table filled from the smallest case up.",
       visual: <g>{dpRow(1, DP.map((_, i) => (i <= 1 ? "good" : undefined)), { 0: "dp0", 1: "dp1" })}<Bracket x1={G.left(0)} x2={G.left(1) + G.cellW} y={G.y - 14} label="the two base values" color="var(--diff-easy)" /></g>,
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The derivation",
@@ -325,6 +330,7 @@ export const dp1dLesson: LessonSpec = {
       label: "The operations",
       connector: "Both flavours kill the repeats — now let's count exactly how much work that saves.",
       actionLabel: "Same shape, new problems",
+      takeaway: "Reuse turns exponential work into one O(n) pass — and just O(1) memory.",
       visual: (api) => <AutoTabulate api={api} />,
       panels: [{
         left: 40, top: 20, width: 580, variant: "main", label: "The operations",
@@ -347,6 +353,7 @@ export const dp1dLesson: LessonSpec = {
       label: "The generalization",
       connector: "That one-pass speed-up isn't really about stairs — it shows up anywhere the same shape does.",
       actionLabel: "Name the pattern",
+      takeaway: "Works wherever a problem reuses overlapping smaller answers — not just stairs.",
       visual: <FamilyGallery />,
       panels: [{
         left: 40, top: 20, width: 580, variant: "main", label: "The generalization",
@@ -366,6 +373,7 @@ export const dp1dLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "Two ingredients, one repeatable move — it's time to give the whole thing its name.",
+      takeaway: "It's Dynamic Programming — reach for it on count / min-cost / max-value problems that repeat.",
       visual: <g>{dpRow(8, DP.map((_, i) => (i === 8 ? "good" : "good")), { 8: "✓" })}<Caption y={G.y - 28} tone="var(--diff-easy)" text="the whole table, computed in one pass · dp[8] = 34" /></g>,
       panels: [
         {

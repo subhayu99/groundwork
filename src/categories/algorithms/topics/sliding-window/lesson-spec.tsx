@@ -185,6 +185,7 @@ const idleRow = (tones?: (Tone | undefined)[], dim?: boolean[]) => (
 
 export const slidingWindowLesson: LessonSpec = {
   topicTitle: "sliding window · sums of every 3-in-a-row",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: sliding_windowPy as string,
   beats: [
@@ -192,6 +193,7 @@ export const slidingWindowLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I see the setup",
+      takeaway: "A window of three slides down a row — eight sums to find with the least arithmetic.",
       visual: (
         <g>
           {idleRow(windowTones(0))}
@@ -217,6 +219,7 @@ export const slidingWindowLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "We know the window will slide eight times — so what's the first, dumbest way to answer each ask?",
       actionLabel: "Something feels wasteful",
+      takeaway: "Re-adding all three each time is 24 additions — and re-adds the two numbers neighbours share.",
       visual: (
         <g>
           {idleRow(windowTones(1))}
@@ -243,6 +246,7 @@ export const slidingWindowLesson: LessonSpec = {
       label: "The instinct",
       connector: "Since neighbouring windows overlap so much, let's stop calculating and just watch what actually moves.",
       actionLabel: "I think I see it",
+      takeaway: "When the window slides one step, only two numbers change — one leaves, one enters; the middle stays.",
       visual: (api) => <DragWindow api={api} />,
       panels: [
         {
@@ -271,6 +275,7 @@ export const slidingWindowLesson: LessonSpec = {
       label: "The derivation",
       connector: "You just saw only the two edges move — now let's turn that picture into a rule we can write down.",
       actionLabel: "Count the operations",
+      takeaway: "Keep a running total: new sum = old sum − the leaver + the newcomer. Two operations, any width.",
       visual: <FrozenSlide />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The derivation", title: "One leaves, one enters, the rest stay.",
@@ -297,6 +302,7 @@ export const slidingWindowLesson: LessonSpec = {
       label: "The win",
       connector: "Now that each slide costs just two operations, let's put a number on how much that actually saves.",
       actionLabel: "See the payoff",
+      takeaway: "Two operations per slide instead of k — and the gap widens as the window grows (≈50× at k=100).",
       visual: <CounterRace />,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "The win", title: "Two operations beat k, and the gap grows.",
@@ -318,6 +324,7 @@ export const slidingWindowLesson: LessonSpec = {
       label: "The win, watched",
       connector: "We've counted the savings on paper — now let the code run it live and see the total barely move.",
       actionLabel: "A different question",
+      takeaway: "Watching it run: the window marches across, the running total just nudges — eight answers, almost no arithmetic.",
       visual: (api) => <AutoSlide api={api} />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "Watch it run", title: "The window marches; the total just nudges.",
@@ -344,6 +351,7 @@ export const slidingWindowLesson: LessonSpec = {
       label: "The generalization",
       connector: "The slide gave us all eight sums cheaply — but does the same move survive a completely different question?",
       actionLabel: "Name the pattern",
+      takeaway: "Same slide answers a new question (biggest sum) — it only cares about contiguous windows you can update, not what you ask.",
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The generalization", title: "Same wedge. New question.",
         body: <>Forget listing all eight sums. New question: what&rsquo;s the <strong>biggest</strong> three-in-a-row sum? Same slide, same two operations &mdash; just remember the largest total you&rsquo;ve seen, plus one comparison each step. The slide doesn&rsquo;t care what you ask.</>,
@@ -362,6 +370,7 @@ export const slidingWindowLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "You've built the whole move from scratch — here's its name and the cues that say \"reach for it.\"",
+      takeaway: "It's the Sliding Window — reach for it on contiguous stretches where the answer can be nudged, not rebuilt.",
       visual: <Signals />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Sliding Window.",

@@ -168,12 +168,14 @@ const idleRow = (tones?: (Tone | undefined)[], dim?: boolean[], markers?: Record
 
 export const arraysLesson: LessonSpec = {
   topicTitle: "arrays · reach any slot in one step",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: arraysPy as string,
   beats: [
     {
       id: "setup",
       label: "The setup",
+      takeaway: "The only thing we care about is reaching a book by its position — fast.",
       actionLabel: "I have the question",
       visual: idleRow(ARR.map((_, i) => (i === TARGET ? "active" : undefined))),
       panels: [{
@@ -192,6 +194,7 @@ export const arraysLesson: LessonSpec = {
     {
       id: "pile",
       label: "The obvious thing",
+      takeaway: "Stored as a pile, reaching position 487 takes 487 lifts — the arrangement forces counting.",
       connector: "Before we can speed it up, look at the slowest honest way to store those books.",
       actionLabel: "What changes if we rearrange?",
       visual: <PileCount />,
@@ -212,6 +215,7 @@ export const arraysLesson: LessonSpec = {
     {
       id: "wedge",
       label: "The instinct",
+      takeaway: "Give every position a fixed, equal-size home and a slot's number (its index) takes you straight there in one step.",
       connector: "Now that the pile makes you count from the top, change one thing — give every position a fixed home.",
       actionLabel: "Storage decides speed",
       visual: (api) => <DragToSlot api={api} />,
@@ -240,6 +244,7 @@ export const arraysLesson: LessonSpec = {
     {
       id: "structure",
       label: "The structure",
+      takeaway: "Even spacing lets the computer compute slot i's address as base + i × size — constant time, O(1).",
       connector: "That one-step jump isn't magic — it's arithmetic, and the even spacing of the slots is what makes it work.",
       actionLabel: "What operations cost what?",
       visual: <MemoryRuler />,
@@ -260,6 +265,7 @@ export const arraysLesson: LessonSpec = {
     {
       id: "operations",
       label: "The operations",
+      takeaway: "Reads and appends are O(1); inserting or deleting in the middle is O(n) because the tail must shift.",
       connector: "Reaching a slot is free — but not every operation gets to ride that arithmetic, so let's price them out.",
       actionLabel: "When does this fit?",
       visual: (api) => <AutoInsert api={api} />,
@@ -291,13 +297,20 @@ export const arraysLesson: LessonSpec = {
     {
       id: "fit",
       label: "When it fits",
+      takeaway: "Use an array for read-by-position, append, and scanning; pick another structure for constant middle edits.",
       connector: "With every operation priced, the rule for when to use an array writes itself.",
       actionLabel: "Name the structure",
       visual: <CostCard />,
-      panels: [{
-        left: 560, top: 240, width: 280, variant: "note", label: "When it fits",
-        body: <>Reach for arrays when the work is read-by-position, append, or scan start-to-end. Pick other layouts (later lessons) when you constantly insert or delete in the middle.</>,
-      }],
+      panels: [
+        {
+          left: 150, top: 18, width: 560, variant: "main", label: "When it fits", title: "Cheap moves win — pick the array for those.",
+          body: <>Reach for arrays when the work is read-by-position, append, or scan start-to-end. Pick other layouts (later lessons) when you constantly insert or delete in the middle.</>,
+        },
+        {
+          left: 560, top: 240, width: 280, variant: "note", label: "When it fits",
+          body: <>Reach for arrays when the work is read-by-position, append, or scan start-to-end. Pick other layouts (later lessons) when you constantly insert or delete in the middle.</>,
+        },
+      ],
       detail: (
         <>
           <p>Arrays are the default choice for almost any sequence of things. Reach for one whenever the work looks like: <em>read by position, add to the end, or scan from start to finish</em> &mdash; all the cheap moves.</p>
@@ -310,6 +323,7 @@ export const arraysLesson: LessonSpec = {
     {
       id: "name",
       label: "The pattern",
+      takeaway: "It's an array (Python's list is a dynamic array); every arr[i] is that base + i × size jump.",
       connector: "You've earned the name — and you already know the one line that makes the whole thing tick.",
       visual: idleRow(ARR.map((_, i) => (i === TARGET ? "good" : undefined)), undefined, { [TARGET]: "arr[i]" }),
       panels: [{

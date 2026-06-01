@@ -209,6 +209,7 @@ const idleRow = (tones?: (Tone | undefined)[], dim?: boolean[], markers?: Record
 
 export const twoPointersLesson: LessonSpec = {
   topicTitle: "two pointers · find a pair that sums to 17",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: two_pointersPy as string,
   beats: [
@@ -216,6 +217,7 @@ export const twoPointersLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I see the setup",
+      takeaway: "Ten sorted cards — find two that add up to 17, touching as few as possible.",
       visual: idleRow(),
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The setup", title: "Ten cards on a table. Find the pair that adds up.",
@@ -234,6 +236,7 @@ export const twoPointersLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Before getting clever, what does the honest, no-tricks way actually cost?",
       actionLabel: "Sorted should mean something",
+      takeaway: "Trying every pair is up to 45 tries (O(n²)) — and ignores that the cards are sorted.",
       visual: <BruteForce />,
       panels: [{
         left: 150, top: 300, width: 580, variant: "main", label: "The obvious thing", title: "Try every pair until one works.",
@@ -254,6 +257,7 @@ export const twoPointersLesson: LessonSpec = {
       label: "The instinct",
       connector: "If checking every pair wastes the sorted order, start at the two ends and let the order guide you.",
       actionLabel: "I see the pattern",
+      takeaway: "Start a finger at each end: too small grows by moving L right, too big shrinks by moving R left.",
       visual: (api) => <MoveTheFingers api={api} />,
       panels: [
         {
@@ -282,6 +286,7 @@ export const twoPointersLesson: LessonSpec = {
       label: "The derivation",
       connector: "You felt which finger to move — now here's the reason it's always the right call.",
       actionLabel: "Count the work",
+      takeaway: "Because it's sorted, one comparison retires a whole side of pairs at once, not just one.",
       visual: <RetireSide />,
       panels: [
         {
@@ -310,6 +315,7 @@ export const twoPointersLesson: LessonSpec = {
       label: "The win",
       connector: "If one look retires a whole side, count how many looks the whole search can possibly take.",
       actionLabel: "See it converge",
+      takeaway: "Each card is touched once, so 45 pairs collapse to at most 9 steps — O(n) instead of O(n²).",
       visual: <WinStat />,
       panels: [{
         left: 150, top: 26, width: 560, variant: "main", label: "The win", title: "Forty-five pairs becomes nine comparisons.",
@@ -329,6 +335,7 @@ export const twoPointersLesson: LessonSpec = {
       label: "The win, watched",
       connector: "Nine steps on paper — here it is happening, the retired cards fading out one move at a time.",
       actionLabel: "Where else it fits",
+      takeaway: "Watched live: the fingers walk inward, retired cards fade, and they land on 17 in just a few looks.",
       visual: (api) => <AutoTwoPointers api={api} />,
       panels: [{
         left: 150, top: 18, width: 560, variant: "main", label: "Watch it converge", title: "The fingers walk inward on their own.",
@@ -348,6 +355,7 @@ export const twoPointersLesson: LessonSpec = {
       label: "The generalization",
       connector: "The cards were just one excuse to use the fingers — the same move answers questions that have nothing to do with sums.",
       actionLabel: "Name the pattern",
+      takeaway: "The same two fingers solve palindromes and most-water too — all they need is a direction.",
       visual: <PalindromeScene />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The generalization", title: "Same fingers. New questions.",
@@ -371,6 +379,7 @@ export const twoPointersLesson: LessonSpec = {
       ),
       label: "The pattern",
       connector: "You've used it, proved it, and stretched it — here's its name and the cues that should make you reach for it.",
+      takeaway: "It's Two Pointers — reach for it on sorted pair-sums, palindromes, or “most water”.",
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Two Pointers.",
         body: <>That&rsquo;s the name. Reach for it whenever a row has a <strong>direction</strong> &mdash; sorted order, symmetry, a one-way pattern &mdash; and one comparison can retire a whole side. Signals: &ldquo;sorted array + pair sum&rdquo;; &ldquo;palindrome&rdquo;; &ldquo;container with most water.&rdquo;</>,

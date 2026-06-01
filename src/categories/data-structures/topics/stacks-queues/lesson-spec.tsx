@@ -196,6 +196,7 @@ function NamedContracts() {
 
 export const stacksQueuesLesson: LessonSpec = {
   topicTitle: "stacks & queues · two contracts on a row",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: stacksQueuesPy as string,
   beats: [
@@ -203,6 +204,7 @@ export const stacksQueuesLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I have the question",
+      takeaway: "Same row of items, opposite rules: browser back wants newest-first, a coffee line wants oldest-first.",
       visual: <SharedRow />,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "The setup", title: "Two questions. Opposite rules. Same row of items.",
@@ -222,6 +224,7 @@ export const stacksQueuesLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Take that same row of items and try to store it the plain way — and the two rules start costing very different amounts.",
       actionLabel: "What's the trick?",
+      takeaway: "In a plain array, adding at the end is instant (O(1)) but removing the front shuffles everyone over (O(n)).",
       visual: <SharedRow frontLeaving shift />,
       panels: [{
         left: 150, top: 24, width: 580, variant: "main", label: "The obvious thing", title: "Use an array. Add at the end is cheap; the front is not.",
@@ -242,6 +245,7 @@ export const stacksQueuesLesson: LessonSpec = {
       label: "The instinct",
       connector: "So here's the promise that fixes the expensive case: never reach into the middle — only ever touch the ends.",
       actionLabel: "Restrict, then optimize",
+      takeaway: "Promise to touch only the ends, never the middle, and nothing ever has to shuffle to fill a gap.",
       visual: (api) => <PushPopStack api={api} />,
       panels: [
         {
@@ -270,6 +274,7 @@ export const stacksQueuesLesson: LessonSpec = {
       label: "The structure",
       connector: "Those two end-only promises are exactly the two structures — one touches a single end, the other splits the work across two.",
       actionLabel: "What's the cost?",
+      takeaway: "A stack uses one end (LIFO, newest out first); a queue uses two ends (FIFO, oldest out first).",
       visual: <TwoContracts stackTones={["idle", "idle", "active"]} queueTones={["active", "idle", "idle"]} />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The structure", title: "One end, or two.",
@@ -293,6 +298,7 @@ export const stacksQueuesLesson: LessonSpec = {
       label: "The operations",
       connector: "And here's the payoff of touching only the ends: now put a price tag on every move.",
       actionLabel: "When does each fit?",
+      takeaway: "Every push/pop/peek and queue add/remove is O(1) — as long as the queue uses a deque, not a plain list.",
       visual: (api) => <AutoStack api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Every move is at an end, so every move is instant.",
@@ -312,6 +318,7 @@ export const stacksQueuesLesson: LessonSpec = {
       label: "When it fits",
       connector: "Both are now equally cheap, so the only thing left to decide is which one a given problem actually wants.",
       actionLabel: "Name them",
+      takeaway: "Choose a stack when you want the most-recent item next; a queue when the longest-waiter goes next.",
       visual: <TwoContracts stackTones={["idle", "muted", "active"]} queueTones={["active", "muted", "idle"]} showNoMiddle chips />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "Newest-next vs oldest-next.",
@@ -330,6 +337,7 @@ export const stacksQueuesLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "Now give the two contracts their names — and notice they're just the everyday pictures you already know.",
+      takeaway: "Stack and Queue: two contracts on a plain array, and the contract is what keeps every move instant.",
       visual: <NamedContracts />,
       panels: [{
         left: 150, top: 30, width: 560, variant: "main", label: "The pattern", title: "Stack and Queue.",

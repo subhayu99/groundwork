@@ -289,6 +289,7 @@ function ComplexityRecap() {
 
 export const treesLesson: LessonSpec = {
   topicTitle: "trees · hierarchy you can walk",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: treesPy as string,
   beats: [
@@ -296,6 +297,7 @@ export const treesLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I have the question",
+      takeaway: "Real data branches — folders, replies, org charts — not a straight line.",
       visual: <FlatTable />,
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The setup",
@@ -315,6 +317,7 @@ export const treesLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "We just said a flat list can't capture nesting — so let's try forcing the hierarchy into one anyway and watch what breaks.",
       actionLabel: "Let the shape lead",
+      takeaway: "A flat table answers \"who's the boss?\" but scans every row for \"everyone under?\".",
       visual: <FlatTable rowTone={(k) => (k === "bo" ? "active" : subtreeIds("bo").has(k) && k !== "bo" ? "visited" : undefined)} />,
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The obvious thing",
@@ -336,6 +339,7 @@ export const treesLesson: LessonSpec = {
       label: "The instinct",
       connector: "So let the shape lead: instead of a flat table, give each person a direct link to their reports — then ask for a branch again.",
       actionLabel: "Each node points to its kids",
+      takeaway: "Give each node a link to its kids, and a whole branch is one walk down the pointers.",
       visual: (api) => <ClickToBranch api={api} />,
       panels: [
         {
@@ -365,6 +369,7 @@ export const treesLesson: LessonSpec = {
       label: "The structure",
       connector: "Now that each node points to its kids, let's name the shape those pointers build — and the rules it has to follow.",
       actionLabel: "What operations?",
+      takeaway: "A tree = nodes linking down to children, one root, no loops back up.",
       visual: <g><NodeGraph nodes={orgNodes((id) => (id === "ana" ? "active" : undefined))} edges={ORG_EDGES} radius={21} /><Caption y={186} text="root — the one box every path starts from" /></g>,
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The structure",
@@ -386,6 +391,7 @@ export const treesLesson: LessonSpec = {
       label: "The operations",
       connector: "We've got the shape and its rules — now, what can we actually do with a tree? Two answers, and the second is the payoff.",
       actionLabel: "When trees fit",
+      takeaway: "Walk every node = O(n); a sorted BST lookup is left/right turns = O(log n).",
       visual: (api) => <AutoBSTSearch api={api} />,
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The operations",
@@ -411,6 +417,7 @@ export const treesLesson: LessonSpec = {
       label: "When it fits",
       connector: "Now that you know the two moves — walk it all, or take the sorted shortcut — here's how to recognize a problem that wants them.",
       actionLabel: "Name them",
+      takeaway: "Use a tree for nested data; a BST when you need lookups plus sorted order.",
       visual: <FitsChips />,
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "When it fits",
@@ -430,6 +437,7 @@ export const treesLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: "You've built it, learned its two operations, and seen where it fits — so give the whole shape its name.",
+      takeaway: "It's a Tree — heaps, tries, B-trees all share the same nodes-and-links skeleton.",
       visual: <ComplexityRecap />,
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The pattern",

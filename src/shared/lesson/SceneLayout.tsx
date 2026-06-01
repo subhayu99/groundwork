@@ -38,7 +38,7 @@ export function SceneLayout({
     // widthFill > 1: scale the diagram up so its CONTENT fills the box width and
     // the canvas's empty side margins overflow/clip — the diagram reads large
     // (esp. on mobile, where it was a thin strip) rather than floating small.
-    scaleClamp: { min: 0.4, max: 2.4, biasWidth: true, widthFill: 1.12 },
+    scaleClamp: { min: 0.4, max: 2.4, biasWidth: true, widthFill: 1.0 },
   });
   const {
     VW, VH, PY, b, setB, last, beat,

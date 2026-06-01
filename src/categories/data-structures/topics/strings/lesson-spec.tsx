@@ -265,6 +265,7 @@ function CostTable() {
 
 export const stringsLesson: LessonSpec = {
   topicTitle: "strings · find \"brown\" in a sentence",
+  layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: stringsPy as string,
   beats: [
@@ -272,6 +273,7 @@ export const stringsLesson: LessonSpec = {
       id: "setup",
       label: "The setup",
       actionLabel: "I have the question",
+      takeaway: "A sentence is one long stream of letters — find the word “brown” in it.",
       visual: idleRow(),
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The setup", title: "Find a word inside a sentence.",
@@ -290,6 +292,7 @@ export const stringsLesson: LessonSpec = {
       label: "The obvious thing",
       connector: "Now that we have the question, what's the most direct way to go answer it?",
       actionLabel: "Strings are arrays?",
+      takeaway: "Slide a 5-letter window across, comparing at each spot — slow, but it works.",
       visual: (api) => <AutoScan api={api} />,
       panels: [
         {
@@ -313,6 +316,7 @@ export const stringsLesson: LessonSpec = {
       label: "The instinct",
       connector: "If landing on any letter is instant, let's feel that for ourselves — drag the slider under the row and read what's underneath.",
       actionLabel: "Same machinery, different content",
+      takeaway: "Reaching any letter is one instant lookup — text acts just like a row of boxes.",
       visual: (api) => <SlideTheWindow api={api} />,
       panels: [
         {
@@ -342,6 +346,7 @@ export const stringsLesson: LessonSpec = {
       label: "The structure",
       connector: "So the answer to that question is almost “nothing” — a string really is just an array of characters, with one twist.",
       actionLabel: "What's cheap, what's not?",
+      takeaway: "A string is an array of characters — but immutable: you can’t edit it in place.",
       visual: <LockedFirst />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The structure", title: "A string is an array of characters.",
@@ -361,6 +366,7 @@ export const stringsLesson: LessonSpec = {
       label: "The operations",
       connector: "If \"changing\" a string secretly rebuilds it, then which operations are cheap and which quietly cost a fortune?",
       actionLabel: "When it fits",
+      takeaway: "Reading a letter is instant; every edit copies the whole string — growing with += explodes.",
       visual: (api) => <AutoImmutable api={api} />,
       panels: [
         {
@@ -391,6 +397,7 @@ export const stringsLesson: LessonSpec = {
       label: "When it fits",
       connector: "Now that we know what's cheap and what's not, where does this structure actually show up?",
       actionLabel: "Name the structure",
+      takeaway: "Most data is text — URLs, emails, JSON keys, logs are all strings underneath.",
       visual: <StringGallery />,
       panels: [{
         left: 150, top: 18, width: 560, variant: "main", label: "When it fits", title: "Text is everywhere.",
@@ -409,6 +416,7 @@ export const stringsLesson: LessonSpec = {
       id: "name",
       label: "The structure",
       connector: "Pull it all together and the thing finally earns its name.",
+      takeaway: "It’s a String — an array of characters, immutable, indexed instantly.",
       visual: <CostTable />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The structure", title: "String.",
