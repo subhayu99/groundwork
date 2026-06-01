@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { CodeHighlight } from "@/shared/code/CodeHighlight";
-import { ArrowDefs, Arrow } from "./canvas";
+import { ArrowDefs } from "./canvas";
 import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
 import { useLessonEngine, type LessonRuntimeProps } from "./LessonRuntime";
 
@@ -210,6 +210,26 @@ export function SceneLayout({
           <div
             style={{ aspectRatio: `${VW} / ${VH}` }}
             className="relative w-full max-h-full self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden">
+            {/* MAIN caption — a CONSISTENT title band pinned to the top of the box
+                (desktop). Same position on every beat (the authored per-beat
+                left/top were tuned for the classic sticky-note + arrow style and
+                made the title jump — e.g. beat 2 sat below the array). As a band it
+                is always aligned to the box edges and never moves between beats. */}
+            {(() => {
+              const main = beat.panels.find((p) => p.variant !== "note");
+              if (!main) return null;
+              return (
+                <AnimatePresence mode="wait">
+                  <motion.div key={beat.id}
+                    initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                    transition={{ duration: 0.28, ease: [0.22, 0.65, 0.3, 1] }}
+                    className="hidden xl:block absolute top-0 inset-x-0 z-10 px-5 pt-3 pb-2.5 border-b border-[var(--accent-line)] bg-[color-mix(in_oklab,var(--accent-sky)_10%,var(--bg-card))]">
+                    {main.label && <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">{main.label}</div>}
+                    <div className="font-semibold text-[15px] leading-snug text-[var(--text)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono">{main.title ?? main.body}</div>
+                  </motion.div>
+                </AnimatePresence>
+              );
+            })()}
             {/* the canvas plane (scaled), centered in its box. Centering keeps the
                 widthFill overflow symmetric — only the canvas's empty side margins
                 clip, never the live cells — while the reading rail lives in its own
@@ -227,37 +247,28 @@ export function SceneLayout({
                     <AnimatePresence mode="wait">
                       <motion.g key={beat.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
                         {visualNode}
-                        {beat.arrows?.map((a, i) => <Arrow key={i} {...a} />)}
+                        {/* caption-anchor arrows are suppressed in scene mode — the
+                            caption is now a fixed top band, so an arrow from its old
+                            in-plane position would dangle. State reads via the
+                            cell labels/colours instead. */}
                       </motion.g>
                     </AnimatePresence>
                   </svg>
 
-                  {/* on-canvas caption(s) — DESKTOP only. The "main" panel is
-                      demoted to a calm one-line takeaway (its title), anchored by
-                      its authored arrow to the cell it describes; the paragraph
-                      body lives in the rail (beat.detail), so they never double
-                      up. Note panels (e.g. the wedge question) keep their body. */}
+                  {/* on-canvas NOTE annotations — DESKTOP only. Real spatial notes
+                      (e.g. the wedge question) keep their authored position + body.
+                      The MAIN caption is the consistent top band above, not here, so
+                      the title no longer jumps between beats. */}
                   <AnimatePresence mode="wait">
                     <motion.div key={beat.id} className="absolute inset-0 pointer-events-none hidden xl:block"
                       initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
                       transition={{ duration: 0.28, ease: [0.22, 0.65, 0.3, 1] }}>
-                      {beat.panels.map((p, i) => (
-                        p.variant === "note" ? (
-                          <div key={i} data-canvas-panel="note"
-                            className="absolute rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] px-3 py-2 text-[12.5px] leading-snug text-[var(--text-muted)]"
-                            style={{ left: p.left, top: p.top, width: p.width }}>
-                            {p.body}
-                          </div>
-                        ) : (
-                          <div key={i} data-canvas-panel="caption"
-                            className="absolute rounded-lg border border-[var(--accent-line)] bg-[color-mix(in_oklab,var(--accent-sky)_10%,var(--bg-card))] px-3 py-2"
-                            style={{ left: p.left, top: p.top, width: p.width }}>
-                            {p.label && <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">{p.label}</div>}
-                            <div className="font-semibold text-[14px] leading-snug text-[var(--text)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono">
-                              {p.title ?? p.body}
-                            </div>
-                          </div>
-                        )
+                      {beat.panels.filter((p) => p.variant === "note").map((p, i) => (
+                        <div key={i} data-canvas-panel="note"
+                          className="absolute rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] px-3 py-2 text-[12.5px] leading-snug text-[var(--text-muted)]"
+                          style={{ left: p.left, top: p.top, width: p.width }}>
+                          {p.body}
+                        </div>
                       ))}
                     </motion.div>
                   </AnimatePresence>
