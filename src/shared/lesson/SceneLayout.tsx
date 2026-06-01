@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { CodeHighlight } from "@/shared/code/CodeHighlight";
@@ -67,11 +67,13 @@ export function SceneLayout({
     return () => mql.removeEventListener("change", sync);
   }, []);
 
-  // The reading rail is open on beat 0 (setup/orientation) and collapses to a
-  // "why?" tab from beat 1 onward — reveal-on-demand. The engine's showDetail is
-  // the source of truth; we steer its default on each beat change unless the
-  // learner has toggled it on this beat.
+  // The reading rail defaults open on beat 0 (orientation) and collapsed after —
+  // but ONCE THE LEARNER TOGGLES IT, that choice STICKS across every beat (like the
+  // code panel's codeTouched). detailTouched latches on the first manual toggle and
+  // stops the per-beat auto-steering, so open-on-one-beat = open on all the others.
+  const detailTouched = useRef(false);
   useEffect(() => {
+    if (detailTouched.current) return;
     setShowDetail(b === 0);
   }, [b, setShowDetail]);
 
@@ -313,7 +315,7 @@ export function SceneLayout({
                 expand AND collapse; chevron rotates; body opens in place below). */}
             {beat.detail && (
               <div className="rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_55%,transparent)] overflow-hidden">
-                <button onClick={() => setShowDetail((v) => !v)} aria-expanded={showDetail}
+                <button onClick={() => { detailTouched.current = true; setShowDetail((v) => !v); }} aria-expanded={showDetail}
                   title={showDetail ? "hide the explanation" : "read the deeper why / how"}
                   className="w-full flex items-center gap-2 px-4 py-2.5 text-left hover:bg-[var(--bg-inset)] transition-colors">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[var(--accent-ink)]"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg>
