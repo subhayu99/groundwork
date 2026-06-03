@@ -1,99 +1,111 @@
 import Link from "next/link";
 import { Chrome } from "@/shared/layout/Chrome";
-import { ConceptMapHome } from "./ConceptMapHome";
 import { ResumeBanner } from "./ResumeBanner";
-import { listCategories, listTopicsInCategory } from "@/categories/registry";
-import { getPrinciple } from "@/principles/registry";
+import { listPrinciples } from "@/principles/registry";
+import { listAllTopics } from "@/categories/registry";
 
-export default function Home() {
-  const categories = listCategories();
+const STEPS = [
+  { n: "01", t: "Start from a problem", d: "No definitions up front. You meet a real question and feel why the obvious approach is too slow." },
+  { n: "02", t: "Derive the idea", d: "Step by step on an animated canvas — you watch the insight appear and build the algorithm yourself." },
+  { n: "03", t: "See the real code", d: "The same idea in plain Python, line by line, tied to the picture. The name comes last, once it's obvious." },
+];
+
+export default function Landing() {
+  const principles = listPrinciples();
+  const topicCount = listAllTopics().length;
 
   return (
     <div className="min-h-screen flex flex-col">
       <Chrome />
 
-      <main className="flex-1 max-w-4xl mx-auto px-5 md:px-8 py-16 w-full">
-        <h1 className="text-5xl font-semibold text-[var(--text)] mb-3">
-          First principles, not patterns.
-        </h1>
-        <p className="text-lg text-[var(--text-muted)] mb-6 max-w-2xl">
-          Learn the seven ideas underneath every algorithm. Derive each pattern from scratch &mdash;
-          never memorize a name without understanding what it&rsquo;s made of.
-        </p>
+      <main className="flex-1 w-full">
+        {/* HERO */}
+        <section className="max-w-4xl mx-auto px-5 md:px-8 pt-20 pb-14 w-full">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--line-faint)] bg-[var(--bg-card)] px-3 py-1 mb-6 font-mono text-[11px] uppercase tracking-wider text-[var(--text-muted)]">
+            <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
+            {topicCount} lessons · 7 principles
+          </div>
+          <h1 className="text-5xl md:text-6xl font-semibold text-[var(--text)] leading-[1.05] mb-5">
+            First principles,
+            <br />
+            not patterns.
+          </h1>
+          <p className="text-lg text-[var(--text-muted)] mb-8 max-w-2xl leading-relaxed">
+            Most courses make you memorize algorithm names. Groundwork teaches the seven ideas
+            underneath every one of them &mdash; then has you{" "}
+            <strong className="text-[var(--text)]">derive each algorithm from scratch</strong>, step
+            by step, until it feels obvious.
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/learn"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-[var(--bg)] hover:opacity-90 transition-opacity"
+            >
+              Start learning &rarr;
+            </Link>
+            <Link
+              href="/categories/algorithms/binary-search"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--line)] px-5 py-3 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--line-strong)] transition-colors"
+            >
+              Try Binary Search first &rarr;
+            </Link>
+          </div>
+          <div className="mt-8 max-w-xl">
+            <ResumeBanner />
+          </div>
+        </section>
 
-        <div className="mb-12 flex flex-wrap items-center gap-3">
-          <Link
-            href="/categories/algorithms/binary-search"
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[var(--bg)] transition-opacity hover:opacity-90"
-          >
-            Start with Binary Search &rarr;
-          </Link>
-          <span className="text-sm text-[var(--text-muted)]">New here? Derive it in 7 steps.</span>
-        </div>
+        {/* SEVEN PRINCIPLES */}
+        <section className="border-t border-[var(--line-faint)] bg-[var(--bg-elevated)]">
+          <div className="max-w-4xl mx-auto px-5 md:px-8 py-14 w-full">
+            <h2 className="text-2xl font-semibold text-[var(--text)] mb-1">Seven ideas underneath everything</h2>
+            <p className="text-[var(--text-muted)] mb-8">
+              Every algorithm you&rsquo;ll meet is one (or a few) of these in disguise.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {principles.map((p) => (
+                <Link
+                  key={p.key}
+                  href={`/principles/${p.key}`}
+                  className="block p-4 rounded-xl border border-[var(--line-faint)] bg-[var(--bg-card)] hover:border-[var(--line-strong)] transition-colors"
+                >
+                  <div className="font-semibold text-[var(--text)] mb-0.5">{p.name}</div>
+                  <div className="text-sm text-[var(--text-muted)]">{p.displayName}</div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
 
-        <div className="mb-8">
-          <ResumeBanner />
-        </div>
+        {/* HOW A LESSON WORKS */}
+        <section className="max-w-4xl mx-auto px-5 md:px-8 py-14 w-full">
+          <h2 className="text-2xl font-semibold text-[var(--text)] mb-8">How a lesson works</h2>
+          <div className="grid gap-7 sm:grid-cols-3">
+            {STEPS.map((s) => (
+              <div key={s.n}>
+                <div className="font-mono text-sm text-[var(--accent-ink)] mb-2">{s.n}</div>
+                <div className="font-semibold text-[var(--text)] mb-1">{s.t}</div>
+                <p className="text-sm text-[var(--text-muted)] leading-relaxed">{s.d}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-        {/* Concept map (now touch-friendly: tap to trace, tap again to open).
-            Shown on every size; the readable topic grid stays below on mobile. */}
-        <ConceptMapHome />
-
-        <div className="space-y-12 md:hidden mt-12">
-          {categories.map((cat) => {
-            const topics = listTopicsInCategory(cat.key);
-            return (
-              <section key={cat.key}>
-                <div className="mb-4">
-                  <h2 className="text-2xl font-semibold text-[var(--text)]">{cat.name}</h2>
-                  <p className="text-sm text-[var(--text-muted)] mt-1">{cat.description}</p>
-                </div>
-                {topics.length === 0 ? (
-                  <p className="text-sm font-mono text-[var(--text-faint)]">coming soon</p>
-                ) : (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {topics.map((t) => (
-                      <Link
-                        key={t.key}
-                        href={`/categories/${cat.key}/${t.key}`}
-                        className="block p-4 rounded-xl border border-[var(--line-faint)] bg-[var(--bg-card)] hover:border-[var(--line-strong)] transition-colors"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-[var(--text)]">{t.name}</h3>
-                          <span
-                            className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase"
-                            style={{
-                              color:
-                                t.difficulty === "easy"
-                                  ? "var(--diff-easy)"
-                                  : t.difficulty === "medium"
-                                  ? "var(--diff-med)"
-                                  : t.difficulty === "hard"
-                                  ? "var(--diff-hard)"
-                                  : "var(--text-muted)",
-                            }}
-                          >
-                            {t.difficulty}
-                          </span>
-                        </div>
-                        <div className="flex gap-1.5 flex-wrap">
-                          {t.principles.map((p) => (
-                            <span
-                              key={p}
-                              className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--accent-ink)]"
-                            >
-                              {getPrinciple(p)?.displayName ?? p.replaceAll("-", " ")}
-                            </span>
-                          ))}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </section>
-            );
-          })}
-        </div>
+        {/* FINAL CTA */}
+        <section className="border-t border-[var(--line-faint)]">
+          <div className="max-w-4xl mx-auto px-5 md:px-8 py-16 w-full text-center">
+            <h2 className="text-3xl font-semibold text-[var(--text)] mb-3">Build it from the ground up.</h2>
+            <p className="text-[var(--text-muted)] mb-7 max-w-xl mx-auto">
+              Follow the map from foundations to advanced &mdash; every topic sits on the ones it builds on.
+            </p>
+            <Link
+              href="/learn"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-[var(--bg)] hover:opacity-90 transition-opacity"
+            >
+              See the map &rarr;
+            </Link>
+          </div>
+        </section>
       </main>
     </div>
   );

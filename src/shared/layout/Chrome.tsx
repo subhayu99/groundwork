@@ -55,6 +55,12 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
         {shouldShowProgressLink && (
           <>
             <Link
+              href="/learn"
+              className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]"
+            >
+              learn
+            </Link>
+            <Link
               href="/progress"
               className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]"
             >
