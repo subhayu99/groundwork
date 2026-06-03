@@ -7,7 +7,7 @@ import { TopicLayout } from "@/shared/layout/TopicLayout";
 import { DerivationEngine } from "@/shared/derivation/DerivationEngine";
 import { NextStepsSection } from "@/shared/next-steps/NextStepsSection";
 import { AccessGate } from "@/shared/access/AccessGate";
-import { getCategory, listAllTopics } from "@/categories/registry";
+import { getCategory, getTopic, listAllTopics } from "@/categories/registry";
 import { getPrinciple } from "@/principles/registry";
 import { getTopicBundle } from "@/categories/topic-registry";
 import { codeMaps } from "@/categories/code-maps";
@@ -25,6 +25,10 @@ interface Props {
 
 export function TopicPageClient({ categoryKey, topicKey }: Props) {
   const cat = getCategory(categoryKey);
+  const meta = getTopic(categoryKey, topicKey);
+  // The classic bundle (steps/visualizer/problems) only exists for the original
+  // two categories; a scene lesson needs just `meta` + its LessonSpec, so this may
+  // be undefined for new tracks (e.g. programming-basics) and that's fine.
   const bundle = getTopicBundle(categoryKey, topicKey);
   const [currentStep, setCurrentStep] = useState(1);
   const [wedgeInteracted, setWedgeInteracted] = useState(false);
@@ -41,14 +45,14 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
     emitEvent({ type: "topic_opened", category: categoryKey, topic: topicKey });
   }, [categoryKey, topicKey]);
 
-  if (!cat || !bundle) notFound();
+  if (!cat || !meta) notFound();
 
   // Converted topics render the new annotated-canvas lesson (replace on branch).
   // Practice problems ride along (shown below the floating code panel — no second
   // page); finishing the last beat marks the topic complete in progress.
   const lessonSpec = getLessonSpec(categoryKey, topicKey);
   if (lessonSpec) {
-    const practice = (bundle.problems ?? []).map((p) => ({
+    const practice = (bundle?.problems ?? []).map((p) => ({
       title: p.title,
       href: `/categories/${categoryKey}/${topicKey}/practice/${p.id}`,
       difficulty: p.difficulty,
@@ -64,7 +68,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
       prev: prevT ? { name: prevT.name, href: `/categories/${prevT.category}/${prevT.key}` } : undefined,
       next: nextT ? { name: nextT.name, href: `/categories/${nextT.category}/${nextT.key}` } : undefined,
     };
-    const prerequisites = (bundle.meta.prerequisites ?? [])
+    const prerequisites = (meta.prerequisites ?? [])
       .map((k) => {
         const t = all.find((x) => x.key === k);
         if (!t) return null;
@@ -103,6 +107,8 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
     );
   }
 
+  // Classic (non-scene) topics require the full bundle.
+  if (!bundle) notFound();
   const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, naiveThroughStep, problems, nextSteps } = bundle;
   const problemCount = problems?.length ?? 0;
   const unlockAt = unlockCodeAtStep ?? steps.length;

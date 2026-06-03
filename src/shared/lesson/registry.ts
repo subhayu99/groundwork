@@ -1,4 +1,13 @@
 import type { LessonSpec } from "./types";
+import { variablesLesson } from "@/categories/programming-basics/topics/variables/lesson-spec";
+import { constantsLesson } from "@/categories/programming-basics/topics/constants/lesson-spec";
+import { dataTypesLesson } from "@/categories/programming-basics/topics/data-types/lesson-spec";
+import { operatorsLesson } from "@/categories/programming-basics/topics/operators/lesson-spec";
+import { conditionalsLesson } from "@/categories/programming-basics/topics/conditionals/lesson-spec";
+import { whileLoopsLesson } from "@/categories/programming-basics/topics/while-loops/lesson-spec";
+import { forLoopsLesson } from "@/categories/programming-basics/topics/for-loops/lesson-spec";
+import { functionsLesson } from "@/categories/programming-basics/topics/functions/lesson-spec";
+import { tryExceptLesson } from "@/categories/programming-basics/topics/try-except/lesson-spec";
 import { binarySearchLesson } from "@/categories/algorithms/topics/binary-search/lesson-spec";
 import { twoPointersLesson } from "@/categories/algorithms/topics/two-pointers/lesson-spec";
 import { slidingWindowLesson } from "@/categories/algorithms/topics/sliding-window/lesson-spec";
@@ -26,6 +35,15 @@ import { linkedListsLesson } from "@/categories/data-structures/topics/linked-li
  * ("replace on the branch"). Add an entry as each topic is converted.
  */
 export const lessonSpecs: Record<string, LessonSpec> = {
+  "programming-basics/variables": variablesLesson,
+  "programming-basics/constants": constantsLesson,
+  "programming-basics/data-types": dataTypesLesson,
+  "programming-basics/operators": operatorsLesson,
+  "programming-basics/conditionals": conditionalsLesson,
+  "programming-basics/while-loops": whileLoopsLesson,
+  "programming-basics/for-loops": forLoopsLesson,
+  "programming-basics/functions": functionsLesson,
+  "programming-basics/try-except": tryExceptLesson,
   "algorithms/binary-search": binarySearchLesson,
   "algorithms/two-pointers": twoPointersLesson,
   "algorithms/sliding-window": slidingWindowLesson,

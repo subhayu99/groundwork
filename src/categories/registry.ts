@@ -2,6 +2,18 @@ import { CategoryMeta, TopicMeta } from "@/shared/derivation/types";
 
 import { meta as algorithmsMeta } from "./algorithms/meta";
 import { meta as dataStructuresMeta } from "./data-structures/meta";
+import { meta as programmingBasicsMeta } from "./programming-basics/meta";
+
+// Programming Basics
+import { meta as variablesMeta } from "./programming-basics/topics/variables/meta";
+import { meta as constantsMeta } from "./programming-basics/topics/constants/meta";
+import { meta as dataTypesMeta } from "./programming-basics/topics/data-types/meta";
+import { meta as operatorsMeta } from "./programming-basics/topics/operators/meta";
+import { meta as conditionalsMeta } from "./programming-basics/topics/conditionals/meta";
+import { meta as whileLoopsMeta } from "./programming-basics/topics/while-loops/meta";
+import { meta as forLoopsMeta } from "./programming-basics/topics/for-loops/meta";
+import { meta as functionsMeta } from "./programming-basics/topics/functions/meta";
+import { meta as tryExceptMeta } from "./programming-basics/topics/try-except/meta";
 
 // Data Structures
 import { meta as arraysMeta } from "./data-structures/topics/arrays/meta";
@@ -27,9 +39,19 @@ import { meta as dp1dMeta } from "./algorithms/topics/dp-1d/meta";
 import { meta as backtrackingMeta } from "./algorithms/topics/backtracking/meta";
 import { meta as mergesortMeta } from "./algorithms/topics/mergesort/meta";
 
-const categories: CategoryMeta[] = [dataStructuresMeta, algorithmsMeta];
+const categories: CategoryMeta[] = [programmingBasicsMeta, dataStructuresMeta, algorithmsMeta];
 
 const topics: TopicMeta[] = [
+  // Programming Basics (before any data structure or algorithm)
+  variablesMeta,
+  constantsMeta,
+  dataTypesMeta,
+  operatorsMeta,
+  conditionalsMeta,
+  whileLoopsMeta,
+  forLoopsMeta,
+  functionsMeta,
+  tryExceptMeta,
   // Data Structures (foundations)
   arraysMeta,
   stringsMeta,

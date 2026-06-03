@@ -48,4 +48,32 @@ export const GLOSSARY: Record<string, string> = {
     "solving a problem by having it call a smaller copy of itself, until the copy is tiny enough to answer directly.",
   "pointer":
     "a marker that simply remembers a position in the list, like a finger held on one card.",
+
+  // ── Programming basics ──────────────────────────────────────────────────────
+  "assignment":
+    "storing a value into a name with =, read right-to-left: work out the right side, then put it in the name on the left.",
+  "string":
+    "a piece of text, written inside quotes — like \"Ada\" or \"hello\".",
+  "boolean":
+    "a value that is either True or False — the answer to a yes/no question.",
+  "condition":
+    "a yes/no test (it works out to True or False) that decides whether a block of code runs.",
+  "constant":
+    "a value you decide never changes; by convention its name is written in CAPITALS.",
+  "integer":
+    "a whole number with no decimal point, like 7 or -3.",
+  "operator":
+    "a symbol that combines values — like + (add), > (greater than), or the word 'and'.",
+  "expression":
+    "any piece of code that works out to a single value, like 3 + 4 or score > 10.",
+  "loop":
+    "a block of code that runs again and again, instead of being written out many times.",
+  "function":
+    "a named set of steps you can reuse: hand it inputs and it hands back a result.",
+  "parameter":
+    "a named blank in a function definition, waiting for a value when the function is called.",
+  "argument":
+    "the actual value you pass to a function when you call it; it fills a parameter.",
+  "exception":
+    "an error raised while the program runs (like dividing by zero) that stops it — unless caught.",
 };
