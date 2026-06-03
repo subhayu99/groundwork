@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, Pill, rowGeom } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import stringsPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -371,7 +372,7 @@ export const stringsLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 580, variant: "main", label: "The operations", title: "Reading is free. Building is not.",
-          body: <>Reading one letter <code>s[i]</code> is <strong>O(1)</strong> &mdash; &ldquo;O(...)&rdquo; just describes how cost grows; O(1) means instant, the same however long the string is. But every edit copies the whole thing into a new string. Watch the counter climb.</>,
+          body: <>Reading one letter <code>s[i]</code> is <Term word="O(1)"><strong>O(1)</strong></Term> &mdash; &ldquo;O(...)&rdquo; just describes how cost grows; O(1) means instant, the same however long the string is. But every edit copies the whole thing into a new string. Watch the counter climb.</>,
         },
         {
           left: 540, top: 352, width: 290, variant: "note",
@@ -382,7 +383,7 @@ export const stringsLesson: LessonSpec = {
         <>
           <p><strong>Reading one letter</strong> <code>s[i]</code> is <strong>O(1)</strong>. The &ldquo;O(...)&rdquo; notation just describes how the cost <em>grows</em> as the string gets longer; <code>O(1)</code> means &ldquo;constant&rdquo; &mdash; instant, and exactly the same whether the string is 5 letters or 5 million.</p>
           <p><strong>Taking a slice</strong> <code>s[i:j]</code> is <code>O(j &minus; i)</code>: a fresh string of that length gets built and the characters copied into it, so the cost grows with how many letters you grab. <strong>Gluing two strings together</strong> (<code>a + b</code>) is <code>O(n + m)</code> &mdash; the cost grows with the two lengths added up, since a new string is made and both halves are copied in.</p>
-          <p>Here&rsquo;s the trap the counter is showing you: because strings are immutable, every edit rebuilds the whole thing. Stick letters on one at a time with <code>+=</code> inside a loop and each step re-copies everything you&rsquo;ve built so far &mdash; the total work grows like the <em>square</em> of the length (<code>O(n&sup2;)</code>), which gets brutal fast.</p>
+          <p>Here&rsquo;s the trap the counter is showing you: because strings are immutable, every edit rebuilds the whole thing. Stick letters on one at a time with <code>+=</code> inside a loop and each step re-copies everything you&rsquo;ve built so far &mdash; the total work grows like the <em>square</em> of the length (<Term word="O(n²)"><code>O(n&sup2;)</code></Term>), which gets brutal fast.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
             <strong>The fix:</strong> don&rsquo;t grow a string in a loop. Collect the pieces in a list, then glue them all at once with <code>&quot;&quot;.join(...)</code> &mdash; one build instead of thousands.
           </div>

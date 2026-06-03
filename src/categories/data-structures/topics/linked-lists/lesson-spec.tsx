@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import { toneStyle } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Arrow } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import linkedListPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -529,7 +530,7 @@ export const linkedListsLesson: LessonSpec = {
       detail: (
         <>
           <p>An <strong>array</strong> is the everyday list most languages give you &mdash; a run of slots numbered <code>0, 1, 2, &hellip;</code>, where an item&rsquo;s &ldquo;address&rdquo; is simply its position in that run. To put Charlie in at slot 2, slot 3 has to become Dana, slot 4 has to become Eli, and so on down the line.</p>
-          <p>Every single name after Charlie has to physically move over by one. That&rsquo;s <em>n</em> shoves for one insertion &mdash; <code>n</code> being how many items sit after him &mdash; so the cost is <code>O(n)</code> (&ldquo;order n&rdquo;): the work grows in step with how many follow. The information never changed; it was the <em>fixed positions</em> that forced all the busywork.</p>
+          <p>Every single name after Charlie has to physically move over by one. That&rsquo;s <em>n</em> shoves for one insertion &mdash; <code>n</code> being how many items sit after him &mdash; so the cost is <Term word="O(n)"><code>O(n)</code></Term> (&ldquo;order n&rdquo;): the work grows in step with how many follow. The information never changed; it was the <em>fixed positions</em> that forced all the busywork.</p>
           <p>So here&rsquo;s the question that cracks it open: what if positions weren&rsquo;t fixed at all?</p>
         </>
       ),
@@ -547,7 +548,7 @@ export const linkedListsLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Each card points to the next.",
-          body: <>Meet cards joined by arrows. Each holds a value AND an arrow saying where the next card lives &mdash; that arrow is a <strong>pointer</strong>. Order lives in the arrows, not in where cards sit. Use the buttons under the chain to insert, then remove, and count what changed.</>,
+          body: <>Meet cards joined by arrows. Each holds a value AND an arrow saying where the next card lives &mdash; that arrow is a <Term word="pointer"><strong>pointer</strong></Term>. Order lives in the arrows, not in where cards sit. Use the buttons under the chain to insert, then remove, and count what changed.</>,
         },
         {
           left: 24, top: 394, width: 330, variant: "note",
@@ -597,7 +598,7 @@ export const linkedListsLesson: LessonSpec = {
       visual: (api) => <FindWalk api={api} />,
       panels: [{
         left: 470, top: 20, width: 360, variant: "main", label: "The operations", title: "Cheap edits, expensive lookups.",
-        body: <>Insert or remove where you&rsquo;re standing: <strong>O(1)</strong> &mdash; instant, same cost no matter how long the list. But find a value, or jump to the 50th item: <strong>O(n)</strong> &mdash; cost grows with the list&rsquo;s length (n) &mdash; you must walk from the head; there&rsquo;s no shortcut.</>,
+        body: <>Insert or remove where you&rsquo;re standing: <Term word="O(1)"><strong>O(1)</strong></Term> &mdash; instant, same cost no matter how long the list. But find a value, or jump to the 50th item: <strong>O(n)</strong> &mdash; cost grows with the list&rsquo;s length (n) &mdash; you must walk from the head; there&rsquo;s no shortcut.</>,
       }],
       detail: (
         <>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toneStyle, type Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
+import { Term } from "@/shared/lesson/Term";
 import activity_selectionPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -724,12 +725,12 @@ export const activitySelectionLesson: LessonSpec = {
       detail: (
         <>
           <p>
-            Let <code>n</code> be the number of meetings. <strong>Sorting by end time</strong> costs <code>O(n log n)</code> &mdash; a way of saying the
+            Let <code>n</code> be the number of meetings. <strong>Sorting by end time</strong> costs <Term word="O(n log n)"><code>O(n log n)</code></Term> &mdash; a way of saying the
             cost grows a little faster than <code>n</code> itself, but only slightly: a thousand meetings is about ten thousand small comparisons, not a
             million.
           </p>
           <p>
-            <strong>The walk</strong> through the sorted list costs <code>O(n)</code> &mdash; the work grows in step with the number of meetings, one
+            <strong>The walk</strong> through the sorted list costs <Term word="O(n)"><code>O(n)</code></Term> &mdash; the work grows in step with the number of meetings, one
             quick check apiece.
           </p>
           <p>

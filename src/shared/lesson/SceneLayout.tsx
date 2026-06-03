@@ -7,6 +7,7 @@ import { CodeHighlight } from "@/shared/code/CodeHighlight";
 import { ArrowDefs } from "./canvas";
 import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
 import { useLessonEngine, type LessonRuntimeProps } from "./LessonRuntime";
+import { gloss } from "./gloss";
 
 /**
  * The "one-scene" immersive layout (opt-in via `spec.layout === "scene"`).
@@ -427,7 +428,7 @@ function CodePanel({ code, activeLines, practice, scrollRef, fillHeight }: {
 }
 
 /** The accreting "what we've established" spine. */
-function SceneSpine({ lines, current }: { lines: string[]; current: number }) {
+function SceneSpine({ lines, current }: { lines: ReactNode[]; current: number }) {
   return (
     <div className="shrink-0 rounded-2xl border border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_40%,transparent)] px-4 py-3">
       <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--text-faint)] mb-2">what we&rsquo;ve established</div>
@@ -441,7 +442,7 @@ function SceneSpine({ lines, current }: { lines: string[]; current: number }) {
               <span className={`mt-[2px] shrink-0 ${done ? "text-[var(--accent-ink)]" : isCurrent ? "text-[var(--accent)]" : "text-[var(--text-faint)]"}`} aria-hidden="true">
                 {done ? "✓" : "•"}
               </span>
-              <span className={isCurrent ? "text-[var(--text)] font-medium" : "text-[var(--text-muted)]"}>{line}</span>
+              <span className={isCurrent ? "text-[var(--text)] font-medium" : "text-[var(--text-muted)]"}>{typeof line === "string" ? gloss(line) : line}</span>
             </li>
           );
         })}

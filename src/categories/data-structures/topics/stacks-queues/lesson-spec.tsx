@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, StackBoxes, StackBox, Pill, Bracket } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import stacksQueuesPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -228,7 +229,7 @@ export const stacksQueuesLesson: LessonSpec = {
       visual: <SharedRow frontLeaving shift />,
       panels: [{
         left: 150, top: 24, width: 580, variant: "main", label: "The obvious thing", title: "Use an array. Add at the end is cheap; the front is not.",
-        body: <>An <strong>array</strong> is a fixed row of slots in memory. Adding at the <em>end</em> is one move, no matter how long &mdash; an instant, length-independent cost we write <code>O(1)</code>. But removing the <em>front</em> slides everyone left, so the cost grows with the number of items (call that count <em>n</em>) &mdash; written <code>O(n)</code>.</>,
+        body: <>An <strong>array</strong> is a fixed row of slots in memory. Adding at the <em>end</em> is one move, no matter how long &mdash; an instant, length-independent cost we write <Term word="O(1)"><code>O(1)</code></Term>. But removing the <em>front</em> slides everyone left, so the cost grows with the number of items (call that count <em>n</em>) &mdash; written <Term word="O(n)"><code>O(n)</code></Term>.</>,
       }],
       detail: (
         <>

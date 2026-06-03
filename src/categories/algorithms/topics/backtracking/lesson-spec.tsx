@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { GridCells, gridGeom, Arrow, Bracket } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import backtrackingPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -637,7 +638,7 @@ export const backtrackingLesson: LessonSpec = {
             <strong>Recursive case:</strong> the next row to fill is <code>len(placed)</code>. For each
             column 0 to 5, if a queen there wouldn&rsquo;t share a column or diagonal with any queen
             already down, add that column and call <code>place</code> one row deeper. That self-call is{" "}
-            <strong>recursion</strong> &mdash; a function that solves a smaller version of the same job by
+            <Term word="recursion"><strong>recursion</strong></Term> &mdash; a function that solves a smaller version of the same job by
             calling itself. When it returns, <strong>pop</strong> that column back off. The pop is the
             &ldquo;undo&rdquo;: without it the list would only ever grow and we&rsquo;d never try the
             other columns.

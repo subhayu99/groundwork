@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Arrow } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import setsTuplesPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -375,7 +376,7 @@ export const setsTuplesLesson: LessonSpec = {
       }],
       detail: (
         <>
-          <p>You could just keep a plain <strong>list</strong> of everyone logged in (a list is an ordered row of values). To check whether alice is there, you walk along the chips one at a time until you find her or run off the end. If five people are online that&rsquo;s fine; if a million are online, you might check nearly a million chips. That cost is <code>O(n)</code> (&ldquo;order n&rdquo; &mdash; the work grows in step with the number of items <code>n</code>).</p>
+          <p>You could just keep a plain <strong>list</strong> of everyone logged in (a list is an ordered row of values). To check whether alice is there, you walk along the chips one at a time until you find her or run off the end. If five people are online that&rsquo;s fine; if a million are online, you might check nearly a million chips. That cost is <Term word="O(n)"><code>O(n)</code></Term> (&ldquo;order n&rdquo; &mdash; the work grows in step with the number of items <code>n</code>).</p>
           <p>A list has another gap for this job: nothing stops a second &ldquo;alice&rdquo; from sneaking in. The list happily holds duplicates, even though for a chat room a person is either present or not.</p>
           <p>You could also stuff the weather reading into a list and grab values by position 0, 1, 2 &mdash; but a future you might forget which slot is the latitude, and nothing stops the list from growing a fourth slot. Both setups <em>work</em>; neither is doing what the data actually wants.</p>
         </>
@@ -443,7 +444,7 @@ export const setsTuplesLesson: LessonSpec = {
       visual: <OpsVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Sets are hash-fast. Tuples are basically free.",
-        body: <>Set: add, remove, and &ldquo;in&rdquo; each cost <code>O(1)</code> &mdash; same time however big it grows; combining two costs about the smaller one. Tuple: grab any slot instantly, read all <code>n</code> items in <code>O(n)</code>. Being unchangeable lets a tuple live inside a set; a list can&rsquo;t.</>,
+        body: <>Set: add, remove, and &ldquo;in&rdquo; each cost <Term word="O(1)"><code>O(1)</code></Term> &mdash; same time however big it grows; combining two costs about the smaller one. Tuple: grab any slot instantly, read all <code>n</code> items in <code>O(n)</code>. Being unchangeable lets a tuple live inside a set; a list can&rsquo;t.</>,
       }],
       detail: (
         <>

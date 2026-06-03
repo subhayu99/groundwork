@@ -18,7 +18,7 @@
 
 - [x] **Phase 1 — Foundation: a11y, mobile, wayfinding, prerequisites** (safe; no content/schema changes) ✅ done 2026-05-31
 - [ ] **Phase 2 — Correctness & content quick-wins** (per-topic fan-out)
-- [ ] **Phase 3 — Jargon tap-to-define** (shared component + content fan-out)
+- [x] **Phase 3 — Jargon tap-to-define** (shared component + content fan-out) ✅ done 2026-06-03
 - [ ] **Phase 4 — Pedagogy: prediction gates + retrieval checkpoints** ⚠️ REVIEW-GATED (pilot binary-search first)
 - [ ] **Phase 5 — Cognitive-load layout polish + IMMERSION RESTRUCTURE** (see `docs/IMMERSION-RESTRUCTURE.md`) ⚠️ partly taste-gated
 - [ ] **Phase 6 — Depth & rigor** ⚠️ REVIEW-GATED (hard tier, dp-2d, more practice)
@@ -117,6 +117,8 @@ Per-topic fan-out (independent files) + a few one-offs.
 - **Create** `src/shared/lesson/glossary.ts` (`Record<string,string>` of 10th-grade one-liners: `O(n)`, `O(log n)`, `log₂`, `monotonicity`, `linear scan`, `recursion`, `bisect`, `None`, `invariant`, `amortization`, `LIFO/FIFO`, etc.) and `src/shared/lesson/Term.tsx` (dotted-underline chip; tap → popover; `pointer-events-auto` because panel containers are `pointer-events-none`).
 - **Fan out** across 20 `lesson-spec.tsx`: wrap each term's *first* appearance in `<Term word="…"/>`. Also wrap the abstract principle bubbles on the home map.
 - Acceptance: tapping a term shows its definition; no layout shift; tsc clean. (Component first, then the 20-topic fan-out depends on it.)
+
+**DONE (2026-06-03):** `glossary.ts` (Big-O family incl. `O(n log n)`, code notation `lo/hi/mid/L/R/arr[i]///`, concept words `monotonicity/invariant/amortization/recursion/pointer`) + `Term.tsx` (edge-aware popover). Manual first-occurrence `<Term>` wrapping fanned out to all 20 topics' prose (`9ea7952` piloted binary-search + two-pointers; the 18-topic fan-out added 40 chips — `sliding-window`/`graphs`/`bfs` had no exact-key notation in prose, only composites like `O(V+E)`). **Plus** `gloss.tsx` auto-glosses distinctive notation in the **scene spine** (`takeaway` widened `string→ReactNode`), so every topic's "what we've established" line is tappable with zero authoring. **Follow-up (optional):** composite costs (`O(V+E)`, `O(n+m)`, `O(j−i)`, `O(cells+walls)`) have no glossary key → not tappable in graph/string/dfs topics; add keys + auto-tokens if desired.
 
 ---
 

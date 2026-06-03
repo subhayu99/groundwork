@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import arraysPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -256,7 +257,7 @@ export const arraysLesson: LessonSpec = {
         <>
           <p>That row of equal slots is an <strong>array</strong>. Two things make it special: every element is the same size, and they sit right next to each other in <strong>memory</strong> (the computer&rsquo;s row of numbered storage spots) with no gaps between them.</p>
           <p>Because the spacing is perfectly even, the computer can <em>compute</em> where slot <code>i</code> lives instead of walking to it: its address is <code>base + i &times; size</code> &mdash; the start of the row, plus <code>i</code> steps of one slot each. (<code>base</code> is where the row begins; <code>size</code> is how wide one slot is.)</p>
-          <p>That little bit of arithmetic is a single CPU instruction. The work is the same whether the array holds a thousand books or a million &mdash; reaching slot 487 costs exactly as much either way. Work that doesn&rsquo;t grow with the size of the data like this is called <strong>constant time</strong>, written <code>O(1)</code>.</p>
+          <p>That little bit of arithmetic is a single CPU instruction. The work is the same whether the array holds a thousand books or a million &mdash; reaching slot 487 costs exactly as much either way. Work that doesn&rsquo;t grow with the size of the data like this is called <strong>constant time</strong>, written <Term word="O(1)"><code>O(1)</code></Term>.</p>
         </>
       ),
       arrows: [{ x1: G.cx(TARGET), y1: 150, x2: G.cx(TARGET), y2: G.y - 4 }],
@@ -272,7 +273,7 @@ export const arraysLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The operations", title: "Cheap reads, costly middle-edits.",
-          body: <>Read or write by index is one step at any size &mdash; written <strong>O(1)</strong> (&ldquo;cost stays the same&rdquo;). Inserting in the middle differs: call the item count <code>n</code>; every later item must shift over to make room, so cost grows in step with <code>n</code> &mdash; written <strong>O(n)</strong>. Watch the tail shift.</>,
+          body: <>Read or write by index is one step at any size &mdash; written <strong>O(1)</strong> (&ldquo;cost stays the same&rdquo;). Inserting in the middle differs: call the item count <code>n</code>; every later item must shift over to make room, so cost grows in step with <code>n</code> &mdash; written <Term word="O(n)"><strong>O(n)</strong></Term>. Watch the tail shift.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
@@ -328,7 +329,7 @@ export const arraysLesson: LessonSpec = {
       visual: idleRow(ARR.map((_, i) => (i === TARGET ? "good" : undefined)), undefined, { [TARGET]: "arr[i]" }),
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Array. List, in Python.",
-        body: <>That&rsquo;s the name. In many languages an array&rsquo;s size is fixed; Python&rsquo;s <code>list</code> is a <strong>dynamic array</strong> &mdash; it grows when you append, same cost model. Every <code>arr[i]</code> you see does that <code>base + i × size</code> jump. That one line is why arrays are everywhere.</>,
+        body: <>That&rsquo;s the name. In many languages an array&rsquo;s size is fixed; Python&rsquo;s <code>list</code> is a <strong>dynamic array</strong> &mdash; it grows when you append, same cost model. Every <Term word="arr[i]"><code>arr[i]</code></Term> you see does that <code>base + i × size</code> jump. That one line is why arrays are everywhere.</>,
       }],
       detail: (
         <>

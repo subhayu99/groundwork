@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { NodeGraph, GNode, GEdge } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import treesPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -345,7 +346,7 @@ export const treesLesson: LessonSpec = {
         {
           left: 40, top: 20, width: 600, variant: "main", label: "The instinct",
           title: "Click a person. Their branch lights up.",
-          body: <>Each box here is a <strong>node</strong> &mdash; one person. A node remembers only its direct reports; that single link from one node to another is a <strong>pointer</strong>. Click anyone: only their branch lights. You didn&rsquo;t search the company &mdash; you followed pointers down.</>,
+          body: <>Each box here is a <strong>node</strong> &mdash; one person. A node remembers only its direct reports; that single link from one node to another is a <Term word="pointer"><strong>pointer</strong></Term>. Click anyone: only their branch lights. You didn&rsquo;t search the company &mdash; you followed pointers down.</>,
         },
         {
           left: 556, top: 380, width: 290, variant: "note",
@@ -396,7 +397,7 @@ export const treesLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The operations",
         title: "Walk it all, or take the sorted shortcut.",
-        body: <>Visiting every box touches all of them: twice the boxes, twice the work (shorthand <strong>O(n)</strong>, n = the count). A <strong>Binary Search Tree</strong> keeps smaller values left, larger right, so a lookup is just a chain of left/right turns &mdash; doubling the tree adds only one more turn. That barely-growing speed gets its own shorthand, <strong>O(log n)</strong>, when the tree is balanced.</>,
+        body: <>Visiting every box touches all of them: twice the boxes, twice the work (shorthand <Term word="O(n)"><strong>O(n)</strong></Term>, n = the count). A <strong>Binary Search Tree</strong> keeps smaller values left, larger right, so a lookup is just a chain of left/right turns &mdash; doubling the tree adds only one more turn. That barely-growing speed gets its own shorthand, <Term word="O(log n)"><strong>O(log n)</strong></Term>, when the tree is balanced.</>,
       }],
       detail: (
         <>
@@ -404,7 +405,7 @@ export const treesLesson: LessonSpec = {
           <p><strong>Take the sorted shortcut (Binary Search Tree).</strong> If you store values with a rule &mdash; everything smaller goes <em>left</em>, everything larger goes <em>right</em> &mdash; then finding a value is just a chain of &ldquo;go left or go right?&rdquo; decisions, like the search running on the canvas. You skip whole halves of the tree without ever looking at them.</p>
           <p>The magic: doubling the size of a balanced tree adds only <em>one more</em> turn to the walk down. That barely-growing speed gets its own shorthand, <code>O(log n)</code> &mdash; cost that creeps up by a single step each time the data doubles. (When a tree grows lopsided, balance-keeping variants like AVL or red-black trees quietly tidy it after each change so the shortcut stays fast.)</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The catch:</strong> a <em>hash map</em> (a lookup table that jumps straight to a value in one step, <code>O(1)</code>) is even faster for plain &ldquo;is X here?&rdquo; questions &mdash; but it keeps nothing in order. We reach for a BST only when we also need <em>ordering</em>: range queries, next-larger lookups, sorted listing.
+            <strong>The catch:</strong> a <em>hash map</em> (a lookup table that jumps straight to a value in one step, <Term word="O(1)"><code>O(1)</code></Term>) is even faster for plain &ldquo;is X here?&rdquo; questions &mdash; but it keeps nothing in order. We reach for a BST only when we also need <em>ordering</em>: range queries, next-larger lookups, sorted listing.
           </div>
         </>
       ),

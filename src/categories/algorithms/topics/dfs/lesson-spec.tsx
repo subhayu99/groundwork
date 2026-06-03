@@ -12,6 +12,7 @@ import {
   type GNode,
   type GEdge,
 } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import dfsPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -541,7 +542,7 @@ export const dfsLesson: LessonSpec = {
               Elsewhere: mark it visited, then ask each open, unvisited neighbour the
               same question. Out of neighbours: return nothing &mdash; the caller tries
               its next direction. Solving a problem by solving smaller copies of itself
-              is <strong>recursion</strong>.
+              is <Term word="recursion"><strong>recursion</strong></Term>.
             </>
           ),
         },

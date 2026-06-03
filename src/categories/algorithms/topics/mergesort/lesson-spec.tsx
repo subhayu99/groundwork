@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Bracket } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import mergesortPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -297,7 +298,7 @@ export const mergesortLesson: LessonSpec = {
       detail: (
         <>
           <p>The first method everyone reaches for: walk left to right and swap any two neighbours that are out of order. Do a full pass; if you made any swaps, do another. When a whole pass makes zero swaps, everything is sorted. It works &mdash; it&rsquo;s just slow.</p>
-          <p>The trouble is that each swap only fixes one tiny local disagreement between two touching cards. To carry a card a long way across the row, you have to swap it past <em>every single neighbour</em> on the way. So the total work grows like the <em>square</em> of the size &mdash; written <code>O(n&sup2;)</code> (&ldquo;order n squared&rdquo;, meaning the work scales with the number of cards <code>n</code> multiplied by itself). A thousand cards can mean about a million swaps; double the cards and the work roughly quadruples.</p>
+          <p>The trouble is that each swap only fixes one tiny local disagreement between two touching cards. To carry a card a long way across the row, you have to swap it past <em>every single neighbour</em> on the way. So the total work grows like the <em>square</em> of the size &mdash; written <Term word="O(n²)"><code>O(n&sup2;)</code></Term> (&ldquo;order n squared&rdquo;, meaning the work scales with the number of cards <code>n</code> multiplied by itself). A thousand cards can mean about a million swaps; double the cards and the work roughly quadruples.</p>
           <p>What we really want is a way to move information across the row in big chunks instead of one nudge at a time.</p>
         </>
       ),
@@ -324,7 +325,7 @@ export const mergesortLesson: LessonSpec = {
       detail: (
         <>
           <p>Here&rsquo;s the instinct. Pretend, just for a moment, that the left half of the row and the right half are each <em>already</em> sorted. Then finishing the whole row is easy: put one finger at the front of each half and compare. Whichever finger points at the smaller card, take that card and slide that finger forward. Keep going and the cards come out in perfect order &mdash; a single left-to-right pass where each card is touched once. That step is called a <strong>merge</strong>.</p>
-          <p>So the hard question shrinks to a smaller version of itself: how do you sort a half? The same way &mdash; cut it in half, sort the two pieces, merge them. The pieces keep getting smaller until each is a <em>single card</em>, and a single card is already sorted, so the splitting stops there. A rule that solves a problem by calling itself on a smaller piece is called <strong>recursion</strong>.</p>
+          <p>So the hard question shrinks to a smaller version of itself: how do you sort a half? The same way &mdash; cut it in half, sort the two pieces, merge them. The pieces keep getting smaller until each is a <em>single card</em>, and a single card is already sorted, so the splitting stops there. A rule that solves a problem by calling itself on a smaller piece is called <Term word="recursion"><strong>recursion</strong></Term>.</p>
           <p>Use the <strong>split</strong> button under the row and the row breaks into halves, quarters, then singletons. Once every piece is a single card the button becomes <strong>merge</strong> &mdash; keep pressing it and the sorted pieces fuse back together. <strong>↺ reset</strong> sends the cards back to their starting jumble.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The instinct:</strong> sorting halves and merging them is far less work than swap-by-swap, because the merge moves cards from one side to the other in one clean sweep instead of one nudge at a time.</div>
         </>
@@ -368,9 +369,9 @@ export const mergesortLesson: LessonSpec = {
       }],
       detail: (
         <>
-          <p><strong>How many times do we cut?</strong> Each split halves the pile. Halving a thousand cards down to single cards takes only about ten steps (because halving ten times splits roughly a thousand into one). That count of halvings is written <code>O(log n)</code> (&ldquo;order log n&rdquo;) &mdash; a cost that grows very slowly: <em>doubling</em> the number of cards adds just one more level.</p>
-          <p><strong>How much work at each level?</strong> Every merge on a level looks at each card in its slice exactly once, and across the whole level the merges touch every card &mdash; that&rsquo;s <code>O(n)</code> (&ldquo;order n&rdquo;), work proportional to the number of cards <code>n</code>.</p>
-          <p><strong>Total.</strong> <code>n</code> cards per level times about <code>log n</code> levels gives <code>O(n log n)</code>. For a million cards that&rsquo;s roughly twenty million steps &mdash; not the trillion that swap-by-swap (<code>O(n&sup2;)</code>) would have demanded.</p>
+          <p><strong>How many times do we cut?</strong> Each split halves the pile. Halving a thousand cards down to single cards takes only about ten steps (because halving ten times splits roughly a thousand into one). That count of halvings is written <Term word="O(log n)"><code>O(log n)</code></Term> (&ldquo;order log n&rdquo;) &mdash; a cost that grows very slowly: <em>doubling</em> the number of cards adds just one more level.</p>
+          <p><strong>How much work at each level?</strong> Every merge on a level looks at each card in its slice exactly once, and across the whole level the merges touch every card &mdash; that&rsquo;s <Term word="O(n)"><code>O(n)</code></Term> (&ldquo;order n&rdquo;), work proportional to the number of cards <code>n</code>.</p>
+          <p><strong>Total.</strong> <code>n</code> cards per level times about <code>log n</code> levels gives <Term word="O(n log n)"><code>O(n log n)</code></Term>. For a million cards that&rsquo;s roughly twenty million steps &mdash; not the trillion that swap-by-swap (<code>O(n&sup2;)</code>) would have demanded.</p>
           <p><strong>Memory.</strong> The merge needs a second strip of space to write the combined result into, so it uses <code>O(n)</code> extra memory &mdash; an amount that grows with the number of cards. Some sorts (like quicksort) avoid that extra copy, but they trade away a different guarantee to do it.</p>
         </>
       ),

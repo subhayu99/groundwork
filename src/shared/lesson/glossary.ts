@@ -18,6 +18,8 @@ export const GLOSSARY: Record<string, string> = {
     "the work stays the same no matter how big the list gets — one step, every time.",
   "O(log n)":
     "the work grows by just one extra step each time the list doubles — so even a million items take only about twenty steps.",
+  "O(n log n)":
+    "a little more than one pass over the list — like making an O(n) sweep about log n times; the usual cost of a good sort.",
 
   // ── Notation that shows up in code ─────────────────────────────────────────
   "arr[i]":

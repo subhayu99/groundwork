@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { NodeGraph, GNode, GEdge, StackBoxes, StackBox, Pill, Bracket } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import recursionPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -438,7 +439,7 @@ export const recursionLesson: LessonSpec = {
       visual: (api) => <AutoRecurse api={api} />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The operations", title: "Each item is touched once; calls pile up in a stack.",
-        body: <>Every item is looked at exactly once &mdash; that&rsquo;s <code>O(n)</code> (work grows in step with the number of items, <em>n</em>). Watch the <strong>call stack</strong> on the right: a to-do list where the newest waiting call sits on top, draining as each returns.</>,
+        body: <>Every item is looked at exactly once &mdash; that&rsquo;s <Term word="O(n)"><code>O(n)</code></Term> (work grows in step with the number of items, <em>n</em>). Watch the <strong>call stack</strong> on the right: a to-do list where the newest waiting call sits on top, draining as each returns.</>,
       }],
       detail: (
         <>
@@ -504,7 +505,7 @@ export const recursionLesson: LessonSpec = {
       visual: <NamedPattern />,
       panels: [{
         left: 150, top: 24, width: 600, variant: "main", label: "The pattern", title: "Recursion.",
-        body: <>That&rsquo;s the name: <strong>recursion</strong> &mdash; a function that calls itself on a smaller version of the same problem. It needs a <strong>base case</strong> (so small the answer is obvious &mdash; a file knows its size) and a <strong>recursive case</strong> (shrink, combine, return).</>,
+        body: <>That&rsquo;s the name: <Term word="recursion"><strong>recursion</strong></Term> &mdash; a function that calls itself on a smaller version of the same problem. It needs a <strong>base case</strong> (so small the answer is obvious &mdash; a file knows its size) and a <strong>recursive case</strong> (shrink, combine, return).</>,
       }],
       detail: (
         <>

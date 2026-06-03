@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, NodeGraph, GNode, GEdge, Bracket } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import dp_1dPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -258,7 +259,7 @@ export const dp1dLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The obvious thing",
         title: "A rule that re-does the same work over and over.",
-        body: <>On step n, only your last move matters: you came from n&minus;1 or n&minus;2. So ways(n) = ways(n&minus;1) + ways(n&minus;2). (<strong>Recursion</strong> = a rule that calls itself on a smaller case.) But finding ways(8) keeps re-asking the same smaller questions.</>,
+        body: <>On step n, only your last move matters: you came from n&minus;1 or n&minus;2. So ways(n) = ways(n&minus;1) + ways(n&minus;2). (<Term word="recursion"><strong>Recursion</strong></Term> = a rule that calls itself on a smaller case.) But finding ways(8) keeps re-asking the same smaller questions.</>,
       }],
       detail: (
         <>
@@ -335,7 +336,7 @@ export const dp1dLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 580, variant: "main", label: "The operations",
         title: "From exponential to one quick pass.",
-        body: <>Naive recursion roughly doubles its work per extra step &mdash; ways(40) calls itself a billion times. Filling each table slot once is <strong>O(n)</strong> (work grows in step with the n stairs). Keeping just the last two values is <strong>O(1)</strong> &mdash; a fixed cost at any height.</>,
+        body: <>Naive recursion roughly doubles its work per extra step &mdash; ways(40) calls itself a billion times. Filling each table slot once is <Term word="O(n)"><strong>O(n)</strong></Term> (work grows in step with the n stairs). Keeping just the last two values is <Term word="O(1)"><strong>O(1)</strong></Term> &mdash; a fixed cost at any height.</>,
       }],
       detail: (
         <>

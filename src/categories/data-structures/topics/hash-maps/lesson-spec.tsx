@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, gridGeom, GridCells, Pill } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import hash_mapsPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -290,7 +291,7 @@ export const hashMapsLesson: LessonSpec = {
       visual: (api) => <LinearScan api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Open page one. Start reading.",
-        body: <>The simple way: <strong>scan</strong> &mdash; read names top to bottom until you hit Alice. If she&rsquo;s the 4,872nd, that&rsquo;s 4,872 reads; if missing, all ten thousand. The work grows in step with the count of names &mdash; we call that <strong>O(n)</strong>. What if the name told you the page?</>,
+        body: <>The simple way: <strong>scan</strong> &mdash; read names top to bottom until you hit Alice. If she&rsquo;s the 4,872nd, that&rsquo;s 4,872 reads; if missing, all ten thousand. The work grows in step with the count of names &mdash; we call that <Term word="O(n)"><strong>O(n)</strong></Term>. What if the name told you the page?</>,
       }],
       detail: (
         <>
@@ -342,7 +343,7 @@ export const hashMapsLesson: LessonSpec = {
       visual: (api) => <DropIntoBuckets api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The structure", title: "An array of boxes, addressed by the hash.",
-        body: <>A hash map is two parts: a numbered row of slots called <strong>buckets</strong> (jumping to box <code>arr[i]</code> is instant, however many there are), plus the hash function. To store a name, hash it and drop it in that box. Most boxes hold one; some get crowded.</>,
+        body: <>A hash map is two parts: a numbered row of slots called <strong>buckets</strong> (jumping to box <Term word="arr[i]"><code>arr[i]</code></Term> is instant, however many there are), plus the hash function. To store a name, hash it and drop it in that box. Most boxes hold one; some get crowded.</>,
       }],
       detail: (
         <>
@@ -366,7 +367,7 @@ export const hashMapsLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Constant time — on average.",
-          body: <>Insert, look up, delete: all <strong>O(1)</strong> on average &mdash; cost stays flat, ten keys or ten million. A <strong>collision</strong> is two keys landing in one box; we <strong>chain</strong> them (keep a small list in that box) so both fit. When it fills, we build a bigger one &mdash; slow, but rare.</>,
+          body: <>Insert, look up, delete: all <Term word="O(1)"><strong>O(1)</strong></Term> on average &mdash; cost stays flat, ten keys or ten million. A <strong>collision</strong> is two keys landing in one box; we <strong>chain</strong> them (keep a small list in that box) so both fit. When it fills, we build a bigger one &mdash; slow, but rare.</>,
         },
         {
           left: 568, top: 300, width: 282, variant: "note",

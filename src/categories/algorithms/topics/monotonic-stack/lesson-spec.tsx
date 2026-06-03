@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, StackBoxes, StackBox, Pill, Bracket } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import monotonic_stackPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -414,7 +415,7 @@ export const monotonicStackLesson: LessonSpec = {
       detail: (
         <>
           <p>For each day, walk forward day by day until you find one that&rsquo;s warmer. Write down the gap. If you reach the end without finding one, the answer is <strong>0</strong>.</p>
-          <p>It&rsquo;s honest work. It also does a <em>lot</em> of repeat reading. The cold morning at the start has to scan most of the week to find its warmer day, and the day after it scans almost as far, and so on. Eight days is fine; a million is not &mdash; you&rsquo;re looking at roughly the <strong>square</strong> of the size. That worst case is called <code>O(n&sup2;)</code> (&ldquo;order n squared&rdquo;): if you double the number of days <code>n</code>, the work goes up about four-fold.</p>
+          <p>It&rsquo;s honest work. It also does a <em>lot</em> of repeat reading. The cold morning at the start has to scan most of the week to find its warmer day, and the day after it scans almost as far, and so on. Eight days is fine; a million is not &mdash; you&rsquo;re looking at roughly the <strong>square</strong> of the size. That worst case is called <Term word="O(n²)"><code>O(n&sup2;)</code></Term> (&ldquo;order n squared&rdquo;): if you double the number of days <code>n</code>, the work goes up about four-fold.</p>
           <p>So the real question is: what&rsquo;s the repeated work we could <em>remember</em> instead of redoing?</p>
         </>
       ),
@@ -488,7 +489,7 @@ export const monotonicStackLesson: LessonSpec = {
       panels: [
         {
           left: 60, top: 20, width: 620, variant: "main", label: "The operations", title: "A few days do a lot. The average is constant.",
-          body: <>One warm day can send everyone home &mdash; looks expensive. But every send-home was paid for by an add that already happened, so total adds plus removals is at most <code>2n</code> (twice the number of days, <code>n</code>). We call that <code>O(n)</code>: work that grows in step with the number of days.</>,
+          body: <>One warm day can send everyone home &mdash; looks expensive. But every send-home was paid for by an add that already happened, so total adds plus removals is at most <code>2n</code> (twice the number of days, <code>n</code>). We call that <Term word="O(n)"><code>O(n)</code></Term>: work that grows in step with the number of days.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",

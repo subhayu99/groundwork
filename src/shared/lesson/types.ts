@@ -67,8 +67,10 @@ export interface LessonBeat {
   /** One short line — "what we've established" — for the accreting spine in the
    *  scene layout. Once this beat is completed it stays as a quiet ticked line;
    *  the current beat is highlighted. Falls back to `label` when absent.
+   *  When given as a plain string, the spine auto-glosses notation (O(n²), arr[i],
+   *  …) via the notation bridge; pass JSX to control glossing by hand.
    *  (Scene layout only; ignored by the classic layout.) */
-  takeaway?: string;
+  takeaway?: ReactNode;
   /** Connectors from panels to elements. */
   arrows?: LessonArrow[];
   /** `@sync` labels in `codeSource` to highlight (fallback when the visual isn't emitting). */

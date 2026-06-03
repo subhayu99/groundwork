@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Bracket } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import sliding_window_variablePy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -226,7 +227,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       detail: (
         <>
           <p>The most direct method: pick a starting box, then walk rightward adding letters until one repeats; note how long that clean stretch got. Do that from every possible start, and keep the longest you ever saw.</p>
-          <p>For an <em>n</em>-letter word (here <em>n</em> just means &ldquo;the number of letters&rdquo;) that&rsquo;s roughly <code>n²/2</code> character checks &mdash; about length-times-length work. We write that as <code>O(n²)</code>, meaning the effort grows with the <em>square</em> of the length: double the word and the work roughly quadruples.</p>
+          <p>For an <em>n</em>-letter word (here <em>n</em> just means &ldquo;the number of letters&rdquo;) that&rsquo;s roughly <code>n²/2</code> character checks &mdash; about length-times-length work. We write that as <Term word="O(n²)"><code>O(n²)</code></Term>, meaning the effort grows with the <em>square</em> of the length: double the word and the work roughly quadruples.</p>
           <p>And the waste is obvious once you see it. If we&rsquo;ve confirmed <em>abr</em> is repeat-free starting at box 0, we throw that away and re-verify it starting at box 1 (now re-reading <em>br</em>), then again at box 2 (re-reading <em>r</em>). The information we already earned is sitting right there &mdash; and we keep tossing it.</p>
         </>
       ),
@@ -247,7 +248,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
       takeaway: "Two ends, L and R, that only ever nudge forward — so work already done stays done.",
       detail: (
         <>
-          <p>The row of letters has two <strong>markers</strong> &mdash; just labels sitting under the boxes. <code>L</code> marks the left edge of your current stretch; <code>R</code> marks the right edge. Use the buttons under the row: <em>expand R &rarr;</em> pulls the next letter on the right into the window, and <em>contract L &rarr;</em> drops the leftmost letter off the window. (The <em>&#8634;</em> button resets both ends to the start.)</p>
+          <p>The row of letters has two <strong>markers</strong> &mdash; just labels sitting under the boxes. <Term word="L"><code>L</code></Term> marks the left edge of your current stretch; <Term word="R"><code>R</code></Term> marks the right edge. Use the buttons under the row: <em>expand R &rarr;</em> pulls the next letter on the right into the window, and <em>contract L &rarr;</em> drops the leftmost letter off the window. (The <em>&#8634;</em> button resets both ends to the start.)</p>
           <p>Try to find the longest valid (no-repeat) stretch using just those two move buttons. The thing to notice: you <em>never</em> have to start over. You only ever grow the right edge or shrink the left edge &mdash; the work you already did stays done.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
             <strong>The instinct question:</strong> when does <code>R</code> <em>want</em> to move? When does <code>L</code> <em>have</em> to move? Are they ever moving for the same reason?
@@ -300,9 +301,9 @@ export const slidingWindowVariableLesson: LessonSpec = {
       takeaway: "Each letter is touched twice — that's O(n), linear time instead of squared.",
       detail: (
         <>
-          <p>Count the moves. Each letter enters the window at most once (when <code>R</code> passes over it) and leaves at most once (when <code>L</code> passes over it). That&rsquo;s about <code>2n</code> moves in total &mdash; written <code>O(n)</code>, meaning the work grows in step with how long the word is, no faster.</p>
+          <p>Count the moves. Each letter enters the window at most once (when <code>R</code> passes over it) and leaves at most once (when <code>L</code> passes over it). That&rsquo;s about <code>2n</code> moves in total &mdash; written <Term word="O(n)"><code>O(n)</code></Term>, meaning the work grows in step with how long the word is, no faster.</p>
           <p>Put numbers on it: the naive method on a thousand-letter word is around half a million checks. The breathing window is about two thousand. Same answer, a fraction of the effort.</p>
-          <p>The hash-map lookup we used to jump <code>L</code> costs the same tiny amount every time, no matter how full the table gets &mdash; that&rsquo;s <code>O(1)</code>, &ldquo;constant time.&rdquo; And the memory it needs is at most one entry per distinct letter; for ordinary English text that&rsquo;s only about 26 entries.</p>
+          <p>The hash-map lookup we used to jump <code>L</code> costs the same tiny amount every time, no matter how full the table gets &mdash; that&rsquo;s <Term word="O(1)"><code>O(1)</code></Term>, &ldquo;constant time.&rdquo; And the memory it needs is at most one entry per distinct letter; for ordinary English text that&rsquo;s only about 26 entries.</p>
         </>
       ),
       visual: <LinearContrast />,
