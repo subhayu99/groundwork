@@ -70,6 +70,20 @@ export function SceneLayout({
     return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
   }, [VW, VH, b]);
 
+  // MOBILE: the height-biased plane is wider than the phone, so the overflow-x box
+  // would otherwise open scrolled to the LEFT edge — showing only the left half of
+  // a centre-composed diagram. Start the scroll centred on the plane instead (the
+  // diagrams are horizontally centred in the canvas), so the visual reads on first
+  // view; the learner can still scroll to inspect the edges.
+  useEffect(() => {
+    const el = mAreaRef.current;
+    if (!el) return;
+    const centre = () => { const over = el.scrollWidth - el.clientWidth; el.scrollLeft = over > 0 ? over / 2 : 0; };
+    centre();
+    const t = setTimeout(centre, 80); // after the plane width settles
+    return () => clearTimeout(t);
+  }, [mScale, VW]);
+
   // VERTICALLY CENTRE the drawn content in the canvas band. The per-topic visuals
   // were authored for the CLASSIC layout, whose tall on-canvas top panel occupied
   // ~150-200 design px; the scene layout replaced that with a thin caption band,

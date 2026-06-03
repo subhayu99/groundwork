@@ -644,7 +644,7 @@ export const activitySelectionLesson: LessonSpec = {
         },
         {
           left: 646,
-          top: 20,
+          top: 96,
           width: 198,
           variant: "note",
           body: (
@@ -703,7 +703,7 @@ export const activitySelectionLesson: LessonSpec = {
         },
         {
           left: 646,
-          top: 20,
+          top: 96,
           width: 198,
           variant: "note",
           body: (
@@ -852,7 +852,7 @@ export const activitySelectionLesson: LessonSpec = {
         },
         {
           left: 646,
-          top: 20,
+          top: 96,
           width: 198,
           variant: "note",
           body: (
