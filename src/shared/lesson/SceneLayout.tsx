@@ -8,6 +8,7 @@ import { ArrowDefs } from "./canvas";
 import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
 import { useLessonEngine, type LessonRuntimeProps } from "./LessonRuntime";
 import { gloss } from "./gloss";
+import { PanZoom } from "./PanZoom";
 
 /**
  * The "one-scene" immersive layout (opt-in via `spec.layout === "scene"`).
@@ -69,20 +70,6 @@ export function SceneLayout({
     window.addEventListener("resize", measure);
     return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
   }, [VW, VH, b]);
-
-  // MOBILE: the height-biased plane is wider than the phone, so the overflow-x box
-  // would otherwise open scrolled to the LEFT edge — showing only the left half of
-  // a centre-composed diagram. Start the scroll centred on the plane instead (the
-  // diagrams are horizontally centred in the canvas), so the visual reads on first
-  // view; the learner can still scroll to inspect the edges.
-  useEffect(() => {
-    const el = mAreaRef.current;
-    if (!el) return;
-    const centre = () => { const over = el.scrollWidth - el.clientWidth; el.scrollLeft = over > 0 ? over / 2 : 0; };
-    centre();
-    const t = setTimeout(centre, 80); // after the plane width settles
-    return () => clearTimeout(t);
-  }, [mScale, VW]);
 
   // VERTICALLY CENTRE the drawn content in the canvas band. The per-topic visuals
   // were authored for the CLASSIC layout, whose tall on-canvas top panel occupied
@@ -268,8 +255,8 @@ export function SceneLayout({
                 </motion.div>
               </AnimatePresence>
             )}
-            {/* the scaled canvas plane, centred — fills the box exactly */}
-            <div ref={areaRef} className="absolute inset-0 flex items-center justify-center overflow-hidden">
+            {/* the scaled canvas plane in a free pan/zoom viewport (wheel + drag to inspect) */}
+            <PanZoom ref={areaRef} className="absolute inset-0" contentWidth={VW * scale} contentHeight={VH * scale} minZoom={1} maxZoom={4}>
               <div style={{ width: VW * scale, height: VH * scale }} className="relative shrink-0">
                 <div data-canvas-root className="absolute top-0 left-0"
                   style={{ width: VW, height: VH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
@@ -300,7 +287,7 @@ export function SceneLayout({
                   </div>
                 </div>
               </div>
-            </div>
+            </PanZoom>
           </div>
 
           {/* MOBILE inline stack — the LEGIBLE hero diagram first, then caption +
@@ -308,12 +295,13 @@ export function SceneLayout({
           <div className="xl:hidden flex flex-col gap-3 pb-2">
             {/* MOBILE HERO — full-width, real height (44vh) so the diagram reads
                 large. The plane is scaled to fill that height (mScale, biased to
-                height); when it's wider than the phone, the box scrolls
-                horizontally / pinches rather than shrinking labels to a sliver. */}
-            <div
+                height) and wrapped in a PanZoom viewport: pinch to zoom, drag to
+                pan, so a wide diagram is inspected rather than shrunk to a sliver. */}
+            <PanZoom
               ref={mAreaRef}
-              className="relative w-full shrink-0 min-h-[44vh] rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-x-auto overflow-y-hidden flex items-center">
-              <div style={{ width: VW * mScale, height: VH * mScale }} className="relative shrink-0 mx-auto">
+              className="relative w-full shrink-0 min-h-[44vh] rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)]"
+              contentWidth={VW * mScale} contentHeight={VH * mScale} minZoom={0.5} maxZoom={4} allowPageScrollAtRest>
+              <div style={{ width: VW * mScale, height: VH * mScale }} className="relative shrink-0">
                 <div data-canvas-root className="absolute top-0 left-0"
                   style={{ width: VW, height: VH, transform: `scale(${mScale})`, transformOrigin: "top left" }}>
                   <div className="absolute inset-0" style={{ transform: `translateY(${mVShift}px)`, transition: shiftWrap }}>
@@ -329,7 +317,7 @@ export function SceneLayout({
                   </div>
                 </div>
               </div>
-            </div>
+            </PanZoom>
             {mainPanel && (
               <div className="rounded-xl border border-[var(--accent-line)] bg-[color-mix(in_oklab,var(--accent-sky)_8%,var(--bg-card))] px-3.5 py-2.5">
                 {mainPanel.label && <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">{mainPanel.label}</div>}
