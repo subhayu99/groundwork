@@ -15,6 +15,8 @@ import { prepareCode, resolveLines } from "@/shared/code/syncAnchors";
 import { emitEvent } from "@/shared/analytics/events";
 import { useProgress } from "@/shared/progress/useProgress";
 import { notFound } from "next/navigation";
+import { getLessonSpec } from "@/shared/lesson/registry";
+import { LessonRuntime } from "@/shared/lesson/LessonRuntime";
 
 interface Props {
   categoryKey: string;
@@ -31,7 +33,7 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   // map; reset when the step changes.
   const [liveLines, setLiveLines] = useState<(number | string)[] | null>(null);
   useEffect(() => setLiveLines(null), [currentStep]);
-  const { getTopic: getTopicProgress } = useProgress();
+  const { getTopic: getTopicProgress, updateTopic } = useProgress();
   const topicProgress = getTopicProgress(categoryKey, topicKey);
   const everCompleted = topicProgress.derivation.completed;
 
@@ -40,6 +42,66 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
   }, [categoryKey, topicKey]);
 
   if (!cat || !bundle) notFound();
+
+  // Converted topics render the new annotated-canvas lesson (replace on branch).
+  // Practice problems ride along (shown below the floating code panel — no second
+  // page); finishing the last beat marks the topic complete in progress.
+  const lessonSpec = getLessonSpec(categoryKey, topicKey);
+  if (lessonSpec) {
+    const practice = (bundle.problems ?? []).map((p) => ({
+      title: p.title,
+      href: `/categories/${categoryKey}/${topicKey}/practice/${p.id}`,
+      difficulty: p.difficulty,
+    }));
+    const all = listAllTopics();
+    const idx = all.findIndex((t) => t.category === categoryKey && t.key === topicKey);
+    const prevT = idx > 0 ? all[idx - 1] : undefined;
+    const nextT = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : undefined;
+    const nav = {
+      homeHref: "/",
+      categoryName: cat.name,
+      categoryHref: `/categories/${categoryKey}`,
+      prev: prevT ? { name: prevT.name, href: `/categories/${prevT.category}/${prevT.key}` } : undefined,
+      next: nextT ? { name: nextT.name, href: `/categories/${nextT.category}/${nextT.key}` } : undefined,
+    };
+    const prerequisites = (bundle.meta.prerequisites ?? [])
+      .map((k) => {
+        const t = all.find((x) => x.key === k);
+        if (!t) return null;
+        return {
+          name: t.name,
+          href: `/categories/${t.category}/${t.key}`,
+          completed: getTopicProgress(t.category, t.key).derivation.completed,
+        };
+      })
+      .filter(Boolean) as { name: string; href: string; completed: boolean }[];
+    return (
+      <LessonRuntime
+        spec={lessonSpec}
+        practice={practice}
+        nav={nav}
+        prerequisites={prerequisites}
+        initiallyCompleted={everCompleted}
+        onComplete={() => {
+          emitEvent({ type: "topic_completed", category: categoryKey, topic: topicKey });
+          updateTopic(categoryKey, topicKey, (tp) => ({
+            ...tp,
+            derivation: {
+              ...tp.derivation,
+              completed: true,
+              currentStep: lessonSpec.beats.length,
+              completedSteps: Array.from(
+                new Set([
+                  ...tp.derivation.completedSteps,
+                  ...lessonSpec.beats.map((_, i) => i + 1),
+                ]),
+              ),
+            },
+          }));
+        }}
+      />
+    );
+  }
 
   const { meta: topic, steps, Visualizer, pythonCode, wedgeStep, wedgeGating, unlockCodeAtStep, naiveThroughStep, problems, nextSteps } = bundle;
   const problemCount = problems?.length ?? 0;

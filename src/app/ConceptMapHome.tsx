@@ -16,6 +16,7 @@ import {
 import { listCategories, listAllTopics } from "@/categories/registry";
 import { listPrinciples } from "@/principles/registry";
 import { useProgress } from "@/shared/progress/useProgress";
+import type { TopicMeta } from "@/shared/derivation/types";
 
 type NodeKind = "principle" | "category" | "topic";
 
@@ -42,7 +43,7 @@ interface GNode {
 interface GLink {
   source: string | GNode;
   target: string | GNode;
-  kind: "topic-category" | "topic-principle";
+  kind: "topic-category" | "topic-principle" | "topic-prereq";
 }
 
 const W = 960;
@@ -80,10 +81,15 @@ export function ConceptMapHome() {
   useEffect(() => setMounted(true), []);
 
   // Build the graph once (topology is static; completion is layered on at render).
-  const { nodes, links, adjacency } = useMemo(() => {
+  const { nodes, links, adjacency, topicByKey } = useMemo(() => {
     const principles = listPrinciples();
     const categories = listCategories();
     const topics = listAllTopics();
+
+    // Lookup keyed by topic `.key` — a prerequisite is referenced by key alone,
+    // but its node id needs the prereq's own category, which we read from here.
+    const topicByKey = new Map<string, TopicMeta>();
+    topics.forEach((t) => topicByKey.set(t.key, t));
 
     const nodes: GNode[] = [];
     const links: GLink[] = [];
@@ -138,6 +144,20 @@ export function ConceptMapHome() {
       });
     });
 
+    // Prerequisite edges connect a topic to each topic it builds on. The prereq
+    // may live in a different category, so resolve its category via the lookup.
+    topics.forEach((t) => {
+      t.prerequisites.forEach((preKey) => {
+        const pre = topicByKey.get(preKey);
+        if (!pre) return; // skip dangling prereq keys
+        links.push({
+          source: `t:${t.category}/${t.key}`,
+          target: `t:${pre.category}/${preKey}`,
+          kind: "topic-prereq",
+        });
+      });
+    });
+
     // adjacency by id, for hover highlighting
     const adjacency = new Map<string, Set<string>>();
     nodes.forEach((n) => adjacency.set(n.id, new Set()));
@@ -148,7 +168,7 @@ export function ConceptMapHome() {
       adjacency.get(t)?.add(s);
     });
 
-    return { nodes, links, adjacency };
+    return { nodes, links, adjacency, topicByKey };
   }, []);
 
   const nodesRef = useRef(nodes);
@@ -167,8 +187,12 @@ export function ConceptMapHome() {
         "link",
         forceLink<GNode, GLink>(links)
           .id((d) => d.id)
-          .distance((l) => (l.kind === "topic-principle" ? 130 : 86))
-          .strength((l) => (l.kind === "topic-principle" ? 0.18 : 0.5)),
+          .distance((l) =>
+            l.kind === "topic-principle" ? 130 : l.kind === "topic-prereq" ? 100 : 86,
+          )
+          .strength((l) =>
+            l.kind === "topic-principle" ? 0.18 : l.kind === "topic-prereq" ? 0.35 : 0.5,
+          ),
       )
       .force("charge", forceManyBody().strength(-430))
       .force("center", forceCenter(W / 2, H / 2))
@@ -209,6 +233,22 @@ export function ConceptMapHome() {
     }
   }
 
+  // A topic is "ready to learn" when it isn't done yet but every prerequisite
+  // is — the recommended next steps. Prereqs are referenced by key alone, so we
+  // resolve each prereq's category through the lookup before reading its state.
+  const topicCompleted = (category: string, key: string) =>
+    state?.categories[category]?.[key]?.derivation.completed ?? false;
+  const topicReady = (category: string, key: string): boolean => {
+    if (!state) return false;
+    if (topicCompleted(category, key)) return false;
+    const meta = topicByKey.get(key);
+    if (!meta || meta.prerequisites.length === 0) return false;
+    return meta.prerequisites.every((preKey) => {
+      const pre = topicByKey.get(preKey);
+      return pre ? topicCompleted(pre.category, preKey) : false;
+    });
+  };
+
   const isActive = (id: string) =>
     hoverId == null || id === hoverId || adjacency.get(hoverId)?.has(id);
   const linkActive = (l: GLink) => {
@@ -238,6 +278,14 @@ export function ConceptMapHome() {
               if (typeof s !== "object" || typeof t !== "object") return null;
               const active = linkActive(l);
               const highlight = hoverId != null && active;
+              const isPrereq = l.kind === "topic-prereq";
+              // Prereq edges read as the dependency backbone: accent-tinted and
+              // dashed so they're distinct from the faint structural links.
+              const stroke = highlight
+                ? "var(--accent-line)"
+                : isPrereq
+                  ? "var(--accent-line)"
+                  : "var(--line-faint)";
               return (
                 <line
                   key={i}
@@ -245,9 +293,10 @@ export function ConceptMapHome() {
                   y1={s.y}
                   x2={t.x}
                   y2={t.y}
-                  stroke={highlight ? "var(--accent-line)" : "var(--line-faint)"}
-                  strokeWidth={highlight ? 1.4 : 0.8}
-                  opacity={hoverId == null ? 0.4 : active ? 0.9 : 0.07}
+                  stroke={stroke}
+                  strokeWidth={highlight ? 1.4 : isPrereq ? 1 : 0.8}
+                  strokeDasharray={isPrereq ? "4 3" : undefined}
+                  opacity={hoverId == null ? (isPrereq ? 0.55 : 0.4) : active ? 0.9 : 0.07}
                 />
               );
             })}
@@ -263,11 +312,18 @@ export function ConceptMapHome() {
               const isPrinciple = n.kind === "principle";
               const isCategory = n.kind === "category";
               const isTopic = n.kind === "topic";
+              // Unlocked-and-unfinished topics (every prereq done) are the
+              // recommended next steps; binary-search ties to the home CTA.
+              const isReady = isTopic && !n.completed && n.category
+                ? topicReady(n.category, n.id.slice(n.id.indexOf("/") + 1))
+                : false;
+              const isStartHere = n.id === "t:algorithms/binary-search";
 
               let fill = "var(--bg-card)";
               let stroke = "var(--line)";
               let textColor = "var(--text-muted)";
               let fontWeight = 400;
+              let strokeDash: string | undefined;
 
               if (isPrinciple) {
                 fill = "var(--accent-soft)";
@@ -284,6 +340,14 @@ export function ConceptMapHome() {
                 stroke = "var(--accent)";
                 textColor = "var(--bg)";
                 fontWeight = 500;
+              } else if (isReady) {
+                // Ready to learn: subtle accent tint + dashed accent stroke —
+                // distinct from solid-filled completed and ghosted unexplored.
+                fill = "var(--accent-soft)";
+                stroke = "var(--accent-line)";
+                textColor = "var(--accent-ink)";
+                fontWeight = 500;
+                strokeDash = "3 2.5";
               }
 
               return (
@@ -311,6 +375,20 @@ export function ConceptMapHome() {
                   }}
                 >
                   <title>{n.label}</title>
+                  {isStartHere && (
+                    // "start here" ring — ties binary-search to the home CTA.
+                    <rect
+                      x={-n.hw - 4}
+                      y={-n.hh - 4}
+                      width={n.hw * 2 + 8}
+                      height={n.hh * 2 + 8}
+                      rx={n.hh + 4}
+                      fill="none"
+                      stroke="var(--accent)"
+                      strokeWidth={1.4}
+                      opacity={0.7}
+                    />
+                  )}
                   <rect
                     x={-n.hw}
                     y={-n.hh}
@@ -320,6 +398,7 @@ export function ConceptMapHome() {
                     fill={fill}
                     stroke={stroke}
                     strokeWidth={isCategory ? 1.6 : 1}
+                    strokeDasharray={strokeDash}
                   />
                   <text
                     textAnchor="middle"
@@ -342,23 +421,36 @@ export function ConceptMapHome() {
 
       {/* legend */}
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-mono text-[var(--text-faint)]">
+        {/* Principles read as wide pills (matching their map chips); topics are
+            small rounded rectangles — shape, not just color, tells them apart. */}
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-3 h-3 rounded-full bg-[var(--accent-soft)] border border-[var(--accent-line)]" />
-          principle
+          <span className="inline-block w-5 h-3 rounded-full bg-[var(--accent-soft)] border border-[var(--accent-line)]" />
+          <span className="font-semibold text-[var(--text-faint)]">principle</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-3 h-3 rounded-full bg-[var(--bg-card-hi)] border border-[var(--line-strong)]" />
-          category
+          <span className="inline-block w-5 h-3 rounded-full bg-[var(--bg-card-hi)] border border-[var(--line-strong)]" />
+          <span className="font-semibold text-[var(--text-faint)]">category</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-3 h-3 rounded-full bg-[var(--accent)]" />
+          <span className="inline-block w-3.5 h-2.5 rounded-[3px] bg-[var(--accent)]" />
           topic you&rsquo;ve finished
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-3 h-3 rounded-full bg-[var(--bg-card)] border border-[var(--line)]" />
+          <span className="inline-block w-3.5 h-2.5 rounded-[3px] bg-[var(--accent-soft)] border border-dashed border-[var(--accent-line)]" />
+          ready to learn
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3.5 h-2.5 rounded-[3px] bg-[var(--bg-card)] border border-[var(--line)]" />
           topic to explore
         </span>
-        <span className="ml-auto text-[var(--text-faint)]">tap to trace · tap again to open</span>
+        <span className="flex items-center gap-1.5">
+          <span
+            className="inline-block w-5 h-0 border-t border-dashed border-[var(--accent-line)]"
+            aria-hidden="true"
+          />
+          prerequisite
+        </span>
+        <span className="sm:ml-auto text-[var(--text-faint)]">tap to trace · tap again to open</span>
       </div>
     </div>
   );

@@ -93,11 +93,15 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   --line-faint:    oklch(0.910 0.008 250);
 
   --text:          oklch(0.255 0.012 250);
-  --text-muted:    oklch(0.440 0.012 250);
+  /* muted/faint darkened for WCAG AA (>=4.5:1) prose contrast on --bg-card:
+     muted ~7.8:1, faint ~5.1:1 (was 6.6:1 / 2.75:1 — faint failed). */
+  --text-muted:    oklch(0.400 0.014 250);
   --text-subtle:   oklch(0.560 0.012 250);
-  --text-faint:    oklch(0.650 0.010 250);
+  --text-faint:    oklch(0.500 0.014 250);
 
-  --accent-sky:    #0284c7;
+  /* accent + difficulty tags darkened to clear AA as small text on card
+     (sky 5.05:1, easy 6.07:1, med 6.04:1, hard 5.35:1 vs --bg-card). */
+  --accent-sky:    #0369a1;
   --accent-indigo: #4f46e5;
   --accent-pink:   #c026d3;
   --accent:        var(--accent-sky);
@@ -105,9 +109,9 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   --accent-line:   color-mix(in oklab, var(--accent) 40%, transparent);
   --accent-ink:    color-mix(in oklab, var(--accent) 86%, black 14%);
 
-  --diff-easy:     #16a34a;
-  --diff-med:      #b45309;
-  --diff-hard:     #e11d48;
+  --diff-easy:     #166534;
+  --diff-med:      #92400e;
+  --diff-hard:     #be123c;
 }
 
 @theme inline {

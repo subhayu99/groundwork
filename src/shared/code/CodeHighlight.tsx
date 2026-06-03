@@ -213,6 +213,7 @@ export function CodeHighlight({ code, highlightedLines = [], revealedLines, head
           return (
             <div
               key={i}
+              data-active-line={isHighlighted ? "" : undefined}
               className={`relative px-4 transition-all duration-300 ${
                 isHighlighted
                   ? "bg-[var(--accent-soft)] border-l-2 border-[var(--accent)]"
