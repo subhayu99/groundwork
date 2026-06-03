@@ -122,6 +122,12 @@ export function TopicTierMap() {
       {/* DESKTOP — SVG tiers */}
       <div className="hidden md:block rounded-2xl border border-[var(--line-faint)] bg-[var(--bg-elevated)] overflow-hidden">
         <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", aspectRatio: `${W} / ${H}` }} role="group" aria-label="Topic dependency map, by level">
+          <defs>
+            {/* small arrowhead — inherits the line's stroke colour via context-stroke */}
+            <marker id="tierArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0.5,0.5 L9,5 L0.5,9.5 z" fill="context-stroke" />
+            </marker>
+          </defs>
           {/* tier labels */}
           {tiers.map((_, L) => (
             <g key={L}>
@@ -132,10 +138,14 @@ export function TopicTierMap() {
           {/* edges (behind chips) */}
           <g>
             {edges.map((e, i) => {
+              // a = the dependent topic (lower tier on screen); b = its prerequisite (upper).
+              // Draw the arrow FROM the prerequisite DOWN INTO the dependent, so direction
+              // reads "learn this → flows down to this".
               const a = pos.get(e.from)!, b = pos.get(e.to)!;
               const lit = !hl || (hl.has(e.from) && hl.has(e.to));
               return (
-                <line key={i} x1={a.x} y1={a.y - HH} x2={b.x} y2={b.y + HH}
+                <line key={i} x1={b.x} y1={b.y + HH} x2={a.x} y2={a.y - HH - 4}
+                  markerEnd="url(#tierArrow)"
                   stroke={hover ? (lit ? "var(--accent-line)" : "var(--line-faint)") : "var(--line)"}
                   strokeWidth={hover && lit ? 1.5 : 1}
                   opacity={hover ? (lit ? 0.95 : 0.05) : 0.55} />
