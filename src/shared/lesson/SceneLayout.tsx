@@ -70,6 +70,63 @@ export function SceneLayout({
     return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
   }, [VW, VH, b]);
 
+  // VERTICALLY CENTRE the drawn content in the canvas band. The per-topic visuals
+  // were authored for the CLASSIC layout, whose tall on-canvas top panel occupied
+  // ~150-200 design px; the scene layout replaced that with a thin caption band,
+  // so every topic's content was left bottom-stuck with a dead zone up top. Rather
+  // than retune 20 sets of geometry constants, we measure the SVG content's bbox
+  // (in design coords) and translate svg+notes to centre it — once, in the shared
+  // layer, so every current and future topic is balanced for free.
+  const svgRef = useRef<SVGSVGElement>(null);
+  const mSvgRef = useRef<SVGSVGElement>(null);
+  const [vShift, setVShift] = useState(0);
+  const [mVShift, setMVShift] = useState(0);
+  useEffect(() => {
+    // Authored (shift-independent) vertical extent of the real drawn content in a
+    // canvas plane: union the RENDERED boxes of svg leaves + on-canvas notes, minus
+    // the shift already applied (read off the wrapper's transform). Using
+    // getBoundingClientRect — not svg.getBBox — means unrendered <defs> markers are
+    // 0-sized and excluded for free; full-canvas backdrops are dropped explicitly.
+    // Notes are folded in so centring the diagram can never push an annotation off-screen.
+    const extent = (svgEl: SVGSVGElement | null) => {
+      const root = svgEl?.closest("[data-canvas-root]") as HTMLElement | null;
+      if (!root || !svgEl?.parentElement) return null;
+      const rb = root.getBoundingClientRect();
+      const VHpx = root.offsetHeight;
+      if (!VHpx || rb.height < 1) return null;
+      const sc = rb.height / VHpx;
+      let cur = 0;
+      try { cur = new DOMMatrixReadOnly(getComputedStyle(svgEl.parentElement).transform).f; } catch { /* identity */ }
+      let top = Infinity, bot = -Infinity;
+      root.querySelectorAll("svg rect, svg circle, svg path, svg line, svg text, svg polygon, svg polyline, svg ellipse, [data-canvas-panel]").forEach((e) => {
+        const r = e.getBoundingClientRect();
+        if (r.width < 1 && r.height < 1) return;                                  // unrendered (defs marker)
+        if (r.width >= rb.width * 0.95 && r.height >= rb.height * 0.92) return;   // full-canvas backdrop
+        const t = (r.top - rb.top) / sc - cur, b2 = (r.bottom - rb.top) / sc - cur;
+        if (!isFinite(t) || !isFinite(b2)) return;
+        top = Math.min(top, t); bot = Math.max(bot, b2);
+      });
+      return isFinite(top) ? { top, h: bot - top } : null;
+    };
+    const shiftFor = (svgEl: SVGSVGElement | null, cap: number) => {
+      const e = extent(svgEl);
+      if (!e) return null;
+      const top = Math.max(cap, cap + (VH - cap - e.h) / 2);
+      return Math.round(top - e.top);
+    };
+    const compute = () => {
+      const d = shiftFor(svgRef.current, 58);  // desktop: caption band overlays the top ~58 design px
+      if (d != null) setVShift(d);
+      const m = shiftFor(mSvgRef.current, 12); // mobile: caption sits BELOW the hero, ~whole band free
+      if (m != null) setMVShift(m);
+    };
+    compute();
+    const ts = [120, 320, 540].map((d) => setTimeout(compute, d)); // converge as the per-beat fade settles
+    window.addEventListener("resize", compute);
+    return () => { ts.forEach(clearTimeout); window.removeEventListener("resize", compute); };
+  }, [b, beat.id, VW, VH]);
+  const shiftWrap = "transform .32s cubic-bezier(.22,.65,.3,1)";
+
   // The "why?" card defaults open on beat 0, collapsed after — but ONCE THE
   // LEARNER TOGGLES IT, the choice STICKS across every beat (like the code panel).
   const detailTouched = useRef(false);
@@ -202,7 +259,8 @@ export function SceneLayout({
               <div style={{ width: VW * scale, height: VH * scale }} className="relative shrink-0">
                 <div data-canvas-root className="absolute top-0 left-0"
                   style={{ width: VW, height: VH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
-                  <svg width={VW} height={VH} className="absolute inset-0 overflow-visible"
+                  <div className="absolute inset-0" style={{ transform: `translateY(${vShift}px)`, transition: shiftWrap }}>
+                  <svg ref={svgRef} width={VW} height={VH} className="absolute inset-0 overflow-visible"
                     role="img" aria-label={`${spec.topicTitle} — step ${b + 1}: ${beat.label ?? ""}`}>
                     <ArrowDefs />
                     <AnimatePresence mode="wait">
@@ -225,6 +283,7 @@ export function SceneLayout({
                       ))}
                     </motion.div>
                   </AnimatePresence>
+                  </div>
                 </div>
               </div>
             </div>
@@ -243,7 +302,8 @@ export function SceneLayout({
               <div style={{ width: VW * mScale, height: VH * mScale }} className="relative shrink-0 mx-auto">
                 <div data-canvas-root className="absolute top-0 left-0"
                   style={{ width: VW, height: VH, transform: `scale(${mScale})`, transformOrigin: "top left" }}>
-                  <svg width={VW} height={VH} className="absolute inset-0 overflow-visible"
+                  <div className="absolute inset-0" style={{ transform: `translateY(${mVShift}px)`, transition: shiftWrap }}>
+                  <svg ref={mSvgRef} width={VW} height={VH} className="absolute inset-0 overflow-visible"
                     role="img" aria-label={`${spec.topicTitle} — step ${b + 1}: ${beat.label ?? ""}`}>
                     <ArrowDefs />
                     <AnimatePresence mode="wait">
@@ -252,6 +312,7 @@ export function SceneLayout({
                       </motion.g>
                     </AnimatePresence>
                   </svg>
+                  </div>
                 </div>
               </div>
             </div>
