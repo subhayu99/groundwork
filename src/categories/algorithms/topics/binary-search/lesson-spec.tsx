@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import binarySearchPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -177,7 +178,7 @@ export const binarySearchLesson: LessonSpec = {
       }],
       detail: (
         <>
-          <p>The obvious method: read every page in order &mdash; page 1, page 2, page 3 &mdash; until you hit the name. For a thousand pages that&rsquo;s up to a thousand checks. This is a <strong>linear scan</strong>, and its cost is <code>O(n)</code> (&ldquo;order n&rdquo;): the work grows in step with the number of items <code>n</code> &mdash; double the book, double the worst case.</p>
+          <p>The obvious method: read every page in order &mdash; page 1, page 2, page 3 &mdash; until you hit the name. For a thousand pages that&rsquo;s up to a thousand checks. This is a <strong>linear scan</strong>, and its cost is <Term word="O(n)"><code>O(n)</code></Term> (&ldquo;order n&rdquo;): the work grows in step with the number of items <code>n</code> &mdash; double the book, double the worst case.</p>
           <p>The frustrating part: the book is already sorted, and the scan barely uses that. Each page you flip past only says &ldquo;not here&rdquo; &mdash; never <em>how far away</em> the name still is. Could a single comparison tell us where it <em>is</em>, not just where it isn&rsquo;t?</p>
         </>
       ),
@@ -219,14 +220,14 @@ export const binarySearchLesson: LessonSpec = {
       visual: (api) => <AutoBinarySearch api={api} />,
       panels: [{
         left: 150, top: 18, width: 580, variant: "main", label: "The derivation", title: "Two markers. Always check the middle.",
-        body: <>Keep two markers &mdash; <code>lo</code> at the start, <code>hi</code> at the end of what&rsquo;s still possible. Check the middle. Match? done. Too small? the answer&rsquo;s to the right, move <code>lo</code> past it. Too big? move <code>hi</code> before it. <span className="text-[var(--accent-ink)]">Each check drops a whole half.</span></>,
+        body: <>Keep two markers &mdash; <Term word="lo"><code>lo</code></Term> at the start, <Term word="hi"><code>hi</code></Term> at the end of what&rsquo;s still possible. Check the middle. Match? done. Too small? the answer&rsquo;s to the right, move <code>lo</code> past it. Too big? move <code>hi</code> before it. <span className="text-[var(--accent-ink)]">Each check drops a whole half.</span></>,
       }],
       detail: (
         <>
           <p>Hold two markers: <code>lo</code> at the start and <code>hi</code> at the end of the part that could still contain the target &mdash; so the answer, if it exists, is somewhere in <code>[lo, hi]</code>.</p>
-          <p>Each round, look at the middle: <code>mid = (lo + hi) / 2</code> (rounded down to a whole index). Three outcomes:</p>
+          <p>Each round, look at the middle: <Term word="mid"><code>mid</code></Term> <code>= (lo + hi) / 2</code> (<Term word="//">rounded down to a whole index</Term>). Three outcomes:</p>
           <ul>
-            <li><code>arr[mid] == target</code> &mdash; done, return <code>mid</code>.</li>
+            <li><Term word="arr[i]"><code>arr[mid]</code></Term> <code>== target</code> &mdash; done, return <code>mid</code>.</li>
             <li><code>arr[mid] &lt; target</code> &mdash; the answer is to the right, move <code>lo = mid + 1</code>.</li>
             <li><code>arr[mid] &gt; target</code> &mdash; the answer is to the left, move <code>hi = mid - 1</code>.</li>
           </ul>
@@ -253,7 +254,7 @@ export const binarySearchLesson: LessonSpec = {
       detail: (
         <>
           <p>Compare the costs head to head. A thousand items one by one: up to 1,000 looks. Halving repeatedly: about 10. Bump it to a million &mdash; one-by-one needs a million, halving needs about 20.</p>
-          <p>That &ldquo;about 10/20&rdquo; is <code>log&#8322;</code> (&ldquo;log base two&rdquo;): how many times you can halve a pile before one item remains. Big-O calls it <code>O(log n)</code> &mdash; work that grows by just one extra step each time the data <em>doubles</em>. That gap is why sorted-data tools everywhere lean on it, from Python&rsquo;s <code>bisect</code> to the index pages (B-trees) your database uses to find a row fast.</p>
+          <p>That &ldquo;about 10/20&rdquo; is <code>log&#8322;</code> (&ldquo;log base two&rdquo;): how many times you can halve a pile before one item remains. Big-O calls it <Term word="O(log n)"><code>O(log n)</code></Term> &mdash; work that grows by just one extra step each time the data <em>doubles</em>. That gap is why sorted-data tools everywhere lean on it, from Python&rsquo;s <code>bisect</code> to the index pages (B-trees) your database uses to find a row fast.</p>
         </>
       ),
       codeLabels: ["loop", "mid"],
@@ -272,7 +273,7 @@ export const binarySearchLesson: LessonSpec = {
       detail: (
         <>
           <p>The phone-book version finds an exact value. The deeper version finds the <strong>boundary</strong> between &ldquo;too small&rdquo; and &ldquo;big enough.&rdquo; Example: &ldquo;What&rsquo;s the smallest ship that finishes all deliveries in 14 days?&rdquo; There&rsquo;s no list to search at all.</p>
-          <p>But the answers line up in one direction &mdash; the bigger the ship, the easier the job, so once a size works, every larger size works too. That one-way property is called <strong>monotonicity</strong>, and it&rsquo;s all binary search needs. Guess the middle, ask &ldquo;does this work?&rdquo;, throw away half. Small to big, easy to hard, no to yes &mdash; one check halves it.</p>
+          <p>But the answers line up in one direction &mdash; the bigger the ship, the easier the job, so once a size works, every larger size works too. That one-way property is called <Term word="monotonicity"><strong>monotonicity</strong></Term>, and it&rsquo;s all binary search needs. Guess the middle, ask &ldquo;does this work?&rdquo;, throw away half. Small to big, easy to hard, no to yes &mdash; one check halves it.</p>
         </>
       ),
       codeLabels: ["compare", "less", "greater"],

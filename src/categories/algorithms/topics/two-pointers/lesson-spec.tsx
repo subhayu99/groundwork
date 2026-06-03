@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom, Bracket, Arrow } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import two_pointersPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -245,7 +246,7 @@ export const twoPointersLesson: LessonSpec = {
       detail: (
         <>
           <p>The honest answer: pick the first card, then test it against every other card. If nothing sums to <code>17</code>, pick the second card and test it against every card after it. Then the third, and so on. This is the <strong>brute-force</strong> way &mdash; try every possible pair and hope one fits.</p>
-          <p>For ten cards that&rsquo;s <code>9 + 8 + 7 + &hellip; + 1 = 45</code> pairs to inspect, and you end up touching the same cards over and over. Scale it up: a thousand cards means roughly half a million pairs. We call this <code>O(n&sup2;)</code> work (&ldquo;order n-squared&rdquo;) &mdash; meaning if the number of cards <code>n</code> doubles, the effort roughly <em>quadruples</em>.</p>
+          <p>For ten cards that&rsquo;s <code>9 + 8 + 7 + &hellip; + 1 = 45</code> pairs to inspect, and you end up touching the same cards over and over. Scale it up: a thousand cards means roughly half a million pairs. We call this <Term word="O(n²)"><code>O(n&sup2;)</code></Term> work (&ldquo;order n-squared&rdquo;) &mdash; meaning if the number of cards <code>n</code> doubles, the effort roughly <em>quadruples</em>.</p>
           <p>Here&rsquo;s the waste: the cards are already <strong>sorted</strong>, smallest to largest, and we haven&rsquo;t used that fact at all. Surely the order is worth something.</p>
         </>
       ),
@@ -262,7 +263,7 @@ export const twoPointersLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Two fingers. One at each end. Move them.",
-          body: <>Put one finger &mdash; call it <code>L</code> &mdash; on the smallest card, one (<code>R</code>) on the largest. <em><code>arr[L]</code> just means the card the L finger points at.</em> Add the two. Use the buttons: when the sum is too small, which finger makes it bigger?</>,
+          body: <>Put one finger &mdash; call it <Term word="L"><code>L</code></Term> &mdash; on the smallest card, one (<Term word="R"><code>R</code></Term>) on the largest. <em><Term word="arr[i]"><code>arr[L]</code></Term> just means the card the L finger points at.</em> Add the two. Use the buttons: when the sum is too small, which finger makes it bigger?</>,
         },
         {
           left: 600, top: 360, width: 252, variant: "note",
@@ -324,7 +325,7 @@ export const twoPointersLesson: LessonSpec = {
       detail: (
         <>
           <p>Put the two costs side by side. Brute force inspects up to <code>n &times; (n &minus; 1) / 2</code> pairs &mdash; here <code>n</code> is the card count, so with <code>n = 10</code> that&rsquo;s 45 comparisons. That formula is <code>O(n&sup2;)</code> work: double the cards and the effort roughly quadruples.</p>
-          <p>The two fingers, by contrast, touch each card at most once. <code>L</code> only ever moves right, <code>R</code> only ever moves left, and they march toward each other until they meet. So after at most <code>n &minus; 1</code> = 9 steps the search is over. That&rsquo;s <code>O(n)</code> work (&ldquo;order n&rdquo;) &mdash; the effort grows in simple step with the number of cards, not with its square.</p>
+          <p>The two fingers, by contrast, touch each card at most once. <code>L</code> only ever moves right, <code>R</code> only ever moves left, and they march toward each other until they meet. So after at most <code>n &minus; 1</code> = 9 steps the search is over. That&rsquo;s <Term word="O(n)"><code>O(n)</code></Term> work (&ldquo;order n&rdquo;) &mdash; the effort grows in simple step with the number of cards, not with its square.</p>
           <p>Forty-five collapses to nine, and the gap only widens as the row gets longer. Next, see the fingers actually converge.</p>
         </>
       ),
@@ -386,7 +387,7 @@ export const twoPointersLesson: LessonSpec = {
       }],
       detail: (
         <>
-          <p>That&rsquo;s the name: <strong>Two Pointers</strong>. The &ldquo;pointers&rdquo; are just the two fingers &mdash; markers that each remember a position in the row. The pattern fits whenever a line of data has a <em>direction</em> (sorted order, symmetry, or some one-way pattern) and a single comparison can rule out a whole side of what&rsquo;s left, instead of just one item.</p>
+          <p>That&rsquo;s the name: <strong>Two Pointers</strong>. The &ldquo;<Term word="pointer">pointers</Term>&rdquo; are just the two fingers &mdash; markers that each remember a position in the row. The pattern fits whenever a line of data has a <em>direction</em> (sorted order, symmetry, or some one-way pattern) and a single comparison can rule out a whole side of what&rsquo;s left, instead of just one item.</p>
           <p>Reach for it when you spot signals like these:</p>
           <ul>
             <li>a &ldquo;sorted array&rdquo; plus a &ldquo;pair sum&rdquo; or &ldquo;target&rdquo;</li>

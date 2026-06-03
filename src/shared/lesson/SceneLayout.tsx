@@ -41,6 +41,34 @@ export function SceneLayout({
 
   const [prereqDismissed, setPrereqDismissed] = useState(false);
 
+  // MOBILE hero scale — computed independently of the engine's (desktop) scale so
+  // the phone diagram reads LEGIBLY large. We bias to the box HEIGHT (the mobile
+  // box gets a real min-height) and let the wide plane overflow horizontally
+  // (the box is overflow-x-auto), instead of shrinking everything to a sliver to
+  // fit the narrow width. Desktop is untouched: it keeps using the engine's
+  // areaRef/scale on its own (xl-only) plane below.
+  const mAreaRef = useRef<HTMLDivElement>(null);
+  const [mScale, setMScale] = useState(1);
+  useEffect(() => {
+    const el = mAreaRef.current;
+    if (!el) return;
+    const measure = () => {
+      const w = el.clientWidth, h = el.clientHeight;
+      if (h <= 0) return;
+      // Fill the (tall) box height; never go below a width-fit so a tall narrow
+      // plane can't overflow horizontally for no reason. Clamp so labels stay
+      // crisp (cap) and a very short viewport still fits (floor).
+      const byHeight = h / VH;
+      const byWidth = w > 0 ? w / VW : byHeight;
+      setMScale(Math.max(0.5, Math.min(Math.max(byHeight, byWidth), 1.6)));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
+  }, [VW, VH, b]);
+
   // The "why?" card defaults open on beat 0, collapsed after — but ONCE THE
   // LEARNER TOGGLES IT, the choice STICKS across every beat (like the code panel).
   const detailTouched = useRef(false);
@@ -114,9 +142,23 @@ export function SceneLayout({
           )}
         </div>
         {showNudge && (
-          <div className="px-3 sm:px-5 py-2 border-b border-[var(--line-faint)]">
-            <PrereqNudge prerequisites={prerequisites!} onContinue={() => setPrereqDismissed(true)} />
-          </div>
+          <>
+            {/* desktop keeps the full advisory nudge */}
+            <div className="hidden xl:block px-3 sm:px-5 py-2 border-b border-[var(--line-faint)]">
+              <PrereqNudge prerequisites={prerequisites!} onContinue={() => setPrereqDismissed(true)} />
+            </div>
+            {/* mobile: one-line dismissible chip so it never eats the first screen */}
+            <div className="xl:hidden flex items-center gap-2 px-3 sm:px-5 py-1.5 border-b border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--accent-sky)_7%,transparent)]">
+              <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)] shrink-0">builds on</span>
+              <span className="text-[11.5px] text-[var(--text-muted)] truncate min-w-0">
+                {prerequisites!.filter((p) => !p.completed).map((p) => p.name).join(", ")}
+              </span>
+              <button onClick={() => setPrereqDismissed(true)} aria-label="dismiss prerequisite note"
+                className="ml-auto shrink-0 inline-flex items-center justify-center w-7 h-7 -mr-1 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+          </>
         )}
       </div>
 
@@ -135,12 +177,13 @@ export function SceneLayout({
               </motion.div>
             </AnimatePresence>
           )}
-          {/* HERO box — aspect-locked so it hugs the diagram (mobile: natural height,
-              no empty space; desktop: capped + vertically centred). */}
+          {/* HERO box (DESKTOP) — aspect-locked so it hugs the diagram, capped +
+              vertically centred. Hidden on mobile, which renders its own taller,
+              legibly-scaled hero below (the engine's areaRef stays on THIS box). */}
           <div
             ref={boxRef}
             style={{ aspectRatio: `${VW} / ${VH}` }}
-            className="relative w-full shrink-0 xl:max-h-full xl:self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden">
+            className="relative w-full shrink-0 hidden xl:block xl:max-h-full xl:self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden">
             {/* MAIN caption — consistent title band pinned to the top of the box (desktop) */}
             {mainPanel && (
               <AnimatePresence mode="wait">
@@ -186,9 +229,31 @@ export function SceneLayout({
             </div>
           </div>
 
-          {/* MOBILE inline stack — caption + (cards OR code) directly below the
-              visual, using the empty space (no FAB / bottom-sheet). */}
+          {/* MOBILE inline stack — the LEGIBLE hero diagram first, then caption +
+              (cards OR code) directly below it (no FAB / bottom-sheet). */}
           <div className="xl:hidden flex flex-col gap-3 pb-2">
+            {/* MOBILE HERO — full-width, real height (44vh) so the diagram reads
+                large. The plane is scaled to fill that height (mScale, biased to
+                height); when it's wider than the phone, the box scrolls
+                horizontally / pinches rather than shrinking labels to a sliver. */}
+            <div
+              ref={mAreaRef}
+              className="relative w-full shrink-0 min-h-[44vh] rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-x-auto overflow-y-hidden flex items-center">
+              <div style={{ width: VW * mScale, height: VH * mScale }} className="relative shrink-0 mx-auto">
+                <div data-canvas-root className="absolute top-0 left-0"
+                  style={{ width: VW, height: VH, transform: `scale(${mScale})`, transformOrigin: "top left" }}>
+                  <svg width={VW} height={VH} className="absolute inset-0 overflow-visible"
+                    role="img" aria-label={`${spec.topicTitle} — step ${b + 1}: ${beat.label ?? ""}`}>
+                    <ArrowDefs />
+                    <AnimatePresence mode="wait">
+                      <motion.g key={beat.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+                        {visualNode}
+                      </motion.g>
+                    </AnimatePresence>
+                  </svg>
+                </div>
+              </div>
+            </div>
             {mainPanel && (
               <div className="rounded-xl border border-[var(--accent-line)] bg-[color-mix(in_oklab,var(--accent-sky)_8%,var(--bg-card))] px-3.5 py-2.5">
                 {mainPanel.label && <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">{mainPanel.label}</div>}
@@ -252,13 +317,30 @@ export function SceneLayout({
           <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider">{showCode ? "hide code" : "code"}</span>
         </button>
 
+        {/* Forward CTA. When gated, it's intentionally muted (looks LOCKED, not
+            broken) — the prominent cue below the bar carries the real instruction. */}
         <button onClick={goNext} disabled={gated}
           title={gated ? "Try the interaction on the canvas first" : undefined}
-          className="min-h-[40px] px-4 sm:px-5 rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)] font-medium disabled:opacity-40 text-[14px]">
+          className={`min-h-[40px] px-4 sm:px-5 rounded-lg border font-medium text-[14px] transition-colors ${
+            gated
+              ? "border-dashed border-[var(--line)] bg-transparent text-[var(--text-faint)]"
+              : "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)]"
+          }`}>
           {advanceLabel}
         </button>
       </div>
-      {gated && <div className="shrink-0 text-center font-mono text-[10px] text-[var(--accent-ink)] pb-1">↑ try it on the canvas to continue</div>}
+      {/* Gated cue. On mobile it's a prominent high-contrast banner just under the
+          controls (so the locked forward button doesn't read as broken); on
+          desktop it stays the quiet inline hint it always was. */}
+      {gated && (
+        <>
+          <div className="xl:hidden shrink-0 mx-3 sm:mx-5 mb-2 flex items-center justify-center gap-2 rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] px-3 py-2 text-center text-[12.5px] font-medium text-[var(--accent-ink)]">
+            <span aria-hidden="true" className="text-[15px] leading-none">↑</span>
+            <span>Try it on the canvas above to continue</span>
+          </div>
+          <div className="hidden xl:block shrink-0 text-center font-mono text-[10px] text-[var(--accent-ink)] pb-1">↑ try it on the canvas to continue</div>
+        </>
+      )}
 
       <div aria-live="polite" aria-atomic="true" className="sr-only">
         {`Step ${b + 1} of ${spec.beats.length}${beat.label ? ": " + beat.label : ""}`}
@@ -304,9 +386,13 @@ function CodePanel({ code, activeLines, practice, scrollRef, fillHeight }: {
   return (
     <div className="flex flex-col gap-3 min-h-0">
       <div className={`flex flex-col rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] overflow-hidden ${fillHeight ? "min-h-0 xl:flex-1" : ""}`}>
-        <div className="shrink-0 flex items-center gap-2 px-4 py-2.5 border-b border-[var(--line-faint)]">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">algorithm.py</span>
-          <span className="font-mono text-[10px] text-[var(--accent-ink)] truncate">▶ line follows the beat</span>
+        {/* Optional, inviting framing — never obligates a non-coder. */}
+        <div className="shrink-0 flex flex-col gap-0.5 px-4 py-2.5 border-b border-[var(--line-faint)]">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--accent-ink)]">optional</span>
+            <span className="font-mono text-[10px] text-[var(--text-faint)] truncate">algorithm.py</span>
+          </div>
+          <span className="text-[11.5px] leading-snug text-[var(--text-muted)]">The same idea in a computer&rsquo;s language. The lesson works without it.</span>
         </div>
         <div ref={scrollRef} className={`overflow-auto p-1 ${fillHeight ? "min-h-0" : "max-h-[58vh]"}`}>
           <CodeHighlight code={code} highlightedLines={activeLines} />
