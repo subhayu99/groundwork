@@ -1,11 +1,11 @@
 import { TopicMeta } from "@/shared/derivation/types";
 
 export const meta: TopicMeta = {
-  key: "conditionals",
-  name: "If / Else",
+  key: "while-loops",
+  name: "While Loops",
   category: "programming-basics",
   principles: [],
-  prerequisites: ["variables", "operators"],
+  prerequisites: ["conditionals"],
   tier: "free",
   difficulty: "foundation",
   estimatedMinutes: 7,

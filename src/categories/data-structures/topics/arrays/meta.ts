@@ -5,7 +5,10 @@ export const meta: TopicMeta = {
   name: "Arrays & Lists",
   category: "data-structures",
   principles: [],
-  prerequisites: [],
+  // Builds on the Programming Basics track: once you can loop over a collection,
+  // arrays are the structure underneath. This makes the whole DS&A tree sit below
+  // the fundamentals in the dependency map.
+  prerequisites: ["for-loops"],
   tier: "free",
   difficulty: "foundation",
   estimatedMinutes: 8,

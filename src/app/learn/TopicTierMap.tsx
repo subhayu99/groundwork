@@ -22,8 +22,8 @@ import type { TopicMeta } from "@/shared/derivation/types";
 const W = 1160;
 const LEFT = 132;
 const RIGHT = 48;
-const TOP = 74;
-const ROW = 100;
+const TOP = 66;
+const ROW = 88; // tier spacing — kept compact since the basics track adds several tiers
 const HH = 16; // chip half-height
 
 const tierLabel = (l: number) => (l === 0 ? "FOUNDATION" : `LEVEL ${l}`);
