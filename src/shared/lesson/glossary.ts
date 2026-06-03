@@ -48,4 +48,14 @@ export const GLOSSARY: Record<string, string> = {
     "solving a problem by having it call a smaller copy of itself, until the copy is tiny enough to answer directly.",
   "pointer":
     "a marker that simply remembers a position in the list, like a finger held on one card.",
+
+  // ── Programming basics ──────────────────────────────────────────────────────
+  "assignment":
+    "storing a value into a name with =, read right-to-left: work out the right side, then put it in the name on the left.",
+  "string":
+    "a piece of text, written inside quotes — like \"Ada\" or \"hello\".",
+  "boolean":
+    "a value that is either True or False — the answer to a yes/no question.",
+  "condition":
+    "a yes/no test (it works out to True or False) that decides whether a block of code runs.",
 };

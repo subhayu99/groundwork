@@ -1,4 +1,6 @@
 import type { LessonSpec } from "./types";
+import { variablesLesson } from "@/categories/programming-basics/topics/variables/lesson-spec";
+import { conditionalsLesson } from "@/categories/programming-basics/topics/conditionals/lesson-spec";
 import { binarySearchLesson } from "@/categories/algorithms/topics/binary-search/lesson-spec";
 import { twoPointersLesson } from "@/categories/algorithms/topics/two-pointers/lesson-spec";
 import { slidingWindowLesson } from "@/categories/algorithms/topics/sliding-window/lesson-spec";
@@ -26,6 +28,8 @@ import { linkedListsLesson } from "@/categories/data-structures/topics/linked-li
  * ("replace on the branch"). Add an entry as each topic is converted.
  */
 export const lessonSpecs: Record<string, LessonSpec> = {
+  "programming-basics/variables": variablesLesson,
+  "programming-basics/conditionals": conditionalsLesson,
   "algorithms/binary-search": binarySearchLesson,
   "algorithms/two-pointers": twoPointersLesson,
   "algorithms/sliding-window": slidingWindowLesson,

@@ -2,6 +2,11 @@ import { CategoryMeta, TopicMeta } from "@/shared/derivation/types";
 
 import { meta as algorithmsMeta } from "./algorithms/meta";
 import { meta as dataStructuresMeta } from "./data-structures/meta";
+import { meta as programmingBasicsMeta } from "./programming-basics/meta";
+
+// Programming Basics
+import { meta as variablesMeta } from "./programming-basics/topics/variables/meta";
+import { meta as conditionalsMeta } from "./programming-basics/topics/conditionals/meta";
 
 // Data Structures
 import { meta as arraysMeta } from "./data-structures/topics/arrays/meta";
@@ -27,9 +32,12 @@ import { meta as dp1dMeta } from "./algorithms/topics/dp-1d/meta";
 import { meta as backtrackingMeta } from "./algorithms/topics/backtracking/meta";
 import { meta as mergesortMeta } from "./algorithms/topics/mergesort/meta";
 
-const categories: CategoryMeta[] = [dataStructuresMeta, algorithmsMeta];
+const categories: CategoryMeta[] = [programmingBasicsMeta, dataStructuresMeta, algorithmsMeta];
 
 const topics: TopicMeta[] = [
+  // Programming Basics (before any data structure or algorithm)
+  variablesMeta,
+  conditionalsMeta,
   // Data Structures (foundations)
   arraysMeta,
   stringsMeta,
