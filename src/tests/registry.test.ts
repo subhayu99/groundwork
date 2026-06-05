@@ -10,7 +10,7 @@ import {
 describe("category registry", () => {
   it("lists categories in order", () => {
     const cats = listCategories();
-    expect(cats.map((c) => c.key)).toEqual(["data-structures", "algorithms"]);
+    expect(cats.map((c) => c.key)).toEqual(["programming-basics", "data-structures", "algorithms"]);
   });
 
   it("returns undefined for unknown category", () => {
