@@ -25,8 +25,14 @@ function loadTopic(category: string, topic: string) {
 }
 
 describe("codeMaps", () => {
-  it("has an entry for every registered topic", () => {
+  // codeMaps drives the CLASSIC step→line drawer. Scene-native tracks (e.g.
+  // programming-basics) sync code via `@sync` codeLabels in their LessonSpec, not
+  // codeMaps, so they intentionally have no entry here.
+  const CLASSIC_CATEGORIES = new Set(["data-structures", "algorithms"]);
+
+  it("has an entry for every classic-drawer topic", () => {
     const missing = listAllTopics()
+      .filter((t) => CLASSIC_CATEGORIES.has(t.category))
       .map((t) => `${t.category}/${t.key}`)
       .filter((key) => !(key in codeMaps));
     expect(missing).toEqual([]);
