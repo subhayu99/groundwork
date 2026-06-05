@@ -350,6 +350,28 @@ export function SceneLayout({
         </aside>
       </div>
 
+      {/* ── COMPLETION HAND-OFF ─────────────────────────────────────────────
+          Finished the last beat? Don't dead-end — point straight at the next
+          module (path order) plus a way back to the full map. */}
+      {completed && b === last && (
+        <div className="shrink-0 flex flex-wrap items-center gap-x-4 gap-y-2 px-3 sm:px-5 py-2.5 border-t border-[var(--accent-line)] bg-[var(--accent-soft)]">
+          <span className="flex items-center gap-1.5 font-semibold text-[14px] text-[var(--accent-ink)]">
+            <span aria-hidden="true">✓</span> Lesson complete
+          </span>
+          <div className="flex items-center gap-3 ml-auto">
+            <Link href="/learn" className="font-mono text-[11px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]">
+              all modules
+            </Link>
+            <Link
+              href={nav?.next?.href ?? "/learn"}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--accent-line)] bg-[var(--bg-card)] px-4 py-2 text-[14px] font-semibold text-[var(--accent-ink)] hover:bg-[var(--bg-inset)] transition-colors"
+            >
+              {nav?.next ? <>Next: {nav.next.name} &rarr;</> : <>Explore the map &rarr;</>}
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* ── ACTION BAR ──────────────────────────────────────────────────────── */}
       <div className="relative z-30 shrink-0 flex items-center gap-2 sm:gap-4 px-3 sm:px-5 pt-1 pb-3 border-t border-[var(--line)] bg-[var(--bg)]">
         <button onClick={() => setB((x) => Math.max(0, x - 1))} disabled={b === 0}
@@ -383,12 +405,14 @@ export function SceneLayout({
 
         {/* Forward CTA. When gated, it's intentionally muted (looks LOCKED, not
             broken) — the prominent cue below the bar carries the real instruction. */}
-        <button onClick={goNext} disabled={gated}
+        <button onClick={goNext} disabled={gated || (b === last && completed)}
           title={gated ? "Try the interaction on the canvas first" : undefined}
           className={`min-h-[40px] px-4 sm:px-5 rounded-lg border font-medium text-[14px] transition-colors ${
             gated
               ? "border-dashed border-[var(--line)] bg-transparent text-[var(--text-faint)]"
-              : "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)]"
+              : b === last && completed
+                ? "border-[var(--accent-line)] bg-transparent text-[var(--accent-ink)] disabled:opacity-100"
+                : "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)]"
           }`}>
           {advanceLabel}
         </button>
