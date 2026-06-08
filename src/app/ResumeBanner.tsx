@@ -11,10 +11,18 @@ export function ResumeBanner() {
   if (!state) return null;
 
   const allTopics = listAllTopics();
-  const t = allTopics.find((topic) => {
-    const d = state.categories[topic.category]?.[topic.key]?.derivation;
-    return d && d.currentStep > 1 && !d.completed;
-  });
+  // Most-recently-touched in-progress topic wins (falls back to registry order for
+  // records saved before lastTouched existed).
+  const t = allTopics
+    .filter((topic) => {
+      const d = state.categories[topic.category]?.[topic.key]?.derivation;
+      return d && d.currentStep > 1 && !d.completed;
+    })
+    .sort((a, b) => {
+      const ta = state.categories[a.category]?.[a.key]?.lastTouched ?? 0;
+      const tb = state.categories[b.category]?.[b.key]?.lastTouched ?? 0;
+      return tb - ta;
+    })[0];
 
   if (!t) return null;
 

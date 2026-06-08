@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface BreadcrumbItem {
   label: string;
@@ -19,8 +20,19 @@ interface ChromeProps {
 export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showProgressLink }: ChromeProps) {
   // Default: show the progress link only on pages that don't already have a breadcrumb leading there
   const shouldShowProgressLink = showProgressLink ?? !breadcrumb;
+  const pathname = usePathname();
+  const navLinks: { href: string; label: string }[] = [
+    { href: "/learn", label: "learn" },
+    { href: "/progress", label: "progress" },
+    { href: "/settings", label: "settings" },
+  ];
   return (
     <header className="relative z-10 flex items-center justify-between gap-3 px-4 md:px-8 py-4 border-b border-[var(--line-faint)] backdrop-blur-md bg-[color-mix(in_oklab,var(--bg)_80%,transparent)]">
+      {/* Skip link — first focusable element, lets keyboard/SR users jump past the
+          header straight to the page content (WCAG 2.4.1). */}
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:border focus:border-[var(--accent-line)] focus:bg-[var(--bg-card)] focus:px-3 focus:py-2 focus:text-sm focus:text-[var(--accent-ink)]">
+        Skip to content
+      </a>
       <Link href="/" className="flex items-center gap-2.5 font-mono text-xs tracking-wider text-[var(--text-muted)] hover:text-[var(--text)] leading-tight">
         <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
         <span className="flex flex-col">
@@ -52,28 +64,20 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
       )}
 
       <div className="flex items-center gap-4">
-        {shouldShowProgressLink && (
-          <>
-            <Link
-              href="/learn"
-              className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]"
-            >
-              learn
-            </Link>
-            <Link
-              href="/progress"
-              className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]"
-            >
-              progress
-            </Link>
-            <Link
-              href="/settings"
-              className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]"
-            >
-              settings
-            </Link>
-          </>
-        )}
+        {shouldShowProgressLink &&
+          navLinks.map(({ href, label }) => {
+            const current = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={current ? "page" : undefined}
+                className={`font-mono text-[11px] uppercase tracking-wider hover:text-[var(--text)] ${current ? "text-[var(--accent-ink)]" : "text-[var(--text-muted)]"}`}
+              >
+                {label}
+              </Link>
+            );
+          })}
         {difficulty && (
           <span
             className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border"
@@ -83,15 +87,23 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
               background: `color-mix(in oklab, ${difficultyColor(difficulty)} 12%, transparent)`,
             }}
           >
-            {difficulty}
+            {difficulty === "foundation" ? "Basics" : difficulty}
           </span>
         )}
 
         {stepCount && currentStep !== undefined && (
-          <div className="flex items-center gap-1.5">
+          <div
+            className="flex items-center gap-1.5"
+            role="progressbar"
+            aria-label="Lesson progress"
+            aria-valuenow={currentStep}
+            aria-valuemin={0}
+            aria-valuemax={stepCount}
+          >
             {Array.from({ length: stepCount }, (_, i) => (
               <span
                 key={i}
+                aria-hidden="true"
                 className={`block h-0.5 transition-all duration-300 ${
                   i + 1 <= currentStep
                     ? "w-6 bg-[var(--accent)]"
@@ -110,5 +122,6 @@ function difficultyColor(d: string): string {
   if (d === "easy") return "var(--diff-easy)";
   if (d === "medium") return "var(--diff-med)";
   if (d === "hard") return "var(--diff-hard)";
+  if (d === "foundation") return "var(--accent-sky)";
   return "var(--text-muted)";
 }

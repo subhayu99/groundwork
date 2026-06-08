@@ -37,7 +37,7 @@ export default async function PracticeProblemPage({
           { label: problem.title },
         ]}
       />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <ProblemView
           categoryKey={category}
           topicKey={topic}

@@ -30,10 +30,13 @@ interface PanZoomProps {
   maxZoom?: number;
   /** Mobile inline: let the page scroll vertically while at rest. */
   allowPageScrollAtRest?: boolean;
+  /** Changing this value snaps the view back to a centred fit (e.g. on beat change),
+   *  so a zoomed-in learner who advances doesn't land panned off the new content. */
+  resetKey?: string | number;
 }
 
 export const PanZoom = forwardRef<HTMLDivElement, PanZoomProps>(function PanZoom(
-  { children, className, contentWidth, contentHeight, minZoom = 1, maxZoom = 4, allowPageScrollAtRest = false },
+  { children, className, contentWidth, contentHeight, minZoom = 1, maxZoom = 4, allowPageScrollAtRest = false, resetKey },
   forwardedRef,
 ) {
   const vpRef = useRef<HTMLDivElement | null>(null);
@@ -49,6 +52,9 @@ export const PanZoom = forwardRef<HTMLDivElement, PanZoomProps>(function PanZoom
 
   const tRef = useRef({ z: 1, x: 0, y: 0 });
   const [atRest, setAtRest] = useState(true);
+  // Whether zoom is sitting on the minimum (so the "−" control can disable itself
+  // even when minZoom < 1, i.e. on mobile where "at rest" is z = 1, not the floor).
+  const [atMinZoom, setAtMinZoom] = useState(minZoom >= 1);
 
   const clampZoom = useCallback((z: number) => Math.min(maxZoom, Math.max(minZoom, z)), [maxZoom, minZoom]);
 
@@ -65,8 +71,10 @@ export const PanZoom = forwardRef<HTMLDivElement, PanZoomProps>(function PanZoom
       if (innerRef.current) innerRef.current.style.transform = `translate3d(${cx}px, ${cy}px, 0) scale(${z})`;
       const rest = z <= 1.001;
       setAtRest((prev) => (prev === rest ? prev : rest));
+      const atMin = z <= minZoom + 0.001;
+      setAtMinZoom((prev) => (prev === atMin ? prev : atMin));
     },
-    [contentWidth, contentHeight],
+    [contentWidth, contentHeight, minZoom],
   );
 
   const center = useCallback(
@@ -78,8 +86,9 @@ export const PanZoom = forwardRef<HTMLDivElement, PanZoomProps>(function PanZoom
     [apply, contentWidth, contentHeight],
   );
 
-  // Centre on mount + whenever the fit size changes, and re-centre (keeping zoom) on resize.
-  useEffect(() => { center(1); }, [center]);
+  // Centre on mount, whenever the fit size changes, AND when resetKey changes
+  // (beat advance) so the view never stays zoomed/panned onto the previous scene.
+  useEffect(() => { center(1); }, [center, resetKey]);
   useEffect(() => {
     const el = vpRef.current;
     if (!el) return;
@@ -172,24 +181,37 @@ export const PanZoom = forwardRef<HTMLDivElement, PanZoomProps>(function PanZoom
     };
 
     const onWheel = (e: WheelEvent) => {
+      const cur = tRef.current;
+      // Normalize line/page scroll modes (Firefox reports deltaMode 1) so the zoom
+      // speed is consistent across browsers.
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientHeight : 1;
+      const z2 = clampZoom(cur.z * Math.exp(-e.deltaY * unit * 0.0008));
+      // At a zoom bound the gesture is a no-op — don't swallow the page scroll then.
+      if (z2 === cur.z) return;
       e.preventDefault();
       const r = el.getBoundingClientRect();
       const px = e.clientX - r.left, py = e.clientY - r.top;
-      const cur = tRef.current;
-      const z2 = clampZoom(cur.z * Math.exp(-e.deltaY * 0.0008));
       apply(z2, px - (px - cur.x) * (z2 / cur.z), py - (py - cur.y) * (z2 / cur.z));
+    };
+
+    // A cancelled gesture (e.g. the OS stealing the pointer) must fully reset, even
+    // if other pointers were still down, or `captured` can wedge on.
+    const onCancel = (e: PointerEvent) => {
+      ptrs.delete(e.pointerId);
+      if (captured) { try { el.releasePointerCapture(e.pointerId); } catch { /* ignore */ } }
+      if (ptrs.size === 0) { captured = false; lastDist = 0; axis = ""; moved = false; }
     };
 
     el.addEventListener("pointerdown", onDown);
     el.addEventListener("pointermove", onMove, { passive: false });
     el.addEventListener("pointerup", onUp);
-    el.addEventListener("pointercancel", onUp);
+    el.addEventListener("pointercancel", onCancel);
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => {
       el.removeEventListener("pointerdown", onDown);
       el.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerup", onUp);
-      el.removeEventListener("pointercancel", onUp);
+      el.removeEventListener("pointercancel", onCancel);
       el.removeEventListener("wheel", onWheel);
     };
   }, [apply, center, clampZoom, allowPageScrollAtRest]);
@@ -201,8 +223,23 @@ export const PanZoom = forwardRef<HTMLDivElement, PanZoomProps>(function PanZoom
     if (cur.z > 1.05) { center(1); return; }
     const r = el.getBoundingClientRect();
     const px = e.clientX - r.left, py = e.clientY - r.top;
-    const z2 = clampZoom(2);
+    const z2 = clampZoom(cur.z * 2);
     apply(z2, px - (px - cur.x) * (z2 / cur.z), py - (py - cur.y) * (z2 / cur.z));
+  };
+
+  // Arrow-key panning when zoomed in (keyboard users can't drag). Reachable once
+  // focus is anywhere inside the viewport region (e.g. the zoom buttons).
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const step = 48;
+    const cur = tRef.current;
+    if (cur.z <= 1.001) return;
+    const d: Record<string, [number, number]> = {
+      ArrowLeft: [step, 0], ArrowRight: [-step, 0], ArrowUp: [0, step], ArrowDown: [0, -step],
+    };
+    const mv = d[e.key];
+    if (!mv) return;
+    e.preventDefault();
+    apply(cur.z, cur.x + mv[0], cur.y + mv[1]);
   };
 
   // Zoom around the viewport centre — for the on-canvas +/−/reset controls (also the
@@ -215,14 +252,17 @@ export const PanZoom = forwardRef<HTMLDivElement, PanZoomProps>(function PanZoom
     const z2 = clampZoom(cur.z * factor);
     apply(z2, cx - (cx - cur.x) * (z2 / cur.z), cy - (cy - cur.y) * (z2 / cur.z));
   };
-  const btn = "inline-flex items-center justify-center w-7 h-7 rounded-md text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)] disabled:opacity-30 text-[15px] leading-none";
+  const btn = "inline-flex items-center justify-center w-9 h-9 rounded-md text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)] disabled:opacity-30 text-[15px] leading-none";
 
   return (
     <div
       ref={setVp}
       className={className}
+      role="group"
+      aria-label="Zoomable diagram — use the zoom controls; arrow keys pan when zoomed in"
       style={{ touchAction: allowPageScrollAtRest && atRest ? "pan-y" : "none", overflow: "hidden", cursor: atRest ? undefined : "grab" }}
       onDoubleClick={onDoubleClick}
+      onKeyDown={onKeyDown}
     >
       <div ref={innerRef} style={{ transformOrigin: "0 0", willChange: "transform" }}>
         {children}
@@ -233,7 +273,7 @@ export const PanZoom = forwardRef<HTMLDivElement, PanZoomProps>(function PanZoom
         onPointerDown={(e) => e.stopPropagation()}
         onDoubleClick={(e) => e.stopPropagation()}
       >
-        <button type="button" className={btn} aria-label="Zoom out" onClick={() => zoomBy(1 / 1.4)} disabled={atRest && minZoom >= 1}>−</button>
+        <button type="button" className={btn} aria-label="Zoom out" onClick={() => zoomBy(1 / 1.4)} disabled={atMinZoom}>−</button>
         {!atRest && <button type="button" className={btn} aria-label="Reset zoom" title="Reset" onClick={() => center(1)}>⟳</button>}
         <button type="button" className={btn} aria-label="Zoom in" onClick={() => zoomBy(1.4)}>+</button>
       </div>

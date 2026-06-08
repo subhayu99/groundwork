@@ -9,6 +9,9 @@ export interface TopicProgress {
   };
   problems: Record<string, ProblemAttempt>;
   customInputs: SavedInput[];
+  /** Epoch ms of the last write to this topic — drives "continue where you left
+   *  off" by recency (undefined on records saved before this field existed). */
+  lastTouched?: number;
 }
 
 export interface ProblemAttempt {
