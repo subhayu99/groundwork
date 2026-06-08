@@ -31,7 +31,7 @@ function DragToSlot({ api }: { api: BeatVisualApi }) {
     <g>
       <CellRow geom={G} values={ARR} tones={tones} markers={{ [i]: "↑ here" }} onCellClick={pick} />
       <text x={VW / 2} y={G.y - 30} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
-        {touched ? `arr[${i}] = ${ARR[i]}  ·  base + ${i} × cellSize  ·  1 jump` : "click any slot — you land on it in one step, no counting"}
+        {touched ? `arr[${i}] = ${ARR[i]}  ·  base + ${i} × size  ·  1 jump` : "click any slot — you land on it in one step, no counting"}
       </text>
       {/* the slot index strip, so "index = position number, counting from 0" is visible */}
       {ARR.map((_, k) => (
@@ -210,7 +210,7 @@ export const arraysLesson: LessonSpec = {
           <p>The problem isn&rsquo;t the books. It&rsquo;s the <em>pile</em> &mdash; the way they&rsquo;re arranged forces you to count through everything in front of the one you want.</p>
         </>
       ),
-      arrows: [{ x1: G.cx(6), y1: 326, x2: G.cx(6), y2: G.y + G.cellH + 26 }],
+      arrows: [{ x1: G.cx(6), y1: G.y + G.cellH + 4, x2: G.cx(6), y2: 322 }],
       codeLabels: [],
     },
     {
@@ -329,7 +329,7 @@ export const arraysLesson: LessonSpec = {
       visual: idleRow(ARR.map((_, i) => (i === TARGET ? "good" : undefined)), undefined, { [TARGET]: "arr[i]" }),
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Array. List, in Python.",
-        body: <>That&rsquo;s the name. In many languages an array&rsquo;s size is fixed; Python&rsquo;s <code>list</code> is a <strong>dynamic array</strong> &mdash; it grows when you append, same cost model. Every <Term word="arr[i]"><code>arr[i]</code></Term> you see does that <code>base + i × size</code> jump. That one line is why arrays are everywhere.</>,
+        body: <>That&rsquo;s the name. In many languages an array&rsquo;s size is fixed; Python&rsquo;s <code>list</code> is a <Term word="dynamic array"><strong>dynamic array</strong></Term> &mdash; it grows when you append, same cost model. Every <Term word="arr[i]"><code>arr[i]</code></Term> you see does that <code>base + i × size</code> jump. That one line is why arrays are everywhere.</>,
       }],
       detail: (
         <>

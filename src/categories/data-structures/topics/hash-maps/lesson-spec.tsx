@@ -48,7 +48,6 @@ function LinearScan({ api }: { api: BeatVisualApi }) {
       const c = ref.current;
       if (c.done) return;
       const next = c.cursor + 1;
-      api.onActiveLine(["hm_get_scan"]);
       if (next >= NAMES.length || NAMES[next] === TARGET) { setS({ cursor: next, done: true }); return; }
       setS({ cursor: next, done: false });
     }, pace(360));
@@ -377,7 +376,7 @@ export const hashMapsLesson: LessonSpec = {
       detail: (
         <>
           <p>The three everyday moves &mdash; <strong>insert</strong> (add a key), <strong>look up</strong> (find its value), and <strong>delete</strong> &mdash; all cost <strong><code>O(1)</code></strong> on average. <code>O(1)</code> means <em>constant time</em>: the cost stays flat whether the table holds ten keys or ten million, because hashing jumps straight to the right box. Notice the word <em>average</em> &mdash; that&rsquo;s the honest version, and here are the two wrinkles behind it.</p>
-          <p>First, <strong>collisions</strong>. Sometimes two different keys hash to the <em>same</em> box &mdash; on the canvas, box 2 holds three names at once. We handle it by <strong>chaining</strong>: each box keeps a tiny list, and both keys live there side by side. To look one up, you hash to the box and then walk only that short list &mdash; never the whole table. As long as boxes stay short, this barely costs anything.</p>
+          <p>First, <strong>collisions</strong>. Sometimes two different keys hash to the <em>same</em> box &mdash; on the canvas, box 2 holds three names at once. We handle it by <strong>chaining</strong>: each box keeps a tiny list, and all of them live there side by side. To look one up, you hash to the box and then walk only that short list &mdash; never the whole table. As long as boxes stay short, this barely costs anything.</p>
           <p>Second, <strong>resizing</strong>. When the table gets too full, we build a bigger array and re-drop every key into it. That one step is <code>O(n)</code> &mdash; it touches all <code>n</code> keys &mdash; so it&rsquo;s genuinely slow. But it happens so rarely that, spread across the many cheap inserts around it, the cost-per-insert <em>averaged out</em> is still tiny. That&rsquo;s the whole meaning of &ldquo;O(1) on average&rdquo;: the one slow step is rare enough to vanish in the average.</p>
         </>
       ),

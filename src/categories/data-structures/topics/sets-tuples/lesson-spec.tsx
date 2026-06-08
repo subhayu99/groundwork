@@ -297,9 +297,9 @@ function OpsVisual() {
     <g>
       <SetPills members={["alice", "bob"]} y={196} label="set · add · in · remove" />
       <text x={VW / 2} y={250} textAnchor="middle" className="font-mono select-none"
-        style={{ fontSize: 11, fill: "var(--diff-easy)" }}>add O(1) · in O(1) · combine ≈ size of the smaller set</text>
+        style={{ fontSize: 11, fill: "var(--diff-easy)" }}>add O(1) · in O(1) · ∩ O(min) · ∪ O(|A|+|B|) · − O(|A|)</text>
       <text x={VW / 2} y={268} textAnchor="middle" className="font-mono select-none"
-        style={{ fontSize: 9, fill: "var(--text-faint)" }}>overlap = in both · merge = in either · leftovers = in one not the other</text>
+        style={{ fontSize: 9, fill: "var(--text-faint)" }}>overlap = in both · merge = in either · leftovers = in one but not the other</text>
       <g transform="translate(0,18)">
         <TupleRow tones={TUPLE.map(() => "accent" as Tone)} />
       </g>
@@ -444,11 +444,11 @@ export const setsTuplesLesson: LessonSpec = {
       visual: <OpsVisual />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Sets are hash-fast. Tuples are basically free.",
-        body: <>Set: add, remove, and &ldquo;in&rdquo; each cost <Term word="O(1)"><code>O(1)</code></Term> &mdash; same time however big it grows; combining two costs about the smaller one. Tuple: grab any slot instantly, read all <code>n</code> items in <code>O(n)</code>. Being unchangeable lets a tuple live inside a set; a list can&rsquo;t.</>,
+        body: <>Set: add, remove, and &ldquo;in&rdquo; each cost <Term word="O(1)"><code>O(1)</code></Term> &mdash; same time however big it grows. Combining two has its own cost: overlap (intersection) is <code>O(min(|A|,|B|))</code>, merge (union) is <code>O(|A|+|B|)</code>, leftovers (difference) is <code>O(|A|)</code>. Tuple: grab any slot instantly, read all <code>n</code> items in <code>O(n)</code>. Being unchangeable lets a tuple live inside a set; a list can&rsquo;t.</>,
       }],
       detail: (
         <>
-          <p><strong>Set.</strong> Adding, removing, and asking &ldquo;is x in here?&rdquo; (the <code>in</code> check) all cost <code>O(1)</code> on average &mdash; &ldquo;order 1&rdquo;, meaning the time stays roughly the same no matter how many items the set holds, because you jump straight to the right cubby. Combining two sets &mdash; their <em>overlap</em> (items in both), <em>merge</em> (items in either), or <em>leftovers</em> (in one but not the other) &mdash; costs about the size of the smaller set. There&rsquo;s no order and no <code>set[i]</code>, since cubbies aren&rsquo;t numbered for you.</p>
+          <p><strong>Set.</strong> Adding, removing, and asking &ldquo;is x in here?&rdquo; (the <code>in</code> check) all cost <code>O(1)</code> on average &mdash; &ldquo;order 1&rdquo;, meaning the time stays roughly the same no matter how many items the set holds, because you jump straight to the right cubby. Combining two sets has a cost that depends on which combination: the <em>overlap</em> (items in both) is <code>O(min(|A|,|B|))</code> &mdash; you only scan the smaller set; the <em>merge</em> (items in either) is <code>O(|A|+|B|)</code> &mdash; you touch every item in both; the <em>leftovers</em> (in one but not the other) is <code>O(|A|)</code> &mdash; you scan just the first set. There&rsquo;s no order and no <code>set[i]</code>, since cubbies aren&rsquo;t numbered for you.</p>
           <p><strong>Tuple.</strong> Grabbing any slot by its position is <code>O(1)</code> &mdash; instant. Reading all of it from front to back is <code>O(n)</code> (&ldquo;order n&rdquo; &mdash; cost grows in step with the number of items <code>n</code>). And there&rsquo;s no way to change a tuple at all.</p>
           <p>That last point is the quiet payoff: because a tuple can never change, it&rsquo;s safe to use it as a <strong>key in a hash map</strong> or as a <strong>member of a set</strong> &mdash; its cubby will never move. A list, which can change at any moment, can&rsquo;t be trusted that way.</p>
         </>

@@ -12,11 +12,17 @@ def add_edge(a: str, b: str) -> None:  # @sync: sig
     friends[b].append(a)              # @sync: add_edge_b
 
 
-add_edge("alice", "bob")
-add_edge("alice", "cara")
-add_edge("bob",   "dan")
-add_edge("cara",  "eli")
-add_edge("dan",   "fawn")
+add_edge("alice",  "bob")
+add_edge("alice",  "cara")
+add_edge("alice",  "harper")
+add_edge("bob",    "dan")
+add_edge("bob",    "harper")
+add_edge("cara",   "eli")
+add_edge("cara",   "harper")
+add_edge("dan",    "fawn")
+add_edge("eli",    "grace")
+add_edge("harper", "fawn")
+add_edge("harper", "grace")
 
 
 # Breadth-first search: visit closer-by friends before farther-by ones.
