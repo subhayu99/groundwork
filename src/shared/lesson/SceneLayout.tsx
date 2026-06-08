@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { CodeHighlight } from "@/shared/code/CodeHighlight";
-import { ArrowDefs } from "./canvas";
+import { ArrowDefs, Arrow } from "./canvas";
 import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
 import { useLessonEngine, type LessonRuntimeProps } from "./LessonRuntime";
 import { gloss } from "./gloss";
@@ -42,6 +42,7 @@ export function SceneLayout({
   } = e;
 
   const [prereqDismissed, setPrereqDismissed] = useState(false);
+  const cueId = useId();
 
   // MOBILE hero scale — computed independently of the engine's (desktop) scale so
   // the phone diagram reads LEGIBLY large. We bias to the box HEIGHT (the mobile
@@ -213,7 +214,7 @@ export function SceneLayout({
                 {prerequisites!.filter((p) => !p.completed).map((p) => p.name).join(", ")}
               </span>
               <button onClick={() => setPrereqDismissed(true)} aria-label="dismiss prerequisite note"
-                className="ml-auto shrink-0 inline-flex items-center justify-center w-7 h-7 -mr-1 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
+                className="ml-auto shrink-0 inline-flex items-center justify-center w-9 h-9 -mr-1.5 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
               </button>
             </div>
@@ -256,7 +257,7 @@ export function SceneLayout({
               </AnimatePresence>
             )}
             {/* the scaled canvas plane in a free pan/zoom viewport (wheel + drag to inspect) */}
-            <PanZoom ref={areaRef} className="absolute inset-0" contentWidth={VW * scale} contentHeight={VH * scale} minZoom={1} maxZoom={4}>
+            <PanZoom ref={areaRef} className="absolute inset-0" contentWidth={VW * scale} contentHeight={VH * scale} minZoom={1} maxZoom={4} resetKey={beat.id}>
               <div style={{ width: VW * scale, height: VH * scale }} className="relative shrink-0">
                 <div data-canvas-root className="absolute top-0 left-0"
                   style={{ width: VW, height: VH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
@@ -267,6 +268,7 @@ export function SceneLayout({
                     <AnimatePresence mode="wait">
                       <motion.g key={beat.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
                         {visualNode}
+                        {beat.arrows?.map((a, i) => <Arrow key={i} {...a} />)}
                       </motion.g>
                     </AnimatePresence>
                   </svg>
@@ -300,7 +302,7 @@ export function SceneLayout({
             <PanZoom
               ref={mAreaRef}
               className="relative w-full shrink-0 min-h-[44vh] rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)]"
-              contentWidth={VW * mScale} contentHeight={VH * mScale} minZoom={0.5} maxZoom={4} allowPageScrollAtRest>
+              contentWidth={VW * mScale} contentHeight={VH * mScale} minZoom={0.5} maxZoom={4} allowPageScrollAtRest resetKey={beat.id}>
               <div style={{ width: VW * mScale, height: VH * mScale }} className="relative shrink-0">
                 <div data-canvas-root className="absolute top-0 left-0"
                   style={{ width: VW, height: VH, transform: `scale(${mScale})`, transformOrigin: "top left" }}>
@@ -311,6 +313,7 @@ export function SceneLayout({
                     <AnimatePresence mode="wait">
                       <motion.g key={beat.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
                         {visualNode}
+                        {beat.arrows?.map((a, i) => <Arrow key={i} {...a} />)}
                       </motion.g>
                     </AnimatePresence>
                   </svg>
@@ -375,15 +378,20 @@ export function SceneLayout({
       {/* ── ACTION BAR ──────────────────────────────────────────────────────── */}
       <div className="relative z-30 shrink-0 flex items-center gap-2 sm:gap-4 px-3 sm:px-5 pt-1 pb-3 border-t border-[var(--line)] bg-[var(--bg)]">
         <button onClick={() => setB((x) => Math.max(0, x - 1))} disabled={b === 0}
+          aria-label="Go to previous step"
           className="min-h-[40px] px-3 sm:px-4 rounded-lg border border-[var(--line)] text-[var(--text-muted)] disabled:opacity-40 hover:border-[var(--line-strong)] text-[14px]">← Back</button>
 
         <nav aria-label="lesson steps" className="hidden sm:block">
           <ol role="list" className="flex items-center gap-2">
             {spec.beats.map((bt, i) => (
               <li key={bt.id}>
+                {/* Forward dots are disabled while a beat is gated, so the step-dots
+                    can't be used to skip a required canvas interaction (only Back/
+                    revisiting earlier steps stays free). */}
                 <button onClick={() => setB(i)} aria-current={i === b ? "step" : undefined}
+                  disabled={gated && i > b}
                   aria-label={`step ${i + 1} of ${spec.beats.length}${bt.label ? ": " + bt.label : ""}`}
-                  className="inline-flex items-center justify-center w-7 h-7 rounded-full">
+                  className="inline-flex items-center justify-center w-7 h-7 rounded-full disabled:opacity-40 disabled:cursor-not-allowed">
                   <span className={`block rounded-full transition-all ${i === b ? "w-3 h-3 ring-2 ring-offset-2 ring-offset-[var(--bg)] ring-[var(--accent)]" : "w-2.5 h-2.5"}`}
                     style={{ backgroundColor: i === b ? "var(--accent)" : "var(--line)" }} />
                 </button>
@@ -398,14 +406,20 @@ export function SceneLayout({
         {/* single CODE / HIDE-CODE toggle (same place; highlighted when open) */}
         <button onClick={toggleCode} aria-pressed={showCode}
           title={showCode ? "hide the code" : "show the code (algorithm.py)"} aria-label={showCode ? "hide code" : "show code"}
-          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-colors ${showCode ? "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)]" : "border-[var(--line)] text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--line-strong)]"}`}>
+          className={`inline-flex items-center gap-1.5 min-h-[40px] rounded-lg border px-2.5 py-1.5 transition-colors ${showCode ? "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)]" : "border-[var(--line)] text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--line-strong)]"}`}>
           <span className="font-mono text-[13px]">&lt;/&gt;</span>
           <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider">{showCode ? "hide code" : "code"}</span>
         </button>
 
         {/* Forward CTA. When gated, it's intentionally muted (looks LOCKED, not
-            broken) — the prominent cue below the bar carries the real instruction. */}
-        <button onClick={goNext} disabled={gated || (b === last && completed)}
+            broken) — the prominent cue below the bar carries the real instruction.
+            It stays focusable (aria-disabled, not disabled) so a keyboard / screen-
+            reader user lands on it and hears WHY via the linked cue, instead of it
+            silently dropping out of the tab order. */}
+        <button onClick={() => { if (gated || (b === last && completed)) return; goNext(); }}
+          aria-disabled={gated || (b === last && completed)}
+          disabled={b === last && completed}
+          aria-describedby={gated ? cueId : undefined}
           title={gated ? "Try the interaction on the canvas first" : undefined}
           className={`min-h-[40px] px-4 sm:px-5 rounded-lg border font-medium text-[14px] transition-colors ${
             gated
@@ -422,6 +436,7 @@ export function SceneLayout({
           desktop it stays the quiet inline hint it always was. */}
       {gated && (
         <>
+          <span id={cueId} className="sr-only">Try the interaction on the canvas to continue.</span>
           <div className="xl:hidden shrink-0 mx-3 sm:mx-5 mb-2 flex items-center justify-center gap-2 rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] px-3 py-2 text-center text-[12.5px] font-medium text-[var(--accent-ink)]">
             <span aria-hidden="true" className="text-[15px] leading-none">↑</span>
             <span>Try it on the canvas above to continue</span>
@@ -431,7 +446,7 @@ export function SceneLayout({
       )}
 
       <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {`Step ${b + 1} of ${spec.beats.length}${beat.label ? ": " + beat.label : ""}`}
+        {`Step ${b + 1} of ${spec.beats.length}${beat.label ? ": " + beat.label : ""}${gated ? ". Interaction required: try it on the canvas to continue." : ""}`}
       </div>
     </main>
   );
@@ -439,9 +454,10 @@ export function SceneLayout({
 
 /** The expandable "why?" card. Header row is the single toggle (chevron rotates). */
 function WhyCard({ label, detail, open, onToggle }: { label?: string; detail: ReactNode; open: boolean; onToggle: () => void }) {
+  const panelId = useId();
   return (
     <div className="rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_55%,transparent)] overflow-hidden">
-      <button onClick={onToggle} aria-expanded={open} title={open ? "hide the explanation" : "read the deeper why / how"}
+      <button onClick={onToggle} aria-expanded={open} aria-controls={panelId} title={open ? "hide the explanation" : "read the deeper why / how"}
         className="w-full flex items-center gap-2 px-4 py-2.5 text-left hover:bg-[var(--bg-inset)] transition-colors">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[var(--accent-ink)]"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg>
         <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--accent-ink)] truncate">{label ?? "why"}</span>
@@ -451,7 +467,7 @@ function WhyCard({ label, detail, open, onToggle }: { label?: string; detail: Re
       </button>
       <AnimatePresence initial={false}>
         {open && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+          <motion.div id={panelId} initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: [0.22, 0.65, 0.3, 1] }} className="overflow-hidden border-t border-[var(--line-faint)]">
             <div className="max-h-[42vh] overflow-auto px-4 py-3 text-[13.5px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
               {detail}

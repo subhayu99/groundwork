@@ -29,6 +29,7 @@ const AUTO_TOKENS = [
   "monotonicity",
   "invariant",
   "amortization",
+  "amortized",
   "recursion",
 ];
 

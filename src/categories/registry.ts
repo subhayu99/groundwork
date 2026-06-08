@@ -93,5 +93,5 @@ export function getTopic(categoryKey: string, topicKey: string): TopicMeta | und
 }
 
 export function listAllTopics(): TopicMeta[] {
-  return topics;
+  return [...topics];
 }
