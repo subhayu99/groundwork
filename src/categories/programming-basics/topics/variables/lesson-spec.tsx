@@ -137,7 +137,7 @@ export const variablesLesson: LessonSpec = {
       visual: (
         <g>
           {caption("name = \"Ada\"   →   a box can hold text too")}
-          <VarBox x={(VW - 180) / 2} y={BY} name="name" value={"“Ada”"} active w={180} />
+          <VarBox x={(VW - 180) / 2} y={BY} name="name" value="Ada" active w={180} />
         </g>
       ),
       panels: [{
@@ -146,7 +146,7 @@ export const variablesLesson: LessonSpec = {
       }],
       detail: (
         <>
-          <p>Numbers, text, <code>True</code>/<code>False</code>, and bigger things later (lists, and so on) all live in variables the same way. The quotes around <code>&quot;Ada&quot;</code> are how Python knows it&rsquo;s text, not a name to look up.</p>
+          <p>Numbers, text, <Term word="boolean"><code>True</code>/<code>False</code></Term>, and bigger things later (lists, and so on) all live in variables the same way. The quotes around <code>&quot;Ada&quot;</code> are how Python knows it&rsquo;s text, not a name to look up.</p>
         </>
       ),
       codeLabels: ["another"],
@@ -162,7 +162,7 @@ export const variablesLesson: LessonSpec = {
           {caption("three named boxes — the program's memory")}
           <VarBox x={120} y={BY} name="score" value="10" />
           <VarBox x={355} y={BY} name="bonus" value="20" />
-          <VarBox x={590} y={BY} name="name" value={"“Ada”"} />
+          <VarBox x={590} y={BY} name="name" value="Ada" />
           <text x={VW / 2} y={BY + BOX_H + 34} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>print(name, score, bonus)  &rarr;  Ada 10 20</text>
         </g>
       ),
@@ -173,7 +173,7 @@ export const variablesLesson: LessonSpec = {
       detail: (
         <>
           <p>That&rsquo;s the whole idea: a variable is a <strong>name bound to a value</strong>. Create with <code>=</code>, read by writing the name, change by assigning again.</p>
-          <p>Tip: when a value should <em>never</em> change, programmers write its name in <code>UPPER_CASE</code> (like <code>MAX_SCORE = 100</code>) as a signal &mdash; that&rsquo;s a <strong>constant</strong>.</p>
+          <p>Tip: when a value should <em>never</em> change, programmers write its name in <code>UPPER_CASE</code> (like <code>MAX_SCORE = 100</code>) as a signal &mdash; that&rsquo;s a <Term word="constant">constant</Term>.</p>
         </>
       ),
       codeLabels: ["read"],

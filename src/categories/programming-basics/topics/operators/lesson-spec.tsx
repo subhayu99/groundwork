@@ -67,7 +67,7 @@ export const operatorsLesson: LessonSpec = {
         left: 150, top: 24, width: 560, variant: "main", label: "Arithmetic", title: "3 + 4 * 2  →  11",
         body: <>The familiar ones: <code>+ - * /</code>. They obey the same <strong>order</strong> you learned in school &mdash; <code>*</code> and <code>/</code> happen before <code>+</code> and <code>-</code> &mdash; so <code>3 + 4 * 2</code> is <code>11</code>. Use parentheses to force a different order.</>,
       }],
-      detail: <><p>Two handy extras: <code>//</code> divides and drops the remainder (<code>7 // 2 = 3</code>), and <code>%</code> gives just the remainder (<code>7 % 2 = 1</code>). Both work only on numbers.</p></>,
+      detail: <><p>Two handy extras: <code>//</code> divides and drops the remainder (<code>7 // 2 = 3</code>), and <code>%</code> gives just the remainder (<code>7 % 2 = 1</code>). Both work on numbers (integers or decimals), not on text.</p></>,
       codeLabels: ["arith"],
     },
     {
