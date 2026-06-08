@@ -42,7 +42,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Chrome breadcrumb={[{ label: "Settings" }]} />
-      <main className="flex-1 max-w-2xl mx-auto px-5 md:px-8 py-16 w-full">
+      <main id="main-content" className="flex-1 max-w-2xl mx-auto px-5 md:px-8 py-16 w-full">
         <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-faint)] mb-1">
           preferences
         </div>

@@ -10,8 +10,9 @@ import type { TopicMeta } from "@/shared/derivation/types";
 /**
  * The home "map": every topic placed on a tier equal to how deep its prerequisite
  * chain runs (level 0 = no prereqs = where you start; each level builds on the ones
- * above). Edges are the actual `prerequisites` and always point UP to something
- * already learned, so it reads as a clean dependency hierarchy — never a hairball.
+ * above). Edges connect each topic to the prerequisites sitting above it, and the
+ * arrowheads flow DOWNWARD — from a prerequisite into what builds on it — so it
+ * reads as a clean dependency hierarchy ("learn this, then this"), never a hairball.
  *
  * Layout is fully deterministic (no force sim): tiers are fixed rows, and within a
  * tier nodes are ordered by the average x of their prerequisites above to reduce
@@ -28,13 +29,18 @@ const HH = 16; // chip half-height
 
 const tierLabel = (l: number) => (l === 0 ? "FOUNDATION" : `LEVEL ${l}`);
 const diffColor = (d?: string) =>
-  d === "easy" ? "var(--diff-easy)" : d === "medium" ? "var(--diff-med)" : d === "hard" ? "var(--diff-hard)" : "var(--text-faint)";
+  d === "easy" ? "var(--diff-easy)" : d === "medium" ? "var(--diff-med)" : d === "hard" ? "var(--diff-hard)"
+  : d === "foundation" ? "var(--accent-sky)" : "var(--text-faint)";
+// "FOUNDATION" is long and reads as jargon on a small badge — show "Basics" instead.
+const diffLabel = (d?: string) => (d === "foundation" ? "Basics" : d ?? "");
 const chipW = (label: string) => Math.max(66, label.length * 6.3 + 24);
+const CHIP_GAP = 12; // min horizontal gap between chips in a tier
 
 export function TopicTierMap() {
   const router = useRouter();
   const { state } = useProgress();
   const [hover, setHover] = useState<string | null>(null);
+  const [focusKey, setFocusKey] = useState<string | null>(null);
   // Progress is client-only (localStorage); gate progress-dependent styling behind
   // mount so the static-export HTML and first client render match (no hydration mismatch).
   const [mounted, setMounted] = useState(false);
@@ -77,6 +83,23 @@ export function TopicTierMap() {
         const x = LEFT + (n === 1 ? 0.5 : (i + 0.5) / n) * (W - LEFT - RIGHT);
         pos.set(k, { x, y, w: chipW(byKey.get(k)!.name) });
       });
+      // Even spacing alone can overlap when chips are wide and the tier is full
+      // (level 6 had ~15px overlaps). Sweep L→R pushing each chip clear of the
+      // previous one, then re-centre the packed row inside [LEFT, W-RIGHT] (or
+      // clamp to the left margin if it can't fit) so nothing collides or runs off.
+      const row = nodes.map((k) => pos.get(k)!);
+      for (let i = 1; i < row.length; i++) {
+        const minX = row[i - 1].x + row[i - 1].w / 2 + CHIP_GAP + row[i].w / 2;
+        if (row[i].x < minX) row[i].x = minX;
+      }
+      if (row.length) {
+        const leftEdge = row[0].x - row[0].w / 2;
+        const rightEdge = row[row.length - 1].x + row[row.length - 1].w / 2;
+        const avail = W - RIGHT - LEFT;
+        const used = rightEdge - leftEdge;
+        const shift = used <= avail ? LEFT + (avail - used) / 2 - leftEdge : LEFT - leftEdge;
+        row.forEach((r) => { r.x += shift; });
+      }
     }
     return pos;
   }, [tiers, maxLevel, byKey]);
@@ -107,8 +130,18 @@ export function TopicTierMap() {
     const t = byKey.get(k);
     if (!mounted || !t || !state || completed(k)) return false;
     const pre = t.prerequisites.filter((p) => byKey.has(p));
-    return pre.length > 0 && pre.every((p) => completed(p));
+    // Foundation topics (no prerequisites) are startable immediately, so they get
+    // the "ready" affordance too — otherwise the true entry points read as locked.
+    return pre.length === 0 || pre.every((p) => completed(p));
   };
+
+  // Render (and therefore tab) chips tier-by-tier, left-to-right — matching the
+  // visual layout instead of registry insertion order, so keyboard focus moves
+  // through the map the way the eye does.
+  const ordered = [...topics].sort((a, b) => {
+    const pa = pos.get(a.key)!, pb = pos.get(b.key)!;
+    return pa.y - pb.y || pa.x - pb.x;
+  });
 
   const hl = hover ? new Set<string>([hover, ...(ancestors.get(hover) ?? [])]) : null;
   const H = TOP + maxLevel * ROW + 56;
@@ -119,8 +152,10 @@ export function TopicTierMap() {
 
   return (
     <>
-      {/* DESKTOP — SVG tiers */}
-      <div className="hidden md:block rounded-2xl border border-[var(--line-faint)] bg-[var(--bg-elevated)] overflow-hidden">
+      {/* DESKTOP — SVG tiers (lg+, where the 1160-wide viewBox keeps chip text
+          legible; below that the SVG text shrinks under ~8px, so we show the
+          stacked bands instead). */}
+      <div className="hidden lg:block rounded-2xl border border-[var(--line-faint)] bg-[var(--bg-elevated)] overflow-hidden">
         <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", aspectRatio: `${W} / ${H}` }} role="group" aria-label="Topic dependency map, by level">
           <defs>
             {/* small arrowhead — inherits the line's stroke colour via context-stroke */}
@@ -154,24 +189,32 @@ export function TopicTierMap() {
           </g>
           {/* chips */}
           <g>
-            {topics.map((t) => {
+            {ordered.map((t) => {
               const p = pos.get(t.key)!;
               const done = completed(t.key), rdy = ready(t.key);
               const lit = !hl || hl.has(t.key);
+              const focused = focusKey === t.key;
               const w = p.w;
+              const preNames = t.prerequisites.map((pp) => byKey.get(pp)?.name ?? pp);
               let fill = "var(--bg-card)", stroke = "var(--line)", text = "var(--text-muted)", weight = 400;
               let dash: string | undefined;
               if (done) { fill = "var(--accent)"; stroke = "var(--accent)"; text = "var(--bg)"; weight = 500; }
               else if (rdy) { fill = "var(--accent-soft)"; stroke = "var(--accent-line)"; text = "var(--accent-ink)"; weight = 500; dash = "3 2.5"; }
-              const isStart = t.key === "arrays" || t.key === "binary-search";
               return (
                 <g key={t.key} transform={`translate(${p.x},${p.y})`} opacity={lit ? 1 : 0.16}
-                  style={{ cursor: "pointer", transition: "opacity 150ms" }}
+                  style={{ cursor: "pointer", transition: "opacity 150ms", outline: "none" }}
                   onMouseEnter={() => setHover(t.key)} onMouseLeave={() => setHover((h) => (h === t.key ? null : h))}
+                  onFocus={() => { setHover(t.key); setFocusKey(t.key); }}
+                  onBlur={() => { setHover((h) => (h === t.key ? null : h)); setFocusKey((k) => (k === t.key ? null : k)); }}
                   onClick={() => go(t.key)} role="button" tabIndex={0}
+                  aria-label={`${t.name}${preNames.length ? ` — builds on ${preNames.join(", ")}` : " — start here"}`}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(t.key); } }}>
-                  <title>{t.name}{t.prerequisites.length ? ` — builds on ${t.prerequisites.join(", ")}` : " — start here"}</title>
-                  {isStart && <rect x={-w / 2 - 4} y={-HH - 4} width={w + 8} height={HH * 2 + 8} rx={HH + 4} fill="none" stroke="var(--accent)" strokeWidth={1.2} opacity={0.5} />}
+                  {/* No SVG <title> here: React 19 hoists/empties it during SSR, which
+                      mismatched on hydration and regenerated the whole map tree. The
+                      accessible name lives on aria-label, and hovering already lights the
+                      prerequisite chain — so the native tooltip wasn't pulling its weight. */}
+                  {/* keyboard focus ring — native SVG outlines are unreliable, so draw our own */}
+                  {focused && <rect x={-w / 2 - 4} y={-HH - 4} width={w + 8} height={HH * 2 + 8} rx={HH + 4} fill="none" stroke="var(--accent)" strokeWidth={2} />}
                   <rect x={-w / 2} y={-HH} width={w} height={HH * 2} rx={HH} fill={fill} stroke={stroke} strokeWidth={1} strokeDasharray={dash} />
                   {!done && <circle cx={w / 2 - 9} cy={-HH + 9} r={3} fill={diffColor(t.difficulty)} />}
                   <text textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={weight} fill={text} style={{ pointerEvents: "none", userSelect: "none" }}>{t.name}</text>
@@ -182,8 +225,8 @@ export function TopicTierMap() {
         </svg>
       </div>
 
-      {/* MOBILE — same tiers as stacked bands */}
-      <div className="md:hidden space-y-7">
+      {/* MOBILE / TABLET — same tiers as stacked bands */}
+      <div className="lg:hidden space-y-7">
         {tiers.map((keys, L) => (
           <section key={L}>
             <div className="flex items-baseline gap-2 mb-3">
@@ -207,7 +250,7 @@ export function TopicTierMap() {
                         {done && <span className="ml-1.5 text-[var(--accent-ink)]">✓</span>}
                         {rdy && <span className="ml-1.5 font-mono text-[10px] text-[var(--accent-ink)]">ready</span>}
                       </h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase shrink-0" style={{ color: diffColor(t.difficulty) }}>{t.difficulty}</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase shrink-0 border" style={{ color: diffColor(t.difficulty), borderColor: `color-mix(in oklab, ${diffColor(t.difficulty)} 45%, transparent)` }}>{diffLabel(t.difficulty)}</span>
                     </div>
                     {t.prerequisites.length > 0 && (
                       <div className="text-[11px] text-[var(--text-faint)] font-mono">builds on {t.prerequisites.map((p) => byKey.get(p)?.name ?? p).join(" · ")}</div>

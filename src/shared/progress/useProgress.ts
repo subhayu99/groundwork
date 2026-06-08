@@ -26,7 +26,9 @@ export function useProgress() {
       // notifies every subscriber, which re-reads. No setState during render.
       const prev = store.load();
       const current = prev.categories[categoryKey]?.[topicKey] ?? emptyTopicProgress();
-      const next = mutator(current);
+      // Stamp recency on every write so "continue where you left off" picks the
+      // most-recently-touched topic, not the first one in registry order.
+      const next: TopicProgress = { ...mutator(current), lastTouched: Date.now() };
       const updated: ProgressState = {
         ...prev,
         categories: {

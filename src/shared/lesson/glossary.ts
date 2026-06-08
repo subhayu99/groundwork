@@ -19,7 +19,9 @@ export const GLOSSARY: Record<string, string> = {
   "O(log n)":
     "the work grows by just one extra step each time the list doubles — so even a million items take only about twenty steps.",
   "O(n log n)":
-    "a little more than one pass over the list — like making an O(n) sweep about log n times; the usual cost of a good sort.",
+    "a bit more than one pass over the list — for a million items, about twenty million steps; the usual cost of a good sort.",
+  "O(V+E)":
+    "the work grows with the number of nodes (V) plus the number of connections (E) — you touch each one once.",
 
   // ── Notation that shows up in code ─────────────────────────────────────────
   "arr[i]":
@@ -47,7 +49,23 @@ export const GLOSSARY: Record<string, string> = {
   "recursion":
     "solving a problem by having it call a smaller copy of itself, until the copy is tiny enough to answer directly.",
   "pointer":
-    "a marker that simply remembers a position in the list, like a finger held on one card.",
+    "a stored link — either an index marking a position in a list (a finger on one card), or a reference to where another object lives in memory.",
+  "monotonic":
+    "only ever moving one way — never going up then down, or down then up.",
+  "amortized":
+    "spreading a few expensive steps across many cheap ones, so the average cost per step stays small.",
+  "decomposition":
+    "breaking a problem into smaller sub-problems you can solve one at a time.",
+  "greedy":
+    "taking the choice that looks best right now at every step, hoping the whole answer comes out best.",
+  "dynamic programming":
+    "solving a big problem by working out each smaller piece once and saving the answer to reuse.",
+  "accumulator":
+    "a single variable you keep adding to as a loop runs, holding the running total so far.",
+  "call stack":
+    "the running pile of function calls still waiting to finish; the newest sits on top and finishes first.",
+  "frame":
+    "the private workspace for one function call — its own copy of the inputs and local names.",
 
   // ── Programming basics ──────────────────────────────────────────────────────
   "assignment":
@@ -76,4 +94,38 @@ export const GLOSSARY: Record<string, string> = {
     "the actual value you pass to a function when you call it; it fills a parameter.",
   "exception":
     "an error raised while the program runs (like dividing by zero) that stops it — unless caught.",
+  "if":
+    "a branch that runs its block only when its yes/no test is true; otherwise that block is skipped.",
+  "float":
+    "a number with a decimal point, like 70.0 or 3.14 (short for floating-point).",
+  "convention":
+    "a shared habit, not a rule the computer enforces — the code still runs if you break it.",
+  "infinite loop":
+    "a loop whose stop-condition never becomes true, so it runs forever.",
+  "block":
+    "a group of lines that belong together, marked in Python by being indented the same amount.",
+  "indented":
+    "shifted right by spaces to show the lines belong inside the block above them.",
+
+  // ── Data structures ─────────────────────────────────────────────────────────
+  "hash map":
+    "a lookup table that jumps straight to a value by its key, without scanning — like a dictionary.",
+  "hash set":
+    "a collection that stores only keys (no values) and can tell in one step whether something is in it.",
+  "dynamic array":
+    "a list that grows as you add items, making room automatically when it runs out.",
+  "stack":
+    "a pile where you only add to and take from the top — last in, first out.",
+  "LIFO":
+    "last in, first out — the most recently added item is the first one taken back off, like a stack of plates.",
+  "FIFO":
+    "first in, first out — items leave in the same order they arrived, like a queue at a counter.",
+  "deque":
+    "a double-ended queue: you can add or remove items from either end.",
+  "node":
+    "one item in a structure that also links to its neighbours — like a box that points to the next box.",
+  "graph":
+    "a set of items (nodes) joined by connections (edges) — like cities linked by roads.",
+  "memory locality":
+    "keeping data that's used together close together in memory, so the computer fetches it faster.",
 };

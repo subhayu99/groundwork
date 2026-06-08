@@ -6,7 +6,7 @@ import { listAllTopics } from "@/categories/registry";
 
 const STEPS = [
   { n: "01", t: "Start from a problem", d: "No definitions up front. You meet a real question and feel why the obvious approach is too slow." },
-  { n: "02", t: "Derive the idea", d: "Step by step on an animated canvas — you watch the insight appear and build the algorithm yourself." },
+  { n: "02", t: "Derive the idea", d: "Step by step on an animated canvas — you watch the insight appear, one move at a time, until the algorithm assembles itself." },
   { n: "03", t: "See the real code", d: "The same idea in plain Python, line by line, tied to the picture. The name comes last, once it's obvious." },
 ];
 
@@ -18,12 +18,12 @@ export default function Landing() {
     <div className="min-h-screen flex flex-col">
       <Chrome />
 
-      <main className="flex-1 w-full">
+      <main id="main-content" className="flex-1 w-full">
         {/* HERO */}
         <section className="max-w-4xl mx-auto px-5 md:px-8 pt-20 pb-14 w-full">
           <div className="inline-flex items-center gap-2 rounded-full border border-[var(--line-faint)] bg-[var(--bg-card)] px-3 py-1 mb-6 font-mono text-[11px] uppercase tracking-wider text-[var(--text-muted)]">
             <span className="inline-block w-2 h-2 rotate-45 bg-[var(--accent-sky)]" />
-            {topicCount} lessons · 7 principles
+            {topicCount} lessons · {principles.length} principles
           </div>
           <h1 className="text-5xl md:text-6xl font-semibold text-[var(--text)] leading-[1.05] mb-5">
             First principles,

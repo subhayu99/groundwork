@@ -21,6 +21,8 @@ export function Term({ word, children }: { word: string; children?: ReactNode })
   const [open, setOpen] = useState(false);
   // which horizontal edge to anchor the popover to, so it never spills off-screen
   const [flipRight, setFlipRight] = useState(false);
+  // open upward instead of downward when the chip sits low in the viewport
+  const [flipUp, setFlipUp] = useState(false);
   const wrapRef = useRef<HTMLSpanElement>(null);
   const popId = useId();
 
@@ -70,7 +72,11 @@ export function Term({ word, children }: { word: string; children?: ReactNode })
           if (!open) {
             const r = wrapRef.current?.getBoundingClientRect();
             const vw = typeof window !== "undefined" ? window.innerWidth : 0;
+            const vh = typeof window !== "undefined" ? window.innerHeight : 0;
             setFlipRight(!!r && vw > 0 && r.left > vw * 0.4);
+            // if the chip is in the bottom ~40% of the viewport, grow upward so the
+            // gloss doesn't run off the bottom edge (common at the foot of a panel).
+            setFlipUp(!!r && vh > 0 && r.bottom > vh * 0.6);
           }
           setOpen((v) => !v);
         }}
@@ -92,10 +98,10 @@ export function Term({ word, children }: { word: string; children?: ReactNode })
       {open && (
         <span
           id={popId}
-          role="tooltip"
-          className={`absolute z-50 top-full mt-1.5 block w-max max-w-[16rem] rounded-lg px-3 py-2 text-[12.5px] leading-snug font-normal not-italic shadow-lg ${
-            flipRight ? "right-0" : "left-0"
-          }`}
+          role="note"
+          className={`absolute z-50 block w-max max-w-[16rem] rounded-lg px-3 py-2 text-[12.5px] leading-snug font-normal not-italic shadow-lg ${
+            flipUp ? "bottom-full mb-1.5" : "top-full mt-1.5"
+          } ${flipRight ? "right-0" : "left-0"}`}
           style={{
             color: "var(--text-muted)",
             background: "var(--bg-card)",
