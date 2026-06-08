@@ -660,7 +660,7 @@ export const activitySelectionLesson: LessonSpec = {
     {
       id: "derive",
       label: "The derivation",
-      connector: "Watch that same move run on its own, and the whole method falls out in five lines.",
+      connector: "Watch that same move run on its own, and the whole method falls out in five steps.",
       actionLabel: "Count the work",
       takeaway: "Sort once, walk once, track when the room is free — and a swap proves it’s best.",
       detail: (
@@ -829,7 +829,7 @@ export const activitySelectionLesson: LessonSpec = {
             <li>Anywhere the locally best choice provably can&rsquo;t block the overall best</li>
           </ul>
           <p>
-            Open the <strong>&lt;/&gt; code</strong> tab on the right to see the Python: five lines of real work, one of them a sort.
+            Open the <strong>&lt;/&gt; code</strong> tab on the right to see the Python: five steps of real work, one of them a sort.
           </p>
         </>
       ),
@@ -846,7 +846,7 @@ export const activitySelectionLesson: LessonSpec = {
             <>
               That&rsquo;s the name. The hard part isn&rsquo;t the code &mdash; it&rsquo;s knowing greed is allowed (the swap test). Spot it when you
               see &ldquo;fit the most non-overlapping things&rdquo;, &ldquo;minimum X to cover all Y&rdquo;, or any time the locally best choice
-              can&rsquo;t block the overall best. Open the <strong>&lt;/&gt; code</strong> tab &mdash; five lines, one sort.
+              can&rsquo;t block the overall best. Open the <strong>&lt;/&gt; code</strong> tab &mdash; five steps, one sort.
             </>
           ),
         },

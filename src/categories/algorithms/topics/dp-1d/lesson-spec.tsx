@@ -269,7 +269,7 @@ export const dp1dLesson: LessonSpec = {
         </>
       ),
       arrows: [{ x1: 620, y1: 152, x2: 600, y2: 236 }],
-      codeLabels: ["sig"],
+      codeLabels: ["sig", "recurrence"],
     },
     {
       id: "wedge",
@@ -311,7 +311,7 @@ export const dp1dLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 560, variant: "main", label: "The derivation",
         title: "Two flavours, same answer.",
-        body: <>Top-down: keep the rule, add a notebook &mdash; check if it&rsquo;s written down before working, store it after. Bottom-up: drop recursion, fill a table from the smallest case up. dp[0]=1, dp[1]=1, then dp[i]=dp[i&minus;1]+dp[i&minus;2]. (dp[i] = ways to reach step i; [i] picks one slot.)</>,
+        body: <>Top-down: keep the rule, add a notebook &mdash; check if it&rsquo;s written down before working, store it after. Bottom-up: drop recursion, build from the smallest case up. Since each step only needs the last two answers, the code keeps just two rolling variables: a, b = 1, 1, then a, b = b, a + b each step.</>,
       }],
       detail: (
         <>
@@ -324,7 +324,7 @@ export const dp1dLesson: LessonSpec = {
         </>
       ),
       arrows: [{ x1: 213, y1: 152, x2: 213, y2: G.y - 30 }],
-      codeLabels: ["init_table"],
+      codeLabels: ["base_check", "base_return", "init_table"],
     },
     {
       id: "operations",
@@ -336,11 +336,11 @@ export const dp1dLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 580, variant: "main", label: "The operations",
         title: "From exponential to one quick pass.",
-        body: <>Naive recursion roughly doubles its work per extra step &mdash; ways(40) calls itself a billion times. Filling each table slot once is <Term word="O(n)"><strong>O(n)</strong></Term> (work grows in step with the n stairs). Keeping just the last two values is <Term word="O(1)"><strong>O(1)</strong></Term> &mdash; a fixed cost at any height.</>,
+        body: <>Naive recursion roughly doubles its work per extra step &mdash; ways(40) calls itself about 330 million times. Filling each table slot once is <Term word="O(n)"><strong>O(n)</strong></Term> (work grows in step with the n stairs). Keeping just the last two values is <Term word="O(1)"><strong>O(1)</strong></Term> &mdash; a fixed cost at any height.</>,
       }],
       detail: (
         <>
-          <p><strong>Naive recursion</strong> roughly <em>doubles</em> its work for every extra step, because each call spawns two more. By the time you ask for <code>ways(40)</code> the function calls itself about a billion times &mdash; minutes of computing for a question with a one-line answer.</p>
+          <p><strong>Naive recursion</strong> roughly <em>doubles</em> its work for every extra step, because each call spawns two more. By the time you ask for <code>ways(40)</code> the function calls itself about 330 million times &mdash; minutes of computing for a question with a one-line answer.</p>
           <p><strong>Either fixed version</strong> &mdash; remember-as-you-go, or fill the table &mdash; computes each <code>i</code> from 0 up to <code>n</code> exactly once, doing a single addition each time. That total cost is <code>O(n)</code> (&ldquo;order n&rdquo;): the work grows in lock-step with how many stairs there are. Watch the row above fill itself, one slot per beat, left to right.</p>
           <p>And memory: the top-down notebook holds <code>n+1</code> answers, but the bottom-up form only needs the last two numbers as it goes. That&rsquo;s <code>O(1)</code> (&ldquo;order one&rdquo;) &mdash; a fixed, tiny amount no matter how tall the staircase gets.</p>
         </>
@@ -375,7 +375,7 @@ export const dp1dLesson: LessonSpec = {
       label: "The pattern",
       connector: "Two ingredients, one repeatable move — it's time to give the whole thing its name.",
       takeaway: "It's Dynamic Programming — reach for it on count / min-cost / max-value problems that repeat.",
-      visual: <g>{dpRow(8, DP.map((_, i) => (i === 8 ? "good" : "good")), { 8: "✓" })}<Caption y={G.y - 28} tone="var(--diff-easy)" text="the whole table, computed in one pass · dp[8] = 34" /></g>,
+      visual: <g>{dpRow(8, DP.map((): Tone => "good"), { 8: "✓" })}<Caption y={G.y - 28} tone="var(--diff-easy)" text="the whole table, computed in one pass · dp[8] = 34" /></g>,
       panels: [
         {
           left: 40, top: 20, width: 420, variant: "main", label: "The pattern",

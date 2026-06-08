@@ -525,9 +525,9 @@ export const backtrackingLesson: LessonSpec = {
             <em>could never possibly work</em>.
           </p>
           <p>
-            The moment you put the first queen in column 0, every single board whose second queen also
-            sits in column 0 is dead on arrival &mdash; like the two red queens shown here, doomed the
-            instant they shared a column. Why even bother building them?
+            The moment you put the first queen down, clashes pile up fast &mdash; like the three red
+            queens shown here: two share a column, and a third is caught on a diagonal. Each was doomed
+            the instant it landed. Why even bother building boards like this?
           </p>
         </>
       ),
@@ -545,7 +545,7 @@ export const backtrackingLesson: LessonSpec = {
               The blind way &mdash; <strong>brute force</strong>, meaning try every
               possibility &mdash; keeps the legal boards. Since each row holds one queen,
               we just pick a column per row: 46,656 boards. But most clash at once
-              &mdash; like the two reds here, doomed the moment they share a column.
+              &mdash; like the three reds here: two on a shared column, one on a diagonal.
             </>
           ),
         },
@@ -798,8 +798,8 @@ export const backtrackingLesson: LessonSpec = {
             That&rsquo;s the name: <strong>backtracking</strong>. Under the hood it&rsquo;s{" "}
             <strong>depth-first search</strong> &mdash; dig all the way down one path before trying any
             others &mdash; with a constraint check at every step. The <em>back</em> in backtracking is the
-            undo: the recursion pops its frame off the call stack and the caller moves on to its next
-            option.
+            undo: the recursion drops its <Term word="frame">frame</Term> (the paused call&rsquo;s bookmark)
+            off the <Term word="call stack">call stack</Term> and the caller moves on to its next option.
           </p>
           <p>
             <strong>Pattern signals &mdash; reach for it when you see:</strong>

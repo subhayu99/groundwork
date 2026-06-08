@@ -26,9 +26,11 @@ function DragWindow({ api }: { api: BeatVisualApi }) {
   const [moved, setMoved] = useState(false);
 
   const go = (next: number) => {
+    const clamped = Math.max(0, Math.min(LAST_START, next));
+    if (clamped === start) return; // boundary hit: nothing actually moved
     api.onInteractionDone();
     api.onActiveLine(["slide"]);
-    setStart(Math.max(0, Math.min(LAST_START, next)));
+    setStart(clamped);
     setMoved(true);
   };
 

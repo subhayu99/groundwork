@@ -76,25 +76,26 @@ function SegRow({ segs, y }: { segs: Segment[]; y: number }) {
 function SplitMerge({ api }: { api: BeatVisualApi }) {
   const [segs, setSegs] = useState<Segment[]>(startSegments);
   const [phase, setPhase] = useState<"splitting" | "merging">("splitting");
-  const [reachedAtomic, setReachedAtomic] = useState(false);
-  const [mergedOnce, setMergedOnce] = useState(false);
 
   const split = () => {
     api.onActiveLine(["split", "recurse_left", "recurse_right"]);
     setSegs((cur) => {
       const next = splitAll(cur);
-      if (allAtomic(next)) { setPhase("merging"); setReachedAtomic(true); }
+      if (allAtomic(next)) setPhase("merging");
       return next;
     });
   };
   const merge = () => {
     api.onActiveLine(["merge_loop", "merge_compare", "merge_take"]);
-    setMergedOnce(true);
-    setSegs((cur) => mergeOneLevel(cur));
-    // Unlock "Next" only after the full journey: split to singles AND merged.
-    if (reachedAtomic) api.onInteractionDone();
+    setSegs((cur) => {
+      const next = mergeOneLevel(cur);
+      // Unlock "Next" only after the full journey: split to singles AND
+      // merged all the way back to one fully-sorted segment.
+      if (next.length === 1 && next[0].sorted) api.onInteractionDone();
+      return next;
+    });
   };
-  const reset = () => { setSegs(startSegments()); setPhase("splitting"); setReachedAtomic(false); setMergedOnce(false); };
+  const reset = () => { setSegs(startSegments()); setPhase("splitting"); };
 
   const done = segs.length === 1 && segs[0].sorted;
   const caption = done
@@ -123,9 +124,6 @@ function SplitMerge({ api }: { api: BeatVisualApi }) {
         <rect x={VW / 2 + 14} y={ROW_Y + 88} width={56} height={24} rx={6} fill="var(--bg-card)" stroke="var(--line)" />
         <text x={VW / 2 + 42} y={ROW_Y + 100} textAnchor="middle" dominantBaseline="central" className="font-mono select-none pointer-events-none" style={{ fontSize: 11, fill: "var(--text-muted)" }}>↺ reset</text>
       </g>
-      {mergedOnce && !reachedAtomic && (
-        <text x={VW / 2} y={ROW_Y + 124} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 10, fill: "var(--text-faint)" }}>split all the way to single cards first</text>
-      )}
     </g>
   );
 }
@@ -348,7 +346,7 @@ export const mergesortLesson: LessonSpec = {
         <>
           <p>Write the recipe as <code>sort(arr)</code> &mdash; a rule that calls itself on smaller pieces (that self-calling is <strong>recursion</strong>). It has two cases.</p>
           <p><strong>The simplest case.</strong> If the list has 0 or 1 cards, it&rsquo;s already in order &mdash; just hand it straight back. This is what stops the recursion from going forever.</p>
-          <p><strong>The general case.</strong> Find the middle. Let <code>left = sort(arr[:mid])</code> and <code>right = sort(arr[mid:])</code> &mdash; sort each half by the very same rule &mdash; then return <code>merge(left, right)</code>.</p>
+          <p><strong>The general case.</strong> Find the middle. Let <code>left = mergesort(nums[:mid])</code> and <code>right = mergesort(nums[mid:])</code> &mdash; sort each half by the very same rule &mdash; then return <code>merge(left, right)</code>. (In the code drawer the function is named <code>mergesort(nums)</code> &mdash; same idea as the <code>sort</code> recipe above.)</p>
           <p><strong>The merge.</strong> Use two <em>fingers</em> &mdash; pointers marking where you&rsquo;re looking in each half: <code>i</code> at the front of <code>left</code>, <code>j</code> at the front of <code>right</code>. Whichever points at the smaller card, write that card to the output and step that finger forward. When one side runs out, dump whatever&rsquo;s left of the other side onto the end.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The principle &mdash; decomposition:</strong> a hard sort becomes two smaller sorts plus a cheap merge, and those smaller sorts solve themselves by the exact same rule.</div>
         </>
@@ -412,7 +410,7 @@ export const mergesortLesson: LessonSpec = {
       ),
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Mergesort.",
-        body: <>That&rsquo;s the name. The recursion divides; the merge conquers. Reach for it to sort big data with dependable speed even at its worst, to merge two already-sorted streams, or for a file too big to fit in memory. Open the drawer &mdash; under twenty real lines.</>,
+        body: <>That&rsquo;s the name. The recursion divides; the merge conquers. Reach for it to sort big data with dependable speed even at its worst, to merge two already-sorted streams, or for a file too big to fit in memory. Open the drawer &mdash; around twenty real lines.</>,
       }],
       detail: (
         <>
@@ -424,7 +422,7 @@ export const mergesortLesson: LessonSpec = {
             <li>&ldquo;Process a file too big to fit in memory&rdquo; (external mergesort, sorting in chunks)</li>
             <li>Anywhere divide-and-conquer with a cheap linear combine seems to fit</li>
           </ul>
-          <p>Open the code drawer for the Python. The recursion is short; the merge is the longer loop. Together they&rsquo;re fewer than twenty lines of real work.</p>
+          <p>Open the code drawer for the Python. The recursion is short; the merge is the longer loop. Together they&rsquo;re around twenty lines of real work.</p>
         </>
       ),
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: G.y - 36 }],
