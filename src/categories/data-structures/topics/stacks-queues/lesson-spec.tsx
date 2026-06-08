@@ -119,7 +119,7 @@ function AutoStack({ api }: { api: BeatVisualApi }) {
         else { setS({ ...c, phase: "pop", i: 0 }); }
       } else {
         if (c.items.length) { api.onActiveLine(["pop"]); const v = c.items[c.items.length - 1]; setS({ ...c, items: c.items.slice(0, -1), note: `pop() → "${v}" (newest first)` }); }
-        else { api.onActiveLine(["peek"]); setS({ ...c, note: "empty — LIFO done" }); }
+        else { api.onActiveLine([]); setS({ ...c, note: "empty — LIFO done" }); }
       }
     }, pace(950));
     return () => clearInterval(id);
@@ -279,7 +279,7 @@ export const stacksQueuesLesson: LessonSpec = {
       visual: <TwoContracts stackTones={["idle", "idle", "active"]} queueTones={["active", "idle", "idle"]} />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The structure", title: "One end, or two.",
-        body: <>A <strong>stack</strong> adds &amp; removes only at the <em>top</em>: newest out first &mdash; <strong>LIFO</strong> (last in, first out). A <strong>queue</strong> adds at the back, removes from the front: oldest out first &mdash; <strong>FIFO</strong> (first in, first out).</>,
+        body: <>A <strong>stack</strong> adds &amp; removes only at the <em>top</em>: newest out first &mdash; <Term word="LIFO"><strong>LIFO</strong></Term> (last in, first out). A <strong>queue</strong> adds at the back, removes from the front: oldest out first &mdash; <Term word="FIFO"><strong>FIFO</strong></Term> (first in, first out).</>,
       }],
       detail: (
         <>
@@ -303,7 +303,7 @@ export const stacksQueuesLesson: LessonSpec = {
       visual: (api) => <AutoStack api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The operations", title: "Every move is at an end, so every move is instant.",
-        body: <>On a stack, <code>push</code>, <code>pop</code>, and <code>peek</code> (look at the top without taking it) are all <code>O(1)</code>. A queue&rsquo;s add/remove are <code>O(1)</code> too &mdash; if you use a <em>deque</em> (say &ldquo;deck&rdquo;: a row built to be fast at both ends), not a plain list whose front-removal is <code>O(n)</code>.</>,
+        body: <>On a stack, <code>push</code>, <code>pop</code>, and <code>peek</code> (look at the top without taking it) are all <code>O(1)</code>. A queue&rsquo;s add/remove are <code>O(1)</code> too &mdash; if you use a <Term word="deque"><em>deque</em></Term> (say &ldquo;deck&rdquo;: a row built to be fast at both ends), not a plain list whose front-removal is <code>O(n)</code>.</>,
       }],
       detail: (
         <>
@@ -323,7 +323,7 @@ export const stacksQueuesLesson: LessonSpec = {
       visual: <TwoContracts stackTones={["idle", "muted", "active"]} queueTones={["active", "muted", "idle"]} showNoMiddle chips />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "When it fits", title: "Newest-next vs oldest-next.",
-        body: <>Pick a <strong>stack</strong> when you want the most-recent thing next &mdash; like browser back or the <em>call stack</em> (the list of functions still waiting to finish). Pick a <strong>queue</strong> when the longest-waiter goes next &mdash; like print jobs or scheduling.</>,
+        body: <>Pick a <strong>stack</strong> when you want the most-recent thing next &mdash; like browser back or the <Term word="call stack"><em>call stack</em></Term> (the list of functions still waiting to finish). Pick a <strong>queue</strong> when the longest-waiter goes next &mdash; like print jobs or scheduling.</>,
       }],
       detail: (
         <>

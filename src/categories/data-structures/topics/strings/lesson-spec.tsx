@@ -415,7 +415,7 @@ export const stringsLesson: LessonSpec = {
     },
     {
       id: "name",
-      label: "The structure",
+      label: "String",
       connector: "Pull it all together and the thing finally earns its name.",
       takeaway: "It’s a String — an array of characters, immutable, indexed instantly.",
       visual: <CostTable />,

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { NodeGraph, GNode, GEdge } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
 import graphsPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -315,7 +316,7 @@ export const graphsLesson: LessonSpec = {
         <>
           <p>The structure is simple; the richness is in what you run on it. Watch a <strong>breadth-first search</strong> (BFS): start at alice, visit all her direct friends, then all of <em>their</em> friends, spreading outward in rings. Because it always reaches the nearest people first, it finds the <em>shortest chain</em> between two people. Its cost is written <code>O(V + E)</code> &mdash; the work grows in step with the number of nodes (<code>V</code>) plus the number of edges (<code>E</code>); roughly, you touch each person and each line once.</p>
           <p>Its sibling is <strong>depth-first search</strong> (DFS): instead of fanning out, it dives all the way down one path, then backs up and tries the next &mdash; same <code>O(V + E)</code> cost, and handy for spotting loops or separating clusters.</p>
-          <p>One piece of bookkeeping is non-negotiable for both: a <strong>&ldquo;seen&rdquo; set</strong> (a hash map again) marking who you&rsquo;ve already visited. Without it, the loops in the graph would send you walking the same edge forever.</p>
+          <p>One piece of bookkeeping is non-negotiable for both: a <strong>&ldquo;seen&rdquo; set</strong> (a <Term word="hash set">hash set</Term> &mdash; like a dict but storing keys only, no values) marking who you&rsquo;ve already visited. Without it, the loops in the graph would send you walking the same edge forever.</p>
         </>
       ),
       codeLabels: ["bfs_pop", "bfs_append", "bfs_neighbors", "bfs_seen"],
@@ -346,7 +347,7 @@ export const graphsLesson: LessonSpec = {
     },
     {
       id: "name",
-      label: "The structure",
+      label: "Graph",
       connector: "Everything fits the same shape — so give that shape its name.",
       takeaway: "It's a Graph — a tiny neighbor table whose richness is the walks you run on it.",
       visual: idleGraph(),
