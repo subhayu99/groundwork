@@ -8,13 +8,14 @@ const IW = 96, IGAP = 26, IY = 240;
 const totalW = ITEMS.length * IW + (ITEMS.length - 1) * IGAP;
 const IX0 = 150;
 
-/** the collection as a row of boxes, with the current item highlighted */
-function Items({ current }: { current: number }) {
+/** the collection as a row of boxes, with the current item highlighted.
+ *  `done` marks the whole row as finished (every item rendered as "past"). */
+function Items({ current, done }: { current: number; done?: boolean }) {
   return (
     <g>
       <text x={IX0 + totalW / 2} y={IY - 26} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-muted)" }}>[ 10, 20, 30 ]</text>
       {ITEMS.map((v, i) => {
-        const x = IX0 + i * (IW + IGAP), on = i === current, past = current >= 0 && i < current;
+        const x = IX0 + i * (IW + IGAP), on = i === current, past = done || (current >= 0 && i < current);
         return (
           <g key={i} opacity={past ? 0.55 : 1} style={{ transition: "opacity .3s" }}>
             <rect x={x} y={IY} width={IW} height={56} rx={10} fill={on ? "var(--accent-soft)" : "var(--bg-card)"} stroke={on ? "var(--accent-line)" : "var(--line)"} strokeWidth={2} style={{ transition: "fill .3s, stroke .3s" }} />
@@ -65,7 +66,7 @@ export const forLoopsLesson: LessonSpec = {
           <Cap>round 1: price = 10 → total = 0 + 10 = 10</Cap>
           <Items current={0} />
           <Box x={ACC_X} y={IY} w={150} name="total" value="10" active tone="good" />
-          <line x1={IX0 + IW} y1={IY + 28} x2={ACC_X} y2={IY + 28} stroke="var(--accent-line)" strokeWidth={1.5} markerEnd="url(#lesson-arrow)" opacity={0.5} />
+          <line x1={IX0 + IW / 2} y1={IY + 56 + 30} x2={ACC_X + 75} y2={IY + 56 + 30} stroke="var(--accent-line)" strokeWidth={1.5} markerEnd="url(#lesson-arrow)" opacity={0.5} />
         </g>
       ),
       panels: [{
@@ -104,13 +105,13 @@ export const forLoopsLesson: LessonSpec = {
       visual: (
         <g>
           <Cap>✓ used every item · total = 10 + 20 + 30 = 60</Cap>
-          <Items current={-1} />
+          <Items current={-1} done />
           <Box x={ACC_X} y={IY} w={150} name="total" value="60" active tone="good" />
         </g>
       ),
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Out the other side", title: "total = 60",
-        body: <>After the third item there&rsquo;s nothing left, so the loop ends and <code>total</code> is <code>60</code>. The pattern &mdash; start an accumulator, add each item &mdash; is how you sum, count, or build things from a collection.</>,
+        body: <>After the third item there&rsquo;s nothing left, so the loop ends and <code>total</code> is <code>60</code>. The pattern &mdash; start an <Term word="accumulator">accumulator</Term>, add each item &mdash; is how you sum, count, or build things from a collection.</>,
       }],
       detail: <><p>Use <code>for</code> whenever you have a known set to walk; use <code>while</code> when you&rsquo;re waiting for a condition with no fixed count. Together they cover all repetition &mdash; and you&rsquo;ll see <code>for</code> on every array and list from here on.</p></>,
       codeLabels: ["body", "after"],

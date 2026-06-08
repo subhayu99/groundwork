@@ -58,7 +58,7 @@ export const constantsLesson: LessonSpec = {
       ),
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Name it in CAPS", title: "MAX_SCORE = 100",
-        body: <>You make it exactly like a variable, but write the name in <code>UPPER_CASE</code>. That casing is a <Term word="constant">constant</Term> convention &mdash; a message to every reader: <em>this isn&rsquo;t meant to change.</em></>,
+        body: <>You make it exactly like a variable, but write the name in <code>UPPER_CASE</code>. That casing is a <Term word="constant">constant</Term> <Term word="convention">convention</Term> &mdash; a message to every reader: <em>this isn&rsquo;t meant to change.</em></>,
       }],
       detail: (
         <>
@@ -75,7 +75,7 @@ export const constantsLesson: LessonSpec = {
       takeaway: "Read a constant by name — change it in ONE place, everywhere updates.",
       visual: (
         <g>
-          <Cap>percent = score / MAX_SCORE * 100   →   70</Cap>
+          <Cap>percent = score / MAX_SCORE * 100   →   70.0</Cap>
           <Box x={150} y={BY} w={170} name="MAX_SCORE" value="100" />
           <Box x={540} y={BY} w={170} name="percent" value="70.0" active tone="good" />
           <line x1={320} y1={BY + 32} x2={540} y2={BY + 32} stroke="var(--accent-line)" strokeWidth={1.5} markerEnd="url(#lesson-arrow)" />
@@ -84,7 +84,7 @@ export const constantsLesson: LessonSpec = {
       ),
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Use it anywhere", title: "percent = score / MAX_SCORE * 100",
-        body: <>Wherever the limit matters, you write <code>MAX_SCORE</code> instead of a bare <code>100</code>. The code reads like English &mdash; and the meaning of that <code>100</code> is never a mystery.</>,
+        body: <>Say a quiz <code>score</code> of <code>70</code> out of a <code>MAX_SCORE</code> of <code>100</code>. Wherever the limit matters, you write <code>MAX_SCORE</code> instead of a bare <code>100</code>. The code reads like English &mdash; and the meaning of that <code>100</code> is never a mystery.</>,
       }],
       detail: (
         <>

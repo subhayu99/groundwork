@@ -1,6 +1,6 @@
 import type { LessonSpec } from "@/shared/lesson/types";
 import { Term } from "@/shared/lesson/Term";
-import { Box, Cap, VW } from "../../_shared";
+import { Box, Cap, VW, VH } from "../../_shared";
 import functionsPy from "./algorithm.py";
 
 const MX = 350, MY = 214, MW = 220, MH = 108;
@@ -31,7 +31,7 @@ function Machine({ wv, hv, out, lit }: { wv: string; hv: string; out: string; li
 export const functionsLesson: LessonSpec = {
   topicTitle: "functions · inputs in, answer out",
   layout: "scene",
-  canvas: { width: VW, height: 470 },
+  canvas: { width: VW, height: VH },
   codeSource: functionsPy as string,
   beats: [
     {
@@ -95,7 +95,7 @@ export const functionsLesson: LessonSpec = {
       connector: "The shape of every function.",
       actionLabel: "Done",
       takeaway: "Functions: inputs (arguments) in, one result (return) out, reusable.",
-      visual: <g><Cap>room = 12, hall = 20 — two calls, one definition</Cap><Machine wv="4 · 10" hv="3 · 2" out="12·20" lit /></g>,
+      visual: <g><Cap>one definition, called many times: room = 12, hall = 20</Cap><Machine wv="width" hv="height" out="?" /></g>,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Inputs in, answer out", title: "Define once, call anywhere.",
         body: <>A function is a named machine: arguments go in, the body runs, a value comes back via <code>return</code>. It turns &ldquo;a block of steps&rdquo; into &ldquo;one word you can reuse.&rdquo;</>,

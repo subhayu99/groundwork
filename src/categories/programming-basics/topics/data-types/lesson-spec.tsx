@@ -60,7 +60,7 @@ export const dataTypesLesson: LessonSpec = {
       visual: <g><Cap>7 is an int (whole) · 3.14 is a float (has a decimal)</Cap>{four(0)}</g>,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Numbers: int & float", title: "age = 7   ·   price = 3.14",
-        body: <>A whole number like <code>7</code> is an <Term word="integer">int</Term>. A number with a decimal point like <code>3.14</code> is a <strong>float</strong>. The dot is the only difference in how you write them.</>,
+        body: <>A whole number like <code>7</code> is an <Term word="integer">int</Term>. A number with a decimal point like <code>3.14</code> is a <Term word="float">float</Term>. The dot is the only difference in how you write them.</>,
       }],
       detail: <><p>Both are numbers, so <code>+ - * /</code> work on them. Dividing with <code>/</code> always gives a float (<code>10 / 2</code> is <code>5.0</code>), which surprises people &mdash; that trailing <code>.0</code> is Python telling you the type.</p></>,
       codeLabels: ["int", "float"],
@@ -88,7 +88,7 @@ export const dataTypesLesson: LessonSpec = {
       visual: <g><Cap>{"age >= 18 → False · a bool is the answer to a yes/no question"}</Cap>{four(3)}</g>,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Yes / no: bool", title: "is_adult = age >= 18",
-        body: <>A <Term word="boolean">boolean</Term> (<code>bool</code>) is either <code>True</code> or <code>False</code>. Comparisons produce them &mdash; <code>7 &gt;= 18</code> is <code>False</code> &mdash; and that&rsquo;s exactly what an <code>if</code> checks.</>,
+        body: <>A <Term word="boolean">boolean</Term> (<code>bool</code>) is either <code>True</code> or <code>False</code>. Comparisons produce them &mdash; <code>age &gt;= 18</code> is <code>False</code> &mdash; and that&rsquo;s exactly what an <code>if</code> checks.</>,
       }],
       detail: <><p>Booleans are the bridge to conditionals: a condition is just an expression whose type is <code>bool</code>. <code>True</code> and <code>False</code> are special words, not text &mdash; no quotes.</p></>,
       codeLabels: ["bool"],
@@ -99,7 +99,7 @@ export const dataTypesLesson: LessonSpec = {
       connector: "Read all four as one row.",
       actionLabel: "Done",
       takeaway: "int · float · str · bool — the type decides what you can do.",
-      visual: <g><Cap>type(price) → float · the same value can be checked any time</Cap>{four(-1)}</g>,
+      visual: <g><Cap>{"type(price) → <class 'float'> · the same value can be checked any time"}</Cap>{four(-1)}</g>,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Four to start", title: "int · float · str · bool",
         body: <>Those four cover most early code. The type travels <em>with</em> the value, so <code>3 + 4</code> adds to <code>7</code>, while <code>&quot;3&quot; + &quot;4&quot;</code> joins to <code>&quot;34&quot;</code> &mdash; same symbol, different behaviour by type.</>,

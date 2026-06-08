@@ -75,7 +75,7 @@ export const whileLoopsLesson: LessonSpec = {
       connector: "Watch it actually run.",
       actionLabel: "When does it stop?",
       takeaway: "Each round: check the condition, run the block, then check again.",
-      visual: <g><Cap>True each time → run the block, then loop back and re-check</Cap>{trace(["on", "on", "on"])}</g>,
+      visual: <g><Cap>all three rounds, side by side — each one: check, run the block, then loop back</Cap>{trace(["on", "on", "on"])}</g>,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Round by round", title: "Check → run → repeat.",
         body: <>Round 1: <code>0 &lt; 3</code> is True, so it prints <code>0</code> and bumps <code>count</code> to <code>1</code>. Round 2 with <code>1</code>, round 3 with <code>2</code> &mdash; each time it loops back to the test.</>,
@@ -94,7 +94,7 @@ export const whileLoopsLesson: LessonSpec = {
         left: 150, top: 24, width: 560, variant: "main", label: "The exit", title: "3 < 3  →  False  →  stop",
         body: <>After the third round <code>count</code> is <code>3</code>. Now <code>3 &lt; 3</code> is <strong>False</strong>, so the block is skipped and the program moves on to whatever comes after the loop.</>,
       }],
-      detail: <><p>The danger: if the condition can <em>never</em> become False (you forget <code>count = count + 1</code>), the loop runs forever &mdash; an <strong>infinite loop</strong>. Every <code>while</code> must make progress toward its exit.</p></>,
+      detail: <><p>The danger: if the condition can <em>never</em> become False (you forget <code>count = count + 1</code>), the loop runs forever &mdash; an <Term word="infinite loop">infinite loop</Term>. Every <code>while</code> must make progress toward its exit.</p></>,
       codeLabels: ["step", "after"],
     },
     {
@@ -108,7 +108,7 @@ export const whileLoopsLesson: LessonSpec = {
         left: 150, top: 24, width: 560, variant: "main", label: "Repeat while true", title: "Repeat while the condition holds.",
         body: <>A <code>while</code> loop is a question asked over and over: while it&rsquo;s True, run the block; the moment it&rsquo;s False, stop. The body must nudge the world toward that False, or it never ends.</>,
       }],
-      detail: <><p><code>while</code> is perfect when you don&rsquo;t know how many rounds you&rsquo;ll need (&ldquo;until the user quits&rdquo;). When you&rsquo;re walking a <em>known</em> set of things, the <strong>for</strong> loop is cleaner &mdash; that&rsquo;s next.</p></>,
+      detail: <><p><code>while</code> is perfect when you don&rsquo;t know how many rounds you&rsquo;ll need (&ldquo;until the user quits&rdquo;). When you&rsquo;re going through a <em>known</em> set of things one by one, the <strong>for</strong> loop is cleaner &mdash; that&rsquo;s next.</p></>,
       codeLabels: ["after"],
     },
   ],
