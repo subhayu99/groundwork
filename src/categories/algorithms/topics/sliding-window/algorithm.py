@@ -4,7 +4,7 @@ def fixed_window_sums(arr: list[int], k: int) -> list[int]:  # @sync: sig
     Sliding window: maintain the running sum, slide one step at a time,
     pay only two operations per slide (subtract leaver, add newcomer).
     """
-    if k > len(arr):
+    if k <= 0 or k > len(arr):
         return []
 
     window_sum = sum(arr[:k])  # @sync: init_window

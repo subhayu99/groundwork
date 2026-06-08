@@ -25,5 +25,5 @@ def fit_meetings(meetings: list[tuple[int, int]]) -> list[tuple[int, int]]:  # @
 #
 # Greedy works here because that swap argument holds. When a similar
 # argument fails — e.g., picking the largest coin first against the
-# denominations {1, 12, 25} for the target 30 — greedy is wrong and
+# denominations {1, 3, 4} for the target 6 — greedy is wrong and
 # you need dynamic programming instead.

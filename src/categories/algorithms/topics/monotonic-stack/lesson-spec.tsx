@@ -540,11 +540,11 @@ export const monotonicStackLesson: LessonSpec = {
       visual: <FinalState />,
       panels: [{
         left: 60, top: 20, width: 470, variant: "main", label: "The pattern", title: "Monotonic Stack.",
-        body: <>&ldquo;Monotonic&rdquo; means temperatures inside only go one way: coolest at the bottom, colder up top. Cheap-on-average cost, where rare costly steps are pre-paid by cheap ones, is called <strong>amortized</strong>. Spot it on &ldquo;next/previous bigger-smaller&rdquo; and &ldquo;largest rectangle.&rdquo;</>,
+        body: <>&ldquo;Monotonic&rdquo; means temperatures inside only go one way: warmest at the bottom, cooler toward the top. Cheap-on-average cost, where rare costly steps are pre-paid by cheap ones, is called <strong>amortized</strong>. Spot it on &ldquo;next/previous bigger-smaller&rdquo; and &ldquo;largest rectangle.&rdquo;</>,
       }],
       detail: (
         <>
-          <p>That&rsquo;s the name. The stack is &ldquo;<strong>monotonic</strong>&rdquo; because the values inside it always go in one direction &mdash; here, cooler at the bottom up to colder near the top. The moment a new value would break that order, you pop until the order holds again.</p>
+          <p>That&rsquo;s the name. The stack is &ldquo;<strong>monotonic</strong>&rdquo; because the values inside it always go in one direction &mdash; here, warmer at the bottom, cooling as you go toward the top. The moment a new value would break that order, you pop until the order holds again.</p>
           <p>And the cost trick &mdash; cheap on average because the rare expensive steps are pre-paid by all the cheap ones &mdash; has a name too: <strong>amortized</strong> cost (think of it like a subscription: a few big-feeling moments, but spread out it&rsquo;s a flat low price per item).</p>
           <p><strong>Pattern signals &mdash; reach for it when you see:</strong></p>
           <ul>
