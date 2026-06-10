@@ -230,10 +230,10 @@ function WedgeChain({ api }: { api: BeatVisualApi }) {
 
   const insertAfter = (afterIdx: number, value: number) => {
     api.onInteractionDone();
+    api.onActiveLine(["insert_new", "insert_relink"]);
     setS(() => {
       const values = [...CHAIN];
       values.splice(afterIdx + 1, 0, value);
-      api.onActiveLine(["insert_new", "insert_relink"]);
       return {
         values,
         touched: [afterIdx, afterIdx + 1],
@@ -247,10 +247,10 @@ function WedgeChain({ api }: { api: BeatVisualApi }) {
 
   const removeThird = () => {
     api.onInteractionDone();
+    api.onActiveLine(["remove_relink"]);
     setS(() => {
       const values = [...CHAIN];
       values.splice(2, 1); // remove 3rd node (value 4)
-      api.onActiveLine(["remove_relink"]);
       return {
         values,
         touched: [1], // node before the removed one had its pointer rerouted
@@ -453,7 +453,7 @@ function NameSummary() {
     ["remove next node", "O(1)"],
     ["access by index", "O(n)"],
     ["find a value", "O(n)"],
-    ["memory locality", "poor"],
+    ["stored together?", "no"],
   ];
   // singly / doubly diagrams: three nodes at fixed x, right of the cost table
   const NX = [520, 610, 700];
@@ -598,7 +598,7 @@ export const linkedListsLesson: LessonSpec = {
       visual: (api) => <FindWalk api={api} />,
       panels: [{
         left: 470, top: 20, width: 360, variant: "main", label: "The operations", title: "Cheap edits, expensive lookups.",
-        body: <>Insert or remove where you&rsquo;re standing: <Term word="O(1)"><strong>O(1)</strong></Term> &mdash; instant, same cost no matter how long the list. But find a value, or jump to the 50th item: <strong>O(n)</strong> &mdash; cost grows with the list&rsquo;s length (n) &mdash; you must walk from the head; there&rsquo;s no shortcut.</>,
+        body: <>Insert or remove where you&rsquo;re standing: <Term word="O(1)"><strong>O(1)</strong></Term> &mdash; instant, same cost no matter how long the list. But find a value, or jump to the 50th item: <Term word="O(n)"><strong>O(n)</strong></Term> &mdash; cost grows with the list&rsquo;s length (n) &mdash; you must walk from the head; there&rsquo;s no shortcut.</>,
       }],
       detail: (
         <>
@@ -633,7 +633,7 @@ export const linkedListsLesson: LessonSpec = {
     },
     {
       id: "name",
-      label: "The structure",
+      label: "Linked list",
       connector: "Trees, graphs, deques — they all trace back to the one shape you just built. Time to name it.",
       takeaway: "It's a Linked List — position is not address; order is the arrows.",
       visual: <NameSummary />,

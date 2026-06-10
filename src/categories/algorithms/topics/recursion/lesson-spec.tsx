@@ -22,7 +22,7 @@ const T: TNode[] = [
   { id: "photos",  label: "photos",    x: 248, y: 258, kind: "folder", size: 0, total: 7,  parent: "root" },
   { id: "beach",   label: "beach",     x: 372, y: 244, kind: "file",   size: 4, total: 4,  parent: "photos" },
   { id: "party",   label: "party",     x: 372, y: 290, kind: "file",   size: 3, total: 3,  parent: "photos" },
-  { id: "projects",label: "projects",  x: 248, y: 338, kind: "folder", size: 0, total: 10, parent: "root" },
+  { id: "projects",label: "projects",  x: 248, y: 338, kind: "folder", size: 0, total: 9, parent: "root" },
   { id: "notes",   label: "notes",     x: 372, y: 338, kind: "file",   size: 1, total: 1,  parent: "projects" },
   { id: "code",    label: "code",      x: 372, y: 386, kind: "folder", size: 0, total: 8,  parent: "projects" },
   { id: "app",     label: "app.zip",   x: 496, y: 386, kind: "file",   size: 8, total: 8,  parent: "code" },
@@ -422,7 +422,7 @@ export const recursionLesson: LessonSpec = {
           <p><strong>Folder.</strong> The node is a folder. Go through its children, and for each child run <code>folder_size(child)</code> &mdash; the recipe <em>asks itself the same question</em> on a smaller piece. Add up the answers it gets back and return the total.</p>
           <p>A recipe that runs itself sounds like it could spin forever, but it can&rsquo;t here: every call is on something <strong>strictly smaller</strong> &mdash; a child of the folder we&rsquo;re standing in, never the folder itself. Because each step shrinks the problem, it has to bottom out at files.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The principle &mdash; decomposition:</strong> solve a problem by solving a smaller version of itself.
+            <strong>The principle &mdash; <Term word="decomposition">decomposition</Term>:</strong> solve a problem by solving a smaller version of itself.
           </div>
         </>
       ),
@@ -439,12 +439,12 @@ export const recursionLesson: LessonSpec = {
       visual: (api) => <AutoRecurse api={api} />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The operations", title: "Each item is touched once; calls pile up in a stack.",
-        body: <>Every item is looked at exactly once &mdash; that&rsquo;s <Term word="O(n)"><code>O(n)</code></Term> (work grows in step with the number of items, <em>n</em>). Watch the <strong>call stack</strong> on the right: a to-do list where the newest waiting call sits on top, draining as each returns.</>,
+        body: <>Every item is looked at exactly once &mdash; that&rsquo;s <Term word="O(n)"><code>O(n)</code></Term> (work grows in step with the number of items, <em>n</em>). Watch the <Term word="call stack"><strong>call stack</strong></Term> on the right: a to-do list where the newest waiting call sits on top, draining as each returns.</>,
       }],
       detail: (
         <>
-          <p>The run plays on its own &mdash; just follow it (the <strong>&#8634; replay</strong> button under the stack restarts it). Every node in the tree &mdash; every file, every folder &mdash; gets looked at exactly one time. We write that cost as <code>O(n)</code>: the work grows in step with how many items <em>n</em> are in the tree (folders included). Twice as many items, roughly twice the work &mdash; no hidden blow-up.</p>
-          <p>Now watch the panel on the right. The <strong>call stack</strong> is the computer&rsquo;s to-do list of recipes it has started but not yet finished. Each time <code>folder_size</code> opens a folder and calls itself on a child, a new entry is stacked on top &mdash; the newest, innermost call always sits on top. That call has to finish before the one beneath it can continue.</p>
+          <p>The run plays on its own &mdash; just follow it (the <strong>&#8634; replay</strong> button under the stack restarts it). Every node in the tree &mdash; every file, every folder &mdash; gets looked at exactly one time. We write that cost as <Term word="O(n)"><code>O(n)</code></Term>: the work grows in step with how many items <em>n</em> are in the tree (folders included). Twice as many items, roughly twice the work &mdash; no hidden blow-up.</p>
+          <p>Now watch the panel on the right. The <Term word="call stack"><strong>call stack</strong></Term> is the computer&rsquo;s to-do list of recipes it has started but not yet finished. Each time <code>folder_size</code> opens a folder and calls itself on a child, a new entry is stacked on top &mdash; the newest, innermost call always sits on top. That call has to finish before the one beneath it can continue.</p>
           <p>As each call returns its answer, its entry is removed and the total bubbles up to the folder waiting below. The stack grows as we dive in and <em>drains</em> back to empty once every call has returned &mdash; that&rsquo;s the moment the root finally reads its full size.</p>
         </>
       ),

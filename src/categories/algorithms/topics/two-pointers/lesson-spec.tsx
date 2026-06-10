@@ -139,18 +139,23 @@ function BruteForce() {
   );
 }
 
-/* ── static: one move retires a whole side (the "too small" case) ──────────── */
+/* ── static: one move retires a whole side (the "too big" case) ────────────── */
 function RetireSide() {
   const L = 0, R = ARR.length - 1;
+  const sum = ARR[L] + ARR[R];
   const tones: (Tone | undefined)[] = ARR.map((_, i) => (i === L || i === R ? "active" : "bad"));
   const markers: Record<number, string> = { [L]: "L", [R]: "R" };
   return (
     <g>
       <CellRow geom={G} values={ARR} tones={tones} markers={markers} />
-      <Bracket x1={G.left(L)} x2={G.left(R) + G.cellW} y={G.y - 14} label="every pair with arr[L] — all too small, gone in one move" />
-      <Arrow x1={G.cx(L)} y1={G.y + G.cellH + 30} x2={G.cx(L + 1) - 6} y2={G.y + G.cellH + 30} />
-      <text x={G.cx(L) + 30} y={G.y + G.cellH + 46} textAnchor="middle" className="font-mono select-none"
-        style={{ fontSize: 11, fill: "var(--accent-ink)" }}>L steps right</text>
+      <Bracket x1={G.left(L)} x2={G.left(R) + G.cellW} y={G.y - 14} label="every pair with arr[R] — all too big, gone in one move" />
+      <text x={VW / 2} y={G.y + G.cellH + 24} textAnchor="middle" className="font-mono select-none"
+        style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+        {`arr[L] + arr[R] = ${ARR[L]} + ${ARR[R]} = ${sum} > ${TARGET}  (too big)`}
+      </text>
+      <Arrow x1={G.cx(R)} y1={G.y + G.cellH + 44} x2={G.cx(R - 1) + 6} y2={G.y + G.cellH + 44} />
+      <text x={G.cx(R) - 30} y={G.y + G.cellH + 60} textAnchor="middle" className="font-mono select-none"
+        style={{ fontSize: 11, fill: "var(--accent-ink)" }}>R steps left</text>
     </g>
   );
 }
@@ -292,7 +297,7 @@ export const twoPointersLesson: LessonSpec = {
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The derivation", title: "Each move retires a whole row of pairs.",
-          body: <>Too small? <code>R</code> is already the biggest card left, so <em>every</em> pair using <code>arr[L]</code> is too small &mdash; never look at it again, step <code>L</code> right. Too big? Mirror it: step <code>R</code> left. One look retires a whole side.</>,
+          body: <>Too big? <code>L</code> is already the smallest card left, so <em>every</em> pair using <code>arr[R]</code> is too big &mdash; never look at it again, step <code>R</code> left. Too small? Mirror it: step <code>L</code> right. One look retires a whole side.</>,
         },
         {
           left: 600, top: 360, width: 252, variant: "note",
@@ -324,7 +329,7 @@ export const twoPointersLesson: LessonSpec = {
       }],
       detail: (
         <>
-          <p>Put the two costs side by side. Brute force inspects up to <code>n &times; (n &minus; 1) / 2</code> pairs &mdash; here <code>n</code> is the card count, so with <code>n = 10</code> that&rsquo;s 45 comparisons. That formula is <code>O(n&sup2;)</code> work: double the cards and the effort roughly quadruples.</p>
+          <p>Put the two costs side by side. Brute force inspects up to <code>n &times; (n &minus; 1) / 2</code> pairs &mdash; here <code>n</code> is the card count, so with <code>n = 10</code> that&rsquo;s 45 comparisons. That formula is <Term word="O(n²)"><code>O(n&sup2;)</code></Term> work: double the cards and the effort roughly quadruples.</p>
           <p>The two fingers, by contrast, touch each card at most once. <code>L</code> only ever moves right, <code>R</code> only ever moves left, and they march toward each other until they meet. So after at most <code>n &minus; 1</code> = 9 steps the search is over. That&rsquo;s <Term word="O(n)"><code>O(n)</code></Term> work (&ldquo;order n&rdquo;) &mdash; the effort grows in simple step with the number of cards, not with its square.</p>
           <p>Forty-five collapses to nine, and the gap only widens as the row gets longer. Next, see the fingers actually converge.</p>
         </>

@@ -323,12 +323,12 @@ export const treesLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The obvious thing",
         title: "Flatten it. Watch the shape die.",
-        body: <>Store everyone in a list with a &ldquo;manager&rdquo; column. &ldquo;Who does Bo report to?&rdquo; is one quick lookup (blue). But &ldquo;everyone <em>under</em> Bo?&rdquo; forces you to scan every row (orange) to rebuild the branch. The real shape is a hierarchy; a flat table fights it.</>,
+        body: <>Store everyone in a list with a &ldquo;manager&rdquo; column. &ldquo;Who does Bo report to?&rdquo; is one quick lookup (the lit blue row). But &ldquo;everyone <em>under</em> Bo?&rdquo; forces you to check rows across the table to rebuild the branch &mdash; the ones in Bo&rsquo;s branch light up. The real shape is a hierarchy; a flat table fights it.</>,
       }],
       detail: (
         <>
           <p>The tempting fix: store every person in a plain list, and give each row a column that names their manager. Now &ldquo;who does Bo report to?&rdquo; is one quick lookup &mdash; just read Bo&rsquo;s row and see the manager listed there (the blue row).</p>
-          <p>But ask the deeper question &mdash; &ldquo;give me <em>everyone</em> under Bo, all the way down&rdquo; &mdash; and the list fights you. Nobody&rsquo;s row directly lists their reports, so you have to scan every single row checking &ldquo;is this person&rsquo;s manager Bo? is their manager one of Bo&rsquo;s reports?&rdquo; and rebuild the whole branch by hand (the orange rows).</p>
+          <p>But ask the deeper question &mdash; &ldquo;give me <em>everyone</em> under Bo, all the way down&rdquo; &mdash; and the list fights you. Nobody&rsquo;s row directly lists their reports, so you have to scan every single row checking &ldquo;is this person&rsquo;s manager Bo? is their manager one of Bo&rsquo;s reports?&rdquo; and rebuild the whole branch by hand (the rows in Bo&rsquo;s branch that light up).</p>
           <p>The shape of the <em>data</em> is a hierarchy &mdash; things nested inside things. The shape of the <em>storage</em> is row after flat row. That mismatch quietly taxes every question you ask. The smarter move is to let the data&rsquo;s real shape lead the storage.</p>
         </>
       ),
@@ -375,12 +375,12 @@ export const treesLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "The structure",
         title: "Nodes with links to children. No loops.",
-        body: <>A <strong>tree</strong> is nodes, like a chain &mdash; but a box can hold <em>several</em> child links, not one &ldquo;next.&rdquo; The one start box is the <strong>root</strong> (lit). No box points back up; that loop would make it a <strong>graph</strong>. A <em>binary</em> tree caps each node at two children.</>,
+        body: <>A <strong>tree</strong> is nodes, like a chain &mdash; but a box can hold <em>several</em> child links, not one &ldquo;next.&rdquo; The one start box is the <strong>root</strong> (lit). No box points back up; that loop would make it a <Term word="graph"><strong>graph</strong></Term>. A <em>binary</em> tree caps each node at two children.</>,
       }],
       detail: (
         <>
           <p>A <strong>tree</strong> is just nodes connected by pointers &mdash; the same idea as a chain where each box links to the next. The one new freedom: a node can hold <em>several</em> child links, not a single &ldquo;next.&rdquo; That&rsquo;s exactly what lets it branch.</p>
-          <p>There&rsquo;s one special starting box called the <strong>root</strong> (the lit node at the top). Every other node is reached by following child pointers <em>downward</em> from it. A key rule: no node ever points back up to a parent. If one did, you could go in circles &mdash; a <strong>cycle</strong> &mdash; and the structure would no longer be a tree; we&rsquo;d call that a <strong>graph</strong> instead.</p>
+          <p>There&rsquo;s one special starting box called the <strong>root</strong> (the lit node at the top). Every other node is reached by following child pointers <em>downward</em> from it. A key rule: no node ever points back up to a parent. If one did, you could go in circles &mdash; a <strong>cycle</strong> &mdash; and the structure would no longer be a tree; we&rsquo;d call that a <Term word="graph"><strong>graph</strong></Term> instead.</p>
           <p>A <em>binary</em> tree adds one more limit: each node may have at most two children, usually named <em>left</em> and <em>right</em>. Capping it at two looks like a small restriction, but it&rsquo;s what unlocks the tighter, faster operations we&rsquo;re about to meet.</p>
         </>
       ),
@@ -423,7 +423,7 @@ export const treesLesson: LessonSpec = {
       panels: [{
         left: 40, top: 20, width: 600, variant: "main", label: "When it fits",
         title: "Hierarchy, and sorted lookups with ranges.",
-        body: <>Reach for a <strong>tree</strong> whenever data is genuinely nested (below). Reach for a <strong>BST</strong> (or a balanced cousin like AVL / red-black) when you need fast lookups <em>and</em> sorted order &mdash; a <strong>hash map</strong> (a lookup table) jumps straight to one value in a single step no matter how big it gets &mdash; that always-one-step speed is written <strong>O(1)</strong> &mdash; but it keeps nothing in order. Databases use B-trees: a wide-branching BST.</>,
+        body: <>Reach for a <strong>tree</strong> whenever data is genuinely nested (below). Reach for a <strong>BST</strong> (or a balanced cousin like AVL / red-black) when you need fast lookups <em>and</em> sorted order &mdash; a <strong>hash map</strong> (a lookup table) jumps straight to one value in a single step no matter how big it gets &mdash; that always-one-step speed is written <Term word="O(1)"><strong>O(1)</strong></Term> &mdash; but it keeps nothing in order. Databases use B-trees: a wide-branching BST.</>,
       }],
       detail: (
         <>

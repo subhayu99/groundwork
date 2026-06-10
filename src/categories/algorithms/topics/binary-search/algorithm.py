@@ -20,5 +20,6 @@ def binary_search(arr: list[int], target: int) -> int:  # @sync: sig
 
 # Off-by-one is the gotcha. Two correct conventions:
 #   1. lo <= hi  with hi = len(arr) - 1   (this version)
-#   2. lo <  hi  with hi = len(arr)       (also valid; mid then bisects [lo, hi))
-# Pick one and stick with it.
+#   2. lo <  hi  with hi = len(arr)       (half-open [lo, hi); also valid)
+# In convention 2 the go-left step also changes: hi = mid, NOT mid - 1
+# (mid is already excluded, so don't subtract). Pick one and stick with it.

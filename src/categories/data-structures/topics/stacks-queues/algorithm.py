@@ -6,8 +6,8 @@
 history: list[str] = []      # @sync: sig
 history.append("home")       # push   — O(1) @sync: push
 history.append("inbox")      # push   — O(1)
-history.append("invoice")    # push   — O(1)
-last = history.pop()         # "invoice" — O(1) @sync: pop
+history.append("draft")      # push   — O(1)
+last = history.pop()         # "draft" — O(1) @sync: pop
 peek = history[-1]           # "inbox" without removing — O(1) @sync: peek
 
 

@@ -12,11 +12,12 @@ print(len(logged_in))           # 2
 
 logged_in.discard("bob")        # O(1), no error if missing @sync: set_discard
 
-# Set operations are O(min(|A|, |B|)) on average.
+# Set op costs differ: intersection O(min(|A|, |B|)),
+# union O(|A| + |B|), difference O(|A|) — on average.
 admins = {"alice", "carol"}
-both = logged_in & admins       # intersection @sync: set_ops
-either = logged_in | admins     # union
-only_a = logged_in - admins     # difference
+both = logged_in & admins       # intersection — O(min(|A|, |B|)) @sync: set_ops
+either = logged_in | admins     # union — O(|A| + |B|)
+only_a = logged_in - admins     # difference — O(|A|)
 
 
 # ===== Tuple: ordered, fixed-size, immutable =====
@@ -25,9 +26,12 @@ reading = ("2026-05-28", 47.5, 22.1)        # date, latitude, temperature @sync:
 date, lat, temp = reading                    # unpack by position @sync: tuple_unpack
 
 # You cannot mutate a tuple — that's the point.
-# reading[0] = "..."     ❌ TypeError
+try:
+    reading[0] = 99                          # attempt to change a slot @sync: tuple_immutable
+except TypeError:
+    pass                                     # tuples refuse — that's the point
 
 # Because tuples are immutable, they can be hash-map keys and set elements.
-seen: set[tuple[float, float]] = set()       # @sync: tuple_immutable
+seen: set[tuple[float, float]] = set()       # @sync: tuple_seen
 seen.add((47.5, 22.1))                       # OK — tuples hash @sync: tuple_key
 # seen.add([47.5, 22.1])                     ❌ lists don't hash

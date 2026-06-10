@@ -98,12 +98,12 @@ export const conditionalsLesson: LessonSpec = {
       ),
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "if — the first test", title: "if score >= 90:",
-        body: <>An <Term word="if">if</Term> is a <Term word="condition">condition</Term> &mdash; a yes/no test. <code>score &gt;= 90</code> with <code>score = 72</code> is <strong>False</strong>, so the indented <code>grade = &quot;A&quot;</code> never runs.</>,
+        body: <>An <Term word="if">if</Term> is a <Term word="condition">condition</Term> &mdash; a yes/no test. <code>score &gt;= 90</code> with <code>score = 72</code> is <strong>False</strong>, so the <Term word="indented">indented</Term> <code>grade = &quot;A&quot;</code> never runs.</>,
       }],
       detail: (
         <>
           <p>The <code>&gt;=</code> (&ldquo;greater than or equal&rdquo;) gives back a <Term word="boolean">boolean</Term> &mdash; <code>True</code> or <code>False</code>. <code>72 &gt;= 90</code> is <code>False</code>.</p>
-          <p>The <strong>indented</strong> lines under the <code>if</code> are its block. They run only when the test is True &mdash; here, they&rsquo;re skipped entirely.</p>
+          <p>The <strong>indented</strong> lines under the <code>if</code> are its <Term word="block">block</Term>. They run only when the test is True &mdash; here, they&rsquo;re skipped entirely.</p>
         </>
       ),
       codeLabels: ["if", "a"],
@@ -174,7 +174,7 @@ export const conditionalsLesson: LessonSpec = {
       }],
       detail: (
         <>
-          <p>You now have the two halves of every program: <strong>remember</strong> values (variables) and <strong>decide</strong> with them (conditions). Next we&rsquo;ll make the program <em>repeat</em> work with loops.</p>
+          <p>You now have the two halves of every program: <strong>remember</strong> values (variables) and <strong>decide</strong> with them (conditions). Next we&rsquo;ll make the program <em>repeat</em> the same steps with loops.</p>
         </>
       ),
       codeLabels: ["print"],

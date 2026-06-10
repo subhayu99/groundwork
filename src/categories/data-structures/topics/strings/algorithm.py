@@ -17,6 +17,6 @@ hello = "hi " + s             # "hi the quick brown fox" @sync: concat
 # 5. Searching for a substring — O(n * m) naive, O(n + m) with KMP.
 i = s.find("brown")           # 10, or -1 if absent @sync: find
 
-# 6. Cannot mutate in place — s[0] = "T" raises TypeError.
+# 6. Cannot mutate in place — s[0] = "H" raises TypeError.
 # Build a new string instead:
 caps = s.upper()              # "THE QUICK BROWN FOX" @sync: rebuild

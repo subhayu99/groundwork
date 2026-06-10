@@ -136,8 +136,8 @@ function ManualWalk({ api }: { api: BeatVisualApi }) {
   };
 
   const backUp = () => {
-    api.onInteractionDone();
     if (w.trail.length <= 1 || w.done) return;
+    api.onInteractionDone();
     const trail = w.trail.slice(0, -1);
     api.onActiveLine(["backtrack"]);
     setW({ ...w, current: trail[trail.length - 1], trail });
@@ -564,7 +564,7 @@ export const dfsLesson: LessonSpec = {
       label: "The operations",
       connector: "The rule is correct — but is it fast, and how much memory does all that diving cost?",
       actionLabel: "Same shape, new problems",
-      takeaway: "Each cell visited once — O(cells + walls); memory is the stack, as deep as the longest detour.",
+      takeaway: "Each cell visited once — O(cells + connections), i.e. O(V + E); memory is the stack, as deep as the longest detour.",
       visual: (api) => <AutoDfs api={api} showStack />,
       panels: [
         {
@@ -576,7 +576,7 @@ export const dfsLesson: LessonSpec = {
           title: "Each cell once. Memory grows with the deepest detour.",
           body: (
             <>
-              Work grows as <strong>O(cells + walls)</strong> &mdash; here a few dozen
+              Work grows as <strong>O(cells + connections)</strong> &mdash; here a few dozen
               checks, since the visited mark touches each cell once. Memory is the{" "}
               <strong>stack</strong>: paused calls waiting to resume. The live trail{" "}
               <span className="text-[var(--diff-easy)]">is</span> that stack &mdash; a
@@ -587,7 +587,7 @@ export const dfsLesson: LessonSpec = {
       ],
       detail: (
         <>
-          <p>Because every square gets marked visited the first time we stand on it, each square becomes the &ldquo;current&rdquo; square at most once. From each one we glance at its four neighbours. So the total work is <code>O(cells + walls)</code> &mdash; &ldquo;order cells-plus-walls&rdquo; just means the effort grows in step with how many squares there are plus how many connections we check between them. For a 5&times;5 grid that&rsquo;s a few dozen checks at the very most, not a million.</p>
+          <p>Because every square gets marked visited the first time we stand on it, each square becomes the &ldquo;current&rdquo; square at most once. From each one we glance at its four neighbours. So the total work is <code>O(cells + connections)</code> &mdash; &ldquo;order cells-plus-connections&rdquo; just means the effort grows in step with how many squares there are plus how many connections we check between them. (In graph terms that&rsquo;s the classic <code>O(V + E)</code>.) For a 5&times;5 grid that&rsquo;s a few dozen checks at the very most, not a million.</p>
           <p>Now the memory cost. Each unfinished call to <code>find_path_from</code> is paused, waiting for the deeper call it made to come back. Those paused calls pile up on a <strong>stack</strong> &mdash; a stack is just a pile where the last thing added is the first thing removed, like a stack of plates. There&rsquo;s one paused call per square along the current trail, so the trail you see on screen <em>is</em> the stack. If the deepest dead-end is twenty squares in, the stack grows twenty deep before the walker starts retreating.</p>
           <p>For a very wide, twisty maze that pile can get tall. Real systems sometimes replace the self-calling (recursive) walk with an explicit list of squares-still-to-visit that they manage by hand. It&rsquo;s the same algorithm &mdash; just different bookkeeping for where to go next.</p>
         </>

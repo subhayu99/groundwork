@@ -322,7 +322,7 @@ export const binarySearchLesson: LessonSpec = {
         base: (
           <>
             <p>Hold two markers: <code>lo</code> at the start and <code>hi</code> at the end of the part that could still contain the target &mdash; so the answer, if it exists, is somewhere in <code>[lo, hi]</code>.</p>
-            <p>Each round, look at the middle: <Term word="mid"><code>mid</code></Term> <code>= (lo + hi) / 2</code> (<Term word="//">rounded down to a whole index</Term>). Three outcomes:</p>
+            <p>Each round, look at the middle: <Term word="mid"><code>mid</code></Term> <code>= (lo + hi) // 2</code> (<Term word="//">rounded down to a whole index</Term>). Three outcomes:</p>
             <ul>
               <li><Term word="arr[i]"><code>arr[mid]</code></Term> <code>== target</code> &mdash; done, return <code>mid</code>.</li>
               <li><code>arr[mid] &lt; target</code> &mdash; the answer is to the right, move <code>lo = mid + 1</code>.</li>

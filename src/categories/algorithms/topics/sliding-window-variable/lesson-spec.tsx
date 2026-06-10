@@ -74,14 +74,14 @@ function AutoWindow({ api }: { api: BeatVisualApi }) {
       const ch = ARR[nextR];
       const prev = c.seen[ch];
       if (prev !== undefined && prev >= c.l) {
-        api.onActiveLine(["check", "contract"]);
+        api.onActiveLine(["expand", "check", "contract", "record", "update"]);
         setS({ ...c, l: prev + 1, seen: { ...c.seen, [ch]: nextR }, r: nextR, best: Math.max(c.best, nextR - (prev + 1) + 1), bestRange: nextR - (prev + 1) + 1 > c.best ? [prev + 1, nextR] : c.bestRange });
         return;
       }
       const seen = { ...c.seen, [ch]: nextR };
       const len = nextR - c.l + 1;
-      if (len > c.best) { api.onActiveLine(["record", "update"]); setS({ ...c, r: nextR, seen, best: len, bestRange: [c.l, nextR] }); }
-      else { api.onActiveLine(["expand"]); setS({ ...c, r: nextR, seen }); }
+      if (len > c.best) { api.onActiveLine(["expand", "record", "update"]); setS({ ...c, r: nextR, seen, best: len, bestRange: [c.l, nextR] }); }
+      else { api.onActiveLine(["expand", "record", "update"]); setS({ ...c, r: nextR, seen }); }
     }, pace(850));
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,7 +118,7 @@ function AutoWindow({ api }: { api: BeatVisualApi }) {
 
 /* ── static: the naive scan (one start, run grows rightward) ───────────────── */
 function NaiveScan() {
-  const start = 2, end = 5; // a frozen snapshot of "racad"-style scan from start=2
+  const start = 2, end = 5; // a frozen snapshot of "raca"-style scan from start=2
   const tones: (Tone | undefined)[] = ARR.map((_, i) => (i === start ? "muted" : i > start && i <= end ? "active" : undefined));
   const dim = ARR.map((_, i) => i < start || i > end);
   return (
