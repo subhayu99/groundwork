@@ -88,6 +88,10 @@ export function TopicPageClient({ categoryKey, topicKey }: Props) {
         initiallyCompleted={everCompleted}
         onComplete={() => {
           emitEvent({ type: "topic_completed", category: categoryKey, topic: topicKey });
+          // Full credit on completion REGARDLESS of register depth: a rigorous
+          // learner's 3-beat cut and an intuitive learner's full derivation both
+          // complete the TOPIC, so we stamp the unfiltered beat count — never a
+          // filtered subtotal that would read as "3 of 7".
           updateTopic(categoryKey, topicKey, (tp) => ({
             ...tp,
             derivation: {

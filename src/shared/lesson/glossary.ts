@@ -22,6 +22,34 @@ export const GLOSSARY: Record<string, string> = {
     "a bit more than one pass over the list — for a million items, about twenty million steps; the usual cost of a good sort.",
   "O(V+E)":
     "the work grows with the number of nodes (V) plus the number of connections (E) — you touch each one once.",
+  "O(V + E)":
+    "the work grows with the number of nodes (V) plus the number of connections (E) — you touch each one once.",
+  "O(cells + connections)":
+    "the work grows with the number of cells plus the number of links between them — each gets looked at just once.",
+  // composite sums — keyed in every spelling the lessons actually use (Term
+  // matches the exact string, so spaced and unspaced variants each need a key).
+  "O(n+m)":
+    "the work grows with the sizes of the two inputs added together — every item in both gets touched once.",
+  "O(n + m)":
+    "the work grows with the sizes of the two inputs added together — every item in both gets touched once.",
+  "O(m + n)":
+    "the work grows with the sizes of the two inputs added together — every item in both gets touched once.",
+  "O(j−i)":
+    "the work grows with the size of the slice you take — just the stretch from position i up to j, one step per item copied.",
+  "O(j-i)":
+    "the work grows with the size of the slice you take — just the stretch from position i up to j, one step per item copied.",
+  "O(j − i)":
+    "the work grows with the size of the slice you take — just the stretch from position i up to j, one step per item copied.",
+  "O(rows × cols)":
+    "the work grows with the total number of squares in the grid — rows times columns, each visited once.",
+  "O(r × c)":
+    "the work grows with the total number of squares in the grid — rows times columns, each visited once.",
+  "O(|A|+|B|)":
+    "the work grows with the two set sizes added together (|A| just means how many items A holds) — every item in both gets touched.",
+  "O(min(|A|,|B|))":
+    "the work grows with the size of the smaller of the two sets — you only scan the little one and look the rest up.",
+  "O(|A|)":
+    "the work grows with the number of items in set A alone — one look at each.",
 
   // ── Notation that shows up in code ─────────────────────────────────────────
   "arr[i]":

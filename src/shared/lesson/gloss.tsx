@@ -17,10 +17,29 @@ import { Term } from "./Term";
  * We list the exact GLOSSARY keys to auto-link (longest first so "O(log n)" wins
  * over "O(n)"), and deliberately OMIT short ambiguous keys (lo, hi, mid, L, R,
  * //) that would false-match inside ordinary words like "below" or "this".
+ *
+ * Composite cost shapes (O(V + E), O(n + m), …) are all parenthesized, so they
+ * can never false-match inside prose — every composite GLOSSARY key is listed,
+ * in each spelling the takeaways use, so any spine line that names one glosses
+ * it with zero per-topic work.
  */
 const AUTO_TOKENS = [
+  "O(cells + connections)",
+  "O(min(|A|,|B|))",
+  "O(rows × cols)",
+  "O(|A|+|B|)",
   "O(n log n)",
+  "O(j − i)",
+  "O(n + m)",
+  "O(m + n)",
+  "O(V + E)",
   "O(log n)",
+  "O(r × c)",
+  "O(V+E)",
+  "O(n+m)",
+  "O(j−i)",
+  "O(j-i)",
+  "O(|A|)",
   "O(n^2)",
   "O(n²)",
   "O(n)",

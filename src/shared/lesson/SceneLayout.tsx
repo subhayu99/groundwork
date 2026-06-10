@@ -37,6 +37,7 @@ export function SceneLayout({
   });
   const {
     VW, VH, PY, b, setB, last, beat, beats,
+    register, bridge,
     showCode, toggleCode, showDetail, setShowDetail,
     completed, areaRef, scale, gated, activeLines, visualNode,
     codeScrollRef, goNext,
@@ -84,6 +85,11 @@ export function SceneLayout({
   const mSvgRef = useRef<SVGSVGElement>(null);
   const [vShift, setVShift] = useState(0);
   const [mVShift, setMVShift] = useState(0);
+  const mainPanel = beat.panels.find((p) => p.variant !== "note");
+  // Title + body in the caption band ⇒ the band runs ~2 lines taller, so the
+  // content must clear more of the top (cap raised 58 → 84 design px; body is
+  // line-clamped to 3 so it can't grow past that).
+  const captionHasBody = mainPanel != null && mainPanel.title != null && mainPanel.body != null;
   useEffect(() => {
     // Authored (shift-independent) vertical extent of the real drawn content in a
     // canvas plane: union the RENDERED boxes of svg leaves + on-canvas notes, minus
@@ -118,7 +124,8 @@ export function SceneLayout({
       return Math.round(top - e.top);
     };
     const compute = () => {
-      const d = shiftFor(svgRef.current, 58);  // desktop: caption band overlays the top ~58 design px
+      // desktop: caption band overlays the top — ~58 design px title-only, ~84 with a clamped body
+      const d = shiftFor(svgRef.current, captionHasBody ? 84 : 58);
       if (d != null) setVShift(d);
       const m = shiftFor(mSvgRef.current, 12); // mobile: caption sits BELOW the hero, ~whole band free
       if (m != null) setMVShift(m);
@@ -127,16 +134,18 @@ export function SceneLayout({
     const ts = [120, 320, 540].map((d) => setTimeout(compute, d)); // converge as the per-beat fade settles
     window.addEventListener("resize", compute);
     return () => { ts.forEach(clearTimeout); window.removeEventListener("resize", compute); };
-  }, [b, beat.id, VW, VH]);
+  }, [b, beat.id, VW, VH, captionHasBody]);
   const shiftWrap = "transform .32s cubic-bezier(.22,.65,.3,1)";
 
-  // The "why?" card defaults open on beat 0, collapsed after — but ONCE THE
-  // LEARNER TOGGLES IT, the choice STICKS across every beat (like the code panel).
+  // The "why?" card defaults open on beat 0 and collapsed after — EXCEPT for the
+  // rigorous register, whose meat lives in `detail`: it defaults open on EVERY
+  // beat. Either way, ONCE THE LEARNER TOGGLES IT, their choice STICKS across
+  // every beat (like the code panel) — defaults never fight an explicit choice.
   const detailTouched = useRef(false);
   useEffect(() => {
     if (detailTouched.current) return;
-    setShowDetail(b === 0);
-  }, [b, setShowDetail]);
+    setShowDetail(register === "rigorous" ? true : b === 0);
+  }, [b, register, setShowDetail]);
   const toggleDetail = () => { detailTouched.current = true; setShowDetail((v) => !v); };
 
   // Align the flank content's TOP with the TOP of the diagram's caption band. The
@@ -174,7 +183,6 @@ export function SceneLayout({
   // Register-resolved beats from the engine — the spine shows the active
   // register's takeaways, not the raw (possibly variant-mapped) spec values.
   const spineLines = beats.map((bt) => bt.takeaway ?? bt.label ?? "");
-  const mainPanel = beat.panels.find((p) => p.variant !== "note");
   const advanceLabel = b === last
     ? (completed ? "Completed ✓" : "Finish ✓")
     : (beat.actionLabel ? `${beat.actionLabel} →` : "Next →");
@@ -193,9 +201,18 @@ export function SceneLayout({
           <div className="flex items-center gap-2 min-w-0">
             <span className="inline-block w-2.5 h-2.5 rotate-45 bg-[var(--accent-sky)] shrink-0" />
             <span className="font-mono text-[12.5px] uppercase tracking-[0.16em] text-[var(--text)] truncate">{spec.topicTitle}</span>
+            {/* principle stamp — "idea n of 7", linking into the principle page.
+                Hidden under sm so a tight row truncates the title, not the chrome. */}
+            {spec.principle && (
+              <Link href={`/principles/${spec.principle.key}`}
+                title={`One of the ${spec.principle.total} core ideas — read the principle`}
+                className="hidden sm:inline-flex items-center shrink-0 rounded-full border border-[var(--accent-line)] bg-[var(--accent-soft)] px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)] whitespace-nowrap hover:bg-[var(--bg-inset)] transition-colors">
+                idea {spec.principle.n} of {spec.principle.total}
+              </Link>
+            )}
             {beat.label && (
               <span className="hidden sm:inline font-mono text-[11.5px] tracking-wider text-[var(--text-muted)] truncate">
-                · step {b + 1}/{spec.beats.length} · <span className="uppercase font-semibold text-[var(--accent-ink)]">{beat.label}</span>
+                · step {b + 1}/{beats.length} · <span className="uppercase font-semibold text-[var(--accent-ink)]">{beat.label}</span>
               </span>
             )}
           </div>
@@ -238,6 +255,15 @@ export function SceneLayout({
           Desktop: [ hero diagram | flank ]. Mobile: one scroll column. */}
       <div className="flex-1 min-h-0 overflow-y-auto xl:overflow-hidden flex flex-col xl:flex-row gap-4 px-3 sm:px-5 pt-3 pb-2 min-w-0 justify-start xl:justify-center xl:items-center">
         <section className="min-w-0 flex flex-col gap-3 xl:flex-1 xl:min-h-0 xl:justify-center">
+          {/* bridge — "standing on the previous lesson", beat 0 only, above the
+              connector position (desktop; mobile gets its own copy above the
+              caption card). One truncating line, same quiet family as the connector. */}
+          {bridge && b === 0 && (
+            <div className="hidden xl:block shrink-0 px-1 text-[12.5px] italic leading-snug text-[var(--text-faint)] truncate">
+              <span className="not-italic font-mono text-[9.5px] uppercase tracking-wider">standing on · </span>
+              {bridge}
+            </div>
+          )}
           {/* connector lead-in — a quiet italic line above the box */}
           {beat.connector && (
             <AnimatePresence mode="wait">
@@ -265,6 +291,10 @@ export function SceneLayout({
                   className="hidden xl:block absolute top-0 inset-x-0 z-10 px-5 pt-3 pb-2.5 border-b border-[var(--accent-line)] bg-[color-mix(in_oklab,var(--accent-sky)_10%,var(--bg-card))]">
                   {mainPanel.label && <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">{mainPanel.label}</div>}
                   <div className="font-semibold text-[15px] leading-snug text-[var(--text)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono">{mainPanel.title ?? mainPanel.body}</div>
+                  {/* the authored body (prose + Term chips) — previously hidden whenever a title existed */}
+                  {captionHasBody && (
+                    <div className="text-[12.5px] leading-snug text-[var(--text-muted)] mt-0.5 line-clamp-3 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono">{mainPanel.body}</div>
+                  )}
                 </motion.div>
               </AnimatePresence>
             )}
@@ -333,10 +363,21 @@ export function SceneLayout({
                 </div>
               </div>
             </PanZoom>
+            {/* bridge (mobile) — above the caption card, beat 0 only */}
+            {bridge && b === 0 && (
+              <div className="px-1 text-[12.5px] italic leading-snug text-[var(--text-faint)] truncate">
+                <span className="not-italic font-mono text-[9.5px] uppercase tracking-wider">standing on · </span>
+                {bridge}
+              </div>
+            )}
             {mainPanel && (
               <div className="rounded-xl border border-[var(--accent-line)] bg-[color-mix(in_oklab,var(--accent-sky)_8%,var(--bg-card))] px-3.5 py-2.5">
                 {mainPanel.label && <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">{mainPanel.label}</div>}
                 <div className="font-semibold text-[14px] leading-snug text-[var(--text)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono">{mainPanel.title ?? mainPanel.body}</div>
+                {/* the authored body — previously hidden whenever a title existed */}
+                {captionHasBody && (
+                  <div className="text-[12.5px] leading-snug text-[var(--text-muted)] mt-0.5 line-clamp-4 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono">{mainPanel.body}</div>
+                )}
               </div>
             )}
             {showCode ? (
@@ -400,14 +441,14 @@ export function SceneLayout({
 
         <nav aria-label="lesson steps" className="hidden sm:block">
           <ol role="list" className="flex items-center gap-2">
-            {spec.beats.map((bt, i) => (
+            {beats.map((bt, i) => (
               <li key={bt.id}>
                 {/* Forward dots are disabled while a beat is gated, so the step-dots
                     can't be used to skip a required canvas interaction (only Back/
                     revisiting earlier steps stays free). */}
                 <button onClick={() => setB(i)} aria-current={i === b ? "step" : undefined}
                   disabled={gated && i > b}
-                  aria-label={`step ${i + 1} of ${spec.beats.length}${bt.label ? ": " + bt.label : ""}`}
+                  aria-label={`step ${i + 1} of ${beats.length}${bt.label ? ": " + bt.label : ""}`}
                   className="inline-flex items-center justify-center w-7 h-7 rounded-full disabled:opacity-40 disabled:cursor-not-allowed">
                   <span className={`block rounded-full transition-all ${i === b ? "w-3 h-3 ring-2 ring-offset-2 ring-offset-[var(--bg)] ring-[var(--accent)]" : "w-2.5 h-2.5"}`}
                     style={{ backgroundColor: i === b ? "var(--accent)" : "var(--line)" }} />
@@ -417,7 +458,7 @@ export function SceneLayout({
           </ol>
         </nav>
 
-        <span className="sm:hidden font-mono text-[11px] text-[var(--text-muted)]">{b + 1}/{spec.beats.length}</span>
+        <span className="sm:hidden font-mono text-[11px] text-[var(--text-muted)]">{b + 1}/{beats.length}</span>
         <div className="flex-1" />
 
         {/* single CODE / HIDE-CODE toggle (same place; highlighted when open) */}
@@ -463,7 +504,7 @@ export function SceneLayout({
       )}
 
       <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {`Step ${b + 1} of ${spec.beats.length}${beat.label ? ": " + beat.label : ""}${gated ? ". Interaction required: try it on the canvas to continue." : ""}`}
+        {`Step ${b + 1} of ${beats.length}${beat.label ? ": " + beat.label : ""}${gated ? ". Interaction required: try it on the canvas to continue." : ""}`}
       </div>
     </main>
   );

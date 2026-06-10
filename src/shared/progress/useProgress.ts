@@ -9,10 +9,21 @@ type Settings = ProgressState["settings"];
 
 const store = new ProgressStore();
 
+// Stamp the visit once per page load, not once per mounted hook instance —
+// many components call useProgress, and the store throttles besides.
+let visitTouchedThisLoad = false;
+
 export function useProgress() {
   const [state, setState] = useState<ProgressState | null>(null);
 
   useEffect(() => {
+    // Visit stamping lives HERE (a mount effect), never in store.load() —
+    // load stays a pure read. Runs before the first setState so this
+    // instance's snapshot already includes the fresh meta.
+    if (!visitTouchedThisLoad) {
+      visitTouchedThisLoad = true;
+      store.touchVisit();
+    }
     setState(store.load());
     // Re-read on any save (from this or any other useProgress instance) so all
     // consumers stay in sync — e.g. the lesson page reacts the moment the
@@ -72,5 +83,21 @@ export function useProgress() {
     store.importJson(json);
   }, []);
 
-  return { state, updateTopic, getTopic, updateSettings, setAudience, resetProgress, exportJson, importJson };
+  /** Manually re-stamp the visit (the mount effect already does this once per
+   *  page load; store-side throttling makes extra calls cheap). */
+  const touchVisit = useCallback(() => {
+    store.touchVisit();
+  }, []);
+
+  return {
+    state,
+    updateTopic,
+    getTopic,
+    updateSettings,
+    setAudience,
+    resetProgress,
+    exportJson,
+    importJson,
+    touchVisit,
+  };
 }

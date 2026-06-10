@@ -8,7 +8,12 @@ import {
 } from "@/shared/audience/types";
 import { entryHref, resolveRegister, ENTRY_TOPIC, personalizationFor, ASSUMED_CATEGORIES } from "@/shared/audience/policy";
 import { listAllTopics } from "@/categories/registry";
-import { resolveBeatForRegister, type LessonBeat } from "@/shared/lesson/types";
+import {
+  clampBeatIndex,
+  filterBeatsForAudience,
+  resolveBeatForRegister,
+  type LessonBeat,
+} from "@/shared/lesson/types";
 
 /**
  * Guards the audience-register contract: plain values pass through untouched,
@@ -101,6 +106,64 @@ describe("resolveBeatForRegister", () => {
     expect(r.codeLabels).toEqual(["sig"]);
     expect(r.arrows).toEqual(beat.arrows);
     expect(r.panels[0].left).toBe(1);
+  });
+});
+
+describe("depth-adaptive beat filtering", () => {
+  const mkBeat = (id: string, extra: Partial<LessonBeat> = {}): LessonBeat => ({
+    id,
+    visual: null,
+    panels: [],
+    ...extra,
+  });
+  const beats = [
+    mkBeat("hook", { registers: ["intuitive"] }),
+    mkBeat("core"),
+    mkBeat("proof", { registers: ["structured", "rigorous"] }),
+    mkBeat("recap", { trimOnRefresh: true }),
+  ];
+  const ids = (bs: LessonBeat[]) => bs.map((b) => b.id);
+
+  it("undefined registers ⇒ the beat appears for every register", () => {
+    for (const r of REGISTERS) {
+      expect(ids(filterBeatsForAudience(beats, r))).toContain("core");
+      expect(ids(filterBeatsForAudience(beats, r))).toContain("recap");
+    }
+  });
+
+  it("tagged beats appear only for their listed registers", () => {
+    expect(ids(filterBeatsForAudience(beats, "intuitive"))).toEqual(["hook", "core", "recap"]);
+    expect(ids(filterBeatsForAudience(beats, "structured"))).toEqual(["core", "proof", "recap"]);
+    expect(ids(filterBeatsForAudience(beats, "rigorous"))).toEqual(["core", "proof", "recap"]);
+  });
+
+  it("a register cut that would empty the lesson falls back to the full list", () => {
+    const only = [mkBeat("a", { registers: ["intuitive"] }), mkBeat("b", { registers: ["intuitive"] })];
+    expect(ids(filterBeatsForAudience(only, "rigorous"))).toEqual(["a", "b"]);
+  });
+
+  it("goal=refresh drops trimOnRefresh beats; other goals keep them", () => {
+    expect(ids(filterBeatsForAudience(beats, "structured", "refresh"))).toEqual(["core", "proof"]);
+    expect(ids(filterBeatsForAudience(beats, "structured", "understand"))).toEqual(["core", "proof", "recap"]);
+    expect(ids(filterBeatsForAudience(beats, "structured", "interview"))).toEqual(["core", "proof", "recap"]);
+    expect(ids(filterBeatsForAudience(beats, "structured"))).toEqual(["core", "proof", "recap"]);
+  });
+
+  it("the refresh trim never empties the lesson either", () => {
+    const all = [mkBeat("a", { trimOnRefresh: true }), mkBeat("b", { trimOnRefresh: true })];
+    expect(ids(filterBeatsForAudience(all, "structured", "refresh"))).toEqual(["a", "b"]);
+  });
+
+  it("filtering precedes the trim: register cut first, then refresh", () => {
+    // For intuitive+refresh: hook survives the register cut, recap is trimmed.
+    expect(ids(filterBeatsForAudience(beats, "intuitive", "refresh"))).toEqual(["hook", "core"]);
+  });
+
+  it("clampBeatIndex keeps the current step in range when the list shrinks", () => {
+    expect(clampBeatIndex(5, 3)).toBe(2); // register switch shrank 6 beats → 3
+    expect(clampBeatIndex(1, 3)).toBe(1); // in range — untouched
+    expect(clampBeatIndex(-1, 3)).toBe(0);
+    expect(clampBeatIndex(0, 0)).toBe(0); // degenerate list — never negative
   });
 });
 

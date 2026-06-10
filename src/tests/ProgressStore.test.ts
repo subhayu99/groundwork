@@ -38,17 +38,33 @@ describe("ProgressStore", () => {
     expect(reloaded.categories["algorithms"]["sliding-window"].derivation.currentStep).toBe(3);
   });
 
-  it("exportJson returns the current state as a JSON string", () => {
+  it("exportJson returns a versioned envelope as a JSON string", () => {
     const store = new ProgressStore();
     const json = store.exportJson();
     const parsed = JSON.parse(json);
-    expect(parsed.version).toBe(PROGRESS_SCHEMA_VERSION);
+    expect(parsed.v).toBe(PROGRESS_SCHEMA_VERSION);
+    expect(typeof parsed.exportedAt).toBe("string");
+    expect(parsed.state.version).toBe(PROGRESS_SCHEMA_VERSION);
   });
 
-  it("importJson rejects state with unsupported version", () => {
+  it("importJson SALVAGES a blob with an unsupported version instead of rejecting (H10)", () => {
     const store = new ProgressStore();
-    const bad = JSON.stringify({ version: 999, categories: {}, settings: {} });
-    expect(() => store.importJson(bad)).toThrow(/version/i);
+    const future = JSON.stringify({
+      version: 999,
+      categories: {
+        algorithms: {
+          "binary-search": {
+            derivation: { currentStep: 4, completedSteps: [1, 2, 3], revealedHints: [], completed: false },
+            problems: {},
+            customInputs: [],
+          },
+        },
+      },
+      settings: {},
+    });
+    expect(() => store.importJson(future)).not.toThrow();
+    const state = store.load();
+    expect(state.categories["algorithms"]["binary-search"].derivation.currentStep).toBe(4);
   });
 
   it("importJson merges by taking the more-complete topic state", () => {
