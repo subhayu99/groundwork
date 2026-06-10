@@ -1,3 +1,5 @@
+import type { AudienceProfile } from "@/shared/audience/types";
+
 export const PROGRESS_SCHEMA_VERSION = 1;
 
 export interface TopicProgress {
@@ -29,6 +31,10 @@ export interface ProgressState {
   version: number;
   lastUpdated: string;
   categories: Record<string, Record<string, TopicProgress>>;
+  /** The learner's onboarding profile (experience / register / goal). Undefined
+   *  until they complete or skip the questionnaire. Domain-agnostic + durable so
+   *  future domains reuse it without re-onboarding. */
+  audience?: AudienceProfile;
   settings: {
     theme: "system" | "light" | "dark";
     animationSpeed: "slow" | "normal" | "fast";

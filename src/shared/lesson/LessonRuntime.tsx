@@ -8,7 +8,8 @@ import { prepareCode, resolveLines } from "@/shared/code/syncAnchors";
 import { ArrowDefs, Arrow } from "./canvas";
 import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
 import { SceneLayout } from "./SceneLayout";
-import type { BeatVisualApi, LessonSpec } from "./types";
+import { resolveBeatForRegister, type BeatVisualApi, type LessonSpec } from "./types";
+import { useAudience } from "@/shared/audience/useAudience";
 
 /**
  * Renders any annotated-canvas LessonSpec: the per-beat visual + its on-plane
@@ -67,6 +68,16 @@ export function useLessonEngine(spec: LessonSpec, {
   const { width: VW, height: VH } = spec.canvas;
   const { code: PY, labelToLine } = useMemo(() => prepareCode(spec.codeSource), [spec.codeSource]);
 
+  // AUDIENCE REGISTER — resolve every beat's prose for the learner's active
+  // register (base fallback) before either layout sees it. The skeleton (visual,
+  // sync labels, interactions, geometry) passes through untouched, so a lesson
+  // with no register variants behaves exactly as before.
+  const { register } = useAudience();
+  const beats = useMemo(
+    () => spec.beats.map((bt) => resolveBeatForRegister(bt, register)),
+    [spec.beats, register],
+  );
+
   const [b, setB] = useState(0);
   // Calm by default: code starts hidden (content first — it never pops up to
   // scare a new learner), and auto-reveals on the final beat (the recap) unless
@@ -78,8 +89,8 @@ export function useLessonEngine(spec: LessonSpec, {
   const [liveLabels, setLiveLabels] = useState<(string | number)[] | null>(null);
   const [interacted, setInteracted] = useState<Record<string, boolean>>({});
   const [completed, setCompleted] = useState(!!initiallyCompleted);
-  const beat = spec.beats[b];
-  const last = spec.beats.length - 1;
+  const beat = beats[b];
+  const last = beats.length - 1;
 
   // Code follows the beat: shown on the last beat (the recap), hidden elsewhere —
   // until the learner clicks the code tab, after which their choice sticks.
@@ -169,7 +180,7 @@ export function useLessonEngine(spec: LessonSpec, {
 
   return {
     VW, VH, PY,
-    b, setB, last, beat,
+    b, setB, last, beat, beats,
     showCode, setShowCode, toggleCode,
     showDetail, setShowDetail,
     completed,

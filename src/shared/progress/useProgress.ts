@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ProgressStore } from "./ProgressStore";
 import { ProgressState, TopicProgress, emptyTopicProgress, emptyProgressState } from "./types";
+import type { AudienceProfile } from "@/shared/audience/types";
 
 type Settings = ProgressState["settings"];
 
@@ -56,6 +57,12 @@ export function useProgress() {
     store.save({ ...prev, settings: mutator(prev.settings) });
   }, []);
 
+  /** Set (or clear) the onboarding profile. `null` clears it (re-onboard). */
+  const setAudience = useCallback((profile: AudienceProfile | null) => {
+    const prev = store.load();
+    store.save({ ...prev, audience: profile ?? undefined });
+  }, []);
+
   const resetProgress = useCallback(() => {
     store.save(emptyProgressState());
   }, []);
@@ -65,5 +72,5 @@ export function useProgress() {
     store.importJson(json);
   }, []);
 
-  return { state, updateTopic, getTopic, updateSettings, resetProgress, exportJson, importJson };
+  return { state, updateTopic, getTopic, updateSettings, setAudience, resetProgress, exportJson, importJson };
 }

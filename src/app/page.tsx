@@ -38,18 +38,21 @@ export default function Landing() {
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              href="/learn"
+              href="/start"
               className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-[var(--bg)] hover:opacity-90 transition-opacity"
             >
               Start learning &rarr;
             </Link>
             <Link
-              href="/categories/algorithms/binary-search"
+              href="/learn"
               className="inline-flex items-center gap-2 rounded-xl border border-[var(--line)] px-5 py-3 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--line-strong)] transition-colors"
             >
-              Try Binary Search first &rarr;
+              Browse the map &rarr;
             </Link>
           </div>
+          <p className="mt-3 text-[12.5px] text-[var(--text-faint)]">
+            Three quick questions pick your starting point and how lessons are explained.
+          </p>
           <div className="mt-8 max-w-xl">
             <ResumeBanner />
           </div>

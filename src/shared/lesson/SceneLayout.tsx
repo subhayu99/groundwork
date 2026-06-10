@@ -9,6 +9,7 @@ import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
 import { useLessonEngine, type LessonRuntimeProps } from "./LessonRuntime";
 import { gloss } from "./gloss";
 import { PanZoom } from "./PanZoom";
+import { useAudience } from "@/shared/audience/useAudience";
 
 /**
  * The "one-scene" immersive layout (opt-in via `spec.layout === "scene"`).
@@ -35,7 +36,7 @@ export function SceneLayout({
     scaleClamp: { min: 0.4, max: 2.4, biasWidth: true, widthFill: 1.0 },
   });
   const {
-    VW, VH, PY, b, setB, last, beat,
+    VW, VH, PY, b, setB, last, beat, beats,
     showCode, toggleCode, showDetail, setShowDetail,
     completed, areaRef, scale, gated, activeLines, visualNode,
     codeScrollRef, goNext,
@@ -158,10 +159,21 @@ export function SceneLayout({
     return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
   }, [b, showCode]);
 
+  // Goal-aware hand-off: interview-prep learners get a direct line to the
+  // topic's practice problems on completion (derived from the first problem's
+  // href — its parent is the practice list).
+  const { profile } = useAudience();
+  const practiceListHref =
+    profile?.goal === "interview" && practice && practice.length > 0
+      ? practice[0].href.replace(/\/[^/]+\/?$/, "")
+      : null;
+
   const hasUnmetPrereq = !!prerequisites && prerequisites.some((p) => !p.completed);
   const showNudge = hasUnmetPrereq && !prereqDismissed && !initiallyCompleted && b === 0;
   const isSetup = b === 0;
-  const spineLines = spec.beats.map((bt) => bt.takeaway ?? bt.label ?? "");
+  // Register-resolved beats from the engine — the spine shows the active
+  // register's takeaways, not the raw (possibly variant-mapped) spec values.
+  const spineLines = beats.map((bt) => bt.takeaway ?? bt.label ?? "");
   const mainPanel = beat.panels.find((p) => p.variant !== "note");
   const advanceLabel = b === last
     ? (completed ? "Completed ✓" : "Finish ✓")
@@ -362,6 +374,11 @@ export function SceneLayout({
             <span aria-hidden="true">✓</span> Lesson complete
           </span>
           <div className="flex items-center gap-3 ml-auto">
+            {practiceListHref && (
+              <Link href={practiceListHref} className="font-mono text-[11px] uppercase tracking-wider text-[var(--accent-ink)] hover:text-[var(--text)]">
+                practice this topic
+              </Link>
+            )}
             <Link href="/learn" className="font-mono text-[11px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]">
               all modules
             </Link>

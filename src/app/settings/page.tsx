@@ -1,14 +1,19 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { Chrome } from "@/shared/layout/Chrome";
 import { useProgress } from "@/shared/progress/useProgress";
+import { useAudience } from "@/shared/audience/useAudience";
+import { EXPERIENCE_OPTIONS, GOAL_OPTIONS, REGISTER_OPTIONS } from "@/shared/audience/policy";
+import type { Experience, Goal, Register } from "@/shared/audience/types";
 
 type ThemeChoice = "system" | "light" | "dark";
 type MotionChoice = "system" | "reduce";
 
 export default function SettingsPage() {
   const { state, updateSettings, resetProgress, exportJson, importJson } = useProgress();
+  const { profile, onboarded, saveProfile } = useAudience();
   const theme: ThemeChoice = state?.settings.theme ?? "system";
   const motion: MotionChoice = state?.settings.reduceMotion ?? "system";
   const fileRef = useRef<HTMLInputElement>(null);
@@ -47,6 +52,47 @@ export default function SettingsPage() {
           preferences
         </div>
         <h1 className="text-4xl font-semibold text-[var(--text)] mb-10">Settings</h1>
+
+        <Section
+          title="Your path"
+          hint="Where you start, how lessons are explained, and what your path is optimized for — the same answers as the get-started questions."
+        >
+          {onboarded && profile ? (
+            <div className="flex flex-col gap-4">
+              <LabeledControl label="Experience">
+                <SegmentedControl<Experience>
+                  value={profile.experience}
+                  options={EXPERIENCE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+                  onChange={(v) => saveProfile({ ...profile, experience: v })}
+                />
+              </LabeledControl>
+              <LabeledControl label="Explanation style">
+                <SegmentedControl<Register>
+                  value={profile.register}
+                  options={REGISTER_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+                  onChange={(v) => saveProfile({ ...profile, register: v })}
+                />
+              </LabeledControl>
+              <LabeledControl label="Goal">
+                <SegmentedControl<Goal>
+                  value={profile.goal}
+                  options={GOAL_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+                  onChange={(v) => saveProfile({ ...profile, goal: v })}
+                />
+              </LabeledControl>
+              <Link href="/start" className="self-start font-mono text-[11px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]">
+                retake the questions →
+              </Link>
+            </div>
+          ) : (
+            <Link
+              href="/start"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] px-4 py-2.5 text-sm font-medium text-[var(--accent-ink)] hover:bg-[var(--bg-inset)] transition-colors"
+            >
+              Answer three quick questions to set up your path &rarr;
+            </Link>
+          )}
+        </Section>
 
         <Section title="Appearance" hint="Dark is the default. Light works everywhere; System follows your device.">
           <SegmentedControl<ThemeChoice>
@@ -119,6 +165,15 @@ export default function SettingsPage() {
 
 const btn =
   "min-h-[40px] px-4 py-2 rounded-lg font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--line-strong)] hover:text-[var(--text)] transition-colors";
+
+function LabeledControl({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)] mb-1.5">{label}</div>
+      {children}
+    </div>
+  );
+}
 
 function Section({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {
   return (
