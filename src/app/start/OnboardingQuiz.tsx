@@ -97,7 +97,7 @@ export function OnboardingQuiz() {
           </div>
           <div className="text-[12.5px] text-[var(--text-muted)]">
             {preview
-              ? <>ringed = where you&rsquo;ll start · faded = assumed from your background (always open for a refresh)</>
+              ? <>ringed = where you&rsquo;ll start · topics your background already covers are tucked away (one tap brings them back)</>
               : <>answer the first question and watch the map adapt to you</>}
           </div>
         </div>

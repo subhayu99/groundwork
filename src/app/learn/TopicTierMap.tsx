@@ -54,8 +54,28 @@ export function TopicTierMap({ personalize }: {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  // PERSONALIZED VIEW — explicit prop (live quiz answers) wins; otherwise derive
+  // from the saved profile, gated behind mount like every progress-driven style.
+  // Derived from the FULL topic list (assumed sets are defined against it).
+  const allTopics = useMemo(() => listAllTopics(), []);
+  const pz: MapPersonalization | undefined =
+    personalize ?? (mounted && profile ? personalizationFor(profile.experience, allTopics) : undefined);
+
+  // Assumed topics are REMOVED from the map (not faded) — a smaller map carries
+  // zero cognitive load for what you already know. One quiet toggle brings them
+  // back for a refresh; a completed topic always stays visible (progress > assumption).
+  const [showAssumed, setShowAssumed] = useState(false);
+  const rawCompleted = (t: TopicMeta) =>
+    !!(mounted && state?.categories[t.category]?.[t.key]?.derivation.completed);
+  const hiddenKeys = useMemo(() => {
+    if (!pz || showAssumed) return new Set<string>();
+    return new Set(allTopics.filter((t) => pz.assumedKeys.has(t.key) && !rawCompleted(t)).map((t) => t.key));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pz?.startKey, pz?.assumedKeys, showAssumed, allTopics, state, mounted]);
+  const hiddenCount = hiddenKeys.size;
+
   const { topics, byKey, tiers, maxLevel } = useMemo(() => {
-    const topics = listAllTopics();
+    const topics = allTopics.filter((t) => !hiddenKeys.has(t.key));
     const byKey = new Map<string, TopicMeta>(topics.map((t) => [t.key, t]));
     const memo = new Map<string, number>();
     const level = (k: string, seen = new Set<string>()): number => {
@@ -74,7 +94,9 @@ export function TopicTierMap({ personalize }: {
     const tiers: string[][] = Array.from({ length: maxLevel + 1 }, () => []);
     topics.forEach((t) => tiers[memo.get(t.key)!].push(t.key));
     return { topics, byKey, tiers, maxLevel };
-  }, []);
+    // levels/edges/ready all key off the VISIBLE byKey, so hiding a track
+    // re-tiers the rest automatically (a hidden prerequisite reads as satisfied).
+  }, [allTopics, hiddenKeys]);
 
   // deterministic positions — order each tier by the barycentre of its prereqs above
   const pos = useMemo(() => {
@@ -151,12 +173,12 @@ export function TopicTierMap({ personalize }: {
     return pa.y - pb.y || pa.x - pb.x;
   });
 
-  // PERSONALIZED VIEW — explicit prop (live quiz answers) wins; otherwise derive
-  // from the saved profile, gated behind mount like every progress-driven style.
-  const pz: MapPersonalization | undefined =
-    personalize ?? (mounted && profile ? personalizationFor(profile.experience, topics) : undefined);
-  const isAssumed = (k: string) => !!pz?.assumedKeys.has(k) && !completed(k);
+  // Faded "assumed" styling only applies in the show-all view (hidden otherwise).
+  const isAssumed = (k: string) => showAssumed && !!pz?.assumedKeys.has(k) && !completed(k);
   const isStart = (k: string) => pz?.startKey === k;
+  const toggleLabel = showAssumed
+    ? "hide the topics you already know"
+    : `+ ${hiddenCount} topic${hiddenCount === 1 ? "" : "s"} you already know — show`;
 
   const hl = hover ? new Set<string>([hover, ...(ancestors.get(hover) ?? [])]) : null;
   const H = TOP + maxLevel * ROW + 56;
@@ -287,6 +309,19 @@ export function TopicTierMap({ personalize }: {
           </section>
         ))}
       </div>
+
+      {/* the one escape hatch — known topics stay a tap away for a refresh */}
+      {pz && (hiddenCount > 0 || showAssumed) && (
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setShowAssumed((v) => !v)}
+            className="font-mono text-[11px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+          >
+            {toggleLabel}
+          </button>
+        </div>
+      )}
     </>
   );
 }
