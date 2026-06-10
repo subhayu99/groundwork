@@ -1,0 +1,314 @@
+[
+ {
+  "file": "agent-a4e8321faf3f1e881.jsonl",
+  "lens": "Curious 16-year-old, never coded, \"Keep it concrete\" + \"Understand deeply\" \u2014 drove landing \u2192 /start quiz \u2192 variables lesson (all 6 beats) \u2192 /learn map \u2192 mobile pass at 390\u00d7740.",
+  "n": 5,
+  "findings": [
+   {
+    "title": "Lesson end is a dead stop, not a launchpad",
+    "bucket": "learning-experience",
+    "why": "Clicking 'Finish' on variables beat 6 leaves the page sitting silently at that same beat with only a small bottom bar saying 'Lesson complete / Next: Constants \u2192'. No congratulation, no recap of what was just derived, no sense of momentum. The 'Next: Constants \u2192' button is present but competes with the still-visible code panel and lesson canvas \u2014 the reward signal is buried.",
+    "suggestion": "Replace the final beat state with a dedicated completion moment: a brief 'You derived X' summary screen (1\u20132 lines) with the principle it belongs to highlighted, a prominent 'Next lesson' CTA, and optionally a shareable card. This is also the natural insertion point for the spaced-review/streak hook from the prior roadmap.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "known-but-still-open"
+   },
+   {
+    "title": "Landing page leads with jargon principle names",
+    "bucket": "product",
+    "why": "The second thing a newcomer reads on the landing page (immediately below the hero, above the fold on most screens) is a 6-card grid with 'Monotonicity & Invariants', 'Amortization', 'Search Space Pruning'. These are the exact terms the May'26 audit called out as bouncing the Class-10 persona before they reach the great lessons \u2014 and they appear here before the user has clicked anything.",
+    "suggestion": "Swap the principles grid for the 3-step 'How a lesson works' explainer (which already exists lower on the page and is friendly: 'Start from a problem / Derive the idea / See the real code'), or replace principle names with plain-English taglines. Keep the jargon-named principles for after the user has opted in.",
+    "impact": "high",
+    "effort": "S",
+    "novelty": "known-but-still-open"
+   },
+   {
+    "title": "The map preview on /start is hidden below the fold",
+    "bucket": "learning-experience",
+    "why": "The intro copy on /start explicitly says 'watch the map below adapt as you answer' \u2014 but the map preview sits at y=662 in a 900-high viewport, fully below the fold without scrolling. Playwright confirmed the visible SVG at quiz-load is 40\u00d740px (a scroll indicator, not the map). A newcomer answering all 3 questions never sees the personalization payoff unless they think to scroll, making the most distinctive feature of the quiz invisible.",
+    "suggestion": "Either restructure the page so the map preview is visible alongside the questions (sticky side panel on desktop, collapsed accordion on mobile), or add a visible 'see your map' scroll anchor that activates as soon as the first question is answered.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "new"
+   },
+   {
+    "title": "/learn map answers 'what exists' but not 'what to do next week'",
+    "bucket": "product",
+    "why": "After finishing the variables lesson, the /learn map showed no resume banner (progress not reflected), no highlighted 'next recommended' node, and no time/effort signal ('~5 min per lesson', '8 lessons to arrays'). The description reads 'Start at the foundation and work down' but with 29 nodes visible and no current-position marker a newcomer cannot answer 'do I know what to do for the next 2 weeks?' \u2014 confirmed by the absent resume banner even immediately after lesson completion.",
+    "suggestion": "After a lesson completes, persist progress and highlight the next recommended node on the map with a 'you are here' ring and a '~N lessons to [milestone]' label. Even a simple 'continue where you left off' card at the top of /learn would close this gap for returning users.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "known-but-still-open"
+   },
+   {
+    "title": "Mobile map copy says 'hover' \u2014 a dead instruction on touch",
+    "bucket": "application",
+    "why": "The /learn page description reads 'Hover a topic to trace what it's made of' \u2014 visible on mobile at 390px where hover is impossible. The mobile map correctly switches to a vertical card list (which actually reads more clearly than the desktop graph), but the hover instruction remains, creating a broken promise for the device most teen users are on.",
+    "suggestion": "Change the copy to 'Tap a topic to trace what it builds on' on touch devices (detect via CSS pointer: coarse or a useIsMobile hook), and verify the tap-to-highlight prerequisite chain works on the mobile card layout as well as it does on desktop.",
+    "impact": "medium",
+    "effort": "S",
+    "novelty": "new"
+   }
+  ]
+ },
+ {
+  "file": "agent-a56c6b85c0ed431ff.jsonl",
+  "lens": "Product strategist \u2014 positioning, funnel, retention, moat, readiness for the multi-domain + freemium vision",
+  "n": 5,
+  "findings": [
+   {
+    "title": "Analytics is a console.debug stub; funnel is blind",
+    "bucket": "product",
+    "why": "src/shared/analytics/events.ts defines a full event taxonomy but emitEvent only console.debugs, and the just-shipped /start quiz emits zero events (no quiz started/completed/skipped, no register/goal distribution) \u2014 land\u2192quiz\u2192first-lesson\u2192completion conversion is unmeasurable the very week the front door shipped.",
+    "suggestion": "Point emitEvent at a privacy-light, cookieless sink (Plausible/PostHog) and add onboarding + completion-hand-off events; this is the cheapest move and it de-risks every other bet (register fan-out, retention, second domain) by replacing guesses about where the funnel leaks with data.",
+    "impact": "high",
+    "effort": "S",
+    "novelty": "new"
+   },
+   {
+    "title": "Quiz promises register-aware prose; 1 of 29 lessons delivers",
+    "bucket": "product",
+    "why": "Q2 'Explanation style' implies the whole product adapts, but only algorithms/binary-search has reg() variants \u2014 the two entry lessons the quiz actually routes most users into (variables, arrays) silently ignore the choice, and a learner has no way to tell it isn't working.",
+    "suggestion": "Fan registers out along the three ENTRY_TOPIC paths first (first ~3 lessons per route) so every quiz-routed user sees their choice take effect on lesson one; until coverage lands, scope the promise honestly in the quiz hint. De-risks the new front door's credibility.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "new"
+   },
+   {
+    "title": "Still zero reason to ever return; ship re-derivation shelf",
+    "bucket": "product",
+    "why": "Completion hand-off chains within-session ('Next: X') but nothing pulls cross-session \u2014 no review queue, streak, email, or notification (Phase 7 unstarted; assessment scored reason-to-return 3/10) \u2014 while per-topic lastTouched/completed fields needed to drive one already exist in ProgressState.",
+    "suggestion": "Build the Groundwork-native loop, not a guilt streak: a 'due for re-derivation' shelf on home/resume ('Can you still derive Binary Search? 4 days since you built it') computed from existing fields, client-only. Retrieval practice and the freemium come-back mechanic are the same feature; it de-risks both.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "known-but-still-open"
+   },
+   {
+    "title": "localStorage-only identity is a silent churn bomb",
+    "bucket": "product",
+    "why": "The entire learner \u2014 progress and audience profile \u2014 is one localStorage blob with no backend; Safari evicts script-writable storage after ~7 days without a visit, and any device loss or browser switch zeroes the user, exactly when a future return loop would recall them. The only mitigation is manual JSON export on /progress, which is grunt work nobody will do.",
+    "suggestion": "Minimum-viable durability: magic-link email (or anonymous sync-code) backed by a tiny KV store that syncs the existing blob as-is. One build creates the identity layer freemium requires, the email channel retention needs, and multi-device safety \u2014 the single biggest de-risk of the commercial vision.",
+    "impact": "high",
+    "effort": "L",
+    "novelty": "known-but-still-open"
+   },
+   {
+    "title": "Interview-goal users self-identify, then hit empty practice shelf",
+    "bucket": "product",
+    "why": "The quiz now captures goal=interview and SceneLayout's hand-off routes them to 'practice this topic' \u2014 but inventory is 45 easy / 45 medium / 17 foundation / 0 hard, 1\u20132 problems per topic, so the most monetizable segment exhausts Groundwork in a sitting and finishes the job on NeetCode/LeetCode.",
+    "suggestion": "Deepen practice for that segment before adding breadth: an opt-in hard tier (the assessment's protected-core resolution keeps beginners safe) plus letting the hand-off record external solves so Groundwork remains the home base. De-risks the paying segment's reason to stay \u2014 the moat at the moment of highest intent.",
+    "impact": "high",
+    "effort": "L",
+    "novelty": "known-but-still-open"
+   }
+  ]
+ },
+ {
+  "file": "agent-a955dc6f5011f5eba.jsonl",
+  "lens": "Staff frontend engineer \u2014 IA/navigation, mobile experience, perceived performance, robustness, polish",
+  "n": 5,
+  "findings": [
+   {
+    "title": "Mobile /start map preview is 2999px \u2014 unusable",
+    "bucket": "application",
+    "why": "At 390px the stacked-band fallback (hidden lg:block SVG is replaced by the mobile band view) renders all 29 topics linearly: measured page scrollHeight is 3792px, the map section alone is 2999px tall. The map header ('YOUR MAP \u00b7 UPDATES AS YOU ANSWER') sits at y=748, barely in the viewport, with no visual cue that it is scrollable or that the personalized start chip is somewhere inside it. A user who answers Q1 must scroll ~1000px to reach their highlighted starting point \u2014 the key payoff of the live preview never lands on the device where most word-of-mouth traffic arrives.",
+    "suggestion": "Cap the mobile map preview to a fixed-height (e.g., max-h-[60vh] overflow-y-auto) scrollable band, auto-scroll to the personalised start chip whenever the experience answer changes, and add a small 'your start: Variables \u2192' inline line directly under the quiz so the answer is immediately visible without any scroll.",
+    "impact": "high",
+    "effort": "S",
+    "novelty": "new"
+   },
+   {
+    "title": "/progress is a data dump \u2014 no path forward for any user state",
+    "bucket": "product",
+    "why": "Live check and screenshot confirm the page opens with '0 of 29 topics completed', a flat alphabetical list of all 29 topics all reading 'not started', and two utility buttons (Export/Import). There is no resume CTA, no recommended next topic, no link to /start for a new user, and no grouping by track. For a returning learner it shows nothing actionable \u2014 the only nav away is the Chrome header. Playwright confirmed: hasResume=false, hasRecommended=false, hasStartHere=false. The ResumeBanner (which does have recency logic) appears only on the home page, not here.",
+    "suggestion": "Add a top section with three context-sensitive slots: (1) a ResumeBanner-style 'Continue: [topic]' for in-progress learners, (2) a 'Start here: Variables \u2192' CTA for zero-progress users, and (3) group the list by track (Basics / Data Structures / Algorithms) with per-track completion counts so the list reads as structured progress rather than a flat dump.",
+    "impact": "high",
+    "effort": "S",
+    "novelty": "new"
+   },
+   {
+    "title": "Q2 (register) promise breaks immediately \u2014 only 1 of 29 lessons adapted",
+    "bucket": "product",
+    "why": "The quiz presents 'Keep it concrete / Balanced / Go rigorous' as the explanation style choice and the /start copy says 'how every lesson is pitched'. Code inspection confirms only algorithms/binary-search/lesson-spec.tsx uses register-aware prose (intuitive/rigorous variants). All 28 other lessons deliver the same text regardless of answer. A 'Keep it concrete' user who completes binary-search and moves to Variables, Arrays, or any other topic receives the same default prose as a 'Go rigorous' user \u2014 the core promise of Q2 fails at the second lesson visited.",
+    "suggestion": "Either (a) scope Q2 to only binary-search in the quiz UI (label it 'pilot lesson') and expand the promise only as more lessons are converted, so the quiz doesn't over-promise, or (b) add a lightweight register-aware prose layer to the 8 highest-traffic topics before expanding further \u2014 but do not keep 28 silent lessons behind a 'how it's pitched' promise.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "new"
+   },
+   {
+    "title": "Lesson pages have no persistent site nav \u2014 mobile dead-end after Back",
+    "bucket": "application",
+    "why": "Playwright confirms chromeHeader=false on lesson pages: the lesson uses its own action bar (Back \u2190 | 1/7 | </> code | Next \u2192) with no Chrome shell at all. On mobile, the Back button at the bottom-left navigates to the previous beat, not to the map or any site page. The only site-level escape is the breadcrumb in the top bar (BINARY SEARCH \u00b7 FIND 27), which taps back to the category index. There is no 'all topics' or map link visible from inside a lesson on mobile. A learner who finishes and taps Back repeatedly will eventually reach beat 1 with no visible way to navigate elsewhere without knowing the breadcrumb is tappable.",
+    "suggestion": "Add a single tap target in the lesson header (the breadcrumb area) that explicitly reads '\u2190 Map' or 'All topics' and links to /learn \u2014 on mobile this should be a full-row tappable element, not a 9px breadcrumb. The completion hand-off already has 'all modules' (good), but users who abandon mid-lesson have no equivalent.",
+    "impact": "high",
+    "effort": "S",
+    "novelty": "known-but-still-open"
+   },
+   {
+    "title": "/start is invisible in Chrome nav \u2014 re-onboarding is hard to find",
+    "bucket": "application",
+    "why": "Chrome.tsx renders three nav links: learn / progress / settings. /start does not appear. The only discovery paths for re-onboarding are: (1) the home page hero CTA 'Start learning \u2192', and (2) Settings > 'retake the questions \u2192' (a small mono link near the bottom). A returning learner who wants to update their profile after gaining experience has to either navigate home (not an obvious destination from inside a lesson) or know to open Settings. Playwright confirmed /start does not appear in any Chrome nav element across any route.",
+    "suggestion": "Add a 'path' or profile indicator to the Chrome nav that either links directly to /start or opens a small popover showing the current answers with a 'change \u2192' link \u2014 this doubles as a persistent personalization reminder and makes re-onboarding one tap from anywhere in the app.",
+    "impact": "medium",
+    "effort": "S",
+    "novelty": "new"
+   }
+  ]
+ },
+ {
+  "file": "agent-a9642eebc544d77d8.jsonl",
+  "lens": "Skeptical developer prepping for FAANG interviews (knows 70% of DSA, chose \"I know DSA + Go rigorous + Interview prep\" in onboarding)",
+  "n": 5,
+  "findings": [
+   {
+    "title": "Register conversion is 1/29 \u2014 rigorous is a lie",
+    "bucket": "learning-experience",
+    "why": "Only binary-search has `reg()` calls in its lesson-spec. All 28 other lessons \u2014 including every high-value algorithm topic like dp-1d, monotonic-stack, BFS/DFS, backtracking \u2014 serve identical base prose regardless of the learner's declared register. An interview-prep user who says 'Go rigorous' gets the same metaphor-heavy phone-book framing on every topic after binary-search as a 10th-grader would.",
+    "suggestion": "Before expanding to new topics, systematically convert the 8\u201310 highest-traffic algorithm lessons (dp-1d, monotonic-stack, two-pointers, sliding-window, mergesort at minimum) to use `reg()` for at least the `detail` and `takeaway` fields; a rigorous detail is far cheaper to write than a new lesson-spec.",
+    "impact": "high",
+    "effort": "L",
+    "novelty": "new"
+   },
+   {
+    "title": "Why-card closes after beat 0 \u2014 rigorous prose is hidden",
+    "bucket": "learning-experience",
+    "why": "SceneLayout sets `showDetail(b === 0)` on every beat change unless the user has manually toggled it. So the 'why?' card \u2014 which in rigorous mode contains the invariant proof, the recurrence, the off-by-one warning \u2014 is open on beat 1 then silently collapses on beat 2 and every subsequent beat. The Playwright run confirmed the panel text was empty mid-lesson; the rigorous content IS there in the code but requires the learner to re-open it on every step, defeating the 'detail stays with you' intent.",
+    "suggestion": "Change the default so `showDetail` stays true across beats for users whose register is 'rigorous' (or simply make the initial default `true` and only auto-close for 'intuitive'); the detail card earns its width for rigorous learners and should never auto-collapse.",
+    "impact": "high",
+    "effort": "S",
+    "novelty": "new"
+   },
+   {
+    "title": "Practice is 1\u20132 problems per topic \u2014 not interview-grade",
+    "bucket": "application",
+    "why": "The code shows 1\u20132 practice problems on every algorithm topic (binary-search: 2, dp-1d: 1, two-pointers: 1, monotonic-stack: 2). These are scaffold problems (the exact textbook examples from the lesson itself). There is no difficulty graduation (no hard problems), no category-level 'now mix these patterns' problem set, and the practice page is entirely self-graded via a 'mark solved' button with no connection to an actual coding environment \u2014 just a collapsible solution to read.",
+    "suggestion": "For each topic, add 1 harder variant problem that requires adapting the pattern (e.g. binary-search-on-answer for a capacity/shipping problem), and surface the LeetCode/NeetCode links that already exist in next-steps.ts directly inside the practice page's CTA row \u2014 the links are written but never shown in-lesson.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "new"
+   },
+   {
+    "title": "/learn has no interview-prep filter or time estimate",
+    "bucket": "product",
+    "why": "After finishing binary-search, clicking 'all modules' lands on /learn which is a flat dependency map of all 29 topics with no concept of a curated interview path, estimated hours, or completion target. The onboarding goal ('interview prep') is stored in profile but unused on this page. A user asking 'what should I do this week to be ready in 2 weeks?' gets no answer \u2014 just a full lattice starting from Variables.",
+    "suggestion": "Add an interview-prep overlay mode to /learn (toggle, not separate page) that highlights the ~12 core algorithm topics, collapses assumed-known topics for 'I know DSA', and shows a rough '~3h total remaining' estimate \u2014 this uses profile data already stored and the existing 'assumed' rendering already implemented on the map.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "new"
+   },
+   {
+    "title": "Completion hand-off dead-ends if lesson replayed",
+    "bucket": "product",
+    "why": "The 'Lesson complete / practice this topic' banner appears only when `completed && b === last` together. If a user revisits a completed lesson (common for interview revision), they land at beat 1 not beat 7, so they never see the banner or the practice link again unless they step all the way through. Separately, the practice link in the banner is gated on `profile?.goal === 'interview'` \u2014 a user who didn't do onboarding, or came in via a direct URL, never sees it.",
+    "suggestion": "Show a persistent 'practice problems' entry point in the lesson action bar (e.g. next to the code toggle) whenever `initiallyCompleted` is true, regardless of current beat and goal \u2014 not only on final beat, not only for interview goal.",
+    "impact": "medium",
+    "effort": "S",
+    "novelty": "new"
+   }
+  ]
+ },
+ {
+  "file": "agent-ab2c9a231a82f4991.jsonl",
+  "lens": "learning scientist",
+  "n": 5,
+  "findings": [
+   {
+    "title": "Beats never ask the learner to predict before revealing",
+    "bucket": "learning-experience",
+    "why": "BeatInteraction is only none|playback|wedge, and the one wedge gate fires api.onInteractionDone() on ANY click before the bounds check (ClickToHalve line 25; HashAddress likewise) \u2014 so 'completed' means clicked-through, and the perfect Socratic prompts already authored ('how many guesses until one page remains?') sit in note panels as rhetorical text. Variables has zero interactions across 6 beats; the flagship binary-search has one gated click in 7.",
+    "suggestion": "Build planned Phase 4's 'prediction' interaction, seeded by converting the existing rhetorical connector/note questions into 3-choice tap-to-predict overlays before the reveal (generation effect + immediate feedback); the authoring cost is lower than the plan assumes because the questions already exist. Also make wedge gates require a meaningful interaction (e.g. actually finding 27), not any click.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "known-but-still-open"
+   },
+   {
+    "title": "Practice 'solved' is self-reported; no learner output is ever checked",
+    "bucket": "application",
+    "why": "ProblemView marks 'attempted' on page render and 'solved' via a button, with the full solution one click away \u2014 the learner never produces anything the system can verify, and hintsUsed is recorded but unused. For a 'REAL code' platform, the practice loop contains zero generative work and zero feedback.",
+    "suggestion": "Add cheap verifiable responses that fit zero-grunt-work: predict-the-output MCQs on a fresh input, Parsons-style reordering of the existing solution lines, or 'which line breaks on this edge case' \u2014 instantly checkable without a code judge (Pyodide later if desired). Gate 'solved' on at least one verified response.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "new"
+   },
+   {
+    "title": "No spacing or return trigger; takeaway spine is an unmined review bank",
+    "bucket": "product",
+    "why": "ProgressState remembers only completion booleans and lastTouched \u2014 no review schedule, due items, or streak \u2014 so nothing brings a learner back on day 3/14 and the derived schemas decay (flagged May'26, Phase 7 still unchecked). Meanwhile every beat already has a register-resolved one-line takeaway, a ready-made retrieval-card bank requiring zero new authoring.",
+    "suggestion": "Auto-derive a '60-second recall' deck per completed topic (prompt = beat label/connector question, answer = takeaway), schedule with simple expanding intervals, and surface '2 topics due' on home/learn \u2014 the PWA gives this a natural installed surface and doubles as the streak/return loop.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "known-but-still-open"
+   },
+   {
+    "title": "All practice is blocked; pattern discrimination is never trained",
+    "bucket": "application",
+    "why": "Every problem lives under its labeled topic ('binary search \u00b7 practice') and hints name the technique immediately, so the learner never has to decide WHICH pattern applies \u2014 the single most transfer-critical skill for the goal=interview users the new onboarding explicitly profiles. The 'name the pattern' beat teaches trigger cues but nothing ever exercises them; blocked practice is known to inflate fluency while interleaving builds discrimination.",
+    "suggestion": "Add a 'mixed set' mode sampling the 23 existing problems.tsx files across completed topics with the topic label stripped: first question is 'which pattern?' (tap one of N, using the cue lists already authored in the final beats), then hand off to the normal problem view. Nearly free content-wise.",
+    "impact": "high",
+    "effort": "S",
+    "novelty": "new"
+   },
+   {
+    "title": "Map asserts mastery from watching and unverified self-report",
+    "bucket": "product",
+    "why": "derivation.completed flips true by advancing past the last beat, and onboarding fades whole tracks as 'assumed' from one self-report answer \u2014 so the personalized map's claims rest on no evidence at either end, and a topic completed once reads as known forever. The KEY failure mode: a knows-dsa user who overestimates themselves gets routed past gaps with no way to discover it.",
+    "suggestion": "Once checkpoint/recall items exist (findings 1/3), reuse them as an optional 2-minute 'prove it' test-out on assumed tracks and as a decay state on the map (completed topic with stale recall shows a quiet 'refresh?' ring instead of solid done) \u2014 calibration without blocking anyone.",
+    "impact": "medium",
+    "effort": "S",
+    "novelty": "new"
+   }
+  ]
+ },
+ {
+  "file": "agent-ac8aad58ff6fa2d50.jsonl",
+  "lens": "curriculum editor \u2014 do 29 lessons read as one authored course?",
+  "n": 5,
+  "findings": [
+   {
+    "title": "Lessons never stand on the previous lesson's result",
+    "bucket": "learning-experience",
+    "why": "Grep across all 29 lesson-specs finds zero backward references: binary-search opens on a phone book without recalling the arrays lesson's base+i*size jump that makes probing mid free, and dp-1d re-defines recursion inline despite Recursion being a completed prerequisite. TopicMeta.bridgeFrom (src/shared/derivation/types.ts:42, 'a prior topic to bridge from in derivation') exists in the type but is used by zero topics and read by zero components.",
+    "suggestion": "Implement bridgeFrom as a small shared, register-aware 'standing on' line in each setup beat ('You built sorted rows in Arrays \u2014 the one-step jump to any slot is why probing the middle is free'), authored for the ~20 prerequisite edges along the spine first.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "new"
+   },
+   {
+    "title": "Seven-ideas thesis is invisible inside most lessons",
+    "bucket": "learning-experience",
+    "why": "The landing page sells 'the seven ideas underneath every algorithm', but only ~5 of 29 specs name their principle, via ad-hoc inline divs (dp-1d:321, sliding-window:291); binary-search \u2014 the gold lesson \u2014 never names its assigned search-space-pruning and instead stamps 'monotonicity', a different principle; 17/29 topics have principles:[] and /principles pages are one sentence plus bare links.",
+    "suggestion": "Make a shared PrincipleStamp primitive a required part of every 'The pattern' beat ('Idea 2 of 7 \u2014 eliminate half each step; also powers Backtracking, Monotonic Stack') computed from existing meta, and surface 'ideas collected: n/7' in progress so the course's promised thesis is what learners feel themselves completing.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "new"
+   },
+   {
+    "title": "Category pages list topics; tracks never tell their story",
+    "bucket": "application",
+    "why": "Live /categories/algorithms renders one sentence ('Patterns that emerge from combining first principles.') and 12 unordered cards \u2014 no numbering, no minutes, no progress ticks, no entry CTA \u2014 even though each track genuinely has an authored arc and its own beat ritual (basics: syntax walkthrough; DS: structure\u2192operations\u2192when-it-fits; algorithms: 7-beat derivation) that no page ever states.",
+    "suggestion": "Turn each category page into a chapter page: a 2-3 sentence track narrative ('by the end you can price any operation and pick the structure'), the topics as a numbered sequence with minutes and completion state, and a start/resume-here CTA consistent with the personalized map.",
+    "impact": "high",
+    "effort": "S",
+    "novelty": "new"
+   },
+   {
+    "title": "Tracks end without a capstone or checkpoint moment",
+    "bucket": "product",
+    "why": "The completion bar hands off lesson-to-lesson in registry order (SceneLayout.tsx:386 'Next: {name}'), so finishing try-except silently rolls into Arrays with no 'Chapter 1 done \u2014 here is what you can now do' moment, and finishing the final topic dead-ends at 'Explore the map'; the assessment's end-of-lesson retrieval checkpoint and return loop remain unbuilt.",
+    "suggestion": "Add a per-track checkpoint page at each category boundary: recap the track's principle stamps, 3-5 retrieval questions reusing the existing practice plumbing, then a ceremonial hand-off into the next track \u2014 creating the intro\u2192topics\u2192capstone rhythm and the product's first natural milestone/return moments.",
+    "impact": "high",
+    "effort": "M",
+    "novelty": "known-but-still-open"
+   },
+   {
+    "title": "Register fan-out has a voice spec but no narrative contract",
+    "bucket": "learning-experience",
+    "why": "REGISTER_VOICE in src/shared/audience/policy.ts pins tone per register but nothing pins course structure \u2014 opening ritual (problem before name), the recall line, the principle stamp, per-track beat skeletons \u2014 and the binary-search pilot already shows variants rewriting titles/takeaways per beat; multiplying 28 topics by 3 registers against a tone-only spec risks tripling today's incohesion.",
+    "suggestion": "Before the fan-out, write a one-page per-track narrative contract (beat skeleton, required opening/closing moves, recall + stamp slots, banned moves like naming the pattern early) next to REGISTER_VOICE, and enforce the checkable parts (beat labels, stamp presence) in the existing vitest suite so every generated variant is born cohesive.",
+    "impact": "high",
+    "effort": "S",
+    "novelty": "new"
+   }
+  ]
+ }
+]
