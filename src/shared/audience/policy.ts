@@ -61,6 +61,36 @@ export const ENTRY_TOPIC: Record<Experience, { category: string; topic: string }
   "knows-dsa": { category: "algorithms", topic: "binary-search" },
 };
 
+/** Categories a learner's experience lets us assume they already know. The map
+ *  renders these quiet ("assumed") rather than hiding them — everything stays
+ *  one tap away for a refresh. */
+export const ASSUMED_CATEGORIES: Record<Experience, string[]> = {
+  "new-to-code": [],
+  "code-some": ["programming-basics"],
+  "knows-dsa": ["programming-basics", "data-structures"],
+};
+
+/** How the topic map personalizes to a learner: where they start, what's assumed. */
+export interface MapPersonalization {
+  /** Topic key to ring as the personalized starting point. */
+  startKey: string;
+  /** Topic keys assumed-known from experience (rendered faded, still clickable). */
+  assumedKeys: ReadonlySet<string>;
+}
+
+/** Derive the map view for an experience level. `topics` is the registry list
+ *  (passed in so this stays a pure, testable function). */
+export function personalizationFor(
+  experience: Experience,
+  topics: { key: string; category: string }[],
+): MapPersonalization {
+  const assumedCats = new Set(ASSUMED_CATEGORIES[experience]);
+  return {
+    startKey: ENTRY_TOPIC[experience].topic,
+    assumedKeys: new Set(topics.filter((t) => assumedCats.has(t.category)).map((t) => t.key)),
+  };
+}
+
 /** Resolve the active content register from a profile (or the default pre-onboarding). */
 export function resolveRegister(profile: AudienceProfile | undefined): Register {
   return profile?.register ?? DEFAULT_REGISTER;

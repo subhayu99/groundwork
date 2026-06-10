@@ -6,7 +6,8 @@ import {
   DEFAULT_REGISTER,
   REGISTERS,
 } from "@/shared/audience/types";
-import { entryHref, resolveRegister, ENTRY_TOPIC } from "@/shared/audience/policy";
+import { entryHref, resolveRegister, ENTRY_TOPIC, personalizationFor, ASSUMED_CATEGORIES } from "@/shared/audience/policy";
+import { listAllTopics } from "@/categories/registry";
 import { resolveBeatForRegister, type LessonBeat } from "@/shared/lesson/types";
 
 /**
@@ -117,5 +118,34 @@ describe("routing policy", () => {
     expect(entryHref(undefined)).toBe(
       `/categories/${ENTRY_TOPIC["new-to-code"].category}/${ENTRY_TOPIC["new-to-code"].topic}`,
     );
+  });
+});
+
+describe("map personalization", () => {
+  const topics = listAllTopics();
+
+  it("rings the entry topic and assumes exactly the experience's covered categories", () => {
+    const pz = personalizationFor("knows-dsa", topics);
+    expect(pz.startKey).toBe("binary-search");
+    const assumedCats = new Set(
+      topics.filter((t) => pz.assumedKeys.has(t.key)).map((t) => t.category),
+    );
+    expect([...assumedCats].sort()).toEqual(["data-structures", "programming-basics"]);
+    // every topic of an assumed category is in the set — no stragglers
+    for (const t of topics) {
+      const should = ASSUMED_CATEGORIES["knows-dsa"].includes(t.category);
+      expect(pz.assumedKeys.has(t.key)).toBe(should);
+    }
+  });
+
+  it("assumes nothing for a brand-new learner", () => {
+    const pz = personalizationFor("new-to-code", topics);
+    expect(pz.startKey).toBe("variables");
+    expect(pz.assumedKeys.size).toBe(0);
+  });
+
+  it("every entry topic actually exists in the registry", () => {
+    const keys = new Set(topics.map((t) => t.key));
+    for (const e of Object.values(ENTRY_TOPIC)) expect(keys.has(e.topic)).toBe(true);
   });
 });
