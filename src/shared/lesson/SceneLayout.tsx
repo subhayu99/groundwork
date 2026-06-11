@@ -257,8 +257,11 @@ export function SceneLayout({
         <section className="min-w-0 flex flex-col gap-3 xl:flex-1 xl:min-h-0 xl:justify-center">
           {/* bridge — "standing on the previous lesson", beat 0 only, above the
               connector position (desktop; mobile gets its own copy above the
-              caption card). One truncating line, same quiet family as the connector. */}
-          {bridge && b === 0 && (
+              caption card). One truncating line, same quiet family as the connector.
+              Yields while the prereq nudge is up — both are beat-0 orientation
+              furniture and short viewports can't seat them together; the nudge
+              (actionable) wins, the bridge appears on dismiss/continue. */}
+          {bridge && b === 0 && !showNudge && (
             <div className="hidden xl:block shrink-0 px-1 text-[12.5px] italic leading-snug text-[var(--text-faint)] truncate">
               <span className="not-italic font-mono text-[9.5px] uppercase tracking-wider">standing on · </span>
               {bridge}
@@ -363,8 +366,9 @@ export function SceneLayout({
                 </div>
               </div>
             </PanZoom>
-            {/* bridge (mobile) — above the caption card, beat 0 only */}
-            {bridge && b === 0 && (
+            {/* bridge (mobile) — above the caption card, beat 0 only; yields to
+                the prereq nudge like the desktop copy */}
+            {bridge && b === 0 && !showNudge && (
               <div className="px-1 text-[12.5px] italic leading-snug text-[var(--text-faint)] truncate">
                 <span className="not-italic font-mono text-[9.5px] uppercase tracking-wider">standing on · </span>
                 {bridge}

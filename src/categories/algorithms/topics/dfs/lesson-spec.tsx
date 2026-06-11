@@ -13,6 +13,8 @@ import {
   type GEdge,
 } from "@/shared/lesson/canvas";
 import { Term } from "@/shared/lesson/Term";
+import { PredictGate } from "@/shared/lesson/Predict";
+import { reg } from "@/shared/audience/types";
 import dfsPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -349,6 +351,77 @@ function AutoDfs({ api, showStack }: { api: BeatVisualApi; showStack?: boolean }
   );
 }
 
+/* ── PREDICTION GATE + playback (the operations beat): commit to the mark's
+ * fate at a dead end, THEN the AutoDfs playback (stack bracket on) answers it
+ * with a visited count that only climbs. The gate is the beat's real
+ * interaction (interaction: "wedge"): one pill tap fires
+ * api.onInteractionDone() inside PredictGate; after a short reading pause the
+ * playback runs. HTML hosted on the SVG canvas via <foreignObject> in the left
+ * gutter (the grid fills the centre band); data-canvas-panel opts it into the
+ * scene layout's content-extent measurement. ───────────────────────────────── */
+const GATE_TRAIL: [number, number][] = [
+  [0, 0],
+  [0, 1],
+  [0, 2],
+  [0, 3],
+];
+const DEAD_END = GATE_TRAIL[GATE_TRAIL.length - 1];
+
+function MarkFateGate({ api }: { api: BeatVisualApi }) {
+  const [revealed, setRevealed] = useState(false);
+  const timer = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (timer.current != null) window.clearTimeout(timer.current);
+  }, []);
+
+  if (revealed) return <AutoDfs api={api} showStack />;
+
+  const walked = new Set(GATE_TRAIL.map(([r, c]) => key(r, c)));
+  return (
+    <g>
+      {maze(DEAD_END, walked, walked)}
+      <text
+        x={VW / 2}
+        y={GG.y0 - 14}
+        textAnchor="middle"
+        className="font-mono select-none"
+        style={{ fontSize: 11, fill: "var(--text-faint)" }}
+      >
+        stuck: wall right, wall below, walked ground behind
+      </text>
+      <foreignObject x={12} y={GG.y0 - 28} width={264} height={300} style={{ overflow: "visible" }}>
+        <div data-canvas-panel="predict">
+          <PredictGate
+            api={api}
+            question="The walker must back up out of this dead end — what happens to the mark on the cell it leaves?"
+            choices={[
+              {
+                id: "erased",
+                label: "erased — backing up undoes the visit",
+                note: "backing up moves the walker, never the marks — no cell is ever explored twice",
+              },
+              {
+                id: "stays",
+                label: "it stays — that cell is never explored again",
+                correct: true,
+                note: "permanent marks are the whole cost story — watch the visited count only climb",
+              },
+              {
+                id: "deadends",
+                label: "it stays only because this is a dead end",
+                note: "junction or dead end, every mark is permanent — neighbours are tried from the first visit, never by re-entering",
+              },
+            ]}
+            onRevealed={() => {
+              timer.current = window.setTimeout(() => setRevealed(true), pace(1800));
+            }}
+          />
+        </div>
+      </foreignObject>
+    </g>
+  );
+}
+
 /* ── Beat 2 static: the blind-explosion callout over a dimmed maze ──────────── */
 function Explosion() {
   return (
@@ -396,17 +469,41 @@ function GraphDive() {
   );
 }
 
+/* ── depth map (VOICE-AND-DEPTH / BEAT-RITUAL) ───────────────────────────────
+ *   intuitive  : all 7 beats (setup, obvious, wedge, derive, operations,
+ *                general, name)
+ *   structured : 5 — cuts `obvious` (its naive count folds into the wedge's
+ *                structured connector) and `general`
+ *   rigorous   : 3 — derive (rule + invariant, opener) + operations (exact
+ *                cost & edges, with the gate) + name (close, stamped)
+ *   refresh    : additionally trims `obvious` + `general` (trimOnRefresh).    */
 export const dfsLesson: LessonSpec = {
   topicTitle: "depth-first search · escape the maze",
   // Opt into the one-scene immersive layout (proven on binary-search).
   layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: dfsPy as string,
+  // Standing on recursion (the bridge anchor, per TRACK-NARRATIVES.md): the
+  // learner just banked "trust the smaller call" — DFS points that self-call
+  // at a space: go deep, back up.
+  bridgeFrom: reg({
+    base: "A function that calls itself on a smaller piece can solve the whole — now point that self-call at a maze.",
+    intuitive: "You've seen a problem solve itself by trusting a smaller copy of itself — now use that trick to walk a maze.",
+    rigorous: "Recursion: base case + self-call on a smaller instance. Here the instance is a space — go deep, back up.",
+  }),
+  // From meta (TRACK-NARRATIVES row 25): decomposition, idea 4 of 7 —
+  // recursion walking a space; the close states it as the lesson's idea.
+  principle: { key: "decomposition", n: 4, total: 7 },
   beats: [
     {
       id: "setup",
       label: "The setup",
-      actionLabel: "The naive idea",
+      // Rigorous opens at the derivation — its bridge line renders there.
+      registers: ["intuitive", "structured"],
+      actionLabel: reg({
+        base: "The naive idea",
+        structured: "Walk it by hand", // structured skips `obvious`
+      }),
       takeaway: "A maze: reach G from S, seeing only one cell at a time.",
       visual: maze(null, emptySet, emptySet),
       panels: [
@@ -417,7 +514,8 @@ export const dfsLesson: LessonSpec = {
           variant: "main",
           label: "The setup",
           title: "A small maze. Reach the corner.",
-          body: (
+          body: reg({
+            base: (
             <>
               A 5&times;5 grid. You start at <strong>S</strong> (top-left); the goal
               is <strong>G</strong> (bottom-right). Filled cells are walls &mdash;
@@ -426,6 +524,17 @@ export const dfsLesson: LessonSpec = {
               time.
             </>
           ),
+            intuitive: (
+              <>
+                A little maze: 5 rows, 5 columns. You stand on <strong>S</strong>;
+                you want to reach <strong>G</strong>. Filled squares are walls. One
+                step at a time &mdash; up, down, left or right. Your eye sees the
+                whole board and spots a route in a second. The computer can&rsquo;t:
+                it stands on one square and sees only the squares touching it. The
+                job is to teach it to escape anyway.
+              </>
+            ),
+          }),
         },
       ],
       detail: (
@@ -440,6 +549,8 @@ export const dfsLesson: LessonSpec = {
     {
       id: "obvious",
       label: "The obvious thing",
+      registers: ["intuitive"],
+      trimOnRefresh: true,
       connector: "Since the computer can only see one cell at a time, what is the most naive thing it could try?",
       actionLabel: "Two rules that tame it",
       takeaway: "Trying every move blindly explodes — so: never revisit, and back up when stuck.",
@@ -476,9 +587,19 @@ export const dfsLesson: LessonSpec = {
     {
       id: "wedge",
       label: "The instinct",
-      connector: "Those two rules describe a way of walking — so let's actually walk it by hand.",
+      registers: ["intuitive", "structured"],
+      // structured never saw `obvious` — its connector folds the naive count
+      // in (the E17 seed survives the cut), per the arrays exemplar.
+      connector: reg({
+        base: "Those two rules describe a way of walking — so let's actually walk it by hand.",
+        structured:
+          "Blind enumeration explodes — four moves a step is a million sequences by ten steps, on a 25-cell maze. Two rules tame it: never re-enter a cell, back up when stuck. Now walk them by hand.",
+      }),
       actionLabel: "Make it a rule",
-      takeaway: "Dig deep down one path; back up when stuck — the maze from any cell is the same question, smaller.",
+      takeaway: reg({
+        base: "Dig deep down one path; back up when stuck — the maze from any cell is the same question, smaller.",
+        intuitive: "Go deep down one path, back up when stuck — every square asks the same smaller question.",
+      }),
       visual: (api) => <ManualWalk api={api} />,
       panels: [
         {
@@ -523,9 +644,18 @@ export const dfsLesson: LessonSpec = {
     {
       id: "derive",
       label: "The derivation",
-      connector: "You just did the walk by hand — now let's write down the exact rule so a computer can run it without you.",
+      // Rigorous OPENS here — bridgeFrom renders above this connector, which
+      // therefore states the problem in one breath for that register.
+      connector: reg({
+        base: "You just did the walk by hand — now let's write down the exact rule so a computer can run it without you.",
+        rigorous: "Reach G from S in a walled grid: one visited set and one self-call exhaust it — state the rule and its invariant.",
+      }),
       actionLabel: "Count the work",
-      takeaway: "The rule: mark visited, then ask each neighbour the same question — a function that calls itself (recursion).",
+      takeaway: reg({
+        base: "The rule: mark visited, then ask each neighbour the same question — a function that calls itself (recursion).",
+        intuitive: "Mark the square, then ask each open neighbour the same smaller question — the rule runs itself.",
+        rigorous: "Mark visited before recursing — each open cell spawns at most one call, so the walk ends.",
+      }),
       visual: (api) => <AutoDfs api={api} />,
       panels: [
         {
@@ -534,8 +664,12 @@ export const dfsLesson: LessonSpec = {
           width: 780,
           variant: "main",
           label: "The derivation",
-          title: "Standing at a cell, ask each neighbour.",
-          body: (
+          title: reg({
+            base: "Standing at a cell, ask each neighbour.",
+            rigorous: "Mark, then recurse on open unvisited neighbours.",
+          }),
+          body: reg({
+            base: (
             <>
               Name the move <code>explore(cell, trail)</code>, where <code>trail</code>{" "}
               is the cells walked so far. On <strong>G</strong>: hand back the trail.
@@ -545,9 +679,33 @@ export const dfsLesson: LessonSpec = {
               is <Term word="recursion"><strong>recursion</strong></Term>.
             </>
           ),
+            intuitive: (
+              <>
+                Give the move a name: <code>explore</code>. Standing on <strong>G</strong>?
+                Done &mdash; hand the trail back. Standing anywhere else? Mark the square
+                so you never return, then ask each open, unmarked neighbour the very same
+                question: <em>can you reach G from here?</em> If every neighbour says no,
+                say no too &mdash; whoever asked you tries their next direction. A rule
+                that runs itself on a smaller piece of the same problem is{" "}
+                <Term word="recursion"><strong>recursion</strong></Term>.
+              </>
+            ),
+            rigorous: (
+              <>
+                <code>explore(cell, trail)</code>: on <strong>G</strong>, return the
+                trail. Otherwise add the cell to <code>visited</code>, recurse on each
+                in-bounds, open, unvisited neighbour, and propagate the first hit;
+                neighbours exhausted &mdash; return <code>None</code>. The{" "}
+                <Term word="invariant">invariant</Term>: a cell enters{" "}
+                <code>visited</code> before its neighbours are tried, and never leaves
+                &mdash; so no cell is explored twice and the walk must end.
+              </>
+            ),
+          }),
         },
       ],
-      detail: (
+      detail: reg({
+        base: (
         <>
           <p>Give the move a name: <code>find_path_from(cell, trail)</code>, where <code>trail</code> is the list of squares walked so far to reach this one. There are exactly three cases to handle.</p>
           <p><strong>You&rsquo;re standing on the goal.</strong> Done &mdash; hand back the trail, which is the route that got you here.</p>
@@ -556,16 +714,36 @@ export const dfsLesson: LessonSpec = {
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The principle &mdash; decomposition:</strong> the big maze is solved by solving each smaller maze that starts from a neighbour. Once you see that, the recursive rule writes itself.</div>
         </>
       ),
+        rigorous: (
+          <>
+            <p><strong>Invariant.</strong> <code>visited</code> only grows, and a cell joins it before its neighbours are tried. So each open cell spawns at most one <code>explore</code> call, the call tree has at most one node per open cell, and termination is forced: every recursive call strictly grows <code>visited</code>, which is bounded by the open-cell count.</p>
+            <p><strong>Correctness sketch.</strong> The explored set is closed under adjacency: every open neighbour of an explored cell is itself explored by the loop or was visited earlier. So the walk reaches exactly the cells reachable from S &mdash; if G is reachable, some call stands on it, the base case fires, and the trail propagates up unchanged. Each <Term word="frame">frame</Term> extended the trail by one adjacent open cell, so the returned list is a genuine path &mdash; the route the <Term word="call stack">call stack</Term> walked.</p>
+          </>
+        ),
+      }),
       codeLabels: ["found", "visit", "neighbors", "recurse", "backtrack"],
       interaction: "playback",
     },
     {
       id: "operations",
       label: "The operations",
-      connector: "The rule is correct — but is it fast, and how much memory does all that diving cost?",
-      actionLabel: "Same shape, new problems",
-      takeaway: "Each cell visited once — O(cells + connections), i.e. O(V + E); memory is the stack, as deep as the longest detour.",
-      visual: (api) => <AutoDfs api={api} showStack />,
+      connector: reg({
+        base: "The rule is correct — but is it fast, and how much memory does all that diving cost?",
+        rigorous: "The rule is correct; what remains is its exact price — commit to a prediction, then count.",
+      }),
+      actionLabel: reg({
+        base: "Same shape, new problems",
+        structured: "Name the pattern", // structured + rigorous skip `general`
+        rigorous: "Name the pattern",
+      }),
+      takeaway: reg({
+        base: "Each cell visited once — O(cells + connections), i.e. O(V + E); memory is the stack, as deep as the longest detour.",
+        intuitive: "Marks make each square's work happen once — effort grows with the maze, memory with the detour.",
+        rigorous: "O(V + E) time, O(V) stack worst case — and the path found is not the shortest.",
+      }),
+      // The ONE prediction gate (the cost predict, per BEAT-RITUAL): the mark's
+      // fate is guessable from the wedge/derive walks but not yet shown.
+      visual: (api) => <MarkFateGate api={api} />,
       panels: [
         {
           left: 40,
@@ -574,7 +752,8 @@ export const dfsLesson: LessonSpec = {
           variant: "main",
           label: "The operations",
           title: "Each cell once. Memory grows with the deepest detour.",
-          body: (
+          body: reg({
+            base: (
             <>
               Work grows as <strong>O(cells + connections)</strong> &mdash; here a few dozen
               checks, since the visited mark touches each cell once. Memory is the{" "}
@@ -583,21 +762,55 @@ export const dfsLesson: LessonSpec = {
               20-cell detour stacks 20 deep before retreating.
             </>
           ),
+            intuitive: (
+              <>
+                Watch the <em>visited</em> number once it runs: it only climbs &mdash;
+                each open square is explored once, ever, with a glance at up to four
+                neighbours. Counted like that, the work grows in step with squares plus
+                the connections between them &mdash; written{" "}
+                <Term word="O(cells + connections)"><code>O(cells + connections)</code></Term>.
+                Memory is the pile of paused calls (a <Term word="stack">stack</Term>):
+                the trail on screen <em>is</em> that pile, one paused call per square of
+                the current detour.
+              </>
+            ),
+            rigorous: (
+              <>
+                Each open cell is explored at most once (the permanent mark) and scans
+                at most four neighbours &mdash; the playback&rsquo;s visited counter is
+                that count, live. Total:{" "}
+                <Term word="O(V + E)"><code>O(V + E)</code></Term>; on a grid,{" "}
+                <Term word="O(rows × cols)"><code>O(rows × cols)</code></Term>. Space is
+                the recursion depth &mdash; the longest live trail &mdash; plus the
+                visited set: O(V) worst case.
+              </>
+            ),
+          }),
         },
       ],
-      detail: (
+      detail: reg({
+        base: (
         <>
           <p>Because every square gets marked visited the first time we stand on it, each square becomes the &ldquo;current&rdquo; square at most once. From each one we glance at its four neighbours. So the total work is <code>O(cells + connections)</code> &mdash; &ldquo;order cells-plus-connections&rdquo; just means the effort grows in step with how many squares there are plus how many connections we check between them. (In graph terms that&rsquo;s the classic <code>O(V + E)</code>.) For a 5&times;5 grid that&rsquo;s a few dozen checks at the very most, not a million.</p>
           <p>Now the memory cost. Each unfinished call to <code>find_path_from</code> is paused, waiting for the deeper call it made to come back. Those paused calls pile up on a <strong>stack</strong> &mdash; a stack is just a pile where the last thing added is the first thing removed, like a stack of plates. There&rsquo;s one paused call per square along the current trail, so the trail you see on screen <em>is</em> the stack. If the deepest dead-end is twenty squares in, the stack grows twenty deep before the walker starts retreating.</p>
           <p>For a very wide, twisty maze that pile can get tall. Real systems sometimes replace the self-calling (recursive) walk with an explicit list of squares-still-to-visit that they manage by hand. It&rsquo;s the same algorithm &mdash; just different bookkeeping for where to go next.</p>
         </>
       ),
+        rigorous: (
+          <>
+            <p><strong>Exact cost.</strong> One <code>explore</code> call per open cell, four direction checks per call: time <Term word="O(V + E)"><code>O(V + E)</code></Term>, and on a grid E &le; 4V, so <Term word="O(rows × cols)"><code>O(rows × cols)</code></Term>. Space: the visited set is O(V); the <Term word="call stack">call stack</Term> holds one <Term word="frame">frame</Term> per trail cell &mdash; O(V) worst case, when the path snakes the whole board.</p>
+            <p><strong>Edges.</strong> start == goal returns <code>[start]</code> before any marking. An unreachable goal costs the whole component, then <code>None</code> &mdash; never an infinite loop, because marks never come off. The path returned is whatever the direction order stumbles into, <em>not</em> the shortest &mdash; shortest needs the nearest-first walk, next lesson. And depth bites in Python: around a thousand stacked calls hit the default recursion limit, so production code often swaps in an explicit stack &mdash; the same walk, hand-managed bookkeeping.</p>
+          </>
+        ),
+      }),
       codeLabels: ["visited", "recurse"],
-      interaction: "playback",
+      interaction: "wedge",
     },
     {
       id: "general",
       label: "The generalization",
+      registers: ["intuitive"],
+      trimOnRefresh: true,
       connector: "Nothing in that walk actually depended on it being a grid of squares — so where else does it work?",
       actionLabel: "Name the pattern",
       takeaway: "A cell is just a node with neighbours — the same walk crawls graphs: files, links, friends.",
@@ -648,8 +861,15 @@ export const dfsLesson: LessonSpec = {
         ]),
       ),
       label: "The pattern",
-      connector: "You've built the whole walk from scratch — here's its name and the cues that tell you to reach for it.",
-      takeaway: "It's Depth-First Search — reach for it on “is there a path?”, “visit everything connected”, or “try, undo, retry”.",
+      connector: reg({
+        base: "You've built the whole walk from scratch — here's its name and the cues that tell you to reach for it.",
+        rigorous: "Name it, and file it under the idea it implements.",
+      }),
+      takeaway: reg({
+        base: "It's Depth-First Search — reach for it on “is there a path?”, “visit everything connected”, or “try, undo, retry”.",
+        intuitive: "Depth-First Search: dive deep, back up when stuck — the answer to “can I reach it?”",
+        rigorous: "DFS = recursion over a graph: O(V + E), depth-deep stack — decomposition, idea 4 of 7.",
+      }),
       panels: [
         {
           left: 40,
@@ -658,7 +878,8 @@ export const dfsLesson: LessonSpec = {
           variant: "main",
           label: "The pattern",
           title: "Depth-First Search.",
-          body: (
+          body: reg({
+            base: (
             <>
               That&rsquo;s the name &mdash; <em>depth-first</em> because at each step
               you go as deep as you can before turning around. Spot it when you hear
@@ -667,9 +888,31 @@ export const dfsLesson: LessonSpec = {
               &mdash; and when the natural answer calls itself.
             </>
           ),
+            intuitive: (
+              <>
+                The name: <strong>Depth-First Search</strong> &mdash; <em>depth-first</em>{" "}
+                because you dive as deep as you can before turning back. Hear &ldquo;is
+                there a path?&rdquo;, &ldquo;visit everything connected&rdquo;, or
+                &ldquo;try it, undo it, try the next&rdquo; &mdash; reach for this walk.
+                And it&rsquo;s idea 4 of 7,{" "}
+                <Term word="decomposition">decomposition</Term>, out walking: every
+                square&rsquo;s question is the same question, smaller.
+              </>
+            ),
+            rigorous: (
+              <>
+                <strong>Depth-First Search</strong>: recursion over a graph &mdash;
+                descend, exhaust, back up. Cues: reachability, full-component visits,
+                try-undo-retry. It is idea 4 of 7,{" "}
+                <Term word="decomposition">decomposition</Term>, applied to a space:
+                the problem at any node is the same problem on the unvisited remainder.
+              </>
+            ),
+          }),
         },
       ],
-      detail: (
+      detail: reg({
+        base: (
         <>
           <p>That&rsquo;s the name: <strong>Depth-First Search</strong>, or DFS. It&rsquo;s called <em>depth-first</em> because at each step you go as <em>deep</em> as you can &mdash; push along one path until you&rsquo;re stuck &mdash; before turning around to try anything else. The opposite habit, checking everything close before anything far, is a different walk (breadth-first) you&rsquo;ll meet next.</p>
           <p>Reach for DFS when you see any of these signals:</p>
@@ -682,6 +925,25 @@ export const dfsLesson: LessonSpec = {
           <p>Open the code drawer to see the Python. The recursive helper does all the real work; the few lines around it just create the visited set and kick the walk off at the start.</p>
         </>
       ),
+        intuitive: (
+          <>
+            <p>You built it from nothing, and it has a famous name: <strong>Depth-First Search</strong> &mdash; DFS. <em>Depth-first</em> because at every step you push as <em>deep</em> as you can down one path before you ever turn around. (The opposite habit &mdash; check everything near before anything far &mdash; is a different walk called breadth-first, and it&rsquo;s the very next lesson.)</p>
+            <p>Reach for it the moment a problem sounds like: &ldquo;is there a path / can I reach it?&rdquo;, &ldquo;visit every connected thing&rdquo; (count the clusters, fill a region), or &ldquo;try a choice, undo it, try the next&rdquo; (sudoku, queens on a chessboard). Or whenever the natural answer uses itself &mdash; each step the same problem, one square smaller.</p>
+            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+              <strong>Idea 4 of 7 &mdash; decomposition:</strong> the maze from any square is a smaller maze. You met the idea in recursion as &ldquo;trust the smaller call&rdquo; &mdash; DFS is that trust out walking a whole world, one neighbour at a time.
+            </div>
+            <p>Open the code drawer to see the Python. The recursive helper does all the real work; the few lines around it just create the visited set and kick the walk off.</p>
+          </>
+        ),
+        rigorous: (
+          <>
+            <p><strong>Depth-First Search.</strong> The visited set plus the recursive descent is the entire algorithm; the rest is bookkeeping. Standard variants: an explicit stack instead of recursion (no depth limit), entry/exit ordering on the calls (pre/post-order), and an outer loop over unvisited starts to cover disconnected graphs.</p>
+            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+              <strong>Idea 4 of 7 &mdash; decomposition:</strong> &ldquo;reach G from here&rdquo; decomposes into &ldquo;reach G from a neighbour&rdquo; on the unvisited remainder &mdash; recursion pointed at a space. Backtracking, later in the track, is this exact walk over a space of choices, plus pruning.
+            </div>
+          </>
+        ),
+      }),
       arrows: [{ x1: GG.cx(GOAL[0], GOAL[1]), y1: 162, x2: GG.cx(GOAL[0], GOAL[1]), y2: GG.cy(GOAL[0], GOAL[1]) - GG.cellPx / 2 - 4 }],
       codeLabels: ["found"],
     },
