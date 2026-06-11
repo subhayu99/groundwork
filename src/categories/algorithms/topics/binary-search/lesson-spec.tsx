@@ -5,6 +5,7 @@ import type { Tone } from "@/shared/viz/tones";
 import type { BeatVisualApi, LessonSpec } from "@/shared/lesson/types";
 import { CellRow, rowGeom } from "@/shared/lesson/canvas";
 import { Term } from "@/shared/lesson/Term";
+import { PredictGate } from "@/shared/lesson/Predict";
 import { reg } from "@/shared/audience/types";
 import binarySearchPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
@@ -112,6 +113,45 @@ function HalvingCascade() {
     </g>
   );
 }
+
+/* ── PREDICTION GATE + reveal: commit to the cost of halving, THEN count it ──
+ * The lesson's ONE prediction gate (BEAT-RITUAL: the cost predict sits right
+ * before the cost reveal). The learner has felt one halving in the wedge but
+ * hasn't counted the cascade — one tap on a pill is the real interaction
+ * (interaction: "wedge"; PredictGate fires api.onInteractionDone()), then after
+ * a short reading pause the HalvingCascade answers the prediction. The gate is
+ * HTML hosted on the SVG canvas via <foreignObject>; data-canvas-panel opts it
+ * into the scene layout's content-extent measurement. */
+function HalvingCostGate({ api }: { api: BeatVisualApi }) {
+  const [revealed, setRevealed] = useState(false);
+  const timer = useRef<number | null>(null);
+  useEffect(() => () => { if (timer.current != null) window.clearTimeout(timer.current); }, []);
+
+  if (revealed) return <HalvingCascade />;
+
+  return (
+    <g>
+      <text x={VW / 2} y={214} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+        page by page could take up to 1,000 looks &mdash; now price the halving way
+      </text>
+      <foreignObject x={190} y={240} width={480} height={200}>
+        <div data-canvas-panel="predict">
+          <PredictGate
+            api={api}
+            question="Every look halves what's left — about how many looks from 1,000 pages to the last one?"
+            choices={[
+              { id: "half", label: "about 500 — half the looks", note: "one halving spares 500, but the next look halves the 500, and the next halves again" },
+              { id: "hundred", label: "about 100", note: "smaller still — every single look halves everything that's left" },
+              { id: "ten", label: "about 10", correct: true, note: "1,000 → 500 → 250 … ten halvings corner the last page" },
+            ]}
+            onRevealed={() => { timer.current = window.setTimeout(() => setRevealed(true), pace(1600)); }}
+          />
+        </div>
+      </foreignObject>
+    </g>
+  );
+}
+
 function Boundary() {
   const n = 10, bw = 48, bg = 8, total = n * bw + (n - 1) * bg, sx = (VW - total) / 2, y = 252, boundary = 6;
   return (
@@ -139,6 +179,14 @@ const idleRow = (tones?: (Tone | undefined)[], dim?: boolean[], markers?: Record
   <CellRow geom={G} values={ARR} tones={tones} dim={dim} markers={markers} />
 );
 
+/* ── depth map (VOICE-AND-DEPTH / BEAT-RITUAL) ───────────────────────────────
+ *   intuitive  : all 7 beats (setup, scan, wedge, derive, win, general, name)
+ *   structured : 5 — cuts `scan` (folded into the wedge's structured connector)
+ *                and `general` (its triggers already live in `name`'s prose).
+ *   rigorous   : 3 — derive (invariant) + win (cost + edges, gate included)
+ *                + name; the wedge's pruning lemma is recalled by the rigorous
+ *                bridgeFrom line so derive's "iterate the lemma" opener lands.
+ *   refresh    : additionally trims `scan` + `general` (trimOnRefresh).        */
 export const binarySearchLesson: LessonSpec = {
   topicTitle: "binary search · find 27",
   // PILOT: opt into the one-scene immersive layout. Binary search only — every
@@ -146,10 +194,20 @@ export const binarySearchLesson: LessonSpec = {
   layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: binarySearchPy as string,
+  // standing on arrays (the anchor, per TRACK-NARRATIVES.md): arr[i] is one
+  // step — this lesson adds sorted order so one probe can discard half the row.
+  bridgeFrom: reg({
+    base: "An array hands you any position in one step — now add sorted order, and one look can rule out half the row.",
+    intuitive: "You can grab any slot in a row in one step — now the row is in order, and one look can throw away half of it.",
+    rigorous: "arr[mid] is O(1) address math — on a sorted array one probe eliminates a whole side: the pruning lemma.",
+  }),
+  // from meta (TRACK-NARRATIVES row 19): ask the middle, half the world dies.
+  principle: { key: "search-space-pruning", n: 2, total: 7 },
   beats: [
     {
       id: "setup",
       label: "The setup",
+      registers: ["intuitive", "structured"],
       actionLabel: "I have the question",
       takeaway: reg({
         base: "A sorted phone book — find one name without reading it all.",
@@ -194,6 +252,8 @@ export const binarySearchLesson: LessonSpec = {
     {
       id: "scan",
       label: "The obvious thing",
+      registers: ["intuitive"],
+      trimOnRefresh: true,
       connector: "So the order is right there in the book — why does reading page by page still feel like wasted effort?",
       actionLabel: "Use the sortedness",
       takeaway: reg({
@@ -240,7 +300,14 @@ export const binarySearchLesson: LessonSpec = {
     {
       id: "wedge",
       label: "The instinct",
-      connector: "Here's the move that answers that — one comparison that tells you which way to go.",
+      registers: ["intuitive", "structured"],
+      // intuitive/structured variants are self-contained recalls of the naive
+      // cost, so the beat still opens cleanly when `scan` is cut or trimmed.
+      connector: reg({
+        base: "Here's the move that answers that — one comparison that tells you which way to go.",
+        intuitive: "Page after page only ever said “not here” — here's the look that says which way to go instead.",
+        structured: "Checking page by page costs up to a thousand looks and never uses the order — here's the comparison that does.",
+      }),
       actionLabel: "Make it a rule",
       takeaway: reg({
         base: "One comparison eliminates a whole half — because it's sorted.",
@@ -369,13 +436,17 @@ export const binarySearchLesson: LessonSpec = {
         base: "Counting the work shows the real payoff — and it scales almost for free.",
         rigorous: "Count it: the window halves per probe — the recurrence is T(n) = T(n/2) + 1.",
       }),
-      actionLabel: "Same shape, different problems",
+      actionLabel: reg({
+        base: "Same shape, different problems",
+        structured: "Name the pattern",
+        rigorous: "Name the pattern",
+      }),
       takeaway: reg({
         base: "Halving is O(log n) — a million items in ~20 steps.",
         intuitive: "Halving: about ten looks for a thousand, about twenty for a million.",
         rigorous: "⌈log₂(n+1)⌉ comparisons worst case — 10 for 10³, 20 for 10⁶.",
       }),
-      visual: <HalvingCascade />,
+      visual: (api) => <HalvingCostGate api={api} />,
       panels: [{
         left: 150, top: 30, width: 560, variant: "main", label: "The win",
         title: reg({
@@ -409,10 +480,13 @@ export const binarySearchLesson: LessonSpec = {
         ),
       }),
       codeLabels: ["loop", "mid"],
+      interaction: "wedge",
     },
     {
       id: "general",
       label: "The generalization",
+      registers: ["intuitive"],
+      trimOnRefresh: true,
       connector: reg({
         base: "And the same shape solves problems that don't even look like searching a list.",
         rigorous: "Strip the array away — the real requirement is a monotone predicate.",

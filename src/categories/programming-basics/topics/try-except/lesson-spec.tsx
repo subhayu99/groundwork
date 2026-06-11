@@ -90,6 +90,8 @@ function HappyPathGate({ api }: { api: BeatVisualApi }) {
  *   rigorous   : 3 — `except` (the model: watched region + matched jump; try's
  *                role folds into its prose) + `ok` (happy-path cost + edge
  *                cases, gate included) + `err` (the raising run + named close).
+ *                The cut is the `registers` tags on `need` + `try`; the engine
+ *                falls back to the full list if a cut ever empties.
  *   refresh    : additionally trims `need` + `try` (trimOnRefresh).            */
 export const tryExceptLesson: LessonSpec = {
   topicTitle: "try / except · catching errors",
