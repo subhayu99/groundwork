@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Chrome } from "@/shared/layout/Chrome";
 import { useProgress } from "@/shared/progress/useProgress";
 import { useAudience } from "@/shared/audience/useAudience";
-import { EXPERIENCE_OPTIONS, GOAL_OPTIONS, REGISTER_OPTIONS } from "@/shared/audience/policy";
+import { ENTRY_TOPIC, EXPERIENCE_OPTIONS, GOAL_OPTIONS, REGISTER_OPTIONS, personalizationFor } from "@/shared/audience/policy";
+import { listAllTopics } from "@/categories/registry";
 import type { Experience, Goal, Register } from "@/shared/audience/types";
 
 type ThemeChoice = "system" | "light" | "dark";
@@ -59,21 +60,21 @@ export default function SettingsPage() {
         >
           {onboarded && profile ? (
             <div className="flex flex-col gap-4">
-              <LabeledControl label="Experience">
+              <LabeledControl label="Experience" effect={experienceEffect(profile.experience)}>
                 <SegmentedControl<Experience>
                   value={profile.experience}
                   options={EXPERIENCE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
                   onChange={(v) => saveProfile({ ...profile, experience: v })}
                 />
               </LabeledControl>
-              <LabeledControl label="Explanation style">
+              <LabeledControl label="Explanation style" effect={REGISTER_OPTIONS.find((o) => o.value === profile.register)?.effect}>
                 <SegmentedControl<Register>
                   value={profile.register}
                   options={REGISTER_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
                   onChange={(v) => saveProfile({ ...profile, register: v })}
                 />
               </LabeledControl>
-              <LabeledControl label="Goal">
+              <LabeledControl label="Goal" effect={GOAL_OPTIONS.find((o) => o.value === profile.goal)?.effect}>
                 <SegmentedControl<Goal>
                   value={profile.goal}
                   options={GOAL_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
@@ -166,11 +167,29 @@ export default function SettingsPage() {
 const btn =
   "min-h-[40px] px-4 py-2 rounded-lg font-mono text-xs border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--line-strong)] hover:text-[var(--text)] transition-colors";
 
-function LabeledControl({ label, children }: { label: string; children: React.ReactNode }) {
+/** The consequence of the current Experience choice, computed live from the
+ *  registry (entry name + hidden/visible counts) so it never drifts. */
+function experienceEffect(experience: Experience): string {
+  const topics = listAllTopics();
+  const entry = ENTRY_TOPIC[experience];
+  const entryName = topics.find((t) => t.key === entry.topic)?.name ?? entry.topic;
+  const hidden = personalizationFor(experience, topics).assumedKeys.size;
+  return hidden === 0
+    ? `You start at ${entryName}, with the full ${topics.length}-topic map.`
+    : `You start at ${entryName} — ${hidden} known topics tucked away (${topics.length - hidden} on your map).`;
+}
+
+function LabeledControl({ label, effect, children }: { label: string; effect?: string; children: React.ReactNode }) {
   return (
     <div>
       <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)] mb-1.5">{label}</div>
       {children}
+      {effect && (
+        <div className="mt-1 text-[12px] leading-snug text-[var(--accent-ink)]">
+          <span aria-hidden="true">→ </span>
+          {effect}
+        </div>
+      )}
     </div>
   );
 }
