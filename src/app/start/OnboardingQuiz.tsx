@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAudience } from "@/shared/audience/useAudience";
@@ -68,6 +68,59 @@ export function OnboardingQuiz() {
 
   const complete = !!(experience && register && goal);
 
+  // ── keep the payoff in view ──
+  // The map is capped to a scrollable band (so the commit row + map top read
+  // together, and mobile never becomes a 3000px wall). When the answer that
+  // moves the ring changes (experience → startKey), nudge the band so the
+  // "start here" node is visible without the learner hunting for it. We can't
+  // touch TopicTierMap (sibling-owned), so we find the ringed node by the DOM
+  // it already emits: the SVG node carries aria-label "… — your starting point"
+  // and the mobile card carries a "start here" marker — both inside our band.
+  const bandRef = useRef<HTMLDivElement>(null);
+  const startKey = preview?.startKey;
+  useEffect(() => {
+    if (!startKey) return;
+    const band = bandRef.current;
+    if (!band) return;
+    // Defer one frame so the map has re-rendered with the new ring first.
+    const raf = requestAnimationFrame(() => {
+      // The map renders BOTH layouts into the DOM and hides one with CSS
+      // (desktop SVG = `hidden lg:block`, mobile cards = `lg:hidden`). The
+      // hidden layout still resolves selectors but its nodes have a zero box,
+      // so we gather every candidate ring marker and pick the first that is
+      // actually laid out. Desktop = the SVG node whose aria-label ends in
+      // "your starting point"; mobile = the start card (an <a> carrying the
+      // "start here" marker text).
+      const candidates: Element[] = [
+        ...band.querySelectorAll('[aria-label*="your starting point"]'),
+        ...Array.from(band.querySelectorAll("a")).filter((a) =>
+          /start here/i.test(a.textContent ?? ""),
+        ),
+      ];
+      const target = candidates.find((el) => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      });
+      if (!target) return;
+      // Scroll the BAND only (not the page): centre the ring within the band by
+      // diffing bounding rects. `scrollIntoView` on an SVG <g> is flaky and can
+      // bubble up to scroll the whole window, so we drive band.scrollTop directly.
+      const bandRect = band.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const delta =
+        targetRect.top - bandRect.top - (band.clientHeight - targetRect.height) / 2;
+      const next = Math.max(
+        0,
+        Math.min(band.scrollTop + delta, band.scrollHeight - band.clientHeight),
+      );
+      const reduce =
+        typeof window !== "undefined" &&
+        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      band.scrollTo({ top: next, behavior: reduce ? "auto" : "smooth" });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [startKey]);
+
   const begin = () => {
     if (!experience || !register || !goal) return;
     saveProfile({ experience, register, goal });
@@ -115,7 +168,17 @@ export function OnboardingQuiz() {
               : <>answer the first question and watch the map adapt to you</>}
           </div>
         </div>
-        <TopicTierMap personalize={preview} />
+        {/* THE BAND — the map is capped to a scrollable strip so the commit row
+            above and the map's top edge read together (the payoff is no longer
+            below the fold), and on mobile the tier stack scrolls inside here
+            instead of pushing the page into a multi-thousand-pixel wall. */}
+        <div
+          ref={bandRef}
+          className="relative max-h-[70vh] sm:max-h-[60vh] overflow-y-auto overscroll-contain rounded-2xl"
+          aria-label="Topic map preview — scrolls"
+        >
+          <TopicTierMap personalize={preview} />
+        </div>
       </div>
     </div>
   );

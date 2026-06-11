@@ -37,7 +37,7 @@ export function SceneLayout({
   });
   const {
     VW, VH, PY, b, setB, last, beat, beats,
-    register, bridge,
+    register, bridge, resources,
     showCode, toggleCode, showDetail, setShowDetail,
     completed, areaRef, scale, gated, activeLines, visualNode,
     codeScrollRef, goNext,
@@ -168,12 +168,14 @@ export function SceneLayout({
     return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
   }, [b, showCode]);
 
-  // Goal-aware hand-off: interview-prep learners get a direct line to the
-  // topic's practice problems on completion (derived from the first problem's
-  // href — its parent is the practice list).
-  const { profile } = useAudience();
+  // Hand-off to practice: a direct line to the topic's practice problems
+  // whenever practice EXISTS — for EVERY goal, not just interview-prep (a
+  // newcomer who just derived the idea benefits from the same launchpad). The
+  // list href is the parent of the first problem's href. `useAudience` is still
+  // read for the completion copy, but the practice link no longer gates on goal.
+  useAudience();
   const practiceListHref =
-    profile?.goal === "interview" && practice && practice.length > 0
+    practice && practice.length > 0
       ? practice[0].href.replace(/\/[^/]+\/?$/, "")
       : null;
 
@@ -187,8 +189,50 @@ export function SceneLayout({
     ? (completed ? "Completed ✓" : "Finish ✓")
     : (beat.actionLabel ? `${beat.actionLabel} →` : "Next →");
 
+  // COMPLETION CEREMONY copy. The topic title carries a worked example after a
+  // "·" ("binary search · find 27"); the ceremony wants the clean idea name, so
+  // we take the part before the separator. The final takeaway is the last beat's
+  // register-resolved takeaway (the engine already resolved it) — the single
+  // sentence that best states "what you can now do".
+  const topicName = spec.topicTitle.split("·")[0].trim() || spec.topicTitle;
+  const finalTakeaway = beats[last]?.takeaway ?? beats[last]?.label ?? null;
+  // A learner who is replaying a finished lesson (initiallyCompleted) but is NOT
+  // on the final beat still gets a quiet, persistent "completed" strip with the
+  // practice / next links — so the hand-off is never lost on a revisit (R-WP5).
+  const showReplayStrip = !!initiallyCompleted && completed && b !== last;
+
+  // CODE-TAB AFFORDANCE (L2.9 / H5): the code auto-opens on the final beat. The
+  // FIRST time the lesson reaches that beat we also give the code toggle one
+  // subtle pulse so the raised affordance is noticed even when the panel opened
+  // itself (the toggle is its anchor in both states). One-shot: the ref latches
+  // so it never re-fires on back-and-forth navigation. CSS keyframe below honors
+  // prefers-reduced-motion (it becomes a no-op there).
+  const pulsedRef = useRef(false);
+  const [codePulse, setCodePulse] = useState(false);
+  useEffect(() => {
+    if (b === last && !pulsedRef.current) {
+      pulsedRef.current = true;
+      setCodePulse(true);
+      const t = setTimeout(() => setCodePulse(false), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [b, last]);
+
   return (
     <main className="h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] overflow-hidden">
+      {/* One-time code-toggle pulse keyframe (L2.9). Kept local to the scene so it
+          touches no shared stylesheet; the reduce-motion guard removes the motion
+          entirely (a static, no-op class) for users who ask for less. */}
+      <style>{`
+        @keyframes scene-code-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 45%, transparent); }
+          50% { box-shadow: 0 0 0 5px color-mix(in oklab, var(--accent) 0%, transparent); }
+        }
+        .scene-code-pulse { animation: scene-code-pulse 0.75s ease-out 2; }
+        @media (prefers-reduced-motion: reduce) {
+          .scene-code-pulse { animation: none; }
+        }
+      `}</style>
       {/* ── TOP CHROME (always visible) ─────────────────────────────────────── */}
       <div className="shrink-0">
         <div className="flex items-center gap-3 px-3 sm:px-5 py-2 min-h-[40px] border-b border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_35%,transparent)]">
@@ -198,6 +242,14 @@ export function SceneLayout({
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
             </Link>
           )}
+          {/* explicit tappable "map" link to the full roadmap — a mobile learner is
+              otherwise one Back from a dead-end (R-AQ4). Sits beside the category
+              chevron; quiet, with its own larger tap target. */}
+          <Link href="/learn" aria-label="Back to the learning map" title="The learning map — all modules"
+            className="inline-flex items-center gap-1 min-h-[36px] -ml-1 pl-1 pr-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)] transition-colors shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 20l-6-3V4l6 3 6-3 6 3v13l-6-3-6 3zM9 7v13M15 4v13" /></svg>
+            <span className="font-mono text-[10px] uppercase tracking-wider">map</span>
+          </Link>
           <div className="flex items-center gap-2 min-w-0">
             <span className="inline-block w-2.5 h-2.5 rotate-45 bg-[var(--accent-sky)] shrink-0" />
             <span className="font-mono text-[12.5px] uppercase tracking-[0.16em] text-[var(--text)] truncate">{spec.topicTitle}</span>
@@ -410,30 +462,95 @@ export function SceneLayout({
         </aside>
       </div>
 
-      {/* ── COMPLETION HAND-OFF ─────────────────────────────────────────────
-          Finished the last beat? Don't dead-end — point straight at the next
-          module (path order) plus a way back to the full map. */}
+      {/* ── COMPLETION CEREMONY ─────────────────────────────────────────────
+          Finishing the last beat is a MOMENT, not a dead stop (R-WN1/E13):
+          "✓ <Topic> derived" + the principle chip ("idea n of 7") + the
+          register-resolved final takeaway + a way back to the map + practice
+          (for EVERY goal when it exists) + the next-module CTA. The authored
+          external "go deeper" links ride along here and ONLY here (never
+          mid-lesson). */}
       {completed && b === last && (
-        <div className="shrink-0 flex flex-wrap items-center gap-x-4 gap-y-2 px-3 sm:px-5 py-2.5 border-t border-[var(--accent-line)] bg-[var(--accent-soft)]">
-          <span className="flex items-center gap-1.5 font-semibold text-[14px] text-[var(--accent-ink)]">
-            <span aria-hidden="true">✓</span> Lesson complete
-          </span>
-          <div className="flex items-center gap-3 ml-auto">
+        <div className="shrink-0 px-3 sm:px-5 py-3 border-t border-[var(--accent-line)] bg-[var(--accent-soft)]">
+          {/* headline row — the derivation banner + the principle stamp */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <span className="flex items-center gap-2 font-semibold text-[15px] text-[var(--accent-ink)]">
+              <span aria-hidden="true" className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-[var(--accent-line)] bg-[var(--bg-card)] text-[13px]">✓</span>
+              <span className="capitalize">{topicName}</span> derived
+            </span>
+            {spec.principle && (
+              <Link href={`/principles/${spec.principle.key}`}
+                title={`One of the ${spec.principle.total} core ideas — read the principle`}
+                className="inline-flex items-center shrink-0 rounded-full border border-[var(--accent-line)] bg-[var(--bg-card)] px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)] whitespace-nowrap hover:bg-[var(--bg-inset)] transition-colors">
+                idea {spec.principle.n} of {spec.principle.total}
+              </Link>
+            )}
+          </div>
+          {/* the register-resolved final takeaway — "what you can now do" */}
+          {finalTakeaway && (
+            <p className="mt-1.5 text-[13px] leading-snug text-[var(--text-muted)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)]">
+              {typeof finalTakeaway === "string" ? gloss(finalTakeaway) : finalTakeaway}
+            </p>
+          )}
+          {/* go-deeper external resources (L2.8) — compact, completion-only row */}
+          {resources.length > 0 && (
+            <div className="mt-2.5">
+              <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--text-faint)] mb-1">go deeper</div>
+              <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                {resources.map((r) => (
+                  <li key={r.title} className="text-[12.5px] leading-snug min-w-0">
+                    {r.url ? (
+                      <a href={r.url} target="_blank" rel="noopener noreferrer"
+                        className="text-[var(--text-muted)] hover:text-[var(--accent-ink)] hover:underline">
+                        <span className="font-mono text-[9.5px] uppercase text-[var(--text-faint)] mr-1.5">{r.type}</span>
+                        {r.title} <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : (
+                      <span className="text-[var(--text-muted)]">
+                        <span className="font-mono text-[9.5px] uppercase text-[var(--text-faint)] mr-1.5">{r.type}</span>
+                        {r.title}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {/* actions — map · practice (any goal) · next-module CTA */}
+          <div className="mt-2.5 flex flex-wrap items-center gap-3">
+            <Link href="/learn" className="font-mono text-[11px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]">
+              the map
+            </Link>
             {practiceListHref && (
               <Link href={practiceListHref} className="font-mono text-[11px] uppercase tracking-wider text-[var(--accent-ink)] hover:text-[var(--text)]">
                 practice this topic
               </Link>
             )}
-            <Link href="/learn" className="font-mono text-[11px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]">
-              all modules
-            </Link>
             <Link
               href={nav?.next?.href ?? "/learn"}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--accent-line)] bg-[var(--bg-card)] px-4 py-2 text-[14px] font-semibold text-[var(--accent-ink)] hover:bg-[var(--bg-inset)] transition-colors"
+              className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-[var(--accent-line)] bg-[var(--bg-card)] px-4 py-2 text-[14px] font-semibold text-[var(--accent-ink)] hover:bg-[var(--bg-inset)] transition-colors"
             >
               {nav?.next ? <>Next: {nav.next.name} &rarr;</> : <>Explore the map &rarr;</>}
             </Link>
           </div>
+        </div>
+      )}
+
+      {/* PERSISTENT REPLAY STRIP — a learner revisiting a finished lesson off the
+          final beat still gets the hand-off (practice / next), never a dead end
+          (R-WP5). Slim, quiet; the full ceremony above takes over on the last beat. */}
+      {showReplayStrip && (
+        <div className="shrink-0 flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 sm:px-5 py-2 border-t border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--accent-sky)_6%,transparent)]">
+          <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-[var(--accent-ink)]">
+            <span aria-hidden="true">✓</span> completed
+          </span>
+          {practiceListHref && (
+            <Link href={practiceListHref} className="font-mono text-[10px] uppercase tracking-wider text-[var(--accent-ink)] hover:text-[var(--text)]">
+              practice
+            </Link>
+          )}
+          <Link href={nav?.next?.href ?? "/learn"} className="ml-auto font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]">
+            {nav?.next ? <>next: {nav.next.name} &rarr;</> : <>the map &rarr;</>}
+          </Link>
         </div>
       )}
 
@@ -465,10 +582,12 @@ export function SceneLayout({
         <span className="sm:hidden font-mono text-[11px] text-[var(--text-muted)]">{b + 1}/{beats.length}</span>
         <div className="flex-1" />
 
-        {/* single CODE / HIDE-CODE toggle (same place; highlighted when open) */}
+        {/* single CODE / HIDE-CODE toggle (same place; highlighted when open).
+            One-time pulse the first time the final beat is reached (L2.9) to
+            raise the affordance — `scene-code-pulse` is reduce-motion-safe. */}
         <button onClick={toggleCode} aria-pressed={showCode}
           title={showCode ? "hide the code" : "show the code (algorithm.py)"} aria-label={showCode ? "hide code" : "show code"}
-          className={`inline-flex items-center gap-1.5 min-h-[40px] rounded-lg border px-2.5 py-1.5 transition-colors ${showCode ? "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)]" : "border-[var(--line)] text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--line-strong)]"}`}>
+          className={`inline-flex items-center gap-1.5 min-h-[40px] rounded-lg border px-2.5 py-1.5 transition-colors ${codePulse ? "scene-code-pulse" : ""} ${showCode ? "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-ink)]" : "border-[var(--line)] text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--line-strong)]"}`}>
           <span className="font-mono text-[13px]">&lt;/&gt;</span>
           <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider">{showCode ? "hide code" : "code"}</span>
         </button>
