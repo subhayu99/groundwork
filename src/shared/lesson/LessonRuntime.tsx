@@ -9,6 +9,8 @@ import { ArrowDefs, Arrow } from "./canvas";
 import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
 import { SceneLayout } from "./SceneLayout";
 import { clampBeatIndex, filterBeatsForAudience, resolveBeatForRegister, type BeatVisualApi, type LessonSpec } from "./types";
+import { lessonSpecs } from "./registry";
+import { getLessonResources } from "./nextStepsResources";
 import { useAudience } from "@/shared/audience/useAudience";
 import { pickRegister } from "@/shared/audience/types";
 
@@ -68,6 +70,16 @@ export function useLessonEngine(spec: LessonSpec, {
 } = {}) {
   const { width: VW, height: VH } = spec.canvas;
   const { code: PY, labelToLine } = useMemo(() => prepareCode(spec.codeSource), [spec.codeSource]);
+
+  // External "go deeper" resources for the COMPLETION CEREMONY (L2.8). The topic
+  // page doesn't thread these through, so we recover the lesson's `category/topic`
+  // slug by reverse-matching this spec against the lesson registry (same object
+  // reference the page resolved it from), then look up the already-authored
+  // resource list by that slug. Topics without a `next-steps.ts` resolve to [].
+  const resources = useMemo(() => {
+    const slug = Object.keys(lessonSpecs).find((k) => lessonSpecs[k] === spec);
+    return getLessonResources(slug);
+  }, [spec]);
 
   // AUDIENCE REGISTER — first FILTER the beat list for the active register +
   // goal (depth-adaptive: `registers` tags pick the audience's subset; a
@@ -199,7 +211,7 @@ export function useLessonEngine(spec: LessonSpec, {
   return {
     VW, VH, PY,
     b, setB, last, beat, beats,
-    register, bridge,
+    register, bridge, resources,
     showCode, setShowCode, toggleCode,
     showDetail, setShowDetail,
     completed,

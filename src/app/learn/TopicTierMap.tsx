@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { listAllTopics } from "@/categories/registry";
+import { listAllTopics, listCategories } from "@/categories/registry";
 import { useProgress } from "@/shared/progress/useProgress";
 import { useAudience } from "@/shared/audience/useAudience";
 import { personalizationFor, type MapPersonalization } from "@/shared/audience/policy";
@@ -63,13 +63,17 @@ export function TopicTierMap({ personalize }: {
 
   // Assumed topics are REMOVED from the map (not faded) — a smaller map carries
   // zero cognitive load for what you already know. One quiet toggle brings them
-  // back for a refresh; a completed topic always stays visible (progress > assumption).
+  // back for a refresh; a completed OR in-progress topic always stays visible
+  // (progress > assumption) — so the topic you're mid-derivation on never hides,
+  // and its "continue" ring below always has somewhere to land.
   const [showAssumed, setShowAssumed] = useState(false);
-  const rawCompleted = (t: TopicMeta) =>
-    !!(mounted && state?.categories[t.category]?.[t.key]?.derivation.completed);
+  const rawTouched = (t: TopicMeta) => {
+    const d = mounted ? state?.categories[t.category]?.[t.key]?.derivation : undefined;
+    return !!d && (d.completed || d.currentStep > 1);
+  };
   const hiddenKeys = useMemo(() => {
     if (!pz || showAssumed) return new Set<string>();
-    return new Set(allTopics.filter((t) => pz.assumedKeys.has(t.key) && !rawCompleted(t)).map((t) => t.key));
+    return new Set(allTopics.filter((t) => pz.assumedKeys.has(t.key) && !rawTouched(t)).map((t) => t.key));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pz?.startKey, pz?.assumedKeys, showAssumed, allTopics, state, mounted]);
   const hiddenCount = hiddenKeys.size;
@@ -173,6 +177,42 @@ export function TopicTierMap({ personalize }: {
     return pa.y - pb.y || pa.x - pb.x;
   });
 
+  // The "continue" pick: the most-recently-touched in-progress topic (same rule
+  // as ResumeBanner — currentStep advanced, not yet completed, newest lastTouched).
+  // Read straight from the store via the hook the map already holds; no shared
+  // extraction, just the one key that earns the dashed "continue" ring below.
+  const continueKey = useMemo(() => {
+    if (!mounted || !state) return null;
+    let best: string | null = null;
+    let bestAt = -1;
+    for (const t of topics) {
+      const tp = state.categories[t.category]?.[t.key];
+      const d = tp?.derivation;
+      if (!d || d.currentStep <= 1 || d.completed) continue;
+      const at = tp?.lastTouched ?? 0;
+      if (at > bestAt) { bestAt = at; best = t.key; }
+    }
+    return best;
+  }, [mounted, state, topics]);
+  const isContinue = (k: string) => continueKey === k;
+
+  // Interview goal → a quiet, honest per-track time estimate (sum of the topics'
+  // authored estimatedMinutes; ~10 min fallback so a missing field never zeroes
+  // a track). Only the still-to-do topics count, so it reads as time remaining.
+  const interviewEstimates = useMemo(() => {
+    if (!mounted || profile?.goal !== "interview") return null;
+    const byCat = new Map<string, { name: string; order: number; mins: number }>();
+    for (const t of topics) {
+      if (completed(t.key)) continue;
+      const cat = listCategories().find((c) => c.key === t.category);
+      const entry = byCat.get(t.category) ?? { name: cat?.name ?? t.category, order: cat?.order ?? 99, mins: 0 };
+      entry.mins += t.estimatedMinutes || 10;
+      byCat.set(t.category, entry);
+    }
+    return [...byCat.values()].filter((e) => e.mins > 0).sort((a, b) => a.order - b.order);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, profile?.goal, topics, state]);
+
   // Faded "assumed" styling only applies in the show-all view (hidden otherwise).
   const isAssumed = (k: string) => showAssumed && !!pz?.assumedKeys.has(k) && !completed(k);
   const isStart = (k: string) => pz?.startKey === k;
@@ -189,6 +229,19 @@ export function TopicTierMap({ personalize }: {
 
   return (
     <>
+      {/* Interview goal → quiet per-track time-to-finish estimate (remaining
+          topics' authored minutes). Honest, computed, never a hard sell. */}
+      {interviewEstimates && interviewEstimates.length > 0 && (
+        <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">interview prep · time left</span>
+          {interviewEstimates.map((e) => (
+            <span key={e.name} className="text-[12px] text-[var(--text-muted)]">
+              {e.name} <span className="text-[var(--text-faint)]">~{Math.round(e.mins / 5) * 5} min</span>
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* DESKTOP — SVG tiers (lg+, where the 1160-wide viewBox keeps chip text
           legible; below that the SVG text shrinks under ~8px, so we show the
           stacked bands instead). */}
@@ -231,6 +284,7 @@ export function TopicTierMap({ personalize }: {
               const p = pos.get(t.key)!;
               const done = completed(t.key), rdy = ready(t.key);
               const assumed = isAssumed(t.key), start = isStart(t.key);
+              const cont = isContinue(t.key);
               const lit = !hl || hl.has(t.key);
               const focused = focusKey === t.key;
               const w = p.w;
@@ -238,6 +292,7 @@ export function TopicTierMap({ personalize }: {
               let fill = "var(--bg-card)", stroke = "var(--line)", text = "var(--text-muted)", weight = 400;
               let dash: string | undefined;
               if (done) { fill = "var(--accent)"; stroke = "var(--accent)"; text = "var(--bg)"; weight = 500; }
+              else if (cont) { fill = "var(--accent-soft)"; stroke = "var(--accent)"; text = "var(--accent-ink)"; weight = 500; }
               else if (start) { fill = "var(--accent-soft)"; stroke = "var(--accent)"; text = "var(--accent-ink)"; weight = 500; }
               else if (rdy) { fill = "var(--accent-soft)"; stroke = "var(--accent-line)"; text = "var(--accent-ink)"; weight = 500; dash = "3 2.5"; }
               return (
@@ -247,19 +302,21 @@ export function TopicTierMap({ personalize }: {
                   onFocus={() => { setHover(t.key); setFocusKey(t.key); }}
                   onBlur={() => { setHover((h) => (h === t.key ? null : h)); setFocusKey((k) => (k === t.key ? null : k)); }}
                   onClick={() => go(t.key)} role="button" tabIndex={0}
-                  aria-label={`${t.name}${start ? " — your starting point" : assumed ? " — assumed from your background" : preNames.length ? ` — builds on ${preNames.join(", ")}` : " — start here"}`}
+                  aria-label={`${t.name}${cont ? " — continue where you left off" : start ? " — your starting point" : assumed ? " — assumed from your background" : preNames.length ? ` — builds on ${preNames.join(", ")}` : " — start here"}`}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(t.key); } }}>
                   {/* No SVG <title> here: React 19 hoists/empties it during SSR, which
                       mismatched on hydration and regenerated the whole map tree. The
                       accessible name lives on aria-label, and hovering already lights the
                       prerequisite chain — so the native tooltip wasn't pulling its weight. */}
-                  {/* keyboard focus ring — native SVG outlines are unreliable, so draw our own */}
-                  {(focused || start) && <rect x={-w / 2 - 4} y={-HH - 4} width={w + 8} height={HH * 2 + 8} rx={HH + 4} fill="none" stroke="var(--accent)" strokeWidth={focused ? 2 : 1.5} />}
+                  {/* keyboard focus ring + the standing "start"/"continue" rings —
+                      native SVG outlines are unreliable, so draw our own. The
+                      continue ring is solid like start (it's THE thing to do next). */}
+                  {(focused || start || cont) && <rect x={-w / 2 - 4} y={-HH - 4} width={w + 8} height={HH * 2 + 8} rx={HH + 4} fill="none" stroke="var(--accent)" strokeWidth={focused ? 2 : 1.5} />}
                   <rect x={-w / 2} y={-HH} width={w} height={HH * 2} rx={HH} fill={fill} stroke={stroke} strokeWidth={1} strokeDasharray={dash} />
                   {!done && <circle cx={w / 2 - 9} cy={-HH + 9} r={3} fill={diffColor(t.difficulty)} />}
                   <text textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={weight} fill={text} style={{ pointerEvents: "none", userSelect: "none" }}>{t.name}</text>
-                  {start && (
-                    <text y={HH + 16} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 9, fill: "var(--accent-ink)", letterSpacing: "0.08em" }}>start here</text>
+                  {(cont || start) && (
+                    <text y={HH + 16} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 9, fill: "var(--accent-ink)", letterSpacing: "0.08em" }}>{cont ? "continue →" : "start here"}</text>
                   )}
                 </g>
               );
@@ -281,10 +338,12 @@ export function TopicTierMap({ personalize }: {
                 const t = byKey.get(k)!;
                 const done = completed(k), rdy = ready(k);
                 const assumed = isAssumed(k), start = isStart(k);
+                const cont = isContinue(k);
                 return (
                   <Link key={k} href={`/categories/${t.category}/${t.key}`}
                     className={`block p-3.5 rounded-xl border transition-colors hover:border-[var(--line-strong)] ${
                       done ? "border-[var(--accent)] bg-[var(--accent-soft)]"
+                        : cont ? "border-[var(--accent)] bg-[var(--accent-soft)]"
                         : start ? "border-[var(--accent)] bg-[var(--accent-soft)]"
                         : rdy ? "border-dashed border-[var(--accent-line)] bg-[var(--accent-soft)]"
                         : "border-[var(--line-faint)] bg-[var(--bg-card)]"
@@ -293,8 +352,9 @@ export function TopicTierMap({ personalize }: {
                       <h3 className="font-semibold text-[var(--text)]">
                         {t.name}
                         {done && <span className="ml-1.5 text-[var(--accent-ink)]">✓</span>}
-                        {start && <span className="ml-1.5 font-mono text-[10px] text-[var(--accent-ink)]">start here</span>}
-                        {!start && rdy && <span className="ml-1.5 font-mono text-[10px] text-[var(--accent-ink)]">ready</span>}
+                        {cont && <span className="ml-1.5 font-mono text-[10px] text-[var(--accent-ink)]">continue &rarr;</span>}
+                        {!cont && start && <span className="ml-1.5 font-mono text-[10px] text-[var(--accent-ink)]">start here</span>}
+                        {!cont && !start && rdy && <span className="ml-1.5 font-mono text-[10px] text-[var(--accent-ink)]">ready</span>}
                         {assumed && <span className="ml-1.5 font-mono text-[10px] text-[var(--text-faint)]">assumed</span>}
                       </h3>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase shrink-0 border" style={{ color: diffColor(t.difficulty), borderColor: `color-mix(in oklab, ${diffColor(t.difficulty)} 45%, transparent)` }}>{diffLabel(t.difficulty)}</span>

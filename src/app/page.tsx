@@ -72,8 +72,8 @@ export default function Landing() {
                   href={`/principles/${p.key}`}
                   className="block p-4 rounded-xl border border-[var(--line-faint)] bg-[var(--bg-card)] hover:border-[var(--line-strong)] transition-colors"
                 >
-                  <div className="font-semibold text-[var(--text)] mb-0.5">{p.name}</div>
-                  <div className="text-sm text-[var(--text-muted)]">{p.displayName}</div>
+                  <div className="font-semibold text-[var(--text)] mb-0.5 leading-snug first-letter:uppercase">{p.displayName}</div>
+                  <div className="font-mono text-[11px] uppercase tracking-wider text-[var(--text-faint)]">{p.name}</div>
                 </Link>
               ))}
             </div>
@@ -107,6 +107,31 @@ export default function Landing() {
             >
               See the map &rarr;
             </Link>
+
+            <div className="mt-12 pt-8 border-t border-[var(--line-faint)] max-w-xl mx-auto">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-[var(--text-faint)] mb-2">
+                Don&rsquo;t see your topic?
+              </div>
+              <p className="text-sm text-[var(--text-muted)] mb-4">
+                Tell us what you want to derive next &mdash; the most-asked-for topics get built first.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
+                <a
+                  href="https://github.com/subhayu99/groundwork/issues/new?title=Topic+request%3A+&labels=topic-request&body=Which+topic+would+you+like+to+derive+from+first+principles%3F"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-[var(--text)] underline decoration-[var(--line-strong)] underline-offset-4 hover:decoration-[var(--text)] transition-colors"
+                >
+                  Request it on GitHub &rarr;
+                </a>
+                <a
+                  href="mailto:balasubhayu99@gmail.com?subject=Groundwork%20topic%20request&body=I%27d%20love%20to%20see%20a%20lesson%20on%3A%20"
+                  className="font-medium text-[var(--text-muted)] underline decoration-[var(--line-faint)] underline-offset-4 hover:text-[var(--text)] hover:decoration-[var(--line-strong)] transition-colors"
+                >
+                  Or email a suggestion
+                </a>
+              </div>
+            </div>
           </div>
         </section>
       </main>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAudience } from "@/shared/audience/useAudience";
 
 interface BreadcrumbItem {
   label: string;
@@ -21,11 +22,18 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
   // Default: show the progress link only on pages that don't already have a breadcrumb leading there
   const shouldShowProgressLink = showProgressLink ?? !breadcrumb;
   const pathname = usePathname();
+  // Profile chip: surfaces the active register and a way back to /start once the
+  // learner has onboarded. `loaded` gates it so it doesn't flash in (and cause a
+  // hydration mismatch) before localStorage is read on first paint.
+  const { onboarded, register, loaded } = useAudience();
   const navLinks: { href: string; label: string }[] = [
     { href: "/learn", label: "learn" },
     { href: "/progress", label: "progress" },
     { href: "/settings", label: "settings" },
   ];
+  // `trailingSlash: true` makes usePathname() return "/learn/" while our hrefs are
+  // "/learn" — compare with the slash normalized away so aria-current actually fires.
+  const isActive = (href: string) => pathname.replace(/\/$/, "") === href.replace(/\/$/, "");
   return (
     <header className="relative z-10 flex items-center justify-between gap-3 px-4 md:px-8 py-4 border-b border-[var(--line-faint)] backdrop-blur-md bg-[color-mix(in_oklab,var(--bg)_80%,transparent)]">
       {/* Skip link — first focusable element, lets keyboard/SR users jump past the
@@ -66,7 +74,7 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
       <div className="flex items-center gap-4">
         {shouldShowProgressLink &&
           navLinks.map(({ href, label }) => {
-            const current = pathname === href;
+            const current = isActive(href);
             return (
               <Link
                 key={href}
@@ -78,6 +86,19 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
               </Link>
             );
           })}
+        {shouldShowProgressLink && loaded && onboarded && (
+          <Link
+            href="/start"
+            aria-current={isActive("/start") ? "page" : undefined}
+            aria-label={`Explanation style: ${register}. Change in onboarding.`}
+            title="Change how lessons are pitched"
+            className={`hidden sm:inline-flex items-center gap-1.5 rounded-full border border-[var(--line-faint)] bg-[var(--bg-card)] px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider hover:text-[var(--text)] hover:border-[var(--line-strong)] transition-colors ${isActive("/start") ? "text-[var(--accent-ink)]" : "text-[var(--text-muted)]"}`}
+          >
+            <span>{register}</span>
+            <span aria-hidden="true" className="text-[var(--text-faint)]">&middot;</span>
+            <span aria-hidden="true">change</span>
+          </Link>
+        )}
         {difficulty && (
           <span
             className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border"
