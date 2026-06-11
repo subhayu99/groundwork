@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { pickRegister, type Register, type Registered } from "@/shared/audience/types";
+import { pickRegister, type Goal, type Register, type Registered } from "@/shared/audience/types";
 
 /**
  * The annotated-canvas LESSON CONTRACT.
@@ -24,7 +24,11 @@ import { pickRegister, type Register, type Registered } from "@/shared/audience/
 export interface BeatVisualApi {
   /** Emit the `@sync` code label(s) to highlight right now (overrides static codeLabels). */
   onActiveLine: (labels: (string | number)[]) => void;
-  /** Call once the user performs the gating interaction (satisfies a `wedge` beat). */
+  /** Call once the user performs the gating interaction (satisfies a `wedge` beat).
+   *  GATE HONESTY: fire this on the REAL interaction — the tap/click/choice that
+   *  actually answers the beat's question (e.g. a `PredictGate` choice, a cell
+   *  click) — never on mount, hover, or an unrelated passthrough click. A gate
+   *  the learner didn't genuinely act on teaches them gates are noise. */
   onInteractionDone: () => void;
 }
 
@@ -81,6 +85,12 @@ interface LessonBeatBase {
   codeLabels?: string[];
   /** Does this beat auto-play or require a user action before "Next"? Default "none". */
   interaction?: BeatInteraction;
+  /** Depth gate: registers this beat appears for. undefined = ALL registers.
+   *  The engine filters BEFORE prose resolution, so depth never forks the skeleton. */
+  registers?: Register[];
+  /** Drop this beat when the learner's goal is "refresh" (one trim past the
+   *  register cut). Default (absent/false) keeps the beat. */
+  trimOnRefresh?: boolean;
 }
 
 export interface LessonBeat extends LessonBeatBase {
@@ -130,6 +140,32 @@ export function resolveBeatForRegister(beat: LessonBeat, register: Register): Re
   };
 }
 
+/**
+ * Depth-adaptive beat selection (pure; the engine applies it before resolution).
+ * `beat.registers` undefined = the beat appears for everyone; otherwise only for
+ * the listed registers. goal === "refresh" additionally drops `trimOnRefresh`
+ * beats. GUARD: a cut that would empty the lesson is discarded (full/pre-trim
+ * list wins) — a learner must never meet a zero-beat lesson.
+ */
+export function filterBeatsForAudience(
+  beats: LessonBeat[],
+  register: Register,
+  goal?: Goal,
+): LessonBeat[] {
+  const byRegister = beats.filter((bt) => !bt.registers || bt.registers.includes(register));
+  let included = byRegister.length > 0 ? byRegister : beats;
+  if (goal === "refresh") {
+    const trimmed = included.filter((bt) => !bt.trimOnRefresh);
+    if (trimmed.length > 0) included = trimmed;
+  }
+  return included;
+}
+
+/** Keep the current beat index inside the (possibly just-shrunk) beat list. */
+export function clampBeatIndex(i: number, count: number): number {
+  return Math.max(0, Math.min(i, count - 1));
+}
+
 export interface LessonSpec {
   topicTitle: string;
   /** Canvas design size; every beat draws inside this coordinate box. */
@@ -137,6 +173,12 @@ export interface LessonSpec {
   /** Raw `algorithm.py` source (with `@sync:` anchors) for the docked code panel. */
   codeSource: string;
   beats: LessonBeat[];
+  /** One short "standing on the previous lesson" line, register-aware. Shown as a
+   *  quiet italic line above the connector position on beat 0 only (scene layout). */
+  bridgeFrom?: Registered<string>;
+  /** The "idea n of total" principle stamp; `key` is the principle registry key —
+   *  the chip links to `/principles/{key}`. Rendered on all beats (scene layout). */
+  principle?: { key: string; n: number; total: number };
   /** Lesson layout. Default/undefined = "classic" (the established top-to-bottom
    *  composition used by every topic). "scene" opts into the immersive one-scene
    *  layout: hero diagram in a confidently-boxed plane, a collapsible right reading

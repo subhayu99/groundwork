@@ -7,6 +7,7 @@ import { useAudience } from "@/shared/audience/useAudience";
 import { listAllTopics } from "@/categories/registry";
 import { TopicTierMap } from "@/app/learn/TopicTierMap";
 import {
+  ENTRY_TOPIC,
   EXPERIENCE_OPTIONS,
   GOAL_OPTIONS,
   REGISTER_OPTIONS,
@@ -52,6 +53,19 @@ export function OnboardingQuiz() {
     [experience, topics],
   );
 
+  // The consequence line for the selected experience — computed from the live
+  // registry (entry name, hidden/visible counts) so it can never drift from
+  // what the map below actually does.
+  const experienceEffect = useMemo(() => {
+    if (!experience) return undefined;
+    const entry = ENTRY_TOPIC[experience];
+    const entryName = topics.find((t) => t.key === entry.topic)?.name ?? entry.topic;
+    const hidden = personalizationFor(experience, topics).assumedKeys.size;
+    return hidden === 0
+      ? `Start at ${entryName} — the full ${topics.length}-topic map.`
+      : `Start at ${entryName} — ${hidden} known topics hidden, ${topics.length - hidden} on your map.`;
+  }, [experience, topics]);
+
   const complete = !!(experience && register && goal);
 
   const begin = () => {
@@ -64,7 +78,7 @@ export function OnboardingQuiz() {
     <div className="flex flex-col gap-7">
       {/* ── the three questions — one compact row each ── */}
       <div className="flex flex-col gap-5">
-        <QuestionRow label="Coding background" options={EXPERIENCE_OPTIONS} value={experience} onPick={setExperience} />
+        <QuestionRow label="Coding background" options={EXPERIENCE_OPTIONS} value={experience} onPick={setExperience} effect={experienceEffect} />
         <QuestionRow label="Explanation style" options={REGISTER_OPTIONS} value={register} onPick={setRegister} />
         <QuestionRow label="Your goal" options={GOAL_OPTIONS} value={goal} onPick={setGoal} />
       </div>
@@ -97,7 +111,7 @@ export function OnboardingQuiz() {
           </div>
           <div className="text-[12.5px] text-[var(--text-muted)]">
             {preview
-              ? <>ringed = where you&rsquo;ll start · faded = assumed from your background (always open for a refresh)</>
+              ? <>ringed = where you&rsquo;ll start · topics your background already covers are tucked away (one tap brings them back)</>
               : <>answer the first question and watch the map adapt to you</>}
           </div>
         </div>
@@ -114,13 +128,17 @@ function QuestionRow<V extends string>({
   options,
   value,
   onPick,
+  effect,
 }: {
   label: string;
   options: QuizOption<V>[];
   value: V | null;
   onPick: (v: V) => void;
+  /** Overrides the picked option's static `effect` (used where the consequence
+   *  is computed live, e.g. the experience row's entry + map counts). */
+  effect?: string;
 }) {
-  const picked = options.find((o) => o.value === value);
+  const consequence = effect ?? options.find((o) => o.value === value)?.effect;
   return (
     <div className="flex flex-col sm:flex-row sm:items-start gap-1.5 sm:gap-5">
       <div className="sm:w-44 shrink-0 sm:pt-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-[var(--text-faint)]">
@@ -137,6 +155,7 @@ function QuestionRow<V extends string>({
                 role="radio"
                 aria-checked={on}
                 onClick={() => onPick(o.value)}
+                title={o.hint}
                 className={`min-h-[36px] px-3.5 py-1.5 rounded-md text-[12.5px] transition-colors ${
                   on
                     ? "bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--accent-ink)] font-medium"
@@ -148,8 +167,15 @@ function QuestionRow<V extends string>({
             );
           })}
         </div>
-        <div className="mt-1 text-[12px] leading-snug text-[var(--text-faint)] min-h-[1.1em]">
-          {picked ? picked.hint : "pick one"}
+        {/* ONE line under the row — the consequence of the tap. The "who am I"
+            hint lives on hover (title) so the eye meets a single short line.
+            For the style row the line is WRITTEN IN that style — picking previews it. */}
+        <div className="mt-1 text-[12px] leading-snug min-h-[1.1em]">
+          {consequence ? (
+            <span className="text-[var(--accent-ink)]"><span aria-hidden="true">→ </span>{consequence}</span>
+          ) : (
+            <span className="text-[var(--text-faint)]">pick one</span>
+          )}
         </div>
       </div>
     </div>

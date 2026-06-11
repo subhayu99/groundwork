@@ -14,8 +14,12 @@ export interface QuizOption<V extends string> {
   value: V;
   /** Short chip shown as the choice. */
   label: string;
-  /** One-line plain-language explanation under the label. */
+  /** One-line plain-language explanation of what the choice MEANS (who/what you are). */
   hint: string;
+  /** One-line statement of what the choice CHANGES (the consequence shown on tap).
+   *  Experience options omit it — their effect (entry topic + map size) is computed
+   *  live from the registry so the numbers can never drift. */
+  effect?: string;
 }
 
 /** Q1 — domain familiarity (routing). */
@@ -28,16 +32,23 @@ export const EXPERIENCE_OPTIONS: QuizOption<Experience>[] = [
 /** Q2 — how it should be explained (sets the content register). Worded as
  *  background/comfort, NOT school/college, so it generalizes to any domain. */
 export const REGISTER_OPTIONS: QuizOption<Register>[] = [
-  { value: "intuitive", label: "Keep it concrete", hint: "Everyday analogies first, take it slow, explain every term." },
-  { value: "structured", label: "Balanced", hint: "Mix the intuition with the real structure and notation." },
-  { value: "rigorous", label: "Go rigorous", hint: "Be terse and precise — invariants, exact costs, edge cases." },
+  // Each effect line is WRITTEN IN the style it selects — picking it previews it.
+  { value: "intuitive", label: "Keep it concrete", hint: "Everyday analogies first, take it slow, explain every term.",
+    effect: "Every lesson takes the slow road — the full walkthrough, with everyday examples and every new word explained as you go." },
+  { value: "structured", label: "Balanced", hint: "Mix the intuition with the real structure and notation.",
+    effect: "Lessons run ~4–5 steps: intuition first, then the real notation." },
+  { value: "rigorous", label: "Go rigorous", hint: "Be terse and precise — invariants, exact costs, edge cases.",
+    effect: "1–3 steps. Invariants, exact costs. No analogies." },
 ];
 
 /** Q3 — why they're here (recommendations / pacing). */
 export const GOAL_OPTIONS: QuizOption<Goal>[] = [
-  { value: "understand", label: "Understand deeply", hint: "I'm here to really get it, no deadline." },
-  { value: "interview", label: "Interview prep", hint: "Breadth + practice, and fast." },
-  { value: "refresh", label: "Refresh", hint: "I knew this once — re-derive the intuition." },
+  { value: "understand", label: "Understand deeply", hint: "I'm here to really get it, no deadline.",
+    effect: "The full path, nothing trimmed." },
+  { value: "interview", label: "Interview prep", hint: "Breadth + practice, and fast.",
+    effect: "Practice surfaces after every lesson." },
+  { value: "refresh", label: "Refresh", hint: "I knew this once — re-derive the intuition.",
+    effect: "Warm-up steps dropped — the shortest pass." },
 ];
 
 /**
