@@ -14,8 +14,12 @@ export interface QuizOption<V extends string> {
   value: V;
   /** Short chip shown as the choice. */
   label: string;
-  /** One-line plain-language explanation under the label. */
+  /** One-line plain-language explanation of what the choice MEANS (who/what you are). */
   hint: string;
+  /** One-line statement of what the choice CHANGES (the consequence shown on tap).
+   *  Experience options omit it — their effect (entry topic + map size) is computed
+   *  live from the registry so the numbers can never drift. */
+  effect?: string;
 }
 
 /** Q1 — domain familiarity (routing). */
@@ -28,16 +32,22 @@ export const EXPERIENCE_OPTIONS: QuizOption<Experience>[] = [
 /** Q2 — how it should be explained (sets the content register). Worded as
  *  background/comfort, NOT school/college, so it generalizes to any domain. */
 export const REGISTER_OPTIONS: QuizOption<Register>[] = [
-  { value: "intuitive", label: "Keep it concrete", hint: "Everyday analogies first, take it slow, explain every term." },
-  { value: "structured", label: "Balanced", hint: "Mix the intuition with the real structure and notation." },
-  { value: "rigorous", label: "Go rigorous", hint: "Be terse and precise — invariants, exact costs, edge cases." },
+  { value: "intuitive", label: "Keep it concrete", hint: "Everyday analogies first, take it slow, explain every term.",
+    effect: "Every lesson runs its full walkthrough (~6–8 steps), built on everyday analogies, every term tappable." },
+  { value: "structured", label: "Balanced", hint: "Mix the intuition with the real structure and notation.",
+    effect: "Every lesson runs ~4–5 steps — the intuition plus the real structure and notation." },
+  { value: "rigorous", label: "Go rigorous", hint: "Be terse and precise — invariants, exact costs, edge cases.",
+    effect: "Every lesson collapses to its shortest 1–3 step cut — terse, invariants and exact costs, no analogies." },
 ];
 
 /** Q3 — why they're here (recommendations / pacing). */
 export const GOAL_OPTIONS: QuizOption<Goal>[] = [
-  { value: "understand", label: "Understand deeply", hint: "I'm here to really get it, no deadline." },
-  { value: "interview", label: "Interview prep", hint: "Breadth + practice, and fast." },
-  { value: "refresh", label: "Refresh", hint: "I knew this once — re-derive the intuition." },
+  { value: "understand", label: "Understand deeply", hint: "I'm here to really get it, no deadline.",
+    effect: "The full recommended path — nothing trimmed, nothing rushed." },
+  { value: "interview", label: "Interview prep", hint: "Breadth + practice, and fast.",
+    effect: "Practice problems are surfaced the moment you finish each lesson." },
+  { value: "refresh", label: "Refresh", hint: "I knew this once — re-derive the intuition.",
+    effect: "Lessons drop their warm-up steps — the quickest pass at your chosen style." },
 ];
 
 /**
