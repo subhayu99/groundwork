@@ -3,15 +3,27 @@
 import { useCallback, useEffect, useState } from "react";
 import { ProgressStore } from "./ProgressStore";
 import { ProgressState, TopicProgress, emptyTopicProgress, emptyProgressState } from "./types";
+import type { AudienceProfile } from "@/shared/audience/types";
 
 type Settings = ProgressState["settings"];
 
 const store = new ProgressStore();
 
+// Stamp the visit once per page load, not once per mounted hook instance —
+// many components call useProgress, and the store throttles besides.
+let visitTouchedThisLoad = false;
+
 export function useProgress() {
   const [state, setState] = useState<ProgressState | null>(null);
 
   useEffect(() => {
+    // Visit stamping lives HERE (a mount effect), never in store.load() —
+    // load stays a pure read. Runs before the first setState so this
+    // instance's snapshot already includes the fresh meta.
+    if (!visitTouchedThisLoad) {
+      visitTouchedThisLoad = true;
+      store.touchVisit();
+    }
     setState(store.load());
     // Re-read on any save (from this or any other useProgress instance) so all
     // consumers stay in sync — e.g. the lesson page reacts the moment the
@@ -56,6 +68,12 @@ export function useProgress() {
     store.save({ ...prev, settings: mutator(prev.settings) });
   }, []);
 
+  /** Set (or clear) the onboarding profile. `null` clears it (re-onboard). */
+  const setAudience = useCallback((profile: AudienceProfile | null) => {
+    const prev = store.load();
+    store.save({ ...prev, audience: profile ?? undefined });
+  }, []);
+
   const resetProgress = useCallback(() => {
     store.save(emptyProgressState());
   }, []);
@@ -65,5 +83,21 @@ export function useProgress() {
     store.importJson(json);
   }, []);
 
-  return { state, updateTopic, getTopic, updateSettings, resetProgress, exportJson, importJson };
+  /** Manually re-stamp the visit (the mount effect already does this once per
+   *  page load; store-side throttling makes extra calls cheap). */
+  const touchVisit = useCallback(() => {
+    store.touchVisit();
+  }, []);
+
+  return {
+    state,
+    updateTopic,
+    getTopic,
+    updateSettings,
+    setAudience,
+    resetProgress,
+    exportJson,
+    importJson,
+    touchVisit,
+  };
 }

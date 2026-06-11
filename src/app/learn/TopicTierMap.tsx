@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { listAllTopics } from "@/categories/registry";
 import { useProgress } from "@/shared/progress/useProgress";
+import { useAudience } from "@/shared/audience/useAudience";
+import { personalizationFor, type MapPersonalization } from "@/shared/audience/policy";
 import type { TopicMeta } from "@/shared/derivation/types";
 
 /**
@@ -36,9 +38,15 @@ const diffLabel = (d?: string) => (d === "foundation" ? "Basics" : d ?? "");
 const chipW = (label: string) => Math.max(66, label.length * 6.3 + 24);
 const CHIP_GAP = 12; // min horizontal gap between chips in a tier
 
-export function TopicTierMap() {
+export function TopicTierMap({ personalize }: {
+  /** Explicit personalization (the /start quiz passes its LIVE answers so the map
+   *  previews them before saving). Omitted → derived from the saved profile, so
+   *  /learn shows the same personalized view for free. */
+  personalize?: MapPersonalization;
+} = {}) {
   const router = useRouter();
   const { state } = useProgress();
+  const { profile } = useAudience();
   const [hover, setHover] = useState<string | null>(null);
   const [focusKey, setFocusKey] = useState<string | null>(null);
   // Progress is client-only (localStorage); gate progress-dependent styling behind
@@ -46,8 +54,28 @@ export function TopicTierMap() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  // PERSONALIZED VIEW — explicit prop (live quiz answers) wins; otherwise derive
+  // from the saved profile, gated behind mount like every progress-driven style.
+  // Derived from the FULL topic list (assumed sets are defined against it).
+  const allTopics = useMemo(() => listAllTopics(), []);
+  const pz: MapPersonalization | undefined =
+    personalize ?? (mounted && profile ? personalizationFor(profile.experience, allTopics) : undefined);
+
+  // Assumed topics are REMOVED from the map (not faded) — a smaller map carries
+  // zero cognitive load for what you already know. One quiet toggle brings them
+  // back for a refresh; a completed topic always stays visible (progress > assumption).
+  const [showAssumed, setShowAssumed] = useState(false);
+  const rawCompleted = (t: TopicMeta) =>
+    !!(mounted && state?.categories[t.category]?.[t.key]?.derivation.completed);
+  const hiddenKeys = useMemo(() => {
+    if (!pz || showAssumed) return new Set<string>();
+    return new Set(allTopics.filter((t) => pz.assumedKeys.has(t.key) && !rawCompleted(t)).map((t) => t.key));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pz?.startKey, pz?.assumedKeys, showAssumed, allTopics, state, mounted]);
+  const hiddenCount = hiddenKeys.size;
+
   const { topics, byKey, tiers, maxLevel } = useMemo(() => {
-    const topics = listAllTopics();
+    const topics = allTopics.filter((t) => !hiddenKeys.has(t.key));
     const byKey = new Map<string, TopicMeta>(topics.map((t) => [t.key, t]));
     const memo = new Map<string, number>();
     const level = (k: string, seen = new Set<string>()): number => {
@@ -66,7 +94,9 @@ export function TopicTierMap() {
     const tiers: string[][] = Array.from({ length: maxLevel + 1 }, () => []);
     topics.forEach((t) => tiers[memo.get(t.key)!].push(t.key));
     return { topics, byKey, tiers, maxLevel };
-  }, []);
+    // levels/edges/ready all key off the VISIBLE byKey, so hiding a track
+    // re-tiers the rest automatically (a hidden prerequisite reads as satisfied).
+  }, [allTopics, hiddenKeys]);
 
   // deterministic positions — order each tier by the barycentre of its prereqs above
   const pos = useMemo(() => {
@@ -143,6 +173,13 @@ export function TopicTierMap() {
     return pa.y - pb.y || pa.x - pb.x;
   });
 
+  // Faded "assumed" styling only applies in the show-all view (hidden otherwise).
+  const isAssumed = (k: string) => showAssumed && !!pz?.assumedKeys.has(k) && !completed(k);
+  const isStart = (k: string) => pz?.startKey === k;
+  const toggleLabel = showAssumed
+    ? "hide the topics you already know"
+    : `+ ${hiddenCount} topic${hiddenCount === 1 ? "" : "s"} you already know — show`;
+
   const hl = hover ? new Set<string>([hover, ...(ancestors.get(hover) ?? [])]) : null;
   const H = TOP + maxLevel * ROW + 56;
   const go = (k: string) => { const t = byKey.get(k); if (t) router.push(`/categories/${t.category}/${t.key}`); };
@@ -163,11 +200,12 @@ export function TopicTierMap() {
               <path d="M0.5,0.5 L9,5 L0.5,9.5 z" fill="context-stroke" />
             </marker>
           </defs>
-          {/* tier labels */}
+          {/* tier labels — the generic level-0 "start here" yields to the
+              personalized start ring once a profile/preview is active */}
           {tiers.map((_, L) => (
             <g key={L}>
               <text x={20} y={TOP + L * ROW} dominantBaseline="central" className="font-mono" style={{ fontSize: 11, fill: "var(--text-faint)", letterSpacing: "0.12em" }}>{tierLabel(L)}</text>
-              {L === 0 && <text x={20} y={TOP + L * ROW + 15} className="font-mono" style={{ fontSize: 9, fill: "var(--accent-ink)" }}>start here</text>}
+              {L === 0 && !pz && <text x={20} y={TOP + L * ROW + 15} className="font-mono" style={{ fontSize: 9, fill: "var(--accent-ink)" }}>start here</text>}
             </g>
           ))}
           {/* edges (behind chips) */}
@@ -192,6 +230,7 @@ export function TopicTierMap() {
             {ordered.map((t) => {
               const p = pos.get(t.key)!;
               const done = completed(t.key), rdy = ready(t.key);
+              const assumed = isAssumed(t.key), start = isStart(t.key);
               const lit = !hl || hl.has(t.key);
               const focused = focusKey === t.key;
               const w = p.w;
@@ -199,25 +238,29 @@ export function TopicTierMap() {
               let fill = "var(--bg-card)", stroke = "var(--line)", text = "var(--text-muted)", weight = 400;
               let dash: string | undefined;
               if (done) { fill = "var(--accent)"; stroke = "var(--accent)"; text = "var(--bg)"; weight = 500; }
+              else if (start) { fill = "var(--accent-soft)"; stroke = "var(--accent)"; text = "var(--accent-ink)"; weight = 500; }
               else if (rdy) { fill = "var(--accent-soft)"; stroke = "var(--accent-line)"; text = "var(--accent-ink)"; weight = 500; dash = "3 2.5"; }
               return (
-                <g key={t.key} transform={`translate(${p.x},${p.y})`} opacity={lit ? 1 : 0.16}
+                <g key={t.key} transform={`translate(${p.x},${p.y})`} opacity={lit ? (assumed ? 0.4 : 1) : 0.16}
                   style={{ cursor: "pointer", transition: "opacity 150ms", outline: "none" }}
                   onMouseEnter={() => setHover(t.key)} onMouseLeave={() => setHover((h) => (h === t.key ? null : h))}
                   onFocus={() => { setHover(t.key); setFocusKey(t.key); }}
                   onBlur={() => { setHover((h) => (h === t.key ? null : h)); setFocusKey((k) => (k === t.key ? null : k)); }}
                   onClick={() => go(t.key)} role="button" tabIndex={0}
-                  aria-label={`${t.name}${preNames.length ? ` — builds on ${preNames.join(", ")}` : " — start here"}`}
+                  aria-label={`${t.name}${start ? " — your starting point" : assumed ? " — assumed from your background" : preNames.length ? ` — builds on ${preNames.join(", ")}` : " — start here"}`}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(t.key); } }}>
                   {/* No SVG <title> here: React 19 hoists/empties it during SSR, which
                       mismatched on hydration and regenerated the whole map tree. The
                       accessible name lives on aria-label, and hovering already lights the
                       prerequisite chain — so the native tooltip wasn't pulling its weight. */}
                   {/* keyboard focus ring — native SVG outlines are unreliable, so draw our own */}
-                  {focused && <rect x={-w / 2 - 4} y={-HH - 4} width={w + 8} height={HH * 2 + 8} rx={HH + 4} fill="none" stroke="var(--accent)" strokeWidth={2} />}
+                  {(focused || start) && <rect x={-w / 2 - 4} y={-HH - 4} width={w + 8} height={HH * 2 + 8} rx={HH + 4} fill="none" stroke="var(--accent)" strokeWidth={focused ? 2 : 1.5} />}
                   <rect x={-w / 2} y={-HH} width={w} height={HH * 2} rx={HH} fill={fill} stroke={stroke} strokeWidth={1} strokeDasharray={dash} />
                   {!done && <circle cx={w / 2 - 9} cy={-HH + 9} r={3} fill={diffColor(t.difficulty)} />}
                   <text textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={weight} fill={text} style={{ pointerEvents: "none", userSelect: "none" }}>{t.name}</text>
+                  {start && (
+                    <text y={HH + 16} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 9, fill: "var(--accent-ink)", letterSpacing: "0.08em" }}>start here</text>
+                  )}
                 </g>
               );
             })}
@@ -231,24 +274,28 @@ export function TopicTierMap() {
           <section key={L}>
             <div className="flex items-baseline gap-2 mb-3">
               <h2 className="font-mono text-xs uppercase tracking-wider text-[var(--text-faint)]">{tierLabel(L)}</h2>
-              {L === 0 && <span className="font-mono text-[10px] text-[var(--accent-ink)]">start here</span>}
+              {L === 0 && !pz && <span className="font-mono text-[10px] text-[var(--accent-ink)]">start here</span>}
             </div>
             <div className="grid gap-3">
               {keys.map((k) => {
                 const t = byKey.get(k)!;
                 const done = completed(k), rdy = ready(k);
+                const assumed = isAssumed(k), start = isStart(k);
                 return (
                   <Link key={k} href={`/categories/${t.category}/${t.key}`}
                     className={`block p-3.5 rounded-xl border transition-colors hover:border-[var(--line-strong)] ${
                       done ? "border-[var(--accent)] bg-[var(--accent-soft)]"
+                        : start ? "border-[var(--accent)] bg-[var(--accent-soft)]"
                         : rdy ? "border-dashed border-[var(--accent-line)] bg-[var(--accent-soft)]"
                         : "border-[var(--line-faint)] bg-[var(--bg-card)]"
-                    }`}>
+                    } ${assumed ? "opacity-55" : ""}`}>
                     <div className="flex items-start justify-between gap-2 mb-1.5">
                       <h3 className="font-semibold text-[var(--text)]">
                         {t.name}
                         {done && <span className="ml-1.5 text-[var(--accent-ink)]">✓</span>}
-                        {rdy && <span className="ml-1.5 font-mono text-[10px] text-[var(--accent-ink)]">ready</span>}
+                        {start && <span className="ml-1.5 font-mono text-[10px] text-[var(--accent-ink)]">start here</span>}
+                        {!start && rdy && <span className="ml-1.5 font-mono text-[10px] text-[var(--accent-ink)]">ready</span>}
+                        {assumed && <span className="ml-1.5 font-mono text-[10px] text-[var(--text-faint)]">assumed</span>}
                       </h3>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase shrink-0 border" style={{ color: diffColor(t.difficulty), borderColor: `color-mix(in oklab, ${diffColor(t.difficulty)} 45%, transparent)` }}>{diffLabel(t.difficulty)}</span>
                     </div>
@@ -262,6 +309,19 @@ export function TopicTierMap() {
           </section>
         ))}
       </div>
+
+      {/* the one escape hatch — known topics stay a tap away for a refresh */}
+      {pz && (hiddenCount > 0 || showAssumed) && (
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setShowAssumed((v) => !v)}
+            className="font-mono text-[11px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+          >
+            {toggleLabel}
+          </button>
+        </div>
+      )}
     </>
   );
 }

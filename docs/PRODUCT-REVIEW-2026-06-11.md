@@ -1,0 +1,45 @@
+# Product Review — 2026-06-11 (synthesis of 6 lenses)
+
+Lenses: newcomer walkthrough (WN), interview-prepper walkthrough (WP), pedagogy (PED), cohesion/narrative (CN), product strategy (PS), app quality (AQ).
+Scope: state AFTER /start onboarding + register pilot + goal hand-off shipped. Prior art (PRODUCT-ASSESSMENT.md, AUDIT-2026-06-08.md) not re-litigated; novelty marked per item.
+
+## State of the product
+
+The lesson engine remains best-in-class and every lens independently called the new /start quiz well-built — the May "weak front door" verdict is structurally addressed. But the front door now writes checks the product can't cash: Q2 promises register-aware prose and 1 of 29 lessons delivers it, the live-map preview (the quiz's signature payoff) renders below the fold on desktop and inside a 2999px scroll on mobile, and the funnel it creates is unmeasurable because analytics is a console.debug stub. One level down, the May diagnosis still holds: "completed" means watched (nothing predicts, verifies, or retrieves), nothing brings a learner back on day 3, and no surface — /learn, /progress, category pages — uses the stored profile/progress to say "do this next." The product is a 9/10 explanation system with a real front door, pouring into a blind, leaky bucket.
+
+## Top findings
+
+| # | Bucket | Finding | One line | Impact | Effort | Novelty | Lenses |
+|---|--------|---------|----------|--------|--------|---------|--------|
+| 1 | product | Register promise is 1/29 | Q2 sells "how every lesson is pitched" but only binary-search has reg() variants — fan registers out along the three entry paths first, fix the why-card auto-collapse that hides rigorous prose mid-lesson, and scope the quiz copy honestly until coverage lands. | high | M | new | WP, PS, AQ |
+| 2 | product | Funnel is blind | emitEvent is a console.debug stub and /start emits zero events — point it at a cookieless sink (Plausible/PostHog) with quiz + completion-hand-off events so land→quiz→lesson→completion is measured the week the front door shipped. | high | S | new | PS |
+| 3 | product | Zero reason to return | No review schedule, due items, or return trigger (assessment: 3/10; Phase 7 unstarted) — auto-derive a 60-second recall deck from the register-resolved beat takeaways and surface a "due for re-derivation" shelf on home//learn from existing ProgressState fields. | high | M | known-but-still-open | PED, PS |
+| 4 | application | /start map payoff is invisible | The live preview sits below the fold on desktop and inside a 2999px stack on mobile — cap it to a scrollable band, auto-scroll to the personalized start chip on each answer, and echo "your start: Variables →" inline under the quiz. | high | S | new | WN, AQ |
+| 5 | product | Landing leads with jargon | The second thing a newcomer reads is "Monotonicity & Invariants / Amortization" — swap the principles grid for the friendly 3-step "how a lesson works" explainer (already on the page) and keep jargon names for after opt-in. | high | S | known-but-still-open | WN |
+| 6 | product | No surface points forward | /learn shows no resume/next-node/goal overlay, /progress is a flat 0-of-29 dump, category pages are unordered cards — use stored profile+progress for a "you are here" ring, continue CTA, interview-prep overlay with time estimate, and numbered chapter pages per track. | high | M | known-but-still-open | WN, WP, AQ, CN |
+| 7 | learning-experience | No milestone moments | Lesson end is a silent beat and tracks roll into each other — add a completion moment (recap + principle + prominent next CTA; practice entry not gated on goal/final-beat) and a per-track capstone checkpoint page. | high | M | known-but-still-open | WN, CN, WP |
+| 8 | application | Practice verifies nothing, never mixes | "Solved" is a self-report button and every problem sits under its topic label — gate solved on a checkable response (predict-the-output, Parsons reorder, which-line-breaks) and add a label-stripped mixed set that asks "which pattern?" first. | high | M | new | PED |
+| 9 | learning-experience | Beats never ask for a prediction | Interactions are click-through (wedge gates fire on ANY click) and the authored Socratic questions are rhetorical — convert existing connector questions into 3-choice tap-to-predict overlays and make gates require the real answer. | high | M | known-but-still-open | PED |
+| 10 | application | Interview practice is too thin | 1–2 scaffold problems per topic, 0 hard, external links authored in next-steps.ts but never shown — add one hard adapt-the-pattern variant per algorithm topic (opt-in tier) and surface the existing links in the practice CTA row. | high | M | known-but-still-open | WP, PS |
+| 11 | learning-experience | No narrator above the lesson | Zero backward references across 29 specs (bridgeFrom typed but unused) and the seven-ideas thesis is stamped in ~5/29 — implement bridgeFrom as a register-aware "standing on" line and a required PrincipleStamp ("idea n of 7") in every pattern beat, surfaced as "ideas collected" in progress. | high | M | new | CN |
+| 12 | product | localStorage-only identity | The entire learner is one evictable browser blob (Safari ~7-day ITP) with manual JSON export as the only mitigation — ship minimum durability via anonymous sync-code or magic-link backed by a tiny KV store syncing the blob as-is. | high | L | known-but-still-open | PS |
+
+## The 3 bets
+
+### Bet 1 — Make the new front door honest and measurable (items 1, 2, 4, 5)
+/start shipped this week and is genuinely good, but every user it routes hits a broken promise by their second lesson (register 1/29), never sees the live-map payoff without scrolling, and still meets the jargon grid the May audit said bounces the Class-10 persona. These are S/M fixes concentrated on the single highest-leverage moment — first contact — and the register fan-out along the three ENTRY_TOPIC paths is mostly authoring detail/takeaway variants, far cheaper than new lessons. Write CN's one-page per-track narrative contract before that authoring pass (and enforce stamp/label presence in vitest) so 28×3 future variants are born cohesive; while inside each entry-path spec, add its bridgeFrom line and principle stamp in the same pass (item 11). Wiring analytics first means this bet's own impact — and every later bet — is measured instead of guessed.
+
+### Bet 2 — Close the loop: from "watched" to "returned" (items 3, 6, 7)
+Reason-to-return scored 3/10 in May and remains the largest strategic hole; every ingredient already exists client-side (register-resolved takeaways as recall cards, lastTouched/completed as scheduling state, the "assumed" map rendering for overlays). Ship the re-derivation shelf ("Can you still derive Binary Search? 4 days since you built it") — Groundwork-native retrieval, not a guilt streak — and give it natural surfaces: a lesson-completion moment, forward-pointing /learn//progress/category pages, and track capstones as the first real milestones. This one build serves retention science, the freemium come-back mechanic, and the interview-prepper's "what do I do this week?" simultaneously. Durable identity (item 12) is the first L-sized follow-on once there's a return loop worth protecting.
+
+### Bet 3 — Make practice prove something (items 8, 9, 10)
+Today "completed" means watched and "solved" means clicked — for a platform whose differentiator is REAL code, the learner never produces anything the system can check. Cheap verifiable responses (predict-the-output MCQs, Parsons reordering, which-line-breaks) plus label-stripped mixed sets convert content that is already authored into generative work, honoring zero-grunt-work (no code judge needed yet). Prediction overlays do the same inside lessons by reusing the rhetorical connector questions that already exist. The hard tier + surfaced external links keep the interview segment — highest intent, the future paying users — from exhausting Groundwork in one sitting, and the same recall items double as PED's optional test-out that calibrates "assumed" tracks on the map.
+
+## Appendix — remaining findings worth keeping
+
+- Nav hygiene sweep (AQ, WN; AQ4 known-open): explicit tappable "← Map /learn" in the lesson header (mobile users are one Back from a dead-end), /start reachable from Chrome nav (profile chip with "change →"), "Hover a topic" → "Tap a topic" on pointer:coarse. All S.
+- Why-card auto-collapses every beat (WP): keep showDetail open across beats for register=rigorous — folded into Bet 1.
+- Wedge gates count any click as done (PED): require the actual target (e.g., find 27) — folded into Bet 3.
+- Practice hand-off lost on replay (WP): persistent practice entry whenever initiallyCompleted, any beat, any goal — folded into item 7.
+- Map asserts mastery from self-report (PED): once recall items exist, stale topics get a quiet "refresh?" ring and assumed tracks a 2-minute test-out — folded into Bet 3.
+- Register narrative contract (CN): one page per track pinning beat skeleton, recall + stamp slots, banned moves — prerequisite inside Bet 1.

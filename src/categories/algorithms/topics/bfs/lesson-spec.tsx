@@ -12,6 +12,9 @@ import {
   type GEdge,
   type StackBox,
 } from "@/shared/lesson/canvas";
+import { Term } from "@/shared/lesson/Term";
+import { PredictGate } from "@/shared/lesson/Predict";
+import { reg } from "@/shared/audience/types";
 import bfsPy from "./algorithm.py";
 import { pace } from "@/shared/lesson/pace";
 
@@ -388,6 +391,46 @@ const solvedBfs: BfsState = (() => {
   return { ...s, distances: r.distances, queue: [], active: null, goalAt: s.goalAt };
 })();
 
+/* ── Beat 4 PREDICTION GATE + playback: commit to the queue's discipline, THEN
+ * watch BFS run it. The ripple (beat 3) showed the ORDER we want; the one open
+ * design question is where newcomers join the waiting line so that order holds.
+ * One tap on a pill is the real interaction (interaction: "wedge"; PredictGate
+ * fires api.onInteractionDone()), then after a short reading pause the AutoBfs
+ * playback answers the prediction — the queue column appears exactly where the
+ * gate sat, and rings come off the front in distance order. The gate is HTML
+ * hosted on the SVG canvas via <foreignObject>; data-canvas-panel opts it into
+ * the scene layout's content-extent measurement. */
+function QueueOrderGate({ api }: { api: BeatVisualApi }) {
+  const [revealed, setRevealed] = useState(false);
+  const timer = useRef<number | null>(null);
+  useEffect(() => () => { if (timer.current != null) window.clearTimeout(timer.current); }, []);
+
+  if (revealed) return <AutoBfs api={api} />;
+
+  return (
+    <g>
+      {flood(GGq, null, seedDist, true)}
+      <text x={70} y={430} textAnchor="start" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+        S waits in the line at distance 0
+      </text>
+      <foreignObject x={486} y={200} width={356} height={256} style={{ overflow: "visible" }}>
+        <div data-canvas-panel="predict">
+          <PredictGate
+            api={api}
+            question="Discovered cells wait in a line; we always serve the front. Where must newcomers join so the closest is always served first?"
+            choices={[
+              { id: "back", label: "at the back — first found, first served", correct: true, note: "first in, first out — the rings come off the line in distance order" },
+              { id: "front", label: "at the front — newest first", note: "newest-first turns the line into a stack — that's the deep dive again, not rings" },
+              { id: "any", label: "anywhere — order won't matter", note: "it does: served out of order, a cell can be reached the long way round first and get too big a number" },
+            ]}
+            onRevealed={() => { timer.current = window.setTimeout(() => setRevealed(true), pace(1600)); }}
+          />
+        </div>
+      </foreignObject>
+    </g>
+  );
+}
+
 /* ── Beat 2 static: DFS finds a path — not necessarily the shortest ─────────── */
 const DFS_TRAIL: [number, number][] = [
   [0, 0],
@@ -458,37 +501,83 @@ function NetworkRipple() {
   );
 }
 
+/* ── depth map (VOICE-AND-DEPTH / BEAT-RITUAL) ───────────────────────────────
+ *   intuitive  : all 7 beats (setup, obvious, wedge, derive, operations,
+ *                general, name)
+ *   structured : 5 — cuts `obvious` (folded into the wedge's structured
+ *                connector) and `general` (its triggers live on in `name`).
+ *   rigorous   : 3 — derive (invariant + the queue-order gate) + operations
+ *                (exact costs + edge cases) + name; the rigorous bridgeFrom
+ *                line recalls dfs so derive's cold open lands.
+ *   refresh    : additionally trims `obvious` + `general` (trimOnRefresh).    */
 export const bfsLesson: LessonSpec = {
   topicTitle: "breadth-first search · the fewest steps out",
   layout: "scene",
   canvas: { width: VW, height: VH },
   codeSource: bfsPy as string,
+  // standing on dfs (the track-contrast anchor, per TRACK-NARRATIVES.md): dfs
+  // walks everything by diving deep and backing up; same walk with a queue
+  // (← stacks-queues) instead of a stack, and depth becomes distance. The
+  // rigorous line deliberately does NOT name FIFO — that's the derive gate.
+  bridgeFrom: reg({
+    base: "Depth-first found a way out by diving deep — swap its stack for a queue, and the same walk finds the fewest steps.",
+    intuitive: "You escaped the maze by diving deep and backing up — explore nearest-first instead, and the first exit is the shortest.",
+    rigorous: "DFS visits everything; its first arrival proves nothing about distance — impose an order where arrival means distance.",
+  }),
+  // from meta (TRACK-NARRATIVES row 26): the frontier's promise — nearer is
+  // always dequeued first. Not a ⚑ row: bfs IS the invariant idea in action.
+  principle: { key: "monotonicity-and-invariants", n: 3, total: 7 },
   beats: [
     {
       id: "setup",
       label: "The setup",
-      actionLabel: "Why deep-first isn't enough",
+      registers: ["intuitive", "structured"],
+      actionLabel: reg({
+        base: "Why deep-first isn't enough",
+        structured: "Explore by distance instead",
+      }),
       takeaway: "A maze from S to G — now we want the fewest steps, not just any way out.",
-      detail: (
-        <>
-          <p>
-            This is the same five-by-five maze you have seen before: a small grid of
-            squares where <strong>S</strong> (top-left) is the start, <strong>G</strong>{" "}
-            (bottom-right) is the goal, and the dark filled squares are <strong>walls</strong>{" "}
-            you cannot step on. You move one square at a time, up, down, left or right.
-          </p>
-          <p>
-            But the question has changed. Before, we only asked &ldquo;is there a way out
-            at all?&rdquo; Now we ask <strong>&ldquo;what is the fewest steps?&rdquo;</strong>
-          </p>
-          <p>
-            That word <em>fewest</em> changes everything. A walker that dives deep down one
-            corridor might eventually reach G &mdash; but along a long, winding, scenic route.
-            We need a method that does not just <em>find</em> a path, it always reports the{" "}
-            <em>shortest</em> one.
-          </p>
-        </>
-      ),
+      detail: reg({
+        base: (
+          <>
+            <p>
+              This is the same five-by-five maze you have seen before: a small grid of
+              squares where <strong>S</strong> (top-left) is the start, <strong>G</strong>{" "}
+              (bottom-right) is the goal, and the dark filled squares are <strong>walls</strong>{" "}
+              you cannot step on. You move one square at a time, up, down, left or right.
+            </p>
+            <p>
+              But the question has changed. Before, we only asked &ldquo;is there a way out
+              at all?&rdquo; Now we ask <strong>&ldquo;what is the fewest steps?&rdquo;</strong>
+            </p>
+            <p>
+              That word <em>fewest</em> changes everything. A walker that dives deep down one
+              corridor might eventually reach G &mdash; but along a long, winding, scenic route.
+              We need a method that does not just <em>find</em> a path, it always reports the{" "}
+              <em>shortest</em> one.
+            </p>
+          </>
+        ),
+        intuitive: (
+          <>
+            <p>
+              Look at the maze for a second. <strong>S</strong> (top-left) is where you stand,{" "}
+              <strong>G</strong> (bottom-right) is the way out, the dark filled squares are{" "}
+              <strong>walls</strong>, and one move is one square &mdash; up, down, left or right.
+            </p>
+            <p>
+              Last time the question was &ldquo;can you get out at all?&rdquo; &mdash; any route,
+              however winding, counted as a win. Today&rsquo;s question is harder:{" "}
+              <strong>what is the smallest number of steps that gets you out?</strong>
+            </p>
+            <p>
+              That one word &mdash; <em>fewest</em> &mdash; changes what counts as an answer.
+              Finding <em>a</em> way out is no longer enough. We need a way of exploring that can
+              look you in the eye and say: <em>nothing shorter exists.</em>
+            </p>
+          </>
+        ),
+      }),
       visual: flood(GG, null, emptyDist, false),
       panels: [
         {
@@ -498,15 +587,26 @@ export const bfsLesson: LessonSpec = {
           variant: "main",
           label: "The setup",
           title: "Same maze. New question: how few steps?",
-          body: (
-            <>
-              The same 5&times;5 grid: start at <strong>S</strong> (top-left), reach{" "}
-              <strong>G</strong> (bottom-right), filled cells are walls. New question:
-              not <em>is there a way out?</em> but <em>what&rsquo;s the fewest steps?</em>{" "}
-              A long winding route counts too, so we need a method that always reports
-              the shortest.
-            </>
-          ),
+          body: reg({
+            base: (
+              <>
+                The same 5&times;5 grid: start at <strong>S</strong> (top-left), reach{" "}
+                <strong>G</strong> (bottom-right), filled cells are walls. New question:
+                not <em>is there a way out?</em> but <em>what&rsquo;s the fewest steps?</em>{" "}
+                A long winding route counts too, so we need a method that always reports
+                the shortest.
+              </>
+            ),
+            intuitive: (
+              <>
+                Same maze as before: you stand at <strong>S</strong> (top-left), the way out
+                is <strong>G</strong> (bottom-right), dark squares are walls, and a move is
+                one square. But the question changed: not <em>can you get out?</em> &mdash;{" "}
+                <em>what&rsquo;s the fewest steps out?</em> A winding route still escapes, but
+                it no longer wins. We need a way to be <em>sure</em> nothing shorter exists.
+              </>
+            ),
+          }),
         },
       ],
       arrows: [
@@ -522,6 +622,8 @@ export const bfsLesson: LessonSpec = {
     {
       id: "obvious",
       label: "The obvious thing",
+      registers: ["intuitive"],
+      trimOnRefresh: true,
       connector: "Now that we want the fewest steps, the natural first idea is to just walk the maze — but does walking find the shortest way?",
       actionLabel: "Explore by distance instead",
       takeaway: "Diving deep finds a path, but not always the shortest one.",
@@ -583,7 +685,13 @@ export const bfsLesson: LessonSpec = {
     {
       id: "wedge",
       label: "The instinct",
-      connector: "So instead of diving deep, let's grow outward by distance and watch what that buys us.",
+      registers: ["intuitive", "structured"],
+      // the structured connector folds the cut `obvious` beat (the DFS recap)
+      // into this beat's opening, so the sequence reads whole without slot 2.
+      connector: reg({
+        base: "So instead of diving deep, let's grow outward by distance and watch what that buys us.",
+        structured: "A depth-first dive finds a path, not always the shortest one — so explore strictly by distance instead: every square one step from S, then two, then three.",
+      }),
       actionLabel: "Why the first touch wins",
       takeaway: "Grow outward one ring at a time — the first touch of G is the shortest.",
       detail: (
@@ -649,39 +757,69 @@ export const bfsLesson: LessonSpec = {
     {
       id: "derive",
       label: "The derivation",
-      connector: "The ripple is the idea; now we need a piece of bookkeeping that makes a computer grow it in exactly that order.",
+      // rigorous OPENS here: the bridgeFrom line is its lead-in, so the
+      // connector is empty for that register (variables-exemplar pattern).
+      connector: reg({
+        base: "The ripple is the idea; now we need a piece of bookkeeping that makes a computer grow it in exactly that order.",
+        rigorous: "",
+      }),
       actionLabel: "Count the work",
-      takeaway: "A first-in-first-out queue (+ a seen-set) grows the ripple in exact order.",
-      detail: (
-        <>
-          <p>
-            Keep a <strong>queue</strong> &mdash; think of a line at a ticket counter: you join
-            at the <em>back</em>, and you always get called from the <em>front</em>, in the order
-            you arrived. (Computer people call this <em>first-in, first-out</em>.) Put the start
-            square in the line first, with distance 0.
-          </p>
-          <p>
-            <strong>Then loop:</strong> pull the square at the front of the line. If it is G, its
-            distance is the answer &mdash; stop. Otherwise look at each neighbouring square that
-            is open (not a wall) and that we have never seen before. Mark each one{" "}
-            <strong>seen</strong>, give it a distance of <em>mine plus one</em>, and send it to
-            the back of the line.
-          </p>
-          <p>
-            Marking a square <em>seen</em> the very moment it joins the line is the small but
-            crucial detail. (&ldquo;Seen&rdquo; is just a checklist of squares already added.) It
-            guarantees each square gets a distance exactly once &mdash; the smallest one possible
-            &mdash; and never sneaks back in with a larger number.
-          </p>
-          <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The principle &mdash; keep a promise alive:</strong> because the line is
-            first-in-first-out, the distance of whatever we pull off the front only ever goes up,
-            never down. So the first time we pull G off the line, its distance is the smallest it
-            will ever be.
-          </div>
-        </>
-      ),
-      visual: (api) => <AutoBfs api={api} />,
+      takeaway: reg({
+        base: "A first-in-first-out queue (+ a seen-set) grows the ripple in exact order.",
+        rigorous: "FIFO + mark-on-enqueue: every cell enters once; dequeue order is distance order.",
+      }),
+      detail: reg({
+        base: (
+          <>
+            <p>
+              Keep a <strong>queue</strong> &mdash; think of a line at a ticket counter: you join
+              at the <em>back</em>, and you always get called from the <em>front</em>, in the order
+              you arrived. (Computer people call this <em>first-in, first-out</em>.) Put the start
+              square in the line first, with distance 0.
+            </p>
+            <p>
+              <strong>Then loop:</strong> pull the square at the front of the line. If it is G, its
+              distance is the answer &mdash; stop. Otherwise look at each neighbouring square that
+              is open (not a wall) and that we have never seen before. Mark each one{" "}
+              <strong>seen</strong>, give it a distance of <em>mine plus one</em>, and send it to
+              the back of the line.
+            </p>
+            <p>
+              Marking a square <em>seen</em> the very moment it joins the line is the small but
+              crucial detail. (&ldquo;Seen&rdquo; is just a checklist of squares already added.) It
+              guarantees each square gets a distance exactly once &mdash; the smallest one possible
+              &mdash; and never sneaks back in with a larger number.
+            </p>
+            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+              <strong>The principle &mdash; keep a promise alive:</strong> because the line is
+              first-in-first-out, the distance of whatever we pull off the front only ever goes up,
+              never down. So the first time we pull G off the line, its distance is the smallest it
+              will ever be.
+            </div>
+          </>
+        ),
+        rigorous: (
+          <>
+            <p>
+              <strong>The invariant.</strong> The queue always holds distances of the form{" "}
+              <code>d, &hellip;, d, d+1, &hellip;, d+1</code> &mdash; non-decreasing, at most two
+              distinct values. Induction: popping a distance-<code>d</code> cell appends only
+              distance-<code>(d+1)</code> cells at the back, which preserves the shape. Dequeue
+              distances therefore never decrease, so the <em>first</em> dequeue of any cell &mdash;
+              the goal included &mdash; happens at its minimum distance. That is the entire
+              correctness proof.
+            </p>
+            <p>
+              <strong>Mark on enqueue, not on dequeue.</strong> Distances are assigned as cells
+              join, and the <code>seen</code> check at the door is what makes &ldquo;each cell
+              enters once&rdquo; true. Deferring the check to pop time still terminates, but lets
+              several neighbours enqueue the same cell &mdash; duplicate entries up to one per
+              edge, and the memory bound breaks.
+            </p>
+          </>
+        ),
+      }),
+      visual: (api) => <QueueOrderGate api={api} />,
       panels: [
         {
           left: 40,
@@ -689,15 +827,31 @@ export const bfsLesson: LessonSpec = {
           width: 800,
           variant: "main",
           label: "The derivation",
-          title: "A queue holds 'the next ring to look at'.",
-          body: (
-            <>
-              A <strong>queue</strong> is a waiting line: join at the back, leave from the
-              front. Put S in line at distance 0. Loop: pull the front cell; if it&rsquo;s G,
-              its distance is the answer. Otherwise mark each open, unseen neighbour{" "}
-              <strong>seen</strong>, set its distance one higher, and send it to the back.
-            </>
-          ),
+          title: reg({
+            base: "A queue holds 'the next ring to look at'.",
+            rigorous: "A FIFO worklist; mark seen on enqueue.",
+          }),
+          body: reg({
+            base: (
+              <>
+                A <strong>queue</strong> is a waiting line: join at the back, leave from the
+                front. Put S in line at distance 0. Loop: pull the front cell; if it&rsquo;s G,
+                its distance is the answer. Otherwise mark each open, unseen neighbour{" "}
+                <strong>seen</strong>, set its distance one higher, and send it to the back.
+              </>
+            ),
+            rigorous: (
+              <>
+                Commit to the worklist&rsquo;s discipline first (the predict), then watch. Start
+                with <code>{"queue = [(start, 0)]"}</code>, <code>{"seen = {start}"}</code>. Loop:
+                pop the front; at the goal, return its <code>d</code>; otherwise mark every open,
+                unseen neighbour <code>seen</code> and append it at{" "}
+                <code>d + 1</code>. <Term word="FIFO">FIFO</Term> keeps dequeued distances
+                non-decreasing &mdash; the <Term word="invariant">invariant</Term> &mdash; so a
+                cell&rsquo;s first dequeue is its shortest distance.
+              </>
+            ),
+          }),
         },
       ],
       arrows: [
@@ -719,39 +873,83 @@ export const bfsLesson: LessonSpec = {
         "mark",
         "enqueue",
       ],
-      interaction: "playback",
+      // the ONE PredictGate beat: the tap on a pill is the gating interaction;
+      // the AutoBfs playback then answers it (gate honesty per types.ts).
+      interaction: "wedge",
     },
     {
       id: "operations",
       label: "The operations",
-      connector: "Now that every square joins the line exactly once, we can count the total work and see how it stacks up against depth-first.",
-      actionLabel: "Same shape, new problems",
-      takeaway: "Each cell joins once, so the work is O(V + E) — and the closest is reached first.",
-      detail: (
-        <>
-          <p>
-            Because we mark a square seen the instant it enters the line, no square ever joins
-            twice. Let <strong>V</strong> stand for the open squares and <strong>E</strong> stand
-            for the connections between neighbouring squares. We touch each square once and each
-            connection a fixed number of times, so the total work is{" "}
-            <code>O(V + E)</code>. That <code>O(...)</code> notation just describes how the effort
-            <em>grows</em> as the maze gets bigger &mdash; here it grows in step with the number of
-            squares plus the number of connections, nothing worse.
-          </p>
-          <p>
-            <strong>Memory:</strong> the line holds the squares in the current ring and the next
-            ring at the same time. For a thin, snaking maze that is only a handful. For a wide-open
-            grid the line can briefly hold the whole edge of the expanding wave &mdash; but that is
-            still far smaller than the entire maze.
-          </p>
-          <p>
-            <strong>Versus depth-first:</strong> for the same maze, both do the same total amount
-            of work. The difference is purely in <em>what you reach first</em> &mdash; this method
-            reaches the <em>closest</em> squares first, which is exactly why only its first arrival
-            at G is guaranteed to be the shortest.
-          </p>
-        </>
-      ),
+      connector: reg({
+        base: "Now that every square joins the line exactly once, we can count the total work and see how it stacks up against depth-first.",
+        rigorous: "Each cell enters the queue once — now total the work exactly.",
+      }),
+      actionLabel: reg({
+        base: "Same shape, new problems",
+        structured: "Name the pattern",
+        rigorous: "Name the pattern",
+      }),
+      takeaway: reg({
+        base: "Each cell joins once, so the work is O(V + E) — and the closest is reached first.",
+        intuitive: "Each cell joins the line once — work grows in step with the maze, closest always first.",
+        rigorous: "O(V + E) time, frontier-sized queue — same work as DFS, only the dequeue order differs.",
+      }),
+      detail: reg({
+        base: (
+          <>
+            <p>
+              Because we mark a square seen the instant it enters the line, no square ever joins
+              twice. Let <strong>V</strong> stand for the open squares and <strong>E</strong> stand
+              for the connections between neighbouring squares. We touch each square once and each
+              connection a fixed number of times, so the total work is{" "}
+              <code>O(V + E)</code>. That <code>O(...)</code> notation just describes how the effort
+              <em>grows</em> as the maze gets bigger &mdash; here it grows in step with the number of
+              squares plus the number of connections, nothing worse.
+            </p>
+            <p>
+              <strong>Memory:</strong> the line holds the squares in the current ring and the next
+              ring at the same time. For a thin, snaking maze that is only a handful. For a wide-open
+              grid the line can briefly hold the whole edge of the expanding wave &mdash; but that is
+              still far smaller than the entire maze.
+            </p>
+            <p>
+              <strong>Versus depth-first:</strong> for the same maze, both do the same total amount
+              of work. The difference is purely in <em>what you reach first</em> &mdash; this method
+              reaches the <em>closest</em> squares first, which is exactly why only its first arrival
+              at G is guaranteed to be the shortest.
+            </p>
+            <p>
+              <strong>Edge cases:</strong> if G is walled off, the line simply runs dry and the
+              answer is &ldquo;no path&rdquo; (the code returns &minus;1) &mdash; after exploring
+              only what S can reach, never the whole maze. If S <em>is</em> G, the very first pull
+              answers 0. And the guarantee is conditional: first-touch-is-shortest holds only while
+              every step costs the same.
+            </p>
+          </>
+        ),
+        rigorous: (
+          <>
+            <p>
+              <strong>Exact costs.</strong> Time: each of the V open cells is enqueued once and
+              dequeued once, and each of the E neighbour-links is inspected at most once per
+              endpoint&rsquo;s dequeue &mdash; a constant per link. Counted, that is V + a constant
+              &times; E steps: <Term word="O(V + E)"><code>O(V + E)</code></Term>. On this
+              4-connected grid E &le; 2V, so effectively linear in the cell count. Space:{" "}
+              <code>seen</code> is O(V); the queue peaks at one frontier (a ring plus part of the
+              next) &mdash; O(V) worst case on open grids, far less in corridors.
+            </p>
+            <p>
+              <strong>Edge cases.</strong> <code>start == end</code> returns 0 &mdash; the goal
+              test runs at dequeue, so the first pop handles it. Unreachable goal: the queue
+              drains and the function returns &minus;1, having paid only for S&rsquo;s component.
+              Marking on dequeue instead of enqueue inflates the queue with duplicates (up to one
+              per edge). And the guarantee is conditional: first-touch-is-shortest requires equal
+              step costs &mdash; weighted links break it. DFS matches the O(V + E) bound; the
+              dequeue order is the only difference, and it is the whole point.
+            </p>
+          </>
+        ),
+      }),
       visual: (api) => <AutoBfs api={api} frozen />,
       panels: [
         {
@@ -760,17 +958,32 @@ export const bfsLesson: LessonSpec = {
           width: 800,
           variant: "main",
           label: "The operations",
-          title: "Each cell enters the line once. Each is checked once.",
-          body: (
-            <>
-              Marked seen the moment it joins, a cell never joins twice. Let{" "}
-              <strong>V</strong> = open cells and <strong>E</strong> = links between
-              neighbours. Total work is <strong>O(V + E)</strong> &mdash; &ldquo;O(...)&rdquo;
-              just means how the effort grows, here in step with cells plus links. DFS does
-              the same work, but only BFS&rsquo;s <em>first</em> arrival at G is guaranteed
-              shortest.
-            </>
-          ),
+          title: reg({
+            base: "Each cell enters the line once. Each is checked once.",
+            rigorous: "Each cell once; each link a constant number of times.",
+          }),
+          body: reg({
+            base: (
+              <>
+                Marked seen the moment it joins, a cell never joins twice. Let{" "}
+                <strong>V</strong> = open cells and <strong>E</strong> = links between
+                neighbours. Total work is <strong>O(V + E)</strong> &mdash; &ldquo;O(...)&rdquo;
+                just means how the effort grows, here in step with cells plus links. DFS does
+                the same work, but only BFS&rsquo;s <em>first</em> arrival at G is guaranteed
+                shortest.
+              </>
+            ),
+            rigorous: (
+              <>
+                Count it on the flood: every open cell holds exactly one number &mdash; V cells,
+                one enqueue and one dequeue each &mdash; and each of the E links is inspected a
+                constant number of times. That tally is{" "}
+                <Term word="O(V + E)"><code>O(V + E)</code></Term> time, with a frontier-sized
+                queue. DFS matches the bound; only the dequeue order &mdash; and so the
+                shortest-path guarantee &mdash; differs.
+              </>
+            ),
+          }),
         },
       ],
       arrows: [
@@ -787,6 +1000,8 @@ export const bfsLesson: LessonSpec = {
     {
       id: "general",
       label: "The generalization",
+      registers: ["intuitive"],
+      trimOnRefresh: true,
       connector: "The maze was just a stage prop — strip it away and the same outward walk solves a whole family of 'closest first' problems.",
       actionLabel: "Name the pattern",
       takeaway: "On any equal-cost graph this outward walk gives the shortest route.",
@@ -841,31 +1056,95 @@ export const bfsLesson: LessonSpec = {
     {
       id: "name",
       label: "The pattern",
-      connector: "Give the move its name — and the cues that tell you to reach for it next time.",
-      takeaway: "It's Breadth-First Search — reach for it on “fewest steps” / “level by level”.",
-      detail: (
-        <>
-          <p>
-            That is the name. <em>Breadth-first</em> &mdash; because we finish every square at
-            distance d before touching any square at distance d+1. The <em>queue</em> (that
-            first-in-first-out line) is the single thing that forces that order; pull from the
-            front, push to the back, and the rings come out perfectly sorted by distance.
-          </p>
-          <p>
-            <strong>Reach for it when you hear:</strong>
-          </p>
-          <ul>
-            <li>&ldquo;fewest steps&rdquo; or &ldquo;shortest path&rdquo; where every step costs the same</li>
-            <li>&ldquo;closest matching X&rdquo; on a network of equal-cost links</li>
-            <li>&ldquo;level by level&rdquo; anything &mdash; print a tree one level at a time, or broadcast outward</li>
-            <li>any problem where every move has the same cost</li>
-          </ul>
-          <p>
-            Open the drawer for the Python and you will see it: a queue, a seen-set, a loop. The
-            cleverness is entirely in the <em>order</em> things come off the line, not in the code.
-          </p>
-        </>
-      ),
+      connector: reg({
+        base: "Give the move its name — and the cues that tell you to reach for it next time.",
+        rigorous: "Name it, and file the invariant it runs on.",
+      }),
+      takeaway: reg({
+        base: "It's Breadth-First Search — reach for it on “fewest steps” / “level by level”.",
+        intuitive: "Breadth-First Search: a queue explores nearest-first — first touch of G is shortest.",
+        rigorous: "BFS: FIFO frontier keeps dequeue distance non-decreasing — shortest on equal costs.",
+      }),
+      detail: reg({
+        base: (
+          <>
+            <p>
+              That is the name. <em>Breadth-first</em> &mdash; because we finish every square at
+              distance d before touching any square at distance d+1. The <em>queue</em> (that
+              first-in-first-out line) is the single thing that forces that order; pull from the
+              front, push to the back, and the rings come out perfectly sorted by distance.
+            </p>
+            <p>
+              <strong>Reach for it when you hear:</strong>
+            </p>
+            <ul>
+              <li>&ldquo;fewest steps&rdquo; or &ldquo;shortest path&rdquo; where every step costs the same</li>
+              <li>&ldquo;closest matching X&rdquo; on a network of equal-cost links</li>
+              <li>&ldquo;level by level&rdquo; anything &mdash; print a tree one level at a time, or broadcast outward</li>
+              <li>any problem where every move has the same cost</li>
+            </ul>
+            <p>
+              Open the drawer for the Python and you will see it: a queue, a seen-set, a loop. The
+              cleverness is entirely in the <em>order</em> things come off the line, not in the code.
+            </p>
+            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+              <strong>Idea 3 of 7 &mdash; monotonicity and invariants:</strong> the queue keeps one
+              promise &mdash; distances coming off the front never go down &mdash; and the shortest
+              path falls out of that promise.
+            </div>
+          </>
+        ),
+        intuitive: (
+          <>
+            <p>
+              The move you derived has a name: <strong>Breadth-First Search</strong>.{" "}
+              <em>Breadth-first</em> means wide before deep &mdash; every square at distance d gets
+              its turn before any square at distance d+1. The waiting line (first in, first out) is
+              the single thing that forces that order: pull from the front, send newcomers to the
+              back, and the rings come out perfectly sorted by distance.
+            </p>
+            <p>
+              <strong>Reach for it when you hear:</strong>
+            </p>
+            <ul>
+              <li>&ldquo;fewest steps&rdquo; or &ldquo;shortest way&rdquo; where every step costs the same</li>
+              <li>&ldquo;closest&rdquo; anything on a web of equal hops &mdash; nearest friend, nearest match</li>
+              <li>&ldquo;level by level&rdquo; &mdash; print a tree one floor at a time, or spread news outward</li>
+            </ul>
+            <p>
+              Open the drawer for the Python and you will see how little there is: a queue, a
+              seen-list, a loop. All the cleverness lives in the <em>order</em> things leave the
+              line, not in the code.
+            </p>
+            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+              <strong>The third big idea (3 of 7) &mdash; keep a promise alive:</strong> the line
+              promises &ldquo;nearer leaves first,&rdquo; and because that promise never breaks, the
+              first time you reach the goal nothing shorter can exist.
+            </div>
+          </>
+        ),
+        rigorous: (
+          <>
+            <p>
+              <strong>The checklist.</strong> Worklist a <Term word="deque"><code>deque</code></Term>{" "}
+              (<code>popleft</code> / <code>append</code> &mdash; a list&rsquo;s <code>pop(0)</code>{" "}
+              costs O(n) per pop); mark <code>seen</code> on enqueue; carry the distance with the
+              cell, or flood level-by-level and count rings. Multi-source: seed the queue with every
+              source at 0 &mdash; the proof is unchanged. Equal edge costs are load-bearing; for
+              weighted edges the FIFO queue becomes a priority queue &mdash; Dijkstra, same skeleton.
+            </p>
+            <p>
+              <strong>Triggers:</strong> shortest path on unit-cost edges; level-order traversal;
+              &ldquo;closest X such that&hellip;&rdquo;; word ladders; flood fill / broadcast.
+            </p>
+            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
+              <strong>Idea 3 of 7 &mdash; monotonicity and invariants:</strong> BFS is an invariant
+              wearing an algorithm &mdash; dequeue distances never decrease, so the first arrival is
+              provably the shortest. Keep a promise alive and the re-checking disappears.
+            </div>
+          </>
+        ),
+      }),
       visual: <AutoBfs api={{ onActiveLine: () => {}, onInteractionDone: () => {} }} frozen />,
       panels: [
         {
@@ -875,15 +1154,26 @@ export const bfsLesson: LessonSpec = {
           variant: "main",
           label: "The pattern",
           title: "Breadth-First Search.",
-          body: (
-            <>
-              That&rsquo;s the name &mdash; <em>breadth-first</em> because we finish
-              every cell at distance d before any at d+1, and the queue forces that
-              order. Reach for it when you hear &ldquo;fewest steps&rdquo; where every
-              step costs the same, &ldquo;closest match&rdquo;, or &ldquo;level by
-              level&rdquo;.
-            </>
-          ),
+          body: reg({
+            base: (
+              <>
+                That&rsquo;s the name &mdash; <em>breadth-first</em> because we finish
+                every cell at distance d before any at d+1, and the queue forces that
+                order. Reach for it when you hear &ldquo;fewest steps&rdquo; where every
+                step costs the same, &ldquo;closest match&rdquo;, or &ldquo;level by
+                level&rdquo;.
+              </>
+            ),
+            rigorous: (
+              <>
+                <em>Breadth-first</em>: exhaust distance d before touching d+1 &mdash; the{" "}
+                <Term word="FIFO">FIFO</Term> queue is the entire mechanism. Triggers: shortest
+                path on equal-cost edges, level-order traversal, &ldquo;closest X such
+                that&hellip;&rdquo;, multi-source spread. Unequal costs &rarr; Dijkstra (a
+                priority queue in the same skeleton).
+              </>
+            ),
+          }),
         },
       ],
       codeLabels: ["found"],

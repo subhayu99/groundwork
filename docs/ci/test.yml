@@ -1,0 +1,56 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# PR-LEVEL CI (E26 / L0.13) — MANUAL APPLY REQUIRED
+#
+# This file is staged here because the automation token lacks the `workflow`
+# scope and cannot create/modify anything under .github/workflows/. Subhayu:
+# copy it yourself (two steps, see docs/ci/README.md):
+#
+#   cp docs/ci/test.yml .github/workflows/test.yml
+#   git add .github/workflows/test.yml && git commit && git push
+#
+# What it does: every PR into main (and every push to a non-main branch) runs
+# the full local gate — typecheck, tests, production build — so nothing merges
+# on green-by-assumption again. Mirrors the exact commands run locally:
+#   npx tsc --noEmit && npm run test && npm run build
+# ─────────────────────────────────────────────────────────────────────────────
+name: test
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches-ignore: [main] # main is covered by deploy.yml's test step
+
+# One run per branch/PR; superseded runs are cancelled.
+concurrency:
+  group: test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        # `npm ci` for reproducible installs. The lockfile now carries the
+        # Linux-only optional deps (@tailwindcss/oxide etc.), so ci works on
+        # the Linux runner. If it ever fails on a missing platform-optional
+        # package (the failure deploy.yml's `npm install` works around),
+        # swap in the line below and please flag it:
+        #   run: npm install --no-audit --no-fund
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Tests
+        run: npm run test
+
+      - name: Build (static export)
+        run: npm run build

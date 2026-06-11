@@ -8,7 +8,9 @@ import { prepareCode, resolveLines } from "@/shared/code/syncAnchors";
 import { ArrowDefs, Arrow } from "./canvas";
 import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
 import { SceneLayout } from "./SceneLayout";
-import type { BeatVisualApi, LessonSpec } from "./types";
+import { clampBeatIndex, filterBeatsForAudience, resolveBeatForRegister, type BeatVisualApi, type LessonSpec } from "./types";
+import { useAudience } from "@/shared/audience/useAudience";
+import { pickRegister } from "@/shared/audience/types";
 
 /**
  * Renders any annotated-canvas LessonSpec: the per-beat visual + its on-plane
@@ -67,7 +69,34 @@ export function useLessonEngine(spec: LessonSpec, {
   const { width: VW, height: VH } = spec.canvas;
   const { code: PY, labelToLine } = useMemo(() => prepareCode(spec.codeSource), [spec.codeSource]);
 
-  const [b, setB] = useState(0);
+  // AUDIENCE REGISTER — first FILTER the beat list for the active register +
+  // goal (depth-adaptive: `registers` tags pick the audience's subset; a
+  // "refresh" goal trims `trimOnRefresh` beats; empty results fall back so a
+  // lesson never renders zero beats), THEN resolve each surviving beat's prose
+  // (base fallback). The skeleton (visual, sync labels, interactions, geometry)
+  // passes through untouched, so an untagged lesson behaves exactly as before.
+  // Every step-enumerating UI (dots, "step k of N", spine) must use THIS list,
+  // never spec.beats.
+  const { register, profile } = useAudience();
+  const goal = profile?.goal;
+  const beats = useMemo(
+    () =>
+      filterBeatsForAudience(spec.beats, register, goal).map((bt) =>
+        resolveBeatForRegister(bt, register),
+      ),
+    [spec.beats, register, goal],
+  );
+  // bridgeFrom — the "standing on the previous lesson" line, register-resolved.
+  const bridge = pickRegister(spec.bridgeFrom, register);
+
+  // Clamp at READ time so a register switch that shrinks the list can never
+  // index past the end mid-render; the effect then writes the clamp back so
+  // functional setB updates (Back/Next math) operate on an in-range value.
+  const [bRaw, setB] = useState(0);
+  const b = clampBeatIndex(bRaw, beats.length);
+  useEffect(() => {
+    if (bRaw !== clampBeatIndex(bRaw, beats.length)) setB(clampBeatIndex(bRaw, beats.length));
+  }, [bRaw, beats.length]);
   // Calm by default: code starts hidden (content first — it never pops up to
   // scare a new learner), and auto-reveals on the final beat (the recap) unless
   // the learner has manually set it. The fuller explanation (detail) stays open
@@ -78,8 +107,8 @@ export function useLessonEngine(spec: LessonSpec, {
   const [liveLabels, setLiveLabels] = useState<(string | number)[] | null>(null);
   const [interacted, setInteracted] = useState<Record<string, boolean>>({});
   const [completed, setCompleted] = useState(!!initiallyCompleted);
-  const beat = spec.beats[b];
-  const last = spec.beats.length - 1;
+  const beat = beats[b];
+  const last = beats.length - 1;
 
   // Code follows the beat: shown on the last beat (the recap), hidden elsewhere —
   // until the learner clicks the code tab, after which their choice sticks.
@@ -169,7 +198,8 @@ export function useLessonEngine(spec: LessonSpec, {
 
   return {
     VW, VH, PY,
-    b, setB, last, beat,
+    b, setB, last, beat, beats,
+    register, bridge,
     showCode, setShowCode, toggleCode,
     showDetail, setShowDetail,
     completed,
@@ -200,7 +230,7 @@ function ClassicLessonRuntime({
 }: LessonRuntimeProps) {
   const e = useLessonEngine(spec, { initiallyCompleted, onComplete });
   const {
-    VW, VH, PY, b, setB, last, beat,
+    VW, VH, PY, b, setB, last, beat, beats,
     showCode, toggleCode, showDetail, setShowDetail,
     completed, areaRef, scale, api, gated, activeLines, visualNode,
     codeScrollRef, goNext,
@@ -249,7 +279,7 @@ function ClassicLessonRuntime({
           </div>
           {beat.label && (
             <div className="font-mono text-[12px] tracking-wider text-[var(--text-muted)]">
-              step {b + 1} of {spec.beats.length} · <span className="uppercase font-semibold text-[var(--accent-ink)]">{beat.label}</span>
+              step {b + 1} of {beats.length} · <span className="uppercase font-semibold text-[var(--accent-ink)]">{beat.label}</span>
             </div>
           )}
         </div>
@@ -456,12 +486,12 @@ function ClassicLessonRuntime({
             className="min-h-[40px] px-4 rounded-lg border border-[var(--line)] text-[var(--text-muted)] disabled:opacity-40 hover:border-[var(--line-strong)]">← Back</button>
           <nav aria-label="lesson steps">
             <ol role="list" className="flex items-center gap-2">
-              {spec.beats.map((bt, i) => (
+              {beats.map((bt, i) => (
                 <li key={bt.id}>
                   <button
                     onClick={() => setB(i)}
                     aria-current={i === b ? "step" : undefined}
-                    aria-label={`step ${i + 1} of ${spec.beats.length}${bt.label ? ": " + bt.label : ""}`}
+                    aria-label={`step ${i + 1} of ${beats.length}${bt.label ? ": " + bt.label : ""}`}
                     className="inline-flex items-center justify-center w-7 h-7 rounded-full"
                   >
                     {/* the visual 10px dot; the current step also gets a ring + a
@@ -487,7 +517,7 @@ function ClassicLessonRuntime({
       {/* live region — announces the active step to screen readers without
           stealing focus or showing on screen */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {`Step ${b + 1} of ${spec.beats.length}${beat.label ? ": " + beat.label : ""}`}
+        {`Step ${b + 1} of ${beats.length}${beat.label ? ": " + beat.label : ""}`}
       </div>
     </main>
   );
