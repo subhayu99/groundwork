@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const mergesortNextSteps: NextStepsContent = {
   recap:
     "You can now sort a big list by splitting it in half until each piece is trivially sorted, then merging sorted pieces back together — and merging two already-sorted lists is the easy part, just one walk down both.",
+  interviewAngle: {
+    askedAs:
+      "The merge STEP is the real interview asset: \"merge two sorted lists/arrays\", \"merge k sorted lists\", \"sort a linked list\" (where mergesort beats quicksort), and \"count inversions\". Pure \"sort this\" is rare; the merge-two-sorted move shows up constantly.",
+    tip: "Be ready to write the two-pointer merge cleanly, including the leftover tail when one side empties first. Know the talking points: guaranteed O(n log n), stable, but O(n) extra space — and why it's the natural choice for linked lists.",
+  },
   practiceProblems: [
     {
       name: "Merge Sorted Array",

@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const slidingWindowNextSteps: NextStepsContent = {
   recap:
     "You can now scan every block of a fixed size in one pass — instead of re-adding the same numbers over and over, you slide the window and just adjust for the one item that left and the one that joined.",
+  interviewAngle: {
+    askedAs:
+      "The fixed-size kind: \"max/min sum (or average) of any K consecutive elements\", \"find all anagrams of a pattern in a string\". Trigger words are \"contiguous\", \"subarray/substring\", and a fixed length K.",
+    tip: "Lead with the brute force (recompute each window, O(n*k)), then say the one line that wins it: \"each step I subtract the element leaving and add the one entering, so it's O(n).\" Naming the redundant work you're removing is the point.",
+  },
   practiceProblems: [
     {
       name: "Maximum Average Subarray",

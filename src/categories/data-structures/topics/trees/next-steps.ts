@@ -3,6 +3,12 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const treesNextSteps: NextStepsContent = {
   recap:
     "You now see the branching shape: one top item splits into smaller groups, and each of those is itself a smaller tree. That self-similar structure is what makes 'solve it for the children, then combine' such a natural fit.",
+  interviewAngle: {
+    askedAs:
+      "Tree questions cluster around depth, mirroring, path sums, and whether a tree is a valid search tree. The 'how would you walk it' part — in order, top-down, or level by level — is often the real question.",
+    tip: "Lean on the self-similar shape: ask each child for its own answer, then combine, and state the base case (an empty branch) first so the recursion has a floor. When order across a level matters, switch to a queue and go level by level instead. Knowing when to drop recursion for that is what stands out.",
+    companies: ["Amazon", "Google", "Facebook"],
+  },
   practiceProblems: [
     {
       name: "Maximum Depth of Binary Tree",

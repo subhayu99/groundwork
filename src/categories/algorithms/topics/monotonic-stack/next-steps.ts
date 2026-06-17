@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const monotonicStackNextSteps: NextStepsContent = {
   recap:
     "You can now answer 'what's the next bigger thing to the right?' for every item in one pass — by keeping a stack in order and letting each item kick out the smaller ones waiting behind it. Each item is added and removed just once.",
+  interviewAngle: {
+    askedAs:
+      "Almost always \"next greater element\", \"daily temperatures\" (days until a warmer day), \"largest rectangle in a histogram\", or stock-span style asks. The signal: for every element you need the nearest bigger/smaller neighbor, and a double loop is the obvious-but-too-slow answer.",
+    tip: "Recognising it is the whole battle, so practise spotting the \"nearest greater/smaller\" shape. Then justify the cost: each index is pushed once and popped once, so the loop is O(n) even though it looks nested.",
+  },
   practiceProblems: [
     {
       name: "Daily Temperatures",

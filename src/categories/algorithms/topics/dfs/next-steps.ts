@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const dfsNextSteps: NextStepsContent = {
   recap:
     "You can now explore any connected structure by going as deep as possible down one path, then backing up to try the next — marking where you've been so you never loop forever.",
+  interviewAngle: {
+    askedAs:
+      "\"Number of islands\", \"clone a graph\", \"course schedule / detect a cycle\", \"flood fill\", \"path exists between two nodes\". Often a 2D grid that's secretly a graph — each cell is a node, neighbors are the edges.",
+    tip: "Decide recursion vs explicit stack up front, and say where the visited-set goes and why (skip a node before you recurse into it, or you'll revisit and possibly loop). For grids, state your neighbor rule (4-directional vs 8) before coding.",
+  },
   practiceProblems: [
     {
       name: "Number of Islands",

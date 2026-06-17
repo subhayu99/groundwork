@@ -3,6 +3,12 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const stringsNextSteps: NextStepsContent = {
   recap:
     "You now see text as just a row of characters — and you know why changing a letter often means building a fresh copy of the whole word rather than editing it in place.",
+  interviewAngle: {
+    askedAs:
+      "String questions hide behind friendly wording: 'is this a palindrome,' 'are these two anagrams,' 'find the longest stretch with no repeats.' Underneath, every one is a walk over a row of characters.",
+    tip: "Before you write anything, ask whether the strings can change in place. In many languages a string is fixed, so rebuilding it in a loop is quietly slow — call that out and collect characters in a list (or a count) first, joining once at the end. Naming that cost up front reads as real fluency.",
+    companies: ["Google", "Microsoft", "Adobe"],
+  },
   practiceProblems: [
     {
       name: "Reverse String",

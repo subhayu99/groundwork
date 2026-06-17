@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const backtrackingNextSteps: NextStepsContent = {
   recap:
     "You can now build up an answer one choice at a time, and the instant a choice can't possibly work, undo it and try the next — quietly skipping whole mountains of dead-end combinations you never have to look at.",
+  interviewAngle: {
+    askedAs:
+      "The \"generate ALL of them\" set: permutations, subsets, combination sum, \"all valid parentheses\", N-Queens, word search, sudoku solver. The tell is \"find all / list every\" rather than \"count\" or \"find the best\".",
+    tip: "Make the choose / recurse / un-choose loop explicit, and talk about pruning — the cut that turns brute force into backtracking. Have your duplicate-handling answer ready (sort, then skip equal siblings); that edge case is where most candidates trip.",
+  },
   practiceProblems: [
     {
       name: "Subsets",

@@ -3,6 +3,12 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const linkedListsNextSteps: NextStepsContent = {
   recap:
     "You now know a list that doesn't sit in one row: each item just holds an arrow to the next one. That makes inserting in the middle cheap, but reaching the middle slow — the exact opposite trade-off from a plain list.",
+  interviewAngle: {
+    askedAs:
+      "Expect 'reverse this list,' 'find the middle in one pass,' 'detect a loop,' or 'merge two sorted lists.' These check whether you can rewire arrows without losing the rest of the chain.",
+    tip: "Draw three or four nodes on the whiteboard and move a 'previous / current / next' set of markers by hand before you code — pointer questions go wrong when you reassign an arrow and lose the node you still needed. For 'find the middle' or 'is there a loop,' reach for the slow-and-fast marker pair; recognizing that pattern fast is the signal interviewers want.",
+    companies: ["Microsoft", "Amazon", "Bloomberg"],
+  },
   practiceProblems: [
     {
       name: "Reverse Linked List",

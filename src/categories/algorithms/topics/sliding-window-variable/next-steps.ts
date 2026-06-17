@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const slidingWindowVariableNextSteps: NextStepsContent = {
   recap:
     "You can now handle a window that breathes: push the right edge out to include more, and pull the left edge in whenever a rule breaks — finding the best stretch in a single pass instead of testing every stretch.",
+  interviewAngle: {
+    askedAs:
+      "The \"longest/shortest substring such that…\" family: longest substring without repeating characters, smallest subarray with sum >= target, longest with at most K distinct. The tell is \"longest/shortest\" plus a condition the window must satisfy.",
+    tip: "Be explicit about two things: what makes the window INVALID, and that you only ever shrink from the left. Saying \"right pointer always moves forward, left only catches up, so each index is touched at most twice\" is how you justify O(n) instead of hand-waving it.",
+  },
   practiceProblems: [
     {
       name: "Longest Substring Without Repeating Characters",
