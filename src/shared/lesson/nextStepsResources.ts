@@ -70,3 +70,46 @@ export function getLessonResources(slug: string | undefined): NextStepsContent["
   if (!slug) return [];
   return RESOURCES_BY_SLUG[slug] ?? [];
 }
+
+/**
+ * INTERVIEW ANGLE index for the COMPLETION CEREMONY (Front-Door Wave 2026-06).
+ *
+ * Mirrors RESOURCES_BY_SLUG exactly: re-keys JUST the optional `interviewAngle`
+ * slice of each topic's already-authored `next-steps.ts` by its
+ * `<category>/<topic>` slug, so the scene's completion ceremony can surface it
+ * (prominently when the learner's goal is "interview") WITHOUT threading a new
+ * prop through the un-owned topic page. Only interview-relevant topics author an
+ * angle (the 12 algorithms + arrays, strings, hash-maps, linked-lists, trees,
+ * graphs); foundations topics have no `next-steps.ts` at all and are simply
+ * absent here — `getInterviewAngle` returns undefined for them.
+ */
+export type LessonInterviewAngle = NonNullable<NextStepsContent["interviewAngle"]>;
+
+const INTERVIEW_ANGLE_BY_SLUG: Record<string, LessonInterviewAngle | undefined> = {
+  // data-structures (the six interview-relevant topics; stacks-queues & sets-tuples author none)
+  "data-structures/arrays": arraysNextSteps.interviewAngle,
+  "data-structures/strings": stringsNextSteps.interviewAngle,
+  "data-structures/linked-lists": linkedListsNextSteps.interviewAngle,
+  "data-structures/hash-maps": hashMapsNextSteps.interviewAngle,
+  "data-structures/trees": treesNextSteps.interviewAngle,
+  "data-structures/graphs": graphsNextSteps.interviewAngle,
+  // algorithms (all twelve)
+  "algorithms/two-pointers": twoPointersNextSteps.interviewAngle,
+  "algorithms/binary-search": binarySearchNextSteps.interviewAngle,
+  "algorithms/sliding-window": slidingWindowNextSteps.interviewAngle,
+  "algorithms/sliding-window-variable": slidingWindowVariableNextSteps.interviewAngle,
+  "algorithms/monotonic-stack": monotonicStackNextSteps.interviewAngle,
+  "algorithms/activity-selection": activitySelectionNextSteps.interviewAngle,
+  "algorithms/recursion": recursionNextSteps.interviewAngle,
+  "algorithms/dfs": dfsNextSteps.interviewAngle,
+  "algorithms/bfs": bfsNextSteps.interviewAngle,
+  "algorithms/dp-1d": dp1dNextSteps.interviewAngle,
+  "algorithms/backtracking": backtrackingNextSteps.interviewAngle,
+  "algorithms/mergesort": mergesortNextSteps.interviewAngle,
+};
+
+/** The authored interview angle for a `<category>/<topic>` slug, or undefined. */
+export function getInterviewAngle(slug: string | undefined): LessonInterviewAngle | undefined {
+  if (!slug) return undefined;
+  return INTERVIEW_ANGLE_BY_SLUG[slug];
+}
