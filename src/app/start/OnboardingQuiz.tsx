@@ -68,6 +68,17 @@ export function OnboardingQuiz() {
 
   const complete = !!(experience && register && goal);
 
+  // Goal-aware label for the "see your plan" link shown once the quiz is
+  // complete. The plan page (/plan) shapes the same goal via the frozen
+  // planFor() contract; the copy here just names what that plan will be so the
+  // link reads as a preview of the chosen path.
+  const goalPlanLabel =
+    goal === "interview"
+      ? "see your interview plan →"
+      : goal === "refresh"
+        ? "see your refresher plan →"
+        : "see your plan →";
+
   // ── keep the payoff in view ──
   // The map is capped to a scrollable band (so the commit row + map top read
   // together, and mobile never becomes a 3000px wall). When the answer that
@@ -151,6 +162,20 @@ export function OnboardingQuiz() {
         >
           skip for now
         </Link>
+        <Link
+          href="/how-it-works"
+          className="font-mono text-[11px] uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text)]"
+        >
+          prefer to read first? →
+        </Link>
+        {complete && (
+          <Link
+            href="/plan"
+            className="font-mono text-[11px] uppercase tracking-wider text-[var(--accent-ink)] hover:text-[var(--text)]"
+          >
+            {goalPlanLabel}
+          </Link>
+        )}
         <span className="text-[12px] text-[var(--text-faint)]">
           Saved on this device · change any time in settings
         </span>

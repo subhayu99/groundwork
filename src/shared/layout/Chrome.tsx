@@ -27,6 +27,7 @@ export function Chrome({ breadcrumb, difficulty, stepCount, currentStep, showPro
   // hydration mismatch) before localStorage is read on first paint.
   const { onboarded, register, loaded } = useAudience();
   const navLinks: { href: string; label: string }[] = [
+    { href: "/how-it-works", label: "how it works" },
     { href: "/learn", label: "learn" },
     { href: "/progress", label: "progress" },
     { href: "/settings", label: "settings" },

@@ -3,6 +3,12 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const graphsNextSteps: NextStepsContent = {
   recap:
     "You now have the most general shape there is: dots connected by lines, where anything can link to anything. Maps, friend networks, and dependency charts are all graphs — and most graph problems come down to 'how do I explore it without getting lost or going in circles?'",
+  interviewAngle: {
+    askedAs:
+      "The hard part is often spotting the graph at all — a grid of land and water, a list of course prerequisites, or a set of word transforms is a graph in costume. Then it's 'count the groups,' 'find the shortest hop count,' or 'is there an ordering that works.'",
+    tip: "Always carry a 'seen' set and mark a dot the moment you reach it, or you will loop forever — saying that unprompted reassures the interviewer immediately. Then match the tool to the question: go deep with a stack or recursion to flood-fill a region, but spread outward in rings with a queue when they ask for the fewest steps.",
+    companies: ["Google", "Amazon", "Uber"],
+  },
   practiceProblems: [
     {
       name: "Number of Islands",

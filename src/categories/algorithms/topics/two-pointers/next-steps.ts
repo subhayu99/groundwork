@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const twoPointersNextSteps: NextStepsContent = {
   recap:
     "You can now solve in one pass what used to need checking every pair: put one marker at each end (or both at the start) and move them toward each other based on what you see.",
+  interviewAngle: {
+    askedAs:
+      "Rarely named outright. It hides inside \"pair that sums to a target in a SORTED array\", \"is this a palindrome\", \"remove duplicates in place\", and most \"do it in O(1) extra space\" array asks. The give-away is a sorted (or sortable) input plus a brute-force double loop.",
+    tip: "Say out loud WHY a pointer is safe to move: \"the array is sorted, so if this pair is too small the answer can only be to the right.\" That one sentence is what separates a real solution from a guessed one.",
+  },
   practiceProblems: [
     {
       name: "Two Sum II — Input Array Is Sorted",

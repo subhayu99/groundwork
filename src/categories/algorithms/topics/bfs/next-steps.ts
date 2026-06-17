@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const bfsNextSteps: NextStepsContent = {
   recap:
     "You can now explore outward in rings — everything one step away, then everything two steps away — using a queue. Because you reach closer things first, the moment you arrive somewhere, you arrived by the shortest path.",
+  interviewAngle: {
+    askedAs:
+      "Any \"SHORTEST path / fewest steps\" on an unweighted graph or grid: \"rotting oranges\", \"word ladder\", \"shortest path in a binary maze\", \"level-order traversal of a tree\". The keyword \"shortest\" or \"minimum number of steps\" is the dead giveaway over DFS.",
+    tip: "Reach for BFS the instant you hear \"shortest\" on equal-weight edges, and mark a node visited WHEN you enqueue it, not when you dequeue — otherwise duplicates pile into the queue. If you need the distance, process the queue one level at a time.",
+  },
   practiceProblems: [
     {
       name: "Binary Tree Level Order Traversal",

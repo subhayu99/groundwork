@@ -10,7 +10,7 @@ import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
 import { SceneLayout } from "./SceneLayout";
 import { clampBeatIndex, filterBeatsForAudience, resolveBeatForRegister, type BeatVisualApi, type LessonSpec } from "./types";
 import { lessonSpecs } from "./registry";
-import { getLessonResources } from "./nextStepsResources";
+import { getLessonResources, getInterviewAngle } from "./nextStepsResources";
 import { useAudience } from "@/shared/audience/useAudience";
 import { pickRegister } from "@/shared/audience/types";
 
@@ -79,6 +79,16 @@ export function useLessonEngine(spec: LessonSpec, {
   const resources = useMemo(() => {
     const slug = Object.keys(lessonSpecs).find((k) => lessonSpecs[k] === spec);
     return getLessonResources(slug);
+  }, [spec]);
+
+  // INTERVIEW ANGLE for the COMPLETION CEREMONY (Front-Door Wave). Recovered the
+  // same way as `resources` above — by reverse-matching this spec to its lesson
+  // slug — then looked up from the already-authored `next-steps.ts`. Only the 18
+  // interview-relevant topics author one; everything else resolves to undefined.
+  // SceneLayout surfaces it only when the learner's goal is "interview".
+  const interviewAngle = useMemo(() => {
+    const slug = Object.keys(lessonSpecs).find((k) => lessonSpecs[k] === spec);
+    return getInterviewAngle(slug);
   }, [spec]);
 
   // AUDIENCE REGISTER — first FILTER the beat list for the active register +
@@ -211,7 +221,7 @@ export function useLessonEngine(spec: LessonSpec, {
   return {
     VW, VH, PY,
     b, setB, last, beat, beats,
-    register, bridge, resources,
+    register, bridge, resources, interviewAngle,
     showCode, setShowCode, toggleCode,
     showDetail, setShowDetail,
     completed,

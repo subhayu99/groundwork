@@ -37,7 +37,7 @@ export function SceneLayout({
   });
   const {
     VW, VH, PY, b, setB, last, beat, beats,
-    register, bridge, resources,
+    register, bridge, resources, interviewAngle,
     showCode, toggleCode, showDetail, setShowDetail,
     completed, areaRef, scale, gated, activeLines, visualNode,
     codeScrollRef, goNext,
@@ -173,7 +173,11 @@ export function SceneLayout({
   // newcomer who just derived the idea benefits from the same launchpad). The
   // list href is the parent of the first problem's href. `useAudience` is still
   // read for the completion copy, but the practice link no longer gates on goal.
-  useAudience();
+  // We DO read the goal here for the interview-angle block in the completion
+  // ceremony (rendered only when goal === "interview"); the practice link below
+  // is unchanged and still ungated.
+  const { profile } = useAudience();
+  const isInterviewGoal = profile?.goal === "interview";
   const practiceListHref =
     practice && practice.length > 0
       ? practice[0].href.replace(/\/[^/]+\/?$/, "")
@@ -513,6 +517,31 @@ export function SceneLayout({
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+          {/* INTERVIEW ANGLE (Front-Door Wave) — surfaced prominently, but ONLY
+              when the learner's goal is "interview". For every other goal this
+              block does not render at all, so the non-interview ceremony stays
+              byte-identical. Authored only for interview-relevant topics; absent
+              for the rest (interviewAngle is undefined → nothing renders). */}
+          {isInterviewGoal && interviewAngle && (
+            <div className="mt-3 rounded-lg border border-[var(--accent-line)] bg-[var(--bg-card)] px-3 py-2.5">
+              <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)] mb-1.5">
+                in an interview
+              </div>
+              <p className="text-[12.5px] leading-snug text-[var(--text)]">
+                <span className="font-semibold text-[var(--accent-ink)]">Asked as: </span>
+                {interviewAngle.askedAs}
+              </p>
+              <p className="mt-1.5 text-[12.5px] leading-snug text-[var(--text-muted)]">
+                <span className="font-semibold text-[var(--text)]">The tell: </span>
+                {interviewAngle.tip}
+              </p>
+              {interviewAngle.companies && interviewAngle.companies.length > 0 && (
+                <p className="mt-1.5 font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
+                  e.g. {interviewAngle.companies.join(" · ")}
+                </p>
+              )}
             </div>
           )}
           {/* actions — map · practice (any goal) · next-module CTA */}

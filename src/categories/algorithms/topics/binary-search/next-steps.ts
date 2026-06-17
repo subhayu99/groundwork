@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const binarySearchNextSteps: NextStepsContent = {
   recap:
     "You can now find something in a sorted list by throwing away half the possibilities with every single guess — so even a list of a million items is found in about twenty checks.",
+  interviewAngle: {
+    askedAs:
+      "Shows up as \"find the first/last position of a value in a sorted array\", and — the harder version interviewers actually rank you on — any \"what's the smallest/largest value that still works?\" where you binary-search over the ANSWER itself (min days, min capacity, min speed), not over an array.",
+    tip: "Be ruthless about the boundary: state your invariant (which side is \"yes\", which is \"no\"), decide low<=high vs low<high, and whether you move to mid or mid+/-1. Most failed binary searches are an off-by-one or an infinite loop, not the idea.",
+  },
   practiceProblems: [
     {
       name: "Binary Search",

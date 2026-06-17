@@ -3,6 +3,12 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const arraysNextSteps: NextStepsContent = {
   recap:
     "You now know why a list keeps its items in one unbroken row, why jumping straight to item #5,000 is just as fast as item #1, and why squeezing a new item into the middle is the slow part.",
+  interviewAngle: {
+    askedAs:
+      "Most warm-up questions are arrays in disguise: rotate, merge, dedupe, or move every zero to the end. The unspoken catch is usually 'do it without a second list.'",
+    tip: "Say out loud which operation is cheap and which is costly here: reading any spot is instant, but inserting or deleting in the middle shifts everything after it. Then reach for an in-place rewrite with a write-marker instead of building a copy — that one line is what separates a memorized answer from understanding.",
+    companies: ["Amazon", "Google", "Microsoft"],
+  },
   practiceProblems: [
     {
       name: "Remove Duplicates from Sorted Array",

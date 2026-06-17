@@ -3,6 +3,12 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const hashMapsNextSteps: NextStepsContent = {
   recap:
     "You now have the great trade: spend a little extra memory to remember where things are, and looking anything up stops being a search — it becomes instant.",
+  interviewAngle: {
+    askedAs:
+      "This is the single most reused tool in interviews. The tell is any question with 'have I seen this before,' 'count how many times,' or 'find the pair that adds to a target' in it.",
+    tip: "When you catch yourself about to scan the list again inside a loop, stop and remember what you've already seen in a map instead — that turns a two-loop answer into one pass. Be ready to say the cost out loud: you're spending extra memory to make each lookup instant, and that trade is the whole point.",
+    companies: ["Amazon", "Meta", "Google"],
+  },
   practiceProblems: [
     {
       name: "Two Sum",

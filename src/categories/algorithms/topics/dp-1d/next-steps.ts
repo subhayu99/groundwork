@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const dp1dNextSteps: NextStepsContent = {
   recap:
     "You now have the big payoff of remembering: when a problem keeps asking for the same smaller answers, write each one down the first time and reuse it forever after. A calculation that used to explode becomes a quick walk through a list of answers.",
+  interviewAngle: {
+    askedAs:
+      "\"Climbing stairs\", \"house robber\", \"max subarray (Kadane's)\", \"coin change\", \"longest increasing subsequence\" — the family where the answer at position i is built from a couple of earlier answers, and \"count the ways\" or \"max/min total\" appears.",
+    tip: "Say the recurrence in words first — \"the best ending here is the best of taking this or skipping it\" — define what dp[i] MEANS, then nail the base cases. Bonus points for noticing you only need the last one or two values and dropping the array to O(1) space.",
+  },
   practiceProblems: [
     {
       name: "Climbing Stairs",

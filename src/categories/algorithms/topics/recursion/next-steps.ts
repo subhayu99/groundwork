@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const recursionNextSteps: NextStepsContent = {
   recap:
     "You can now solve a big problem by handing a smaller copy of it to the same method — trusting that copy to work, and stopping at the simplest case. This 'shrink until it's trivial' move is the engine behind trees, searching, and much more.",
+  interviewAngle: {
+    askedAs:
+      "Less a standalone question, more the SHAPE of the answer to half of them: tree traversals, \"reverse a linked list\", \"generate all subsets/permutations\", merge sort, anything self-similar. The cue is a problem whose smaller version looks exactly like the whole.",
+    tip: "Always state the base case and the recursive case as two separate sentences before you write code. Then watch the stack: interviewers love asking \"what's the space cost?\" and the answer is the recursion DEPTH, which people forget.",
+  },
   practiceProblems: [
     {
       name: "Fibonacci Number",

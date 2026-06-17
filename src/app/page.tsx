@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Chrome } from "@/shared/layout/Chrome";
 import { ResumeBanner } from "./ResumeBanner";
+import { JourneySpine } from "@/shared/journey/JourneySpine";
 import { listPrinciples } from "@/principles/registry";
-import { listAllTopics } from "@/categories/registry";
+import { listAllTopics, listCategories } from "@/categories/registry";
 
 const STEPS = [
   { n: "01", t: "Start from a problem", d: "No definitions up front. You meet a real question and feel why the obvious approach is too slow." },
@@ -13,6 +14,11 @@ const STEPS = [
 export default function Landing() {
   const principles = listPrinciples();
   const topicCount = listAllTopics().length;
+  // Scope row numbers come straight from the registry so they can never drift
+  // from what the platform actually ships: lessons = all topics, ideas = the
+  // seven principles, tracks = the registry categories.
+  const ideaCount = principles.length;
+  const trackCount = listCategories().length;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -49,12 +55,36 @@ export default function Landing() {
             >
               Browse the map &rarr;
             </Link>
+            <Link
+              href="/how-it-works"
+              className="inline-flex items-center gap-1.5 px-2 py-3 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+            >
+              See how it works &rarr;
+            </Link>
           </div>
           <p className="mt-3 text-[12.5px] text-[var(--text-faint)]">
             Three quick questions pick your starting point and how lessons are explained.
           </p>
           <div className="mt-8 max-w-xl">
             <ResumeBanner />
+          </div>
+        </section>
+
+        {/* THE JOURNEY — the named four-stage arc, plus a registry-computed scope row */}
+        <section className="border-t border-[var(--line-faint)]">
+          <div className="max-w-4xl mx-auto px-5 md:px-8 py-14 w-full">
+            <h2 className="text-2xl font-semibold text-[var(--text)] mb-1">The journey, end to end</h2>
+            <p className="text-[var(--text-muted)] mb-3">
+              Four stages, from your first line of code to interview-ready &mdash; each one builds on the last.
+            </p>
+            <div className="mb-7 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-[11px] uppercase tracking-wider text-[var(--text-faint)]">
+              <span className="text-[var(--text-muted)]">{topicCount} lessons</span>
+              <span aria-hidden="true">&middot;</span>
+              <span className="text-[var(--text-muted)]">{ideaCount} ideas</span>
+              <span aria-hidden="true">&middot;</span>
+              <span className="text-[var(--text-muted)]">{trackCount} tracks</span>
+            </div>
+            <JourneySpine variant="full" />
           </div>
         </section>
 

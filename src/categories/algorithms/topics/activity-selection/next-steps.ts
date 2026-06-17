@@ -3,6 +3,11 @@ import type { NextStepsContent } from "@/shared/next-steps/types";
 export const activitySelectionNextSteps: NextStepsContent = {
   recap:
     "You now have your first greedy method: to fit the most non-overlapping activities, always grab the one that finishes earliest. Taking the locally best option, with no looking back, gives the overall best answer here.",
+  interviewAngle: {
+    askedAs:
+      "Interval scheduling, wearing a thin disguise: \"max number of meetings in one room\", \"minimum number of arrows to burst balloons\", \"non-overlapping intervals to remove\". Anything with start/end pairs where you keep or drop intervals.",
+    tip: "Sort by end time and say why that exact choice is safe: \"finishing earliest leaves the most room for everything after.\" Interviewers push back with \"why not sort by start, or by shortest?\" — having a one-line exchange-argument ready is what they're testing.",
+  },
   practiceProblems: [
     {
       name: "Non-overlapping Intervals",
