@@ -23,4 +23,15 @@ export interface NextStepsContent {
   realWorld: Array<{ title: string; description: string }>;
   relatedTopics: Array<{ name: string; href: string; reason: string }>;
   resources: Array<{ title: string; type: "video" | "article" | "book"; url?: string }>;
+  /**
+   * INTERVIEW PAYOFF (Front-Door Wave 2026-06). Optional, authored only for
+   * interview-relevant topics (algorithms + the six DS topics arrays, strings,
+   * hash-maps, linked-lists, trees, graphs). Foundations topics omit it ON
+   * PURPOSE — an "interview angle" for `variables` would be noise. Surfaced in
+   * the completion ceremony prominently when the learner's goal is "interview".
+   *   askedAs   — how the idea typically shows up in an interview prompt.
+   *   tip       — the one move that signals you actually understand it.
+   *   companies — optional, illustrative (NOT exhaustive / authoritative).
+   */
+  interviewAngle?: { askedAs: string; tip: string; companies?: string[] };
 }
