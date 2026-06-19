@@ -54,14 +54,22 @@ export function FocusLayout({
   const cueId = useId();
   const [prereqDismissed, setPrereqDismissed] = useState(false);
 
-  // OPEN PANEL — the on-demand surface below the caption. null = nothing open
-  // (calm default). Changing beats closes it. It lives INSIDE the scrollable
-  // stage, so it can never sit over the pinned Back/Next bar.
+  // The on-demand surface: why / code / recap. It opens as an ABSOLUTE OVERLAY
+  // (right-docked on desktop, a bottom sheet on a phone) so it floats ON TOP —
+  // the diagram and caption never move or shrink when it appears (the repeated
+  // "don't restructure on open" ask). HOVER a chip previews it; CLICK pins it.
+  // A tiny grace delay bridges the gap between the chip and the panel so the
+  // preview doesn't flicker shut while the cursor travels across to it.
   type Panel = "why" | "code" | "recap";
-  const [openPanel, setOpenPanel] = useState<Panel | null>(null);
-  const activePanel = openPanel; // hover never opens (no reflow); only an explicit click docks
-  const closePanel = () => setOpenPanel(null);
-  const togglePanel = (p: Panel) => setOpenPanel((cur) => (cur === p ? null : p));
+  const [openPanel, setOpenPanel] = useState<Panel | null>(null);   // pinned (click)
+  const [hoverPanel, setHoverPanel] = useState<Panel | null>(null); // transient (hover)
+  const activePanel = openPanel ?? hoverPanel;
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelClose = () => { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; } };
+  const previewPanel = (p: Panel) => { cancelClose(); if (!openPanel) setHoverPanel(p); };
+  const scheduleClose = () => { if (openPanel) return; cancelClose(); closeTimer.current = setTimeout(() => setHoverPanel(null), 200); };
+  const closePanel = () => { cancelClose(); setOpenPanel(null); setHoverPanel(null); };
+  const togglePanel = (p: Panel) => { cancelClose(); setHoverPanel(null); setOpenPanel((cur) => (cur === p ? null : p)); };
 
   const mainPanel = beat.panels.find((p) => p.variant !== "note");
   const noteePanels = beat.panels.filter((p) => p.variant === "note");
@@ -110,7 +118,7 @@ export function FocusLayout({
     const ts = [120, 320, 540].map((d) => setTimeout(compute, d));
     window.addEventListener("resize", compute);
     return () => { ts.forEach(clearTimeout); window.removeEventListener("resize", compute); };
-  }, [b, beat.id, VW, VH, openPanel]);
+  }, [b, beat.id, VW, VH]); // box size no longer depends on the panel (overlay) → no recenter on open
   const shiftWrap = "transform .32s cubic-bezier(.22,.65,.3,1)";
 
   // ── MOBILE diagram scale — SHAPE-AWARE. A "line" fits the WHOLE width (so the
@@ -178,6 +186,17 @@ export function FocusLayout({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [b, last, gated, completed]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Changing beats closes the overlay (whatever the nav path: side tap zones,
+  // arrow keys, the bottom Next, or a progress dot) so each step starts calm.
+  useEffect(() => {
+    setOpenPanel(null);
+    setHoverPanel(null);
+    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+  }, [b]);
+
+  // tidy the pending hover-close timer on unmount
+  useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current); }, []);
 
   // The diagram plane (svg + arrows + on-canvas note panels), shared by the
   // desktop and mobile boxes. `sref` is the svg ref used for centring.
@@ -289,8 +308,8 @@ export function FocusLayout({
 
         {/* CENTER COLUMN — width-capped, centred */}
         <div className="flex-1 min-h-0 flex flex-col px-4 sm:px-6 lg:px-0 py-2.5">
-          <div className={`w-full max-w-[1000px] mx-auto flex-1 min-h-0 flex ${activePanel ? "flex-col lg:flex-row lg:gap-6 lg:items-stretch" : "flex-col"}`}>
-            <div className={`flex flex-col items-center min-h-0 overflow-y-auto ${activePanel ? "shrink-0 lg:flex-1 lg:min-w-0 lg:justify-center lg:self-stretch" : "flex-1 justify-center"}`}>
+          <div className="w-full max-w-[1000px] mx-auto flex-1 min-h-0 flex flex-col">
+            <div className="flex-1 min-h-0 flex flex-col items-center justify-center overflow-y-auto">
               {/* bridge — beat 0 orientation; yields to the prereq nudge */}
               {bridge && b === 0 && !showNudge && (
                 <div className="shrink-0 mb-3 max-w-[560px] px-1 text-center text-[12.5px] italic leading-snug text-[var(--text-faint)]">
@@ -301,7 +320,7 @@ export function FocusLayout({
               {/* DESKTOP hero box — aspect-locked; smaller when a panel is open */}
               <div
                 style={{ aspectRatio: `${VW} / ${VH}` }}
-                className={`relative w-full shrink-0 hidden lg:block self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden transition-[max-height] duration-200 ${activePanel ? "lg:max-h-[44vh]" : "lg:max-h-[50vh]"}`}>
+                className="relative w-full shrink-0 hidden lg:block self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden lg:max-h-[50vh]">
                 <PanZoom ref={areaRef} className="absolute inset-0" contentWidth={VW * scale} contentHeight={VH * scale} minZoom={1} maxZoom={4} resetKey={beat.id}>
                   {plane(svgRef, scale, vShift, true)}
                 </PanZoom>
@@ -310,7 +329,7 @@ export function FocusLayout({
               {/* MOBILE hero box — shape-aware; smaller when a panel is open */}
               <PanZoom
                 ref={mAreaRef}
-                className={`lg:hidden relative w-full shrink-0 rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] ${activePanel ? "min-h-[18vh] max-h-[22vh]" : (shape === "line" ? "min-h-[24vh]" : "min-h-[40vh]")}`}
+                className={`lg:hidden relative w-full shrink-0 rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] ${shape === "line" ? "min-h-[24vh]" : "min-h-[40vh]"}`}
                 contentWidth={VW * mScale} contentHeight={VH * mScale} minZoom={shape === "line" ? 1 : 0.5} maxZoom={4} allowPageScrollAtRest resetKey={beat.id}>
                 {plane(mSvgRef, mScale, mVShift, false)}
               </PanZoom>
@@ -325,7 +344,7 @@ export function FocusLayout({
                     {mainPanel.label && <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)] mb-1.5">{mainPanel.label}</div>}
                     <div className="font-semibold text-[21px] leading-snug text-[var(--text)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono">{mainPanel.title ?? mainPanel.body}</div>
                     {mainPanel.title != null && mainPanel.body != null && (
-                      <div className={`mt-2 text-[14.5px] leading-relaxed text-[var(--text-muted)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] ${activePanel ? "line-clamp-2 lg:line-clamp-3" : ""}`}>{mainPanel.body}</div>
+                      <div className="mt-2 text-[14.5px] leading-relaxed text-[var(--text-muted)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)]">{mainPanel.body}</div>
                     )}
                   </motion.div>
                 </AnimatePresence>
@@ -334,12 +353,12 @@ export function FocusLayout({
               {/* AFFORDANCE ROW — quiet, opt-in. why? · code · recap. */}
               <div className="shrink-0 mt-4 flex items-center justify-center flex-wrap gap-x-0.5">
                 {beat.detail && (
-                  <button onClick={() => togglePanel("why")} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "why" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>why?</button>
+                  <button onClick={() => togglePanel("why")} onMouseEnter={() => previewPanel("why")} onMouseLeave={scheduleClose} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "why" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>why?</button>
                 )}
                 {beat.detail && <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>}
-                <button onClick={() => togglePanel("code")} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "code" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>code</button>
+                <button onClick={() => togglePanel("code")} onMouseEnter={() => previewPanel("code")} onMouseLeave={scheduleClose} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "code" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>code</button>
                 <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>
-                <button onClick={() => togglePanel("recap")} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "recap" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>recap</button>
+                <button onClick={() => togglePanel("recap")} onMouseEnter={() => previewPanel("recap")} onMouseLeave={scheduleClose} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "recap" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>recap</button>
               </div>
 
               {/* PROGRESS DOTS — tappable; steps live here now so the bottom stays clear. */}
@@ -355,11 +374,30 @@ export function FocusLayout({
 
               {gated && <div className="shrink-0 mt-2.5 text-center font-mono text-[10px] uppercase tracking-wider text-[var(--accent-ink)]">↑ try it on the diagram to continue</div>}
             </div>
+          </div>
+        </div>
 
-            {/* IN-FLOW PANEL — FILLS the remaining space below the top zone; its body
-                scrolls INTERNALLY, so it can never run under the bar, at any height. */}
-            {activePanel && (
-              <div className="flex-1 min-h-0 w-full mt-3 lg:mt-0 lg:flex-none lg:w-[440px] lg:self-stretch flex flex-col overflow-hidden text-left rounded-2xl border border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_55%,transparent)]">
+        {/* ── ON-DEMAND OVERLAY — why / code / recap. A full-height DRAWER docked
+            to the right on desktop (a bottom sheet on a phone). It floats ON TOP,
+            so the diagram never moves when it opens; the backdrop-blur keeps the
+            cells it covers softly visible. Hover a chip to preview; click to pin;
+            × or beat-change closes. */}
+        <AnimatePresence>
+          {activePanel && (
+            <motion.div
+              key="focus-panel"
+              initial={{ opacity: 0, x: 14 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 14 }}
+              transition={{ duration: 0.18, ease: [0.22, 0.65, 0.3, 1] }}
+              className="absolute z-40 inset-x-3 bottom-3 lg:inset-x-auto lg:left-auto lg:right-5 lg:inset-y-3 flex lg:items-center pointer-events-none">
+              {/* The card itself sizes to its content, capped (58vh on a phone, the
+                  full drawer height on desktop) with an internal scroll — never
+                  forced full-height. Vertically centred on the right edge. */}
+              <div
+                onMouseEnter={cancelClose}
+                onMouseLeave={scheduleClose}
+                className="pointer-events-auto w-full max-h-[58vh] lg:w-[420px] lg:max-h-full flex flex-col overflow-hidden text-left rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_94%,var(--bg))] shadow-[0_16px_48px_-12px_rgba(0,0,0,0.55)] backdrop-blur-sm">
                 <div className="shrink-0 flex items-center justify-between px-4 py-2 border-b border-[var(--line-faint)]">
                   <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">
                     {activePanel === "why" ? (beat.label ?? "why") : activePanel === "code" ? "the code so far" : "what we've established"}
@@ -379,9 +417,9 @@ export function FocusLayout({
                   {activePanel === "recap" && <FocusSpine lines={spineLines} current={b} />}
                 </div>
               </div>
-            )}
-          </div>
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ── COMPLETION CEREMONY (final beat) ─────────────────────────────── */}
