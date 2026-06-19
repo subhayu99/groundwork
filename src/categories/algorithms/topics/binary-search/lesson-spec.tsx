@@ -189,9 +189,12 @@ const idleRow = (tones?: (Tone | undefined)[], dim?: boolean[], markers?: Record
  *   refresh    : additionally trims `scan` + `general` (trimOnRefresh).        */
 export const binarySearchLesson: LessonSpec = {
   topicTitle: "binary search · find 27",
-  // PILOT: opt into the one-scene immersive layout. Binary search only — every
-  // other topic stays on the classic layout (no `layout` field = "classic").
-  layout: "scene",
+  // PILOT (focus layout): opt into the single-column, low-cognitive-load layout.
+  // Binary search only — every other topic keeps its current layout. The mobile
+  // diagram is a "line", so the whole row fits the screen width (never wraps) and
+  // you watch it halve. A/B against the prior scene layout via ?layout=scene.
+  layout: "focus",
+  diagramShape: "line",
   canvas: { width: VW, height: VH },
   codeSource: binarySearchPy as string,
   // standing on arrays (the anchor, per TRACK-NARRATIVES.md): arr[i] is one
