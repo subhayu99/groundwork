@@ -269,7 +269,7 @@ export function FocusLayout({
       <div className="relative flex-1 min-h-0 flex flex-col">
         {/* LEFT tap zone (lg+) — previous */}
         <button type="button" onClick={() => go(-1)} disabled={b === 0} aria-label="Previous step"
-          className="hidden lg:flex absolute inset-y-0 left-0 right-[calc(50%_+_380px)] z-20 items-center justify-center group disabled:opacity-20 disabled:cursor-default cursor-pointer">
+          className="hidden lg:flex absolute inset-y-0 left-0 right-[calc(50%_+_520px)] z-20 items-center justify-end pr-5 group disabled:opacity-20 disabled:cursor-default cursor-pointer transition-colors hover:bg-[color-mix(in_oklab,var(--bg-card)_22%,transparent)]">
           <span className="flex flex-col items-center gap-1.5 text-[var(--text-faint)] transition-colors group-hover:text-[var(--text)]">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
             <span className="font-mono text-[9px] uppercase tracking-[0.18em]">back</span>
@@ -279,7 +279,7 @@ export function FocusLayout({
         <button type="button" onClick={() => { if (gated || (b === last && completed)) return; goNext(); }}
           aria-disabled={gated || (b === last && completed)} aria-describedby={gated ? cueId : undefined}
           aria-label={gated ? "Locked — try the diagram first" : "Next step"}
-          className={`hidden lg:flex absolute inset-y-0 right-0 left-[calc(50%_+_380px)] z-20 items-center justify-center group cursor-pointer ${b === last && completed ? "opacity-30 cursor-default" : ""}`}>
+          className={`hidden lg:flex absolute inset-y-0 right-0 left-[calc(50%_+_520px)] z-20 items-center justify-start pl-5 group cursor-pointer transition-colors hover:bg-[color-mix(in_oklab,var(--bg-card)_22%,transparent)] ${b === last && completed ? "opacity-30 cursor-default" : ""}`}>
           <span className={`flex flex-col items-center gap-1.5 transition-colors ${gated ? "text-[var(--text-faint)]" : "text-[var(--accent-ink)] group-hover:text-[var(--text)]"}`}>
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={gated ? "M7 11V7a5 5 0 0 1 10 0v4M5 11h14v9H5z" : "M9 18l6-6-6-6"} /></svg>
             <span className="font-mono text-[9px] uppercase tracking-[0.18em] max-w-[140px] text-center truncate">{gated ? "locked" : b === last ? (completed ? "done" : "finish") : (beat.actionLabel ?? "next")}</span>
@@ -288,7 +288,7 @@ export function FocusLayout({
 
         {/* CENTER COLUMN — width-capped, centred */}
         <div className="flex-1 min-h-0 flex flex-col px-4 sm:px-6 lg:px-0 py-2.5">
-          <div className="w-full max-w-[720px] mx-auto flex-1 min-h-0 flex flex-col">
+          <div className="w-full max-w-[1000px] mx-auto flex-1 min-h-0 flex flex-col">
             <div className={`flex flex-col items-center min-h-0 overflow-y-auto ${openPanel ? "shrink-0" : "flex-1 justify-center"}`}>
               {/* bridge — beat 0 orientation; yields to the prereq nudge */}
               {bridge && b === 0 && !showNudge && (
@@ -300,7 +300,7 @@ export function FocusLayout({
               {/* DESKTOP hero box — aspect-locked; smaller when a panel is open */}
               <div
                 style={{ aspectRatio: `${VW} / ${VH}` }}
-                className={`relative w-full shrink-0 hidden lg:block self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden transition-[max-height] duration-200 ${openPanel ? "lg:max-h-[26vh]" : "lg:max-h-[46vh]"}`}>
+                className={`relative w-full shrink-0 hidden lg:block self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden transition-[max-height] duration-200 ${openPanel ? "lg:max-h-[28vh]" : "lg:max-h-[50vh]"}`}>
                 <PanZoom ref={areaRef} className="absolute inset-0" contentWidth={VW * scale} contentHeight={VH * scale} minZoom={1} maxZoom={4} resetKey={beat.id}>
                   {plane(svgRef, scale, vShift, true)}
                 </PanZoom>
