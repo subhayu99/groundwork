@@ -58,11 +58,10 @@ export function FocusLayout({
   // (calm default). Changing beats closes it. It lives INSIDE the scrollable
   // stage, so it can never sit over the pinned Back/Next bar.
   type Panel = "why" | "code" | "recap";
-  const [openPanel, setOpenPanel] = useState<Panel | null>(null);   // pinned (click)
-  const [hoverPanel, setHoverPanel] = useState<Panel | null>(null); // preview (hover)
-  const activePanel = openPanel ?? hoverPanel;
-  const closePanel = () => { setOpenPanel(null); setHoverPanel(null); };
-  const togglePanel = (p: Panel) => { setHoverPanel(null); setOpenPanel((cur) => (cur === p ? null : p)); };
+  const [openPanel, setOpenPanel] = useState<Panel | null>(null);
+  const activePanel = openPanel; // hover never opens (no reflow); only an explicit click docks
+  const closePanel = () => setOpenPanel(null);
+  const togglePanel = (p: Panel) => setOpenPanel((cur) => (cur === p ? null : p));
 
   const mainPanel = beat.panels.find((p) => p.variant !== "note");
   const noteePanels = beat.panels.filter((p) => p.variant === "note");
@@ -290,7 +289,7 @@ export function FocusLayout({
 
         {/* CENTER COLUMN — width-capped, centred */}
         <div className="flex-1 min-h-0 flex flex-col px-4 sm:px-6 lg:px-0 py-2.5">
-          <div onMouseLeave={() => setHoverPanel(null)} className={`w-full max-w-[1000px] mx-auto flex-1 min-h-0 flex ${activePanel ? "flex-col lg:flex-row lg:gap-6 lg:items-stretch" : "flex-col"}`}>
+          <div className={`w-full max-w-[1000px] mx-auto flex-1 min-h-0 flex ${activePanel ? "flex-col lg:flex-row lg:gap-6 lg:items-stretch" : "flex-col"}`}>
             <div className={`flex flex-col items-center min-h-0 overflow-y-auto ${activePanel ? "shrink-0 lg:flex-1 lg:min-w-0 lg:justify-center lg:self-stretch" : "flex-1 justify-center"}`}>
               {/* bridge — beat 0 orientation; yields to the prereq nudge */}
               {bridge && b === 0 && !showNudge && (
@@ -335,12 +334,12 @@ export function FocusLayout({
               {/* AFFORDANCE ROW — quiet, opt-in. why? · code · recap. */}
               <div className="shrink-0 mt-4 flex items-center justify-center flex-wrap gap-x-0.5">
                 {beat.detail && (
-                  <button onClick={() => togglePanel("why")} onMouseEnter={() => { if (!openPanel) setHoverPanel("why"); }} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "why" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>why?</button>
+                  <button onClick={() => togglePanel("why")} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "why" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>why?</button>
                 )}
                 {beat.detail && <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>}
-                <button onClick={() => togglePanel("code")} onMouseEnter={() => { if (!openPanel) setHoverPanel("code"); }} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "code" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>code</button>
+                <button onClick={() => togglePanel("code")} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "code" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>code</button>
                 <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>
-                <button onClick={() => togglePanel("recap")} onMouseEnter={() => { if (!openPanel) setHoverPanel("recap"); }} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "recap" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>recap</button>
+                <button onClick={() => togglePanel("recap")} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "recap" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>recap</button>
               </div>
 
               {/* PROGRESS DOTS — tappable; steps live here now so the bottom stays clear. */}
@@ -364,7 +363,6 @@ export function FocusLayout({
                 <div className="shrink-0 flex items-center justify-between px-4 py-2 border-b border-[var(--line-faint)]">
                   <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">
                     {activePanel === "why" ? (beat.label ?? "why") : activePanel === "code" ? "the code so far" : "what we've established"}
-                    {!openPanel && <span className="ml-2 normal-case text-[var(--text-faint)] tracking-normal">· hovering, click to keep</span>}
                   </span>
                   <button onClick={closePanel} aria-label="close" className="inline-flex items-center justify-center w-6 h-6 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
