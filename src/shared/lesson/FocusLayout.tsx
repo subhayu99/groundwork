@@ -270,7 +270,7 @@ export function FocusLayout({
   );
 
   return (
-    <main className="h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] overflow-hidden">
+    <main className="h-[100dvh] flex flex-col bg-[var(--bg)] text-[var(--text)] overflow-hidden">
       {/* ── TOP CHROME (minimal) ─────────────────────────────────────────── */}
       <div className="shrink-0">
         <div className="flex items-center gap-3 px-3 sm:px-5 py-2 min-h-[40px] border-b border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_35%,transparent)]">
@@ -430,7 +430,7 @@ export function FocusLayout({
               onMouseEnter={cancelClose}
               onMouseLeave={scheduleClose}
               style={isDesktop && cardBox ? { top: cardBox.top, height: cardBox.height } : undefined}
-              className="absolute z-40 inset-x-3 bottom-3 max-h-[58vh] lg:inset-x-auto lg:bottom-auto lg:right-5 lg:max-h-none lg:w-[440px] flex flex-col overflow-hidden text-left rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_94%,var(--bg))] shadow-[0_16px_48px_-12px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+              className="absolute z-40 inset-x-3 bottom-3 max-h-[44dvh] lg:inset-x-auto lg:bottom-auto lg:right-5 lg:max-h-none lg:w-[440px] flex flex-col overflow-hidden text-left rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_94%,var(--bg))] shadow-[0_16px_48px_-12px_rgba(0,0,0,0.55)] backdrop-blur-sm">
               <div className="shrink-0 flex items-center justify-between px-4 py-2 border-b border-[var(--line-faint)]">
                 <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">
                   {activePanel === "why" ? (beat.label ?? "why") : activePanel === "code" ? "the code so far" : "what we've established"}
