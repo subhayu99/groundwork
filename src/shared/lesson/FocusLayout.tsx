@@ -364,8 +364,8 @@ export function FocusLayout({
               <div ref={stackRef} className="w-full flex flex-col items-center">
               {/* bridge — beat 0 orientation; yields to the prereq nudge */}
               {bridge && b === 0 && !showNudge && (
-                <div className="shrink-0 mb-3 max-w-[560px] px-1 text-center text-[12.5px] italic leading-snug text-[var(--text-faint)]">
-                  <span className="not-italic font-mono text-[9.5px] uppercase tracking-wider">standing on · </span>{bridge}
+                <div className="shrink-0 mb-3 max-w-[600px] px-1 text-center text-[13px] italic leading-snug text-[var(--text-muted)]">
+                  <span className="not-italic font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">standing on · </span>{bridge}
                 </div>
               )}
 
@@ -405,12 +405,12 @@ export function FocusLayout({
               {/* AFFORDANCE ROW — quiet, opt-in. why? · code · recap. */}
               <div ref={chipsRef} className="shrink-0 mt-4 flex items-center justify-center flex-wrap gap-x-0.5">
                 {beat.detail && (
-                  <button onClick={() => togglePanel("why")} onMouseEnter={() => previewPanel("why")} onMouseLeave={scheduleClose} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "why" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>why?</button>
+                  <button onClick={() => togglePanel("why")} onMouseEnter={() => previewPanel("why")} onMouseLeave={scheduleClose} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "why" ? "text-[var(--accent-ink)]" : "text-[var(--text-muted)] hover:text-[var(--text)]"}`}>why?</button>
                 )}
                 {beat.detail && <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>}
-                <button onClick={() => togglePanel("code")} onMouseEnter={() => previewPanel("code")} onMouseLeave={scheduleClose} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "code" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>code</button>
+                <button onClick={() => togglePanel("code")} onMouseEnter={() => previewPanel("code")} onMouseLeave={scheduleClose} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "code" ? "text-[var(--accent-ink)]" : "text-[var(--text-muted)] hover:text-[var(--text)]"}`}>code</button>
                 <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>
-                <button onClick={() => togglePanel("recap")} onMouseEnter={() => previewPanel("recap")} onMouseLeave={scheduleClose} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "recap" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>recap</button>
+                <button onClick={() => togglePanel("recap")} onMouseEnter={() => previewPanel("recap")} onMouseLeave={scheduleClose} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "recap" ? "text-[var(--accent-ink)]" : "text-[var(--text-muted)] hover:text-[var(--text)]"}`}>recap</button>
               </div>
 
               {/* PROGRESS DOTS — tappable; steps live here now so the bottom stays clear. */}

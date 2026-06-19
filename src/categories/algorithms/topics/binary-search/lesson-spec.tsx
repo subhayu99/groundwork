@@ -201,7 +201,7 @@ export const binarySearchLesson: LessonSpec = {
   // step — this lesson adds sorted order so one probe can discard half the row.
   bridgeFrom: reg({
     base: "An array hands you any position in one step — now add sorted order, and one look can rule out half the row.",
-    intuitive: "You can grab any slot in a row in one step — now the row is in order, and one look can throw away half of it.",
+    intuitive: "You already know an array lets you jump straight to any slot. Sort those slots, and one peek at the middle throws away half of them.",
     rigorous: "arr[mid] is O(1) address math — on a sorted array one probe eliminates a whole side: the pruning lemma.",
   }),
   // from meta (TRACK-NARRATIVES row 19): ask the middle, half the world dies.
