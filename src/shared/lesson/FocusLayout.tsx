@@ -78,6 +78,8 @@ export function FocusLayout({
   // bottom sheet, so the measured bounds are applied on desktop only.
   const bodyRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const chipsRef = useRef<HTMLDivElement>(null);
   const [cardBox, setCardBox] = useState<{ top: number; height: number } | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
@@ -231,6 +233,21 @@ export function FocusLayout({
 
   // tidy the pending hover-close timer on unmount
   useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current); }, []);
+
+  // close on a click/tap OUTSIDE the panel — but not on the chips that open it
+  // (those toggle themselves) — so dismissing is the same gesture everywhere.
+  useEffect(() => {
+    if (!activePanel) return;
+    const onDown = (ev: PointerEvent) => {
+      const t = ev.target as Node | null;
+      if (!t) return;
+      if (cardRef.current?.contains(t)) return;
+      if (chipsRef.current?.contains(t)) return;
+      closePanel();
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    return () => document.removeEventListener("pointerdown", onDown, true);
+  }, [activePanel]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // The diagram plane (svg + arrows + on-canvas note panels), shared by the
   // desktop and mobile boxes. `sref` is the svg ref used for centring.
@@ -386,7 +403,7 @@ export function FocusLayout({
               )}
 
               {/* AFFORDANCE ROW — quiet, opt-in. why? · code · recap. */}
-              <div className="shrink-0 mt-4 flex items-center justify-center flex-wrap gap-x-0.5">
+              <div ref={chipsRef} className="shrink-0 mt-4 flex items-center justify-center flex-wrap gap-x-0.5">
                 {beat.detail && (
                   <button onClick={() => togglePanel("why")} onMouseEnter={() => previewPanel("why")} onMouseLeave={scheduleClose} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${activePanel === "why" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>why?</button>
                 )}
@@ -422,15 +439,16 @@ export function FocusLayout({
           {activePanel && (
             <motion.div
               key="focus-panel"
+              ref={cardRef}
               data-focus-card
-              initial={{ opacity: 0, x: 14 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 14 }}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.18, ease: [0.22, 0.65, 0.3, 1] }}
               onMouseEnter={cancelClose}
               onMouseLeave={scheduleClose}
               style={isDesktop && cardBox ? { top: cardBox.top, height: cardBox.height } : undefined}
-              className="absolute z-40 inset-x-3 bottom-3 max-h-[44dvh] lg:inset-x-auto lg:bottom-auto lg:right-5 lg:max-h-none lg:w-[440px] flex flex-col overflow-hidden text-left rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_94%,var(--bg))] shadow-[0_16px_48px_-12px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+              className="absolute z-40 inset-x-3 top-3 max-h-[44dvh] lg:inset-x-auto lg:right-5 lg:max-h-none lg:w-[440px] flex flex-col overflow-hidden text-left rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_94%,var(--bg))] shadow-[0_16px_48px_-12px_rgba(0,0,0,0.55)] backdrop-blur-sm">
               <div className="shrink-0 flex items-center justify-between px-4 py-2 border-b border-[var(--line-faint)]">
                 <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">
                   {activePanel === "why" ? (beat.label ?? "why") : activePanel === "code" ? "the code so far" : "what we've established"}
