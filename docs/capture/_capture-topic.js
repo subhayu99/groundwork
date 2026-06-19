@@ -18,13 +18,29 @@ const stepNum = async (page) => {
     const m = t.match(/step (\d+)\/(\d+)/); return m ? { cur: +m[1], total: +m[2] } : null;
   } catch { return null; }
 };
+const clickDot = async (page, n) => {
+  try { await page.getByRole('button', { name: new RegExp('^step ' + n + ' of ') }).first().click({ timeout: 1500 }); return true; }
+  catch { return false; }
+};
+// Best-effort generic gate-clearer. Wedge interactions vary (click a node, a
+// cell, a push/pop button, a finger; drag a slider), so we (1) click any
+// predict-gate choice buttons, (2) click a dense grid of points across the
+// diagram to hit whatever interactive element is there, (3) attempt a drag.
 const clearGate = async (page) => {
   const fo = page.locator('foreignObject button');
-  if (await fo.count()) { try { await fo.first().click({ timeout: 1200 }); } catch {} }
-  const cells = page.locator('[data-canvas-root] rect');
-  const n = await cells.count();
-  const idxs = [Math.floor(n/2), Math.floor(n/3), Math.floor(2*n/3), 1].filter((v,i,a)=>a.indexOf(v)===i && v>=0 && v<n);
-  for (const idx of idxs) { try { await cells.nth(idx).click({ timeout: 700, force: true }); } catch {} }
+  const foN = await fo.count();
+  for (let i = 0; i < Math.min(foN, 3); i++) { try { await fo.nth(i).click({ timeout: 700 }); } catch {} }
+  const svg = page.locator('svg[role="img"]').first();
+  let box = null; try { box = await svg.boundingBox(); } catch {}
+  if (box) {
+    const cols = 5, rows = 4;
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      try { await page.mouse.click(box.x + box.width * (c + 0.5) / cols, box.y + box.height * (r + 0.5) / rows); } catch {}
+    }
+    const my = box.y + box.height * 0.5; // drag across the middle (slider wedges)
+    try { await page.mouse.move(box.x + box.width * 0.28, my); await page.mouse.down();
+      await page.mouse.move(box.x + box.width * 0.62, my, { steps: 10 }); await page.mouse.up(); } catch {}
+  }
 };
 async function cap(browser, vp, tag) {
   const ctx = await browser.newContext({ viewport: vp, colorScheme: 'dark' });
@@ -34,16 +50,15 @@ async function cap(browser, vp, tag) {
   await page.waitForTimeout(1300);
   const total = (await stepNum(page))?.total ?? 1;
   let shots = 0, reached = 0;
-  for (let i = 1; i <= total; i++) {
-    await page.waitForTimeout(700);
-    await page.screenshot({ path: `${OUT}/beat${i}-${tag}.png` }); shots++; reached = i;
-    if (i === total) break;
-    let cur = (await stepNum(page))?.cur ?? i;
-    for (let a = 0; a < 3 && ((await stepNum(page))?.cur ?? cur) === cur; a++) {
-      await clearGate(page); await page.waitForTimeout(300);
-      await page.keyboard.press('ArrowRight'); await page.waitForTimeout(750);
-    }
-    if (((await stepNum(page))?.cur ?? cur) === cur) break; // stuck on a gate
+  // Jump to each beat via the progress dots, always FROM beat 1 (the setup beat
+  // is never a wedge, so gated=false there and a forward jump to any beat is
+  // allowed). This bypasses every wedge gate without performing the (topic-
+  // specific) interaction, and works identically on desktop and mobile.
+  for (let t = 1; t <= total; t++) {
+    await clickDot(page, 1); await page.waitForTimeout(350);
+    if (t !== 1) await clickDot(page, t);
+    await page.waitForTimeout(850);
+    await page.screenshot({ path: `${OUT}/beat${t}-${tag}.png` }); shots++; reached = t;
   }
   if (tag === 'd') {
     try {

@@ -1,0 +1,39 @@
+## trees
+route: `/categories/data-structures/trees/` · diagram shape: box
+
+The lesson spec defines seven beats (setup, obvious, instinct, structure, operations, fits, name), but the default capture register trims "The obvious thing" and "When it fits", so the lesson renders as a 5-step run (header reads "step N/5"). This capture reached all 5 steps on both viewports (desktop 1440, mobile 390); each beat has a `beatN-d.png` and `beatN-m.png`, plus the open code drawer `drawer-code-d.png`. The top bar reads "◆ TREES · HIERARCHY YOU CAN WALK" with an "IDEA 4 OF 7" pill, the step counter, and the section label; a "MAP" link and back chevron sit at far left. Desktop puts "‹ BACK" and the forward action label on left/right side rails; mobile stacks the visual above the prose and uses a fixed bottom bar (back chevron, "N / 5" counter, primary forward button).
+
+### Beat 1 — The setup (step 1/5)
+![trees beat1 desktop](img/trees/beat1-d.png)
+![trees beat1 mobile](img/trees/beat1-m.png)
+
+The diagram is a two-column flat table (NAME / MANAGER header) listing ten people: Ana (manager "—"), Bo→Ana, Cara→Bo, Dax→Cara, Eli→Bo, Fawn→Eli, Grace→Eli, Harper→Ana, Ivy→Harper, June→Harper. The top bar shows "◆ TREES · HIERARCHY YOU CAN WALK", an "IDEA 4 OF 7" pill, "step 1/5", and the section label "THE SETUP"; a "BUILDS ON ◆ Linked Lists" prereq strip sits below it with a dismiss X. The main panel under the canvas reads caption "THE SETUP", title "People have managers. Managers have managers.", and body text about folders nesting and replies branching, ending "A flat list can't say 'what's inside what.'" Below the body are the why / code / recap chips and five progress dots (first filled). On desktop the side nav shows "‹ BACK" at left and "I HAVE THE QUESTION ›" at right; on mobile these collapse to a bottom bar with a back chevron, a "1 / 5" counter, and a primary "I have the question →" button. A zoom −/+ control sits at the canvas bottom-right.
+
+### Beat 2 — The instinct (step 2/5, wedge-gated)
+![trees beat2 desktop](img/trees/beat2-d.png)
+![trees beat2 mobile](img/trees/beat2-m.png)
+
+The diagram switches to an org-chart NodeGraph: Ana at the root, branching to Bo and Harper, then down to Cara, Eli, Ivy, June, and the leaves Dax, Fawn, Grace, connected by edges. A canvas caption reads "click any person to light up their branch", and a "↺ reset" button sits below the nodes. A blue note box on the canvas reads "The instinct: what does 'a child' look like in this structure, and how is it different from a sibling next to it?" The main panel shows label "THE INSTINCT", title "Click a person. Their branch lights up.", and body defining a node ("one person") and a pointer ("that single link from one node to another"), ending "You didn't search the company, you followed pointers down." The interaction is a wedge gate: clicking any node calls the subtree highlighter so the clicked person's whole branch lights ("active") while the rest dims ("muted"), which fires the interaction-done signal that unlocks advancing and activates the dfs code lines. While locked, desktop shows a "LOCKED" lock icon where the forward nav would be, with helper text "↑ TRY IT ON THE DIAGRAM TO CONTINUE"; mobile shows the same helper text and a dashed, inactive bottom button reading "Each node points to its kids →". The progress dots show the second dot filled. Both shots are pre-interaction: the dot-jump lands on this beat without performing the click, so no branch is lit and the gate reads locked.
+
+### Beat 3 — The structure (step 3/5)
+![trees beat3 desktop](img/trees/beat3-d.png)
+![trees beat3 mobile](img/trees/beat3-m.png)
+
+The same org-chart NodeGraph renders, now with the root Ana lit ("active", filled blue) and a blue down-arrow pointing into it. A canvas caption reads "root — the one box every path starts from". The main panel shows label "THE STRUCTURE", title "Nodes with links to children. No loops.", and body text defining a tree as nodes where a box can hold several child links (not one "next"), naming the lit start box the root, noting that a loop back up would make it a graph, and that a binary tree caps each node at two children. The why / code / recap chips and five progress dots appear below (third dot filled). Desktop side nav reads "‹ BACK" at left and "WHAT OPERATIONS? ›" at right.
+
+### Beat 4 — The operations (step 4/5, wedge-gated predict)
+![trees beat4 desktop](img/trees/beat4-d.png)
+![trees beat4 mobile](img/trees/beat4-m.png)
+
+The diagram collapses to a pre-reveal BST showing only the root 50 (lit "active") and its two children 30 and 70, with a blue down-arrow above the root. A canvas caption reads "the rule: smaller values go left, larger go right — now search for 35". A "PREDICT" gate panel sits on the canvas asking "35 is smaller than 50, the root — which nodes can the search skip entirely?" with three choice buttons: "none — 35 could be anywhere", "everything under 70" (the correct answer), and "only the root, 50". The main panel shows label "THE OPERATIONS", title "Walk it all, or take the sorted shortcut.", and body text contrasting visiting every box (O(n)) against a Binary Search Tree's left/right lookup (O(log n) when balanced); O(n) and O(log n) render as inline Term links. The interaction is a wedge via the PredictGate: tapping a prediction choice fires interaction-done, and after a reading pause the full tree reveals and an AutoBSTSearch plays the real path to 35 one hop per frame. While the gate is unanswered the forward nav shows "LOCKED" with "↑ TRY IT ON THE DIAGRAM TO CONTINUE"; the fourth progress dot is filled, and on mobile the bottom button "Name the pattern →" is dashed/inactive. Both shots are pre-interaction: the prediction prompt is shown with no choice committed, so the full tree and the animated search are not yet revealed.
+
+### Beat 5 — The pattern (step 5/5)
+![trees beat5 desktop](img/trees/beat5-d.png)
+![trees beat5 mobile](img/trees/beat5-m.png)
+
+The diagram shows a compact org tree on the left (Ana, Bo, Harper, Cara, Eli, Ivy, June, Dax, Fawn, Grace) beside a complexity recap grid on the right with four rows: "walk every node" → O(n), "BST lookup, balanced" → O(log n), "BST lookup, lopsided" → O(n), "BST insert / delete" → O(log n) avg, each Big-O value color-coded. The main panel shows label "THE PATTERN", title "Tree.", and body naming the variants (heaps, tries, B-trees) and the shared skeleton "nodes holding child links, rooted at the top." The why / code / recap chips and five progress dots appear below (fifth dot filled). Desktop side nav reads "‹ BACK" at left and "FINISH ›" at right; mobile shows the same back chevron, a "5 / 5" counter, and a primary "Finish ✓" button. The final beat presents this finish forward control rather than an inline completion-ceremony screen within the captured frame.
+
+### Code drawer
+![trees code drawer desktop](img/trees/drawer-code-d.png)
+
+Opened over step 5, the drawer is a right-side panel headed "THE CODE SO FAR" with a close X. It shows `algorithm.py` (tagged OPTIONAL, "the lesson works without it") with line numbers and syntax highlighting. Visible code: imports of `dataclass`, `field`, and `Optional`; a `@dataclass class TreeNode` with `value: int` and `children: list["TreeNode"] = field(default_fa…)`; a `def dfs(node: TreeNode) -> list[int]` traversal that builds `out = [node.value]`, loops `for child in node.children` extending with `dfs(child)`, and returns `out` (commented "# Traverse: visit every node…" and "# recurse…"); then a "# Binary Search Tree: smaller on the left, larger…" section with a `@dataclass class BSTNode` carrying `value: int`, `left`/`right` typed `Optional["BSTNode"] = None`, and the start of `def bst_insert(root: Optional[BSTNode], v: int)` with `if root is None:`. The lesson canvas (Tree. recap beat) remains visible behind the drawer at the left.
