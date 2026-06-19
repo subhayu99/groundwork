@@ -322,15 +322,13 @@ export function FocusLayout({
         {showNudge && (
           <div className="flex items-center gap-2 px-3 sm:px-5 py-1.5 border-b border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--accent-sky)_7%,transparent)]">
             <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)] shrink-0">builds on</span>
-            <span className="text-[11.5px] text-[var(--text-muted)] truncate min-w-0">
-              {prerequisites!.filter((p) => !p.completed).map((p, i) => (
-                <span key={p.href}>
-                  {i > 0 && ", "}
-                  <Link href={p.href} title={`Open ${p.name} first`}
-                    className="font-medium text-[var(--accent-ink)] underline decoration-dotted underline-offset-2 hover:text-[var(--text)] hover:decoration-solid transition-colors">
-                    {p.name}
-                  </Link>
-                </span>
+            <span className="flex flex-wrap items-center gap-1.5 min-w-0 flex-1">
+              {prerequisites!.filter((p) => !p.completed).map((p) => (
+                <Link key={p.href} href={p.href} title={`Open ${p.name} first`}
+                  className="inline-flex items-center gap-1.5 shrink-0 rounded-full border border-[var(--accent-line)] bg-[var(--accent-soft)] px-2.5 py-0.5 text-[11px] text-[var(--accent-ink)] hover:bg-[var(--bg-inset)] hover:border-[var(--line-strong)] transition-colors">
+                  <span className="inline-block w-1.5 h-1.5 rotate-45 bg-[var(--accent-sky)] shrink-0" />
+                  {p.name}
+                </Link>
               ))}
             </span>
             <button onClick={() => setPrereqDismissed(true)} aria-label="dismiss prerequisite note"
