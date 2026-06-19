@@ -579,15 +579,16 @@ const allHandsRow = MEETINGS.findIndex((m) => m.id === "m5");
  *   refresh    : additionally trims `obvious` + `general` (trimOnRefresh).    */
 export const activitySelectionLesson: LessonSpec = {
   topicTitle: "activity selection · fit the most meetings",
-  layout: "scene",
+  layout: "focus",
+  diagramShape: "line",
   canvas: { width: VW, height: VH },
   codeSource: activity_selectionPy as string,
   // standing on arrays (the anchor, per TRACK-NARRATIVES.md): a row you can
   // sort and walk in one pass — this lesson makes that one walk provably optimal.
   bridgeFrom: reg({
-    base: "Arrays gave you a row you can sort and walk in one pass — here, the right sort key makes that one pass provably optimal.",
-    intuitive: "You already know the row of boxes you can walk one by one — line the meetings up right, and one walk wins the whole day.",
-    rigorous: "A sort is O(n log n), a walk O(n) — this lesson shows one sorted pass suffices for an optimal schedule, by exchange.",
+    base: "Arrays gave you a row you can sort and walk in one pass. Here, the right sort key makes that one pass provably optimal.",
+    intuitive: "You already know the row of boxes you can walk one by one. Line the meetings up right, and one walk wins the whole day.",
+    rigorous: "A sort is O(n log n), a walk O(n); this lesson shows one sorted pass suffices for an optimal schedule, by exchange.",
   }),
   // from meta (TRACK-NARRATIVES row 23): earliest finish, proven safe, never
   // reconsidered — greedy-choice, idea 7 of 7, the track's lone pure-greedy story.
@@ -599,8 +600,8 @@ export const activitySelectionLesson: LessonSpec = {
       registers: ["intuitive", "structured"],
       actionLabel: "How would you decide?",
       takeaway: reg({
-        base: "One room, many requests — fit the most that don’t overlap.",
-        intuitive: "One room, seven bookings — keep the most that never clash.",
+        base: "One room, many requests: fit the most that don’t overlap.",
+        intuitive: "One room, seven bookings, and you keep the most that never clash.",
       }),
       detail: reg({
         base: (
@@ -610,8 +611,8 @@ export const activitySelectionLesson: LessonSpec = {
             <strong>end hour</strong>. Two meetings can share the room only if they don&rsquo;t <strong>overlap</strong> in time.
           </p>
           <p>
-            Touching at the edges is fine &mdash; if one meeting ends at 11 and the next starts at 11, the room is free in time. But 10&ndash;12
-            sitting next to 11&ndash;14 is a clash: at 11:30 both want the room. You can&rsquo;t make everyone happy.
+            Touching at the edges is fine: if one meeting ends at 11 and the next starts at 11, the room is free in time. But 10&ndash;12
+            sitting next to 11&ndash;14 is a clash. At 11:30 both want the room, and you can&rsquo;t make everyone happy.
           </p>
           <p>
             So the real question is: <strong>how do you fit as many meetings as possible</strong> into that single room?
@@ -621,12 +622,12 @@ export const activitySelectionLesson: LessonSpec = {
         intuitive: (
           <>
             <p>
-              Look at the timeline: one meeting room, seven booking requests. Each request is nothing but two numbers &mdash; when it starts and when
+              Look at the timeline: one meeting room, seven booking requests. Each request is nothing but two numbers, when it starts and when
               it ends.
             </p>
             <p>
               Two meetings can share the room only if their bars don&rsquo;t <strong>overlap</strong>. Touching is fine: if one ends at 11 and the next
-              starts at 11, the room hands over cleanly. But look at 10&ndash;12 and 11&ndash;14 &mdash; at 11:30 both bars want the room. Someone has
+              starts at 11, the room hands over cleanly. But look at 10&ndash;12 and 11&ndash;14. At 11:30 both bars want the room, and someone has
               to lose.
             </p>
             <p>
@@ -647,14 +648,14 @@ export const activitySelectionLesson: LessonSpec = {
           body: reg({
             base: (
             <>
-              One meeting room, seven booking requests &mdash; each with a start and end hour. Two can share the room only if they don&rsquo;t
+              One meeting room, seven booking requests, each with a start and end hour. Two can share the room only if they don&rsquo;t
               <strong> overlap</strong>: touching is fine (one ends at 11, the next starts at 11), but 10&ndash;12 beside 11&ndash;14 clashes. Fit as
               many as you can.
             </>
           ),
             intuitive: (
               <>
-                One room. Seven people want it, each for a stretch of the day &mdash; a start hour and an end hour. Two bookings can share the room
+                One room. Seven people want it, each for a stretch of the day: a start hour and an end hour. Two bookings can share the room
                 only if they don&rsquo;t <strong>overlap</strong>: ending at 11 while the next starts at 11 is fine, but 10&ndash;12 beside
                 11&ndash;14 means both want the room at 11:30. Fit in as many as you can.
               </>
@@ -677,11 +678,11 @@ export const activitySelectionLesson: LessonSpec = {
         <>
           <p>
             The careful, brute-force answer: try <em>every</em> possible group of meetings, throw out the ones that overlap, and keep the biggest
-            clash-free group. With seven meetings that&rsquo;s 128 groups to test &mdash; doable. But each extra meeting <em>doubles</em> the count, so
+            clash-free group. With seven meetings that&rsquo;s 128 groups to test, which is doable. But each extra meeting <em>doubles</em> the count, so
             thirty meetings is already over a billion groups. Far too slow.
           </p>
           <p>
-            So you reach for a quick rule instead. <em>Shortest meeting first?</em> Sounds clever &mdash; short meetings free the room fast. But the
+            So you reach for a quick rule instead. <em>Shortest meeting first?</em> Sounds clever, since short meetings free the room fast. But the
             shortest meeting might sit right in the middle of the day and block both the morning <em>and</em> the afternoon. Wrong rule.
           </p>
           <p>
@@ -689,7 +690,7 @@ export const activitySelectionLesson: LessonSpec = {
           </p>
           <p>
             Both guesses fail for the same reason: they look at the wrong number. What if we picked a rule based on{" "}
-            <strong>when each meeting frees the room</strong> &mdash; that is, its end time?
+            <strong>when each meeting frees the room</strong>, that is, its end time?
           </p>
         </>
       ),
@@ -715,7 +716,7 @@ export const activitySelectionLesson: LessonSpec = {
           title: "Try every group, or grab a quick rule that lies.",
           body: (
             <>
-              You could test every group and keep the biggest clash-free one &mdash; but seven meetings means 128 groups, thirty means a billion. Too
+              You could test every group and keep the biggest clash-free one, but seven meetings means 128 groups, thirty means a billion. Too
               slow. So you guess a rule. &ldquo;Shortest first&rdquo;? A short midday meeting blocks both halves. &ldquo;Earliest start&rdquo;? The
               all-day 9&ndash;17 meeting blocks everything. Both wrong.
             </>
@@ -733,8 +734,8 @@ export const activitySelectionLesson: LessonSpec = {
       // quick rules, so the beat still opens cleanly when `obvious` is cut or trimmed.
       connector: reg({
         base: "That hunch — judge a meeting by when it frees the room — turns into one concrete move.",
-        intuitive: "Shortest-first lied, earliest-start lied — so judge a meeting by the third number: when it frees the room.",
-        structured: "“Shortest first” and “earliest start” both pick wrong — so judge a meeting by the moment it frees the room instead.",
+        intuitive: "Shortest-first lied, earliest-start lied. So judge a meeting by the third number: when it frees the room.",
+        structured: "“Shortest first” and “earliest start” both pick wrong, so judge a meeting by the moment it frees the room instead.",
       }),
       actionLabel: "Why it always wins",
       takeaway: reg({
@@ -750,12 +751,12 @@ export const activitySelectionLesson: LessonSpec = {
           </p>
           <p>
             Now press <strong>step</strong> to walk down the list one meeting at a time. Each step <strong>accepts</strong> a meeting if it starts on or
-            after the last accepted one ended; otherwise it <strong>skips</strong> it. The very first meeting is always accepted &mdash; nobody has used
+            after the last accepted one ended; otherwise it <strong>skips</strong> it. The very first meeting is always accepted, since nobody has used
             the room yet, so nothing can clash with it. (Use <strong>↺ reset</strong> to start over.)
           </p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>The intuition:</strong> picking the earliest-finishing meeting frees the room at the soonest possible moment. That can only help
-            &mdash; any later choice keeps the room busy longer and rules out more of what could come next.
+            <strong>The intuition:</strong> picking the earliest-finishing meeting frees the room at the soonest possible moment. That can only help.
+            Any later choice keeps the room busy longer and rules out more of what could come next.
           </div>
         </>
       ),
@@ -763,16 +764,16 @@ export const activitySelectionLesson: LessonSpec = {
           <>
             <p>
               The buttons under the timeline drive everything. Press <strong>sort by end</strong> first: the bars rearrange so the meeting that
-              finishes earliest sits on top &mdash; we&rsquo;re lining them up by the hour each one hands the room back.
+              finishes earliest sits on top, lining them up by the hour each one hands the room back.
             </p>
             <p>
               Now press <strong>step</strong>, one meeting at a time. The dashed line is the moment the room next comes free. A meeting that starts at
-              or after that line is <strong>kept</strong> &mdash; and the line jumps to its end. A meeting that starts before the line is{" "}
-              <strong>skipped</strong>: the room is still busy. The very first meeting is always kept &mdash; nobody has used the room yet. (Use{" "}
+              or after that line is <strong>kept</strong>, and the line jumps to its end. A meeting that starts before the line is{" "}
+              <strong>skipped</strong>: the room is still busy. The very first meeting is always kept, since nobody has used the room yet. (Use{" "}
               <strong>↺ reset</strong> to start over.)
             </p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The intuition:</strong> keeping the meeting that finishes soonest hands the room back at the earliest possible moment &mdash; it
+              <strong>The intuition:</strong> keeping the meeting that finishes soonest hands the room back at the earliest possible moment, so it
               rules out the least of whatever could still come.
             </div>
           </>
@@ -790,15 +791,15 @@ export const activitySelectionLesson: LessonSpec = {
           body: reg({
             base: (
             <>
-              Press <strong>sort by end</strong> &mdash; the meetings reorder so the earliest-finishing one is on top. Then step through: keep a
-              meeting only if it starts at or after the last kept one ended. (The first is always kept &mdash; nobody has used the room yet.)
+              Press <strong>sort by end</strong>: the meetings reorder so the earliest-finishing one is on top. Then step through, keeping a
+              meeting only if it starts at or after the last kept one ended. (The first is always kept, since nobody has used the room yet.)
             </>
           ),
             intuitive: (
               <>
-                Press <strong>sort by end</strong> &mdash; the meetings reorder so the one that <em>finishes first</em> sits on top. Then press{" "}
+                Press <strong>sort by end</strong>: the meetings reorder so the one that <em>finishes first</em> sits on top. Then press{" "}
                 <strong>step</strong>: keep a meeting if it starts at or after the moment the last kept one ended; otherwise skip it. (The first is
-                always kept &mdash; the room hasn&rsquo;t been used yet.)
+                always kept, since the room hasn&rsquo;t been used yet.)
               </>
             ),
           }),
@@ -829,9 +830,9 @@ export const activitySelectionLesson: LessonSpec = {
       }),
       actionLabel: "Count the work",
       takeaway: reg({
-        base: "Sort once, walk once, track when the room is free — and a swap proves it’s best.",
-        intuitive: "Sort by finish, walk once, never go back — the swap shows you never lose by it.",
-        rigorous: "Invariant: the chosen prefix extends to an optimum — each pick is exchange-safe.",
+        base: "Sort once, walk once, track when the room is free, and a swap proves it’s best.",
+        intuitive: "Sort by finish, walk once, never go back: the swap shows you never lose by it.",
+        rigorous: "Invariant: the chosen prefix extends to an optimum, so each pick is exchange-safe.",
       }),
       detail: reg({
         base: (
@@ -847,8 +848,8 @@ export const activitySelectionLesson: LessonSpec = {
           </p>
           <p>
             Why is this the <em>best</em> we can do? Suppose someone picks a different first meeting than ours. We can swap ours in: ours ends sooner or
-            at the same time, so anything that fit after their pick also fits after ours. The swap never costs us a meeting. So our locally best choice
-            &mdash; free the room earliest &mdash; is never worse than any other choice.
+            at the same time, so anything that fit after their pick also fits after ours. The swap never costs us a meeting. So our locally best choice,
+            freeing the room earliest, is never worse than any other choice.
           </p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
             <strong>The principle:</strong> the locally best choice (free the room first) is never worse than any other choice. So greed wins.
@@ -860,19 +861,19 @@ export const activitySelectionLesson: LessonSpec = {
             <p>
               The whole method is five small steps. <strong>1.</strong> Sort by finish time. <strong>2.</strong> Hold one number: when the room is next
               free. <strong>3.</strong> Walk the list from the top. <strong>4.</strong> If a meeting starts at or after that number, keep it and move
-              the number to its end. <strong>5.</strong> Otherwise skip it &mdash; and never come back to it.
+              the number to its end. <strong>5.</strong> Otherwise skip it, and never come back to it.
             </p>
             <p>
-              That free-time number starts at &ldquo;minus infinity&rdquo; &mdash; a stand-in for &ldquo;free since before time began&rdquo; &mdash; so
+              That free-time number starts at &ldquo;minus infinity,&rdquo; a stand-in for &ldquo;free since before time began,&rdquo; so
               the very first meeting always passes the check.
             </p>
             <p>
               Why can&rsquo;t this lose? Imagine anyone&rsquo;s best-possible day that starts with a different meeting than ours. Trade their first
               pick for ours: ours hands the room back no later, so everything that fit after theirs still fits after ours. The trade never costs a
-              meeting &mdash; and repeating it down the whole day shows our schedule comes out just as big as theirs.
+              meeting, and repeating it down the whole day shows our schedule comes out just as big as theirs.
             </p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The principle:</strong> the choice that looks best right now &mdash; free the room first &mdash; is never worse than any other.
+              <strong>The principle:</strong> the choice that looks best right now, freeing the room first, is never worse than any other.
               So you never need to look back.
             </div>
           </>
@@ -881,12 +882,12 @@ export const activitySelectionLesson: LessonSpec = {
           <>
             <p>
               <strong>Invariant.</strong> After every decision, the chosen set extends to <em>some</em> optimal solution, and <code>last_end</code> is
-              the latest finish among the chosen. It holds vacuously at the start &mdash; <code>last_end = float(&quot;-inf&quot;)</code>, so the first
-              activity is always admitted &mdash; and the check <code>start &gt;= last_end</code> keeps the set clash-free.
+              the latest finish among the chosen. It holds vacuously at the start (<code>last_end = float(&quot;-inf&quot;)</code>, so the first
+              activity is always admitted), and the check <code>start &gt;= last_end</code> keeps the set clash-free.
             </p>
             <p>
               <strong>Exchange step.</strong> Take any optimum O that agrees with the chosen set so far and differs on the next pick. Greedy&rsquo;s
-              next pick is the earliest-finishing compatible activity, so it ends no later than O&rsquo;s &mdash; substitute it into O. The substitute
+              next pick is the earliest-finishing compatible activity, so it ends no later than O&rsquo;s. Substitute it into O. The substitute
               fits where O&rsquo;s pick fit (compatible start, no-later end), |O| is unchanged, so O is still optimal and now agrees one pick further.
               Induction: greedy&rsquo;s full set has optimal size.
             </p>
@@ -912,7 +913,7 @@ export const activitySelectionLesson: LessonSpec = {
           body: reg({
             base: (
             <>
-              Sort by end. Keep <code>last_end</code>, one number for when the room next opens &mdash; it starts at &ldquo;minus infinity&rdquo; (free
+              Sort by end. Keep <code>last_end</code>, one number for when the room next opens. It starts at &ldquo;minus infinity&rdquo; (free
               since before time, so the first meeting always fits). Walk the list: if a meeting starts at or after <code>last_end</code>, take it and
               update; else skip.
             </>
@@ -921,13 +922,13 @@ export const activitySelectionLesson: LessonSpec = {
               <>
                 Sort by finish time, then walk the list top to bottom holding one number: when the room is next free (the dashed line). Starts at or
                 after it? Keep it and slide the line to its end. Starts before? Skip it, and never look back. Predict the walk&rsquo;s first clash
-                below &mdash; then watch the whole thing run.
+                below, then watch the whole thing run.
               </>
             ),
             rigorous: (
               <>
                 Sort by end; one pass holding <code>last_end</code>. Invariant: the chosen set extends to <em>some</em> optimal solution. Exchange
-                step: against any optimum, swap its first differing pick for ours &mdash; ours ends no later, so everything after it still fits. The
+                step: against any optimum, swap its first differing pick for ours, which ends no later, so everything after it still fits. The
                 pass never backtracks; predict its first decision below.
               </>
             ),
@@ -940,7 +941,7 @@ export const activitySelectionLesson: LessonSpec = {
           variant: "note",
           body: (
             <>
-              <strong className="text-[var(--accent-ink)]">Why it wins:</strong>{" "}swap our first pick for any other &mdash; ours frees the room no later, so the swap never loses a meeting.
+              <strong className="text-[var(--accent-ink)]">Why it wins:</strong>{" "}swap our first pick for any other; ours frees the room no later, so the swap never loses a meeting.
             </>
           ),
         },
@@ -953,8 +954,8 @@ export const activitySelectionLesson: LessonSpec = {
       id: "operations",
       label: "The operations",
       connector: reg({
-        base: "Five lines that always win — but how much work is the computer actually doing?",
-        rigorous: "Two phases — a sort, then a pass. Count each, then the edges.",
+        base: "Five lines that always win. But how much work is the computer actually doing?",
+        rigorous: "Two phases: a sort, then a pass. Count each, then the edges.",
       }),
       actionLabel: reg({
         base: "Same shape, new problems",
@@ -963,29 +964,29 @@ export const activitySelectionLesson: LessonSpec = {
       }),
       takeaway: reg({
         base: "The sort (O(n log n)) is the only cost; the walk is one clean O(n) pass.",
-        intuitive: "One check per meeting after one good sort — the sort is the only real cost.",
+        intuitive: "One check per meeting after one good sort; the sort is the only real cost.",
         rigorous: "O(n log n) sort dominates the O(n) pass; the at-or-after check keeps touching meetings.",
       }),
       detail: reg({
         base: (
         <>
           <p>
-            Let <code>n</code> be the number of meetings. <strong>Sorting by end time</strong> costs <Term word="O(n log n)"><code>O(n log n)</code></Term> &mdash; a way of saying the
+            Let <code>n</code> be the number of meetings. <strong>Sorting by end time</strong> costs <Term word="O(n log n)"><code>O(n log n)</code></Term>, a way of saying the
             cost grows a little faster than <code>n</code> itself, but only slightly: a thousand meetings is about ten thousand small comparisons, not a
             million.
           </p>
           <p>
-            <strong>The walk</strong> through the sorted list costs <Term word="O(n)"><code>O(n)</code></Term> &mdash; the work grows in step with the number of meetings, one
+            <strong>The walk</strong> through the sorted list costs <Term word="O(n)"><code>O(n)</code></Term>: the work grows in step with the number of meetings, one
             quick check apiece.
           </p>
           <p>
-            For memory we keep just one running number (<code>last_end</code>) and the list of accepted meetings &mdash; no extra bookkeeping. So the
+            For memory we keep just one running number (<code>last_end</code>) and the list of accepted meetings, no extra bookkeeping. So the
             sort is the only pricey part; everything after it is a single clean pass.
           </p>
           {/* E18 addition (BEAT-RITUAL): the edge cases that bite, with the cost */}
           <p>
             The edge cases are mercifully few: an empty list returns empty (the loop never runs); a single meeting is always kept
-            (<code>last_end</code> starts at minus infinity); and the <code>&gt;=</code> is load-bearing &mdash; back-to-back meetings (end 11, start
+            (<code>last_end</code> starts at minus infinity); and the <code>&gt;=</code> is load-bearing. Back-to-back meetings (end 11, start
             11) both fit, so a strict <code>&gt;</code> would wrongly reject every clean hand-over.
           </p>
         </>
@@ -998,13 +999,13 @@ export const activitySelectionLesson: LessonSpec = {
               is written <Term word="O(n)"><code>O(n)</code></Term>.
             </p>
             <p>
-              The sort is the pricier half: a good sort of a thousand meetings takes about ten thousand small comparisons &mdash; more than one pass,
+              The sort is the pricier half: a good sort of a thousand meetings takes about ten thousand small comparisons, more than one pass,
               but nowhere near a million. That growth is written <Term word="O(n log n)"><code>O(n log n)</code></Term>. Memory barely moves: one
               running number and the kept list.
             </p>
             <p>
-              And the corners behave. No meetings at all? The walk does nothing and returns an empty day. One meeting? Always kept &mdash; the
-              free-time number starts before time began. Back-to-back meetings &mdash; one ends at 11, the next starts at 11 &mdash; are both kept,
+              And the corners behave. No meetings at all? The walk does nothing and returns an empty day. One meeting? Always kept, because the
+              free-time number starts before time began. Back-to-back meetings, one ending at 11 while the next starts at 11, are both kept,
               because the check says &ldquo;at or after.&rdquo; If it demanded strictly after, every clean hand-over would be thrown away.
             </p>
           </>
@@ -1013,12 +1014,12 @@ export const activitySelectionLesson: LessonSpec = {
           <>
             <p>
               <strong>Exact cost.</strong> Sort by end time: <Term word="O(n log n)"><code>O(n log n)</code></Term>. The pass: n iterations, each one
-              comparison plus O(1) bookkeeping &mdash; <Term word="O(n)"><code>O(n)</code></Term>. Total O(n log n), dominated by the sort; input
+              comparison plus O(1) bookkeeping, so <Term word="O(n)"><code>O(n)</code></Term>. Total O(n log n), dominated by the sort; input
               pre-sorted by finish time drops the whole bill to O(n). Auxiliary space O(1) beyond the output list.
             </p>
             <p>
               <strong>Edges.</strong> Empty input: the loop never runs; returns <code>[]</code>. Single activity: always taken
-              (<code>last_end = -inf</code>). The boundary is the <code>&gt;=</code>: touching intervals (end 11, start 11) are compatible &mdash;
+              (<code>last_end = -inf</code>). The boundary is the <code>&gt;=</code>: touching intervals (end 11, start 11) are compatible, so
               writing <code>&gt;</code> silently rejects every clean hand-over. Equal end times: any tie order yields the same count. Zero-length
               intervals are admitted and never block a later start.
             </p>
@@ -1040,8 +1041,8 @@ export const activitySelectionLesson: LessonSpec = {
           body: reg({
             base: (
             <>
-              Here <code>n</code> is the number of meetings. Sorting costs <code>O(n log n)</code> &mdash; cost grows a bit faster than <code>n</code>,
-              but slowly: a thousand meetings is about ten thousand small comparisons. The walk costs <code>O(n)</code> &mdash; one check each. The sort
+              Here <code>n</code> is the number of meetings. Sorting costs <code>O(n log n)</code>: cost grows a bit faster than <code>n</code>,
+              but slowly, since a thousand meetings is about ten thousand small comparisons. The walk costs <code>O(n)</code>, one check each. The sort
               is the only pricey part.
             </>
           ),
@@ -1049,14 +1050,14 @@ export const activitySelectionLesson: LessonSpec = {
             // counted physically before either Big-O symbol lands.
             structured: (
               <>
-                Count the pass first: one check per meeting, <code>n</code> checks for <code>n</code> meetings &mdash; that growth is{" "}
-                <Term word="O(n)"><code>O(n)</code></Term>. The sort costs more: about ten thousand comparisons for a thousand meetings &mdash;{" "}
+                Count the pass first: one check per meeting, <code>n</code> checks for <code>n</code> meetings, and that growth is{" "}
+                <Term word="O(n)"><code>O(n)</code></Term>. The sort costs more: about ten thousand comparisons for a thousand meetings, written{" "}
                 <Term word="O(n log n)"><code>O(n log n)</code></Term>. The sort is the whole bill; the walk rides along.
               </>
             ),
             intuitive: (
               <>
-                Count the walk on the timeline: seven meetings, seven checks &mdash; one quick look each. A thousand meetings? A thousand checks. Work
+                Count the walk on the timeline: seven meetings, seven checks, one quick look each. A thousand meetings? A thousand checks. Work
                 that grows in step like that is written <Term word="O(n)"><code>O(n)</code></Term>. The sort costs more &mdash; a thousand meetings
                 take about ten thousand little comparisons, written <Term word="O(n log n)"><code>O(n log n)</code></Term> &mdash; and it&rsquo;s the
                 only real cost here.
@@ -1064,8 +1065,8 @@ export const activitySelectionLesson: LessonSpec = {
             ),
             rigorous: (
               <>
-                Sort: <Term word="O(n log n)"><code>O(n log n)</code></Term> comparisons. Pass: exactly n iterations &mdash; one comparison, at most
-                one append and one assignment each &mdash; <Term word="O(n)"><code>O(n)</code></Term> time, O(1) auxiliary space beyond the output.
+                Sort: <Term word="O(n log n)"><code>O(n log n)</code></Term> comparisons. Pass: exactly n iterations, one comparison, at most
+                one append and one assignment each, so <Term word="O(n)"><code>O(n)</code></Term> time, O(1) auxiliary space beyond the output.
                 Pre-sorted input makes the whole thing O(n).
               </>
             ),
@@ -1080,17 +1081,17 @@ export const activitySelectionLesson: LessonSpec = {
       label: "The generalization",
       registers: ["intuitive"],
       trimOnRefresh: true,
-      connector: "That swap argument was the real engine — and it powers a whole family of problems beyond meetings.",
+      connector: "That swap argument was the real engine, and it powers a whole family of problems beyond meetings.",
       actionLabel: "Name the pattern",
       takeaway: reg({
         base: "Greedy wins only when the swap holds; when it can’t (coins {1,3,4}), you need DP.",
-        intuitive: "Greedy wins only when the swap holds — coins {1,3,4} break it, and you must look back.",
+        intuitive: "Greedy wins only when the swap holds; coins {1,3,4} break it, and you must look back.",
       }),
       detail: (
         <>
           <p>
             <strong>Greedy</strong> means: at each step take the locally best choice and never look back. It&rsquo;s allowed whenever you can argue the
-            swap &mdash; &ldquo;if anyone else made a different choice first, I could swap mine in without losing.&rdquo;
+            swap: &ldquo;if anyone else made a different choice first, I could swap mine in without losing.&rdquo;
           </p>
           <p>
             The same shape shows up everywhere intervals or sorted choices appear: scheduling jobs on a single machine, fitting talks into one
@@ -1102,7 +1103,7 @@ export const activitySelectionLesson: LessonSpec = {
             grab actively blocks the global best.
           </p>
           <p>
-            When that happens you need <strong>dynamic programming</strong> &mdash; the approach that&rsquo;s allowed to step back and retry other
+            When that happens you need <strong>dynamic programming</strong>, the approach that&rsquo;s allowed to step back and retry other
             combinations. Greedy only wins when no backtracking is ever needed.
           </p>
         </>
@@ -1119,7 +1120,7 @@ export const activitySelectionLesson: LessonSpec = {
           body: (
             <>
               <strong>Greedy</strong>{" "}means: at each step take the locally best option and never undo it. Allowed whenever you can argue &ldquo;if
-              someone chose differently first, I could swap mine in without losing.&rdquo; It fails when no clean swap exists &mdash; making 6 from{" "}
+              someone chose differently first, I could swap mine in without losing.&rdquo; It fails when no clean swap exists: making 6 from{" "}
               {"{1, 3, 4}"}, greedy grabs 4+1+1, but 3+3 is better. Then you need <strong>dynamic programming</strong>: step back and retry.
             </>
           ),
@@ -1132,11 +1133,11 @@ export const activitySelectionLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: reg({
-        base: "So give this whole move its name — and the signals that tell you to reach for it.",
-        rigorous: "Name the move — and the certificate that licenses it.",
+        base: "So give this whole move its name, and the signals that tell you to reach for it.",
+        rigorous: "Name the move, and the certificate that licenses it.",
       }),
       takeaway: reg({
-        base: "It’s Greedy — reach for it on “fit the most” / “min X to cover all Y”.",
+        base: "It’s Greedy: reach for it on “fit the most” / “min X to cover all Y”.",
         intuitive: "It’s called greedy: prove the swap is safe, then take the best now and never look back.",
         rigorous: "Greedy = exchange-certified local choice; here: sort by end, one pass, never revisit.",
       }),
@@ -1144,11 +1145,11 @@ export const activitySelectionLesson: LessonSpec = {
         base: (
         <>
           <p>
-            That&rsquo;s the name: <strong>greedy</strong>. The hard part was never the code &mdash; it&rsquo;s knowing greed is <em>allowed</em>. The
+            That&rsquo;s the name: <strong>greedy</strong>. The hard part was never the code. It&rsquo;s knowing greed is <em>allowed</em>. The
             test is the swap argument: if the locally best choice is never worse than any other choice, you can stop second-guessing and just take it.
           </p>
           <p>
-            <strong>Pattern signals</strong> &mdash; reach for greedy when you see:
+            <strong>Pattern signals.</strong> Reach for greedy when you see:
           </p>
           <ul>
             <li>&ldquo;Fit the most non-overlapping things into one slot&rdquo;</li>
@@ -1161,7 +1162,7 @@ export const activitySelectionLesson: LessonSpec = {
           </p>
           {/* the close's emotional payload: the principle stamp, claimed in full (not a ⚑ row) */}
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-            <strong>Idea 7 of 7 &mdash; greedy choice:</strong> the locally best choice is globally best &mdash; when you can prove it. The swap
+            <strong>Idea 7 of 7, greedy choice:</strong> the locally best choice is globally best, when you can prove it. The swap
             argument is that proof.
           </div>
         </>
@@ -1169,9 +1170,9 @@ export const activitySelectionLesson: LessonSpec = {
         intuitive: (
           <>
             <p>
-              You&rsquo;ve earned the name: this whole move is called <Term word="greedy"><strong>greedy</strong></Term> &mdash; at every step, take
+              You&rsquo;ve earned the name: this whole move is called <Term word="greedy"><strong>greedy</strong></Term>. At every step, take
               the choice that looks best right now, and never undo it. The code was never the hard part. The hard part is the <em>swap test</em>: if
-              trading anyone else&rsquo;s choice for yours never loses, greed is safe &mdash; stop second-guessing and grab.
+              trading anyone else&rsquo;s choice for yours never loses, greed is safe, so stop second-guessing and grab.
             </p>
             <p>
               <strong>Signals to watch for:</strong>
@@ -1179,13 +1180,13 @@ export const activitySelectionLesson: LessonSpec = {
             <ul>
               <li>&ldquo;Fit the most non-overlapping things into one slot&rdquo;</li>
               <li>&ldquo;Fewest X to cover all Y&rdquo; on a timeline or a sorted line</li>
-              <li>&ldquo;Always take the cheapest / soonest-ending option&rdquo; &mdash; with a reason it can&rsquo;t backfire</li>
+              <li>&ldquo;Always take the cheapest / soonest-ending option,&rdquo; with a reason it can&rsquo;t backfire</li>
             </ul>
             <p>
               Open the <strong>&lt;/&gt; code</strong> tab on the right: the whole algorithm is five short lines, and one of them is the sort.
             </p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The last big idea (7 of 7) &mdash; greedy choice:</strong> the choice that looks best right now really is best &mdash; once the
+              <strong>The last big idea (7 of 7), greedy choice:</strong> the choice that looks best right now really is best, once the
               swap test proves it. That&rsquo;s the seventh of the seven ideas every algorithm here is built from.
             </div>
           </>
@@ -1193,7 +1194,7 @@ export const activitySelectionLesson: LessonSpec = {
         rigorous: (
           <>
             <p>
-              <strong>Greedy</strong> &mdash; the discipline: commit to a locally optimal choice, never revisit. Sound exactly when an exchange
+              <strong>Greedy</strong>, the discipline: commit to a locally optimal choice, never revisit. Sound exactly when an exchange
               argument shows any optimal solution can be rewritten, choice by choice, into greedy&rsquo;s without losing value. This instance is
               interval scheduling maximization: sort by finish, keep when <code>start &gt;= last_end</code>.
             </p>
@@ -1203,7 +1204,7 @@ export const activitySelectionLesson: LessonSpec = {
               greedy&rsquo;s 4+1+1 loses to 3+3 &mdash; greedy is unsound and the problem is dynamic programming&rsquo;s.
             </p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 7 of 7 &mdash; greedy choice:</strong> local optimum = global optimum, certified by exchange. No certificate, no greed.
+              <strong>Idea 7 of 7, greedy choice:</strong> local optimum = global optimum, certified by exchange. No certificate, no greed.
             </div>
           </>
         ),
@@ -1220,24 +1221,24 @@ export const activitySelectionLesson: LessonSpec = {
           body: reg({
             base: (
             <>
-              That&rsquo;s the name. The hard part isn&rsquo;t the code &mdash; it&rsquo;s knowing greed is allowed (the swap test). Spot it when you
+              That&rsquo;s the name. The hard part isn&rsquo;t the code; it&rsquo;s knowing greed is allowed (the swap test). Spot it when you
               see &ldquo;fit the most non-overlapping things&rdquo;, &ldquo;minimum X to cover all Y&rdquo;, or any time the locally best choice
-              can&rsquo;t block the overall best. Open the <strong>&lt;/&gt; code</strong> tab &mdash; five steps, one sort.
+              can&rsquo;t block the overall best. Open the <strong>&lt;/&gt; code</strong> tab: five steps, one sort.
             </>
           ),
             intuitive: (
               <>
                 The move&rsquo;s name is <Term word="greedy"><strong>greedy</strong></Term>: take the best-looking option right now and never look
-                back. The code was easy &mdash; the real skill is the <em>swap test</em>, knowing greed is safe. Spot it on &ldquo;fit the most
-                non-overlapping things&rdquo; or &ldquo;fewest X to cover all Y.&rdquo; Open the <strong>&lt;/&gt; code</strong> tab &mdash; five
+                back. The code was easy; the real skill is the <em>swap test</em>, knowing greed is safe. Spot it on &ldquo;fit the most
+                non-overlapping things&rdquo; or &ldquo;fewest X to cover all Y.&rdquo; Open the <strong>&lt;/&gt; code</strong> tab: five
                 steps, one sort.
               </>
             ),
             rigorous: (
               <>
-                Greedy &mdash; here, interval scheduling by earliest finish. Triggers: maximize non-overlapping intervals; minimum resources to cover
+                Greedy, here interval scheduling by earliest finish. Triggers: maximize non-overlapping intervals; minimum resources to cover
                 intervals; any local key (earliest end, cheapest edge) whose safety an exchange argument certifies. No certificate, no greed: coins{" "}
-                {"{1, 3, 4}"} for 6 have none &mdash; that&rsquo;s dynamic programming&rsquo;s ground.
+                {"{1, 3, 4}"} for 6 have none, so that&rsquo;s dynamic programming&rsquo;s ground.
               </>
             ),
           }),
@@ -1249,7 +1250,7 @@ export const activitySelectionLesson: LessonSpec = {
           variant: "note",
           body: (
             <>
-              <strong className="text-[var(--accent-ink)]">The result:</strong>{" "}the green bars are greedy&rsquo;s clash-free set &mdash; the most meetings one room can hold.
+              <strong className="text-[var(--accent-ink)]">The result:</strong>{" "}the green bars are greedy&rsquo;s clash-free set, the most meetings one room can hold.
             </>
           ),
         },

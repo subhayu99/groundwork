@@ -411,15 +411,16 @@ function SetupState() {
  *   refresh    : additionally trims `obvious` + `general` (trimOnRefresh).    */
 export const monotonicStackLesson: LessonSpec = {
   topicTitle: "monotonic stack · eight cold days, when does it warm up?",
-  layout: "scene",
+  layout: "focus",
+  diagramShape: "box",
   canvas: { width: VW, height: VH },
   codeSource: monotonic_stackPy as string,
   // standing on stacks-queues (the bridge anchor, per TRACK-NARRATIVES.md):
   // the stack's touch-only-the-top contract is the promise this lesson works.
   bridgeFrom: reg({
-    base: "A stack's contract — touch only the top — makes order a guarantee. Now that promise starts answering questions.",
-    intuitive: "You know the plate pile: add on top, take from the top. Today that pile does real work — it remembers who's waiting.",
-    rigorous: "LIFO is an invariant you build on — push and pop touch only the top. Here that kept order becomes a counting tool.",
+    base: "A stack's contract, touch only the top, makes order a guarantee. Now that promise starts answering questions.",
+    intuitive: "You know the plate pile: add on top, take from the top. Today that pile does real work. It remembers who's waiting.",
+    rigorous: "LIFO is an invariant you build on: push and pop touch only the top. Here that kept order becomes a counting tool.",
   }),
   // TRACK-NARRATIVES row 22 (from meta): each element pays once on, once off.
   principle: { key: "amortization", n: 6, total: 7 },
@@ -431,27 +432,27 @@ export const monotonicStackLesson: LessonSpec = {
       actionLabel: "How would you do it?",
       takeaway: reg({
         base: "For each day, count the days until a warmer one (0 if none).",
-        intuitive: "One question per day: how many days until a warmer one — 0 if it never comes.",
+        intuitive: "One question per day: how many days until a warmer one, 0 if it never comes.",
       }),
       visual: <SetupState />,
       panels: [{
         left: 60, top: 20, width: 600, variant: "main", label: "The setup", title: "Eight cold days. When does it warm up?",
         body: reg({
-          base: <>For each day, count the days until a warmer one. If a warmer day is two ahead, the answer is <strong>2</strong>; if none ever comes, <strong>0</strong>. Eight days is easy &mdash; a weather app holds a whole year.</>,
-          intuitive: <>Eight days of forecasts, one question for each: how long until a warmer day? If the next warmer one is two days ahead, write <strong>2</strong>; if it never warms up, write <strong>0</strong>. Eight days is easy &mdash; now picture a whole year of them.</>,
+          base: <>For each day, count the days until a warmer one. If a warmer day is two ahead, the answer is <strong>2</strong>; if none ever comes, <strong>0</strong>. Eight days is easy. A weather app holds a whole year.</>,
+          intuitive: <>Eight days of forecasts, one question for each: how long until a warmer day? If the next warmer one is two days ahead, write <strong>2</strong>; if it never warms up, write <strong>0</strong>. Eight days is easy. Now picture a whole year of them.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
             <p>You&rsquo;re looking at a week and a day of weather forecasts. For each day someone asks: &ldquo;How many days until a warmer one?&rdquo; If today is 72&deg; and the next warmer day is the day after tomorrow, the answer is <strong>2</strong>. If no warmer day ever comes, the answer is <strong>0</strong>.</p>
-            <p>Eight days isn&rsquo;t a lot. But the same question shows up on a phone weather app with a year of data, and on a temperature sensor logging a reading every second &mdash; millions of points. The <em>shape</em> of the answer &mdash; how the work grows as the data grows &mdash; is what matters.</p>
+            <p>Eight days isn&rsquo;t a lot. But the same question shows up on a phone weather app with a year of data, and on a temperature sensor logging a reading every second: millions of points. The <em>shape</em> of the answer &mdash; how the work grows as the data grows &mdash; is what matters.</p>
           </>
         ),
         intuitive: (
           <>
-            <p>Look at the bars: eight days, each with its temperature. Stand on any one and ask, &ldquo;how many days do I wait until a warmer one?&rdquo; Day 0 is 73&deg; and tomorrow is 74&deg; &mdash; warmer &mdash; so day 0&rsquo;s answer is <strong>1</strong>. If no warmer day ever comes, the answer is <strong>0</strong>.</p>
-            <p>Eight bars you could eyeball. But the very same question lives inside a weather app holding a year, and a sensor logging a reading every second &mdash; millions of points. What we really want is a way of answering that doesn&rsquo;t fall apart as the pile of days grows.</p>
+            <p>Look at the bars: eight days, each with its temperature. Stand on any one and ask, &ldquo;how many days do I wait until a warmer one?&rdquo; Day 0 is 73&deg; and tomorrow is 74&deg;, warmer, so day 0&rsquo;s answer is <strong>1</strong>. If no warmer day ever comes, the answer is <strong>0</strong>.</p>
+            <p>Eight bars you could eyeball. But the very same question lives inside a weather app holding a year, and a sensor logging a reading every second: millions of points. What we really want is a way of answering that doesn&rsquo;t fall apart as the pile of days grows.</p>
           </>
         ),
       }),
@@ -465,12 +466,12 @@ export const monotonicStackLesson: LessonSpec = {
       trimOnRefresh: true,
       connector: "Now that the question is on the table, what's the first method anyone would reach for?",
       actionLabel: "Remember who's still waiting",
-      takeaway: "Re-scanning forward from each day is O(n²) — too much repeat reading.",
+      takeaway: "Re-scanning forward from each day is O(n²): too much repeat reading.",
       visual: (api) => <NaiveScan api={api} />,
       panels: [
         {
           left: 60, top: 20, width: 620, variant: "main", label: "The obvious thing", title: "Stand on each day. Look right until it gets warmer.",
-          body: <>The honest way: stand on a day, walk forward until a warmer one shows up, note the gap. Cold early days re-read almost the whole week. Eight days is fine; a million is not &mdash; the work grows like size <em>times</em> size.</>,
+          body: <>The honest way: stand on a day, walk forward until a warmer one shows up, note the gap. Cold early days re-read almost the whole week. Eight days is fine; a million is not, because the work grows like size <em>times</em> size.</>,
         },
         {
           left: 540, top: 372, width: 290, variant: "note",
@@ -480,7 +481,7 @@ export const monotonicStackLesson: LessonSpec = {
       detail: (
         <>
           <p>For each day, walk forward day by day until you find one that&rsquo;s warmer. Write down the gap. If you reach the end without finding one, the answer is <strong>0</strong>.</p>
-          <p>It&rsquo;s honest work. It also does a <em>lot</em> of repeat reading. The cold morning at the start has to scan most of the week to find its warmer day, and the day after it scans almost as far, and so on. Eight days is fine; a million is not &mdash; you&rsquo;re looking at roughly the <strong>square</strong> of the size. That worst case is called <Term word="O(n²)"><code>O(n&sup2;)</code></Term> (&ldquo;order n squared&rdquo;): if you double the number of days <code>n</code>, the work goes up about four-fold.</p>
+          <p>It&rsquo;s honest work. It also does a <em>lot</em> of repeat reading. The cold morning at the start has to scan most of the week to find its warmer day, and the day after it scans almost as far, and so on. Eight days is fine; a million is not. You&rsquo;re looking at roughly the <strong>square</strong> of the size. That worst case is called <Term word="O(n²)"><code>O(n&sup2;)</code></Term> (&ldquo;order n squared&rdquo;): if you double the number of days <code>n</code>, the work goes up about four-fold.</p>
           <p>So the real question is: what&rsquo;s the repeated work we could <em>remember</em> instead of redoing?</p>
         </>
       ),
@@ -494,7 +495,7 @@ export const monotonicStackLesson: LessonSpec = {
       registers: ["intuitive", "structured"],
       connector: reg({
         base: "Here's what to remember: instead of re-scanning forward, keep a line of the days that haven't found their answer yet.",
-        structured: "Scanning ahead from each of n days re-reads the same days — up to n looks apiece. Instead, keep a line of the days that haven't found their answer yet.",
+        structured: "Scanning ahead from each of n days re-reads the same days, up to n looks apiece. Instead, keep a line of the days that haven't found their answer yet.",
       }),
       actionLabel: "Make it a rule",
       takeaway: reg({
@@ -506,8 +507,8 @@ export const monotonicStackLesson: LessonSpec = {
         {
           left: 60, top: 18, width: 470, variant: "main", label: "The instinct", title: "Keep a line of days still waiting.",
           body: reg({
-            base: <>Walk left to right. Keep a <strong>stack</strong> &mdash; a line where you only add to and remove from the <em>same end</em>, the back. Each new day asks the last in line: &ldquo;Warmer than you?&rdquo; <strong>Yes</strong> &rarr; send them home with the gap. <strong>No</strong> &rarr; join the back and wait.</>,
-            intuitive: <>Walk the days left to right with a <Term word="stack">stack</Term> &mdash; a waiting line you only ever touch at one end, the back. Each arriving day looks at the last waiter: warmer than them? <strong>Yes</strong> &rarr; that waiter goes home with their answer, the gap in days. <strong>No</strong> &rarr; today joins the back and waits too.</>,
+            base: <>Walk left to right. Keep a <strong>stack</strong>: a line where you only add to and remove from the <em>same end</em>, the back. Each new day asks the last in line: &ldquo;Warmer than you?&rdquo; <strong>Yes</strong> &rarr; send them home with the gap. <strong>No</strong> &rarr; join the back and wait.</>,
+            intuitive: <>Walk the days left to right with a <Term word="stack">stack</Term>: a waiting line you only ever touch at one end, the back. Each arriving day looks at the last waiter: warmer than them? <strong>Yes</strong> &rarr; that waiter goes home with their answer, the gap in days. <strong>No</strong> &rarr; today joins the back and waits too.</>,
           }),
         },
         {
@@ -518,7 +519,7 @@ export const monotonicStackLesson: LessonSpec = {
       detail: (
         <>
           <p>Walk through the days left to right, one at a time. Keep a <strong>line</strong> of days that haven&rsquo;t found a warmer day yet. Each day arrives and asks the same question: &ldquo;Am I warmer than the last person standing in line?&rdquo;</p>
-          <p><strong>Yes:</strong> today is that person&rsquo;s answer &mdash; they were waiting for exactly this. Send them home with the gap (how many days they waited). Now ask the <em>new</em> last person the same question. Keep sending people home as long as today beats them.</p>
+          <p><strong>Yes:</strong> today is that person&rsquo;s answer. They were waiting for exactly this. Send them home with the gap (how many days they waited). Now ask the <em>new</em> last person the same question. Keep sending people home as long as today beats them.</p>
           <p><strong>No:</strong> today isn&rsquo;t warmer, so it can&rsquo;t answer anyone yet. It joins the back of the line and waits its turn.</p>
           <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
             <strong>Try it:</strong> use the &ldquo;send day&rdquo; button under the visual to send each day into the line one click at a time, and &ldquo;&#8634; reset&rdquo; to start over. Watch the line <em>grow</em> when today is cold and empty <em>out</em> when today is warm.
@@ -535,14 +536,14 @@ export const monotonicStackLesson: LessonSpec = {
       // Rigorous OPENS here (beat 0 after the register cut): empty connector,
       // and the rigorous prose restates the problem in one clause.
       connector: reg({
-        base: "You watched the line in action — now pin down the exact rule, because \"the last person in line\" is really a stack.",
+        base: "You watched the line in action. Now pin down the exact rule, because \"the last person in line\" is really a stack.",
         rigorous: "",
       }),
       actionLabel: "Count the work",
       takeaway: reg({
         base: "The line is a stack of indices: pop while today is warmer, then push today.",
         intuitive: "Keep positions in the pile: pop everyone today beats, write the gap, then add today.",
-        rigorous: "Pop-while keeps stack temps strictly decreasing — the popper is each popped day's first warmer day.",
+        rigorous: "Pop-while keeps stack temps strictly decreasing; the popper is each popped day's first warmer day.",
       }),
       visual: (api) => <AutoWalk api={api} />,
       panels: [{
@@ -553,26 +554,26 @@ export const monotonicStackLesson: LessonSpec = {
         }),
         body: reg({
           base: <>Store each day&rsquo;s <strong>index</strong> (its position, 0&ndash;7), not its temperature, so we can subtract to get the gap. For each new day, while the top day is cooler, <strong>pop</strong> it (remove the top) and record <code>answer = today &minus; that day</code>. Then add today. Anyone left over stays 0.</>,
-          intuitive: <>The line is really a <Term word="stack">stack</Term>: only its top is ever touched. Keep each day&rsquo;s <em>position number</em> (0&ndash;7) in it, not its temperature &mdash; subtracting two positions gives the gap in days. New day arrives: while the day on top is cooler, take it off and write <code>today&rsquo;s spot &minus; their spot</code> next to them. Then put today on top. Whoever&rsquo;s left at the end keeps <strong>0</strong>.</>,
+          intuitive: <>The line is really a <Term word="stack">stack</Term>: only its top is ever touched. Keep each day&rsquo;s <em>position number</em> (0&ndash;7) in it, not its temperature, since subtracting two positions gives the gap in days. New day arrives: while the day on top is cooler, take it off and write <code>today&rsquo;s spot &minus; their spot</code> next to them. Then put today on top. Whoever&rsquo;s left at the end keeps <strong>0</strong>.</>,
           rigorous: <>The problem: for each day <code>i</code>, the distance to the first later day that&rsquo;s strictly warmer (0 if none). Keep a stack of <em>indices</em> whose temperatures strictly decrease, bottom to top. For each <code>i</code>: while the top <code>j</code> has <code>temps[j] &lt; temps[i]</code>, pop and record <code>answer[j] = i &minus; j</code>; then push <code>i</code>. The pop-while is exactly the invariant&rsquo;s restore step.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>That &ldquo;line&rdquo; is exactly a <strong>stack</strong> &mdash; a pile where you only ever add to the top and take from the top, like a stack of plates. The last day in only talks to the newest arrival, which is just what we want. We push the day&rsquo;s <em>index</em> (its position, 0 to 7), not its temperature, so that later we can <em>subtract</em> two positions to get the gap.</p>
-            <p>For each new day <code>i</code>: while the stack isn&rsquo;t empty <em>and</em> today&rsquo;s temperature is greater than the temperature at the top index <code>j</code>, <strong>pop</strong> <code>j</code> (take it off the top) and write <code>answer[j] = i - j</code> &mdash; the number of days that day waited. Then <strong>push</strong> <code>i</code> onto the stack.</p>
+            <p>That &ldquo;line&rdquo; is exactly a <strong>stack</strong>: a pile where you only ever add to the top and take from the top, like a stack of plates. The last day in only talks to the newest arrival, which is just what we want. We push the day&rsquo;s <em>index</em> (its position, 0 to 7), not its temperature, so that later we can <em>subtract</em> two positions to get the gap.</p>
+            <p>For each new day <code>i</code>: while the stack isn&rsquo;t empty <em>and</em> today&rsquo;s temperature is greater than the temperature at the top index <code>j</code>, <strong>pop</strong> <code>j</code> (take it off the top) and write <code>answer[j] = i - j</code>, the number of days that day waited. Then <strong>push</strong> <code>i</code> onto the stack.</p>
             <p>At the end, anyone still sitting on the stack never found a warmer day. Their answer was already set to <strong>0</strong> from the start, so there&rsquo;s nothing more to do.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The principle:</strong> each day is pushed exactly once and popped at most once. The total work across the whole walk is bounded &mdash; even though a single warm day might pop a long line all at once.
+              <strong>The principle:</strong> each day is pushed exactly once and popped at most once. The total work across the whole walk is bounded, even though a single warm day might pop a long line all at once.
             </div>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>Invariant.</strong> Temperatures at the stacked indices strictly decrease from bottom to top. Every arrival pops each violation before pushing, so the invariant holds after every iteration &mdash; and an arrival only ever needs one comparison, against the top.</p>
-            <p><strong>Correctness sketch.</strong> When <code>i</code> pops <code>j</code>, no day between them was warmer than day <code>j</code> &mdash; it would have popped <code>j</code> already &mdash; so <code>i</code> is day <code>j</code>&rsquo;s <em>first</em> strictly warmer successor and <code>answer[j] = i &minus; j</code> is the exact wait. Indices that survive the pass have no warmer successor; their answer stays the 0 it was initialized to.</p>
-            <p>One arrival can pop many indices in a single step &mdash; what that does to the cost is the next question.</p>
+            <p><strong>Invariant.</strong> Temperatures at the stacked indices strictly decrease from bottom to top. Every arrival pops each violation before pushing, so the invariant holds after every iteration, and an arrival only ever needs one comparison, against the top.</p>
+            <p><strong>Correctness sketch.</strong> When <code>i</code> pops <code>j</code>, no day between them was warmer than day <code>j</code>, because it would have popped <code>j</code> already, so <code>i</code> is day <code>j</code>&rsquo;s <em>first</em> strictly warmer successor and <code>answer[j] = i &minus; j</code> is the exact wait. Indices that survive the pass have no warmer successor; their answer stays the 0 it was initialized to.</p>
+            <p>One arrival can pop many indices in a single step. What that does to the cost is the next question.</p>
           </>
         ),
       }),
@@ -584,8 +585,8 @@ export const monotonicStackLesson: LessonSpec = {
       id: "operations",
       label: "The operations",
       connector: reg({
-        base: "That \"a single warm day might pop a long line\" sounds expensive — so let's actually count the work and see.",
-        rigorous: "One arrival can pop the whole stack — count the pass's total operations before pricing a step.",
+        base: "That \"a single warm day might pop a long line\" sounds expensive, so let's actually count the work and see.",
+        rigorous: "One arrival can pop the whole stack. Count the pass's total operations before pricing a step.",
       }),
       actionLabel: reg({
         base: "Same trick, new questions",
@@ -594,17 +595,17 @@ export const monotonicStackLesson: LessonSpec = {
       }),
       takeaway: reg({
         base: "Each day is pushed once and popped once: at most 2n work, so O(n) total.",
-        intuitive: "Every send-home was pre-paid by a join — about twice the days of work for the whole walk.",
-        rigorous: "At most 2n stack ops — O(n) total, amortized O(1) per element; one step may pop n − 1.",
+        intuitive: "Every send-home was pre-paid by a join: about twice the days of work for the whole walk.",
+        rigorous: "At most 2n stack ops: O(n) total, amortized O(1) per element; one step may pop n − 1.",
       }),
       visual: (api) => <AutoWalk api={api} />,
       panels: [
         {
           left: 60, top: 20, width: 620, variant: "main", label: "The operations", title: "A few days do a lot. The average is constant.",
           body: reg({
-            base: <>One warm day can send everyone home &mdash; looks expensive. But every send-home was paid for by an add that already happened, so total adds plus removals is at most <code>2n</code> (twice the number of days, <code>n</code>). We call that <Term word="O(n)"><code>O(n)</code></Term>: work that grows in step with the number of days.</>,
-            intuitive: <>One warm day can send a whole line home at once &mdash; that looks expensive. But nobody goes home twice, and nobody goes home before joining: each day joins once, leaves at most once. Count it: at most <strong>twice the number of days</strong> of total work. Work that grows in step with the days like that is written <Term word="O(n)"><code>O(n)</code></Term>.</>,
-            rigorous: <>Charge each pop to the push that put it there: every index is pushed exactly once and popped at most once, so a full pass costs at most <code>2n</code> stack operations &mdash; counted, that is <Term word="O(n)"><code>O(n)</code></Term> total, <Term word="amortized">amortized</Term> <Term word="O(1)"><code>O(1)</code></Term> per element. A single arrival may still pop <code>n &minus; 1</code> indices; the total still cannot exceed <code>2n</code>.</>,
+            base: <>One warm day can send everyone home, which looks expensive. But every send-home was paid for by an add that already happened, so total adds plus removals is at most <code>2n</code> (twice the number of days, <code>n</code>). We call that <Term word="O(n)"><code>O(n)</code></Term>: work that grows in step with the number of days.</>,
+            intuitive: <>One warm day can send a whole line home at once, which looks expensive. But nobody goes home twice, and nobody goes home before joining: each day joins once, leaves at most once. Count it: at most <strong>twice the number of days</strong> of total work. Work that grows in step with the days like that is written <Term word="O(n)"><code>O(n)</code></Term>.</>,
+            rigorous: <>Charge each pop to the push that put it there: every index is pushed exactly once and popped at most once, so a full pass costs at most <code>2n</code> stack operations. Counted, that is <Term word="O(n)"><code>O(n)</code></Term> total, <Term word="amortized">amortized</Term> <Term word="O(1)"><code>O(1)</code></Term> per element. A single arrival may still pop <code>n &minus; 1</code> indices; the total still cannot exceed <code>2n</code>.</>,
           }),
         },
         {
@@ -615,22 +616,22 @@ export const monotonicStackLesson: LessonSpec = {
       detail: reg({
         base: (
           <>
-            <p>A single warm day can pop everyone who was waiting &mdash; that one step might do a dozen pops at once. Looked at in isolation, it seems expensive.</p>
-            <p>But here&rsquo;s the trick: every pop is <em>paid for</em> by a push that already happened. A day can only be removed once, and only after it was added once. So the total pushes plus pops across the whole walk is at most <code>2n</code> &mdash; twice the number of days. That&rsquo;s <code>O(n)</code> total work (&ldquo;order n&rdquo;: the cost grows in simple step with how many days there are, <em>not</em> the square). Spread over all the days, it works out to a flat, near-instant cost per day on average.</p>
-            <p>That&rsquo;s the whole pitch: pay a little extra <em>sometimes</em>, save on average. The expensive steps are rare and pre-paid by all the cheap ones &mdash; and there&rsquo;s a name for that idea, coming in a moment.</p>
+            <p>A single warm day can pop everyone who was waiting, so that one step might do a dozen pops at once. Looked at in isolation, it seems expensive.</p>
+            <p>But here&rsquo;s the trick: every pop is <em>paid for</em> by a push that already happened. A day can only be removed once, and only after it was added once. So the total pushes plus pops across the whole walk is at most <code>2n</code>, twice the number of days. That&rsquo;s <code>O(n)</code> total work (&ldquo;order n&rdquo;: the cost grows in simple step with how many days there are, <em>not</em> the square). Spread over all the days, it works out to a flat, near-instant cost per day on average.</p>
+            <p>That&rsquo;s the whole pitch: pay a little extra <em>sometimes</em>, save on average. The expensive steps are rare and pre-paid by all the cheap ones &mdash; and there&rsquo;s a name for that idea, coming up shortly.</p>
           </>
         ),
         intuitive: (
           <>
-            <p>Watch the counter under the walk: every step is either a join or a send-home, and the total creeps toward 16 &mdash; twice the eight days &mdash; and can&rsquo;t pass it. Why not? A day can only be sent home once, and only after it joined once. The big clear-out moments were paid for, one join at a time, before they ever happened.</p>
-            <p>So the whole walk costs about two steps per day, however the weather wiggles. That steady-on-average price is the heart of this lesson &mdash; and it has a proper name, coming at the close.</p>
-            <p>Two small honesty notes: a tie sends nobody home &mdash; 73&deg; doesn&rsquo;t count as warmer than 73&deg; &mdash; and days that never meet a warmer one simply keep the <strong>0</strong> they started with.</p>
+            <p>Watch the counter under the walk: every step is either a join or a send-home, and the total creeps toward 16, twice the eight days, and can&rsquo;t pass it. Why not? A day can only be sent home once, and only after it joined once. The big clear-out moments were paid for, one join at a time, before they ever happened.</p>
+            <p>So the whole walk costs about two steps per day, however the weather wiggles. That steady-on-average price is the heart of this lesson, and it has a proper name, coming at the close.</p>
+            <p>Two small honesty notes: a tie sends nobody home, since 73&deg; doesn&rsquo;t count as warmer than 73&deg;, and days that never meet a warmer one simply keep the <strong>0</strong> they started with.</p>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>Exact cost.</strong> At most n pushes and n pops per pass &mdash; at most 2n stack operations, O(n) time. Space: the stack holds up to n indices. A strictly cooling week pops nothing &mdash; the stack grows to n and every answer is 0; a strictly warming week pops one index per arrival and the stack never exceeds one. Either way the 2n bound holds.</p>
-            <p><strong>Edges.</strong> Empty input: the loop never runs, the answer is empty. One day: <code>[0]</code>. Ties: the comparison is strict &mdash; an equally-warm day answers no one (&ldquo;warmer&rdquo; means strictly greater; switch to &le; and ties send waiters home instead). The not-found path needs no sentinel: answers start at 0 and the leftover indices simply keep it.</p>
+            <p><strong>Exact cost.</strong> At most n pushes and n pops per pass: at most 2n stack operations, O(n) time. Space: the stack holds up to n indices. A strictly cooling week pops nothing, so the stack grows to n and every answer is 0; a strictly warming week pops one index per arrival and the stack never exceeds one. Either way the 2n bound holds.</p>
+            <p><strong>Edges.</strong> Empty input: the loop never runs, the answer is empty. One day: <code>[0]</code>. Ties: the comparison is strict, so an equally-warm day answers no one (&ldquo;warmer&rdquo; means strictly greater; switch to &le; and ties send waiters home instead). The not-found path needs no sentinel: answers start at 0 and the leftover indices simply keep it.</p>
           </>
         ),
       }),
@@ -642,7 +643,7 @@ export const monotonicStackLesson: LessonSpec = {
       label: "The generalization",
       registers: ["intuitive"],
       trimOnRefresh: true,
-      connector: "Since the cost is just one cheap pass, the same machine is worth reusing — and it has nothing to do with weather.",
+      connector: "Since the cost is just one cheap pass, the same machine is worth reusing, and it has nothing to do with weather.",
       actionLabel: "Name the pattern",
       takeaway: "Same machine answers any \"next/previous bigger-or-smaller\" question.",
       visual: <StoryFamily />,
@@ -669,30 +670,30 @@ export const monotonicStackLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: reg({
-        base: "All those problems share one machine — so give it its name, plus the cues that tell you to reach for it.",
-        structured: "One walk, one kept order — now the name, plus the cues that tell you to reach for it.",
+        base: "All those problems share one machine, so give it its name, plus the cues that tell you to reach for it.",
+        structured: "One walk, one kept order. Now the name, plus the cues that tell you to reach for it.",
         rigorous: "Name the machine, and file the idea it proves.",
       }),
       takeaway: reg({
-        base: "It's a Monotonic Stack — one-way order inside, amortized O(n) cost.",
-        intuitive: "Monotonic stack: a one-way ordered line — rare big clear-outs, all pre-paid, cheap on average.",
-        rigorous: "Monotonic stack: strictly ordered; pops pre-paid by pushes — O(n) total, amortized O(1).",
+        base: "It's a Monotonic Stack: one-way order inside, amortized O(n) cost.",
+        intuitive: "Monotonic stack: a one-way ordered line, rare big clear-outs, all pre-paid, cheap on average.",
+        rigorous: "Monotonic stack: strictly ordered; pops pre-paid by pushes; O(n) total, amortized O(1).",
       }),
       visual: <FinalState />,
       panels: [{
         left: 60, top: 20, width: 470, variant: "main", label: "The pattern", title: "Monotonic Stack.",
         body: reg({
           base: <>&ldquo;Monotonic&rdquo; means temperatures inside only go one way: warmest at the bottom, cooler toward the top. Cheap-on-average cost, where rare costly steps are pre-paid by cheap ones, is called <strong>amortized</strong>. Spot it on &ldquo;next/previous bigger-smaller&rdquo; and &ldquo;largest rectangle.&rdquo;</>,
-          intuitive: <>&ldquo;Monotonic&rdquo; is the fancy word for <em>one-way</em>: inside the line, temperatures only run one direction &mdash; warmest at the bottom, cooler toward the top. And the pricing trick &mdash; rare big clear-outs pre-paid by many small joins &mdash; is called <Term word="amortized">amortized</Term> cost. Spot it in any &ldquo;next/previous bigger or smaller&rdquo; question.</>,
-          rigorous: <>A <Term word="monotonic">monotonic</Term> stack: the contents stay strictly ordered, and every arrival restores the order by popping before it pushes. The cost model is <Term word="amortized">amortized</Term> analysis &mdash; charge each pop to its push, at most <code>2n</code> total. Signals: next/previous greater or smaller, spans, largest rectangle in a histogram.</>,
+          intuitive: <>&ldquo;Monotonic&rdquo; is the fancy word for <em>one-way</em>: inside the line, temperatures only run one direction, warmest at the bottom, cooler toward the top. And the pricing trick, rare big clear-outs pre-paid by many small joins, is called <Term word="amortized">amortized</Term> cost. Spot it in any &ldquo;next/previous bigger or smaller&rdquo; question.</>,
+          rigorous: <>A <Term word="monotonic">monotonic</Term> stack: the contents stay strictly ordered, and every arrival restores the order by popping before it pushes. The cost model is <Term word="amortized">amortized</Term> analysis: charge each pop to its push, at most <code>2n</code> total. Signals: next/previous greater or smaller, spans, largest rectangle in a histogram.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>That&rsquo;s the name. The stack is &ldquo;<strong>monotonic</strong>&rdquo; because the values inside it always go in one direction &mdash; here, warmer at the bottom, cooling as you go toward the top. The moment a new value would break that order, you pop until the order holds again.</p>
-            <p>And the cost trick &mdash; cheap on average because the rare expensive steps are pre-paid by all the cheap ones &mdash; has a name too: <strong>amortized</strong> cost (think of it like a subscription: a few big-feeling moments, but spread out it&rsquo;s a flat low price per item).</p>
-            <p><strong>Pattern signals &mdash; reach for it when you see:</strong></p>
+            <p>That&rsquo;s the name. The stack is &ldquo;<strong>monotonic</strong>&rdquo; because the values inside it always go in one direction: warmer at the bottom, cooling as you go toward the top. The moment a new value would break that order, you pop until the order holds again.</p>
+            <p>And the cost trick, cheap on average because the rare expensive steps are pre-paid by all the cheap ones, has a name too: <strong>amortized</strong> cost (think of it like a subscription: a few big-feeling moments, but spread out it&rsquo;s a flat low price per item).</p>
+            <p><strong>Pattern signals. Reach for it when you see:</strong></p>
             <ul>
               <li>&ldquo;for each element, find the next/previous one that is bigger/smaller&rdquo;</li>
               <li>&ldquo;days until X happens&rdquo; or &ldquo;span of consecutive smaller values&rdquo;</li>
@@ -700,35 +701,35 @@ export const monotonicStackLesson: LessonSpec = {
               <li>one pass through the data, with total work bounded by a few times the length</li>
             </ul>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 6 of 7 &mdash; amortization:</strong> pay a little extra sometimes so the average stays cheap &mdash; every pop here was pre-paid by its push.
+              <strong>Idea 6 of 7, amortization:</strong> pay a little extra sometimes so the average stays cheap, since every pop here was pre-paid by its push.
             </div>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Next:</strong> open the Code panel to see the Python. Each line maps to one of the rules you just derived &mdash; the loop, the pop-while-warmer, and the push.
+              <strong>Next:</strong> open the Code panel to see the Python. Each line maps to one of the rules you just derived: the loop, the pop-while-warmer, and the push.
             </div>
           </>
         ),
         intuitive: (
           <>
-            <p>The machine you derived has a name: a <strong>monotonic stack</strong>. &ldquo;Monotonic&rdquo; means the values inside only ever run one way &mdash; here warmest at the bottom, cooling toward the top &mdash; and the moment a newcomer would break that one-way order, you send people home until it holds again.</p>
-            <p>The pricing trick has a name too: <Term word="amortized">amortized</Term> cost. Like a subscription: a few moments feel expensive, but spread across the whole walk it&rsquo;s a flat, tiny price per day &mdash; because every send-home was already paid for by a join.</p>
+            <p>The machine you derived has a name: a <strong>monotonic stack</strong>. &ldquo;Monotonic&rdquo; means the values inside only ever run one way, warmest at the bottom, cooling toward the top, and the moment a newcomer would break that one-way order, you send people home until it holds again.</p>
+            <p>The pricing trick has a name too: <Term word="amortized">amortized</Term> cost. Like a subscription: a few moments feel expensive, but spread across the whole walk it&rsquo;s a flat, tiny price per day, because every send-home was already paid for by a join.</p>
             <p><strong>When to reach for it:</strong> any &ldquo;for each thing, find the next or previous bigger/smaller one,&rdquo; any &ldquo;days until&hellip;&rdquo; span, and the famous &ldquo;largest rectangle under the bars.&rdquo;</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The sixth big idea (6 of 7) &mdash; pay a little, save on average:</strong> rare expensive moments are fine when every one of them was pre-paid by many cheap ones.
+              <strong>The sixth big idea (6 of 7), pay a little, save on average:</strong> rare expensive moments are fine when every one of them was pre-paid by many cheap ones.
             </div>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Next:</strong> open the Code panel &mdash; each line is a rule you derived: the walk, the pop-while-warmer, the push.
+              <strong>Next:</strong> open the Code panel. Each line is a rule you derived: the walk, the pop-while-warmer, the push.
             </div>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>Monotonic stack</strong>: a stack constrained to keep its contents strictly ordered; each arrival pops violations, then pushes. A decreasing stack finds next-greater elements; an increasing one finds next-smaller &mdash; the same machine with the comparison flipped.</p>
+            <p><strong>Monotonic stack</strong>: a stack constrained to keep its contents strictly ordered; each arrival pops violations, then pushes. A decreasing stack finds next-greater elements; an increasing one finds next-smaller: the same machine with the comparison flipped.</p>
             <p><strong>Recognition:</strong> next/previous greater or smaller element; spans (&ldquo;days until&hellip;&rdquo;, &ldquo;how long has it been rising&rdquo;); largest rectangle in a histogram. One pass, total work bounded by 2n.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 6 of 7 &mdash; amortization:</strong> bound the sequence, not the step &mdash; charge each pop to its push and the expensive steps disappear into the total.
+              <strong>Idea 6 of 7, amortization:</strong> bound the sequence, not the step; charge each pop to its push and the expensive steps disappear into the total.
             </div>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Next:</strong> the Code panel maps line-for-line to the rule &mdash; loop, pop-while, record, push.
+              <strong>Next:</strong> the Code panel maps line-for-line to the rule: loop, pop-while, record, push.
             </div>
           </>
         ),

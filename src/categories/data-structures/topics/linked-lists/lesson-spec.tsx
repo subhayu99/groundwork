@@ -405,7 +405,7 @@ function FindCostGate({ api }: { api: BeatVisualApi }) {
       <Chain g={g} values={CHAIN} tones={tones} />
       <text x={g.valLeft(0)} y={g.y - 22} textAnchor="start" className="font-mono select-none"
         style={{ fontSize: 12, fill: "var(--text-faint)" }}>
-        we want the node holding {FIND_TARGET} &mdash; it sits at the far end
+        we want the node holding {FIND_TARGET}, sitting at the far end
       </text>
       <foreignObject x={(VW - 500) / 2} y={g.y + NODE_H + 30} width={500} height={180}>
         <div data-canvas-panel="predict">
@@ -546,15 +546,16 @@ function NameSummary() {
  *   refresh    : additionally trims `obvious` + `general` (trimOnRefresh).     */
 export const linkedListsLesson: LessonSpec = {
   topicTitle: "linked lists · order lives in the arrows, not the positions",
-  layout: "scene",
+  layout: "focus",
+  diagramShape: "line",
   canvas: { width: VW, height: VH },
   codeSource: linkedListPy as string,
   // standing on arrays (the bridge anchor, per TRACK-NARRATIVES.md): the rigid
   // row bought one-step access — this lesson trades that row away for splicing.
   bridgeFrom: reg({
-    base: "An array's rigid row buys any position in one step — this lesson breaks the row apart to make inserts cheap.",
-    intuitive: "You can grab any shelf slot in one step because the row never moves — now see what that rigid row costs us.",
-    rigorous: "arr[i] is O(1) because a fixed layout computes every address — give up the layout and splicing becomes the cheap move.",
+    base: "An array's rigid row buys any position in one step. This lesson breaks the row apart to make inserts cheap.",
+    intuitive: "You can grab any shelf slot in one step because the row never moves. Now see what that rigid row costs us.",
+    rigorous: "arr[i] is O(1) because a fixed layout computes every address. Give up the layout and splicing becomes the cheap move.",
   }),
   // ⚑ foreshadow stamp (TRACK-NARRATIVES row 13): a chain is a head plus a
   // smaller chain — the SEED of decomposition (the first recursive shape),
@@ -572,23 +573,23 @@ export const linkedListsLesson: LessonSpec = {
       }),
       visual: <ArraySetup />,
       panels: [{
-        left: 150, top: 22, width: 560, variant: "main", label: "The setup", title: "Add one item to a sorted list — without disturbing the rest.",
+        left: 150, top: 22, width: 560, variant: "main", label: "The setup", title: "Add one item to a sorted list, without disturbing the rest.",
         body: reg({
-          base: <>You keep friends in alphabetical order. A new friend belongs between the 2nd and 3rd. To open a gap, everyone after must slide down a spot. Fine for ten names &mdash; painful for ten million. Can we add one without bothering the rest?</>,
-          intuitive: <>Your friends list sits in alphabetical order, and a new friend belongs between the 2nd and 3rd names. To open that gap, every name after it has to slide down one spot. Ten names: easy. Ten million: an afternoon. The whole lesson is one wish &mdash; add one, bother nobody else.</>,
+          base: <>You keep friends in alphabetical order. A new friend belongs between the 2nd and 3rd. To open a gap, everyone after must slide down a spot. Fine for ten names, painful for ten million. Can we add one without bothering the rest?</>,
+          intuitive: <>Your friends list sits in alphabetical order, and a new friend belongs between the 2nd and 3rd names. To open that gap, every name after it has to slide down one spot. Ten names: easy. Ten million: an afternoon. The whole lesson is one wish: add one, bother nobody else.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>Picture a tidy list of friends kept in alphabetical order. A new friend, <em>Charlie</em>, turns up and belongs right in the middle &mdash; between the 2nd and 3rd names. To open a slot for him, everyone from that point on has to shuffle down one place to make room.</p>
+            <p>Picture a tidy list of friends kept in alphabetical order. A new friend, <em>Charlie</em>, turns up and belongs right in the middle, between the 2nd and 3rd names. To open a slot for him, everyone from that point on has to shuffle down one place to make room.</p>
             <p>That&rsquo;s no trouble for ten names. It gets painful for ten million. Is there a way to slip Charlie in <em>without</em> disturbing all the people who don&rsquo;t even care that he showed up?</p>
           </>
         ),
         intuitive: (
           <>
-            <p>Picture your contact list, kept tidy in alphabetical order. A new friend &mdash; <em>Charlie</em> &mdash; turns up, and he belongs right between the 2nd and 3rd names.</p>
-            <p>The list is a line with no gaps, so making room means everyone from that point on shuffles down one place. Charlie asked for so little &mdash; and ten million strangers had to move because of him. Hold onto the wish: slip one item in <em>without</em> touching anyone who doesn&rsquo;t care.</p>
+            <p>Picture your contact list, kept tidy in alphabetical order. A new friend, <em>Charlie</em>, turns up, and he belongs right between the 2nd and 3rd names.</p>
+            <p>The list is a line with no gaps, so making room means everyone from that point on shuffles down one place. Charlie asked for so little, and ten million strangers had to move because of him. Hold onto the wish: slip one item in <em>without</em> touching anyone who doesn&rsquo;t care.</p>
           </>
         ),
       }),
@@ -600,18 +601,18 @@ export const linkedListsLesson: LessonSpec = {
       label: "The obvious thing",
       registers: ["intuitive"],
       trimOnRefresh: true,
-      connector: "We have the wish — add one item without disturbing the rest. Here's why the everyday tool, an array, can't grant it.",
+      connector: "We have the wish: add one item without disturbing the rest. Here's why the everyday tool, an array, can't grant it.",
       actionLabel: "Free the positions",
-      takeaway: "An array's fixed positions force n shoves per insert — O(n).",
+      takeaway: "An array's fixed positions force n shoves per insert, O(n).",
       visual: (api) => <ArrayShiftPlayback api={api} />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Arrays force a domino effect.",
-        body: <>In an array, an address is just a position in line. Drop a value into slot 2 and every later value physically shifts one place right &mdash; one insertion, <em>n</em> shoves, where <em>n</em> is how many items sit after it. The fixed positions forced the work.</>,
+        body: <>In an array, an address is just a position in line. Drop a value into slot 2 and every later value physically shifts one place right: one insertion, <em>n</em> shoves, where <em>n</em> is how many items sit after it. The fixed positions forced the work.</>,
       }],
       detail: (
         <>
-          <p>An <strong>array</strong> is the everyday list most languages give you &mdash; a run of slots numbered <code>0, 1, 2, &hellip;</code>, where an item&rsquo;s &ldquo;address&rdquo; is simply its position in that run. To put Charlie in at slot 2, slot 3 has to become Dana, slot 4 has to become Eli, and so on down the line.</p>
-          <p>Every single name after Charlie has to physically move over by one. That&rsquo;s <em>n</em> shoves for one insertion &mdash; <code>n</code> being how many items sit after him &mdash; so the cost is <Term word="O(n)"><code>O(n)</code></Term> (&ldquo;order n&rdquo;): the work grows in step with how many follow. The information never changed; it was the <em>fixed positions</em> that forced all the busywork.</p>
+          <p>An <strong>array</strong> is the everyday list most languages give you: a run of slots numbered <code>0, 1, 2, &hellip;</code>, where an item&rsquo;s &ldquo;address&rdquo; is simply its position in that run. To put Charlie in at slot 2, slot 3 has to become Dana, slot 4 has to become Eli, and so on down the line.</p>
+          <p>Every single name after Charlie has to physically move over by one. That&rsquo;s <em>n</em> shoves for one insertion, with <code>n</code> being how many items sit after him, so the cost is <Term word="O(n)"><code>O(n)</code></Term> (&ldquo;order n&rdquo;): the work grows in step with how many follow. The information never changed; it was the <em>fixed positions</em> that forced all the busywork.</p>
           <p>So here&rsquo;s the question that cracks it open: what if positions weren&rsquo;t fixed at all?</p>
         </>
       ),
@@ -625,32 +626,32 @@ export const linkedListsLesson: LessonSpec = {
       registers: ["intuitive", "structured"],
       connector: reg({
         base: "So free the positions: instead of a fixed line, give each item an arrow that says where the next one lives.",
-        structured: "In an array one middle insert makes every later cell shift right — n shifts to open one slot. So free the positions: give each item an arrow that says where the next one lives.",
+        structured: "In an array one middle insert makes every later cell shift right; n shifts to open one slot. So free the positions: give each item an arrow that says where the next one lives.",
       }),
       actionLabel: "Pointers are the trick",
       takeaway: reg({
-        base: "Give each card an arrow to the next — order lives in the arrows.",
-        intuitive: "Cards with arrows: insert or remove re-aims one or two arrows — nobody else moves.",
+        base: "Give each card an arrow to the next; order lives in the arrows.",
+        intuitive: "Cards with arrows: insert or remove re-aims one or two arrows, nobody else moves.",
       }),
       visual: (api) => <WedgeChain api={api} />,
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Each card points to the next.",
           body: reg({
-            base: <>Meet cards joined by arrows. Each holds a value AND an arrow saying where the next card lives &mdash; that arrow is a <Term word="pointer"><strong>pointer</strong></Term>. Order lives in the arrows, not in where cards sit. Use the buttons under the chain to insert, then remove, and count what changed.</>,
-            intuitive: <>These are cards joined by arrows. Each card holds a value AND a little arrow saying where the next card lives &mdash; that arrow is a <Term word="pointer"><strong>pointer</strong></Term>, just a stored &ldquo;the next one is over there.&rdquo; Order lives in the arrows, not in where a card sits. <em>Press the buttons under the chain</em> &mdash; insert, then remove &mdash; and count how many cards actually change.</>,
+            base: <>Meet cards joined by arrows. Each holds a value AND an arrow saying where the next card lives: that arrow is a <Term word="pointer"><strong>pointer</strong></Term>. Order lives in the arrows, not in where cards sit. Use the buttons under the chain to insert, then remove, and count what changed.</>,
+            intuitive: <>These are cards joined by arrows. Each card holds a value AND a little arrow saying where the next card lives. That arrow is a <Term word="pointer"><strong>pointer</strong></Term>, just a stored &ldquo;the next one is over there.&rdquo; Order lives in the arrows, not in where a card sits. <em>Press the buttons under the chain</em>, insert then remove, and count how many cards actually change.</>,
           }),
         },
         {
           left: 24, top: 394, width: 330, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> how many existing cards actually had to change &mdash; an insert? a remove?</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> how many existing cards actually had to change on an insert? On a remove?</>,
         },
       ],
       detail: reg({
         base: (
           <>
-            <p>Look at the cards joined by arrows. Each card holds a value <em>and</em> an arrow that tells you where the next card lives. That arrow is a <strong>pointer</strong> &mdash; just a stored note saying &ldquo;the next thing is over <em>there</em>.&rdquo; The order of the list is carried by those arrows, not by where the cards happen to sit on screen.</p>
-            <p>Using the buttons below the chain, choose <em>insert 3 after node 1</em> and see what moves. Then choose <em>remove the 3rd card</em>. Notice how almost nothing budges &mdash; we just re-aim one or two arrows, and every other card stays exactly where it was. No domino, no shuffle.</p>
+            <p>Look at the cards joined by arrows. Each card holds a value <em>and</em> an arrow that tells you where the next card lives. That arrow is a <strong>pointer</strong>, just a stored note saying &ldquo;the next thing is over <em>there</em>.&rdquo; The order of the list is carried by those arrows, not by where the cards happen to sit on screen.</p>
+            <p>Using the buttons below the chain, choose <em>insert 3 after node 1</em> and see what moves. Then choose <em>remove the 3rd card</em>. Notice how almost nothing budges. We just re-aim one or two arrows, and every other card stays exactly where it was. No domino, no shuffle.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
               <strong>The instinct question:</strong> when you slide a new card in, how many of the cards that were already there actually had to change?
             </div>
@@ -661,7 +662,7 @@ export const linkedListsLesson: LessonSpec = {
             <p>Each card holds two things: a value, and an arrow telling you where the next card lives. That arrow is a <strong>pointer</strong> &mdash; nothing fancier than a stored note saying &ldquo;the next thing is over <em>there</em>.&rdquo; The order you read the cards in comes entirely from the arrows; the cards themselves could sit anywhere.</p>
             <p>Try <em>insert 3 after node 1</em> and watch the counter under the chain. Then try <em>remove the 3rd card</em>. Almost nothing budges: one or two arrows get re-aimed, and every other card stays exactly where it was. No domino, no shuffle.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The instinct question:</strong> the chain got longer &mdash; yet how many of the cards that were already there had to change?
+              <strong>The instinct question:</strong> the chain got longer, yet how many of the cards that were already there had to change?
             </div>
           </>
         ),
@@ -675,14 +676,14 @@ export const linkedListsLesson: LessonSpec = {
       label: "The structure",
       // Appears for EVERY register — rigorous opens here, so its connector is empty.
       connector: reg({
-        base: "Those cards-with-arrows have a real name and a fixed anatomy — let's open one up.",
+        base: "Those cards-with-arrows have a real name and a fixed anatomy. Let's open one up.",
         rigorous: "",
       }),
       actionLabel: "What's cheap?",
       takeaway: reg({
         base: "A node = one value + the address of the next node.",
         intuitive: "A node is a little box: a value, plus the address where the next node lives.",
-        rigorous: "Node = value + next; a chain is a head plus a smaller chain — order is the pointers.",
+        rigorous: "Node = value + next; a chain is a head plus a smaller chain, order is the pointers.",
       }),
       visual: <Anatomy />,
       panels: [{
@@ -692,22 +693,22 @@ export const linkedListsLesson: LessonSpec = {
           rigorous: "Node = value + next; list = head + rest.",
         }),
         body: reg({
-          base: <>A linked list is a chain of small boxes called <strong>nodes</strong>. Each node carries a value plus a pointer to the next node. You start at the first node &mdash; the <strong>head</strong> &mdash; and follow arrows until <code>None</code> (Python&rsquo;s word for &ldquo;nothing here,&rdquo; the end).</>,
-          rigorous: <>A <strong>linked list</strong>: nodes, each a value plus a <Term word="pointer">pointer</Term> to the next; a <code>head</code> reference anchors the chain and <code>None</code> terminates it. Equivalently: a list is empty, or a node whose <code>next</code> is a smaller list. A splice rewrites exactly two pointers &mdash; no element moves.</>,
+          base: <>A linked list is a chain of small boxes called <strong>nodes</strong>. Each node carries a value plus a pointer to the next node. You start at the first node, the <strong>head</strong>, and follow arrows until <code>None</code> (Python&rsquo;s word for &ldquo;nothing here,&rdquo; the end).</>,
+          rigorous: <>A <strong>linked list</strong>: nodes, each a value plus a <Term word="pointer">pointer</Term> to the next; a <code>head</code> reference anchors the chain and <code>None</code> terminates it. Equivalently: a list is empty, or a node whose <code>next</code> is a smaller list. A splice rewrites exactly two pointers; no element moves.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>Each card is really a <strong>node</strong> &mdash; a small box split into two compartments. The left holds the <em>value</em> (the data you care about); the right holds the <em>next</em> pointer (the address of the following node). A <strong>linked list</strong> is just a chain of these nodes hooked together by their next pointers.</p>
-            <p>To read the list you start at the very first node, called the <strong>head</strong>, and follow each arrow forward until one points at <code>None</code> &mdash; Python&rsquo;s word for &ldquo;nothing here,&rdquo; which marks the end of the chain.</p>
+            <p>Each card is really a <strong>node</strong>: a small box split into two compartments. The left holds the <em>value</em> (the data you care about); the right holds the <em>next</em> pointer (the address of the following node). A <strong>linked list</strong> is just a chain of these nodes hooked together by their next pointers.</p>
+            <p>To read the list you start at the very first node, called the <strong>head</strong>, and follow each arrow forward until one points at <code>None</code>: Python&rsquo;s word for &ldquo;nothing here,&rdquo; which marks the end of the chain.</p>
             <p>The trade is plain. You give up <em>random access</em> &mdash; there&rsquo;s no instant <code>list[487]</code> to jump straight to the 488th item &mdash; and the nodes are scattered in memory rather than packed side by side. In return, you can insert or remove a node anywhere in <em>constant time</em>, as long as you&rsquo;re already standing next to the right spot.</p>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>The model.</strong> A list is <code>None</code>, or a node <code>(value, next)</code> where <code>next</code> is itself a list &mdash; the structure contains a smaller copy of itself, a head plus a smaller chain. The order invariant: the sequence is exactly the pointer path from <code>head</code> to <code>None</code>; memory position carries no meaning, so no address arithmetic exists.</p>
-            <p><strong>Why splices are local.</strong> Insert after a held node <code>p</code>: the new node&rsquo;s <code>next</code> takes <code>p.next</code>, then <code>p.next</code> takes the new node &mdash; two pointer writes. Remove after <code>p</code>: one write. Counted in writes, both are independent of n; no other node is read or moved. The price is paid on access: reaching anything not already in hand means following pointers from <code>head</code>.</p>
+            <p><strong>The model.</strong> A list is <code>None</code>, or a node <code>(value, next)</code> where <code>next</code> is itself a list, so the structure contains a smaller copy of itself, a head plus a smaller chain. The order invariant: the sequence is exactly the pointer path from <code>head</code> to <code>None</code>; memory position carries no meaning, so no address arithmetic exists.</p>
+            <p><strong>Why splices are local.</strong> Insert after a held node <code>p</code>: the new node&rsquo;s <code>next</code> takes <code>p.next</code>, then <code>p.next</code> takes the new node. That is two pointer writes. Remove after <code>p</code>: one write. Counted in writes, both are independent of n; no other node is read or moved. The price is paid on access: reaching anything not already in hand means following pointers from <code>head</code>.</p>
           </>
         ),
       }),
@@ -719,7 +720,7 @@ export const linkedListsLesson: LessonSpec = {
       label: "The operations",
       connector: reg({
         base: "Now that we know a node is value + next-pointer, let's price each thing you can do with the chain.",
-        rigorous: "Two pointer writes per splice, counted. Now the lookups — commit to a prediction before the walk runs.",
+        rigorous: "Two pointer writes per splice, counted. Now the lookups: commit to a prediction before the walk runs.",
       }),
       actionLabel: reg({
         base: "When it fits",
@@ -729,38 +730,38 @@ export const linkedListsLesson: LessonSpec = {
       takeaway: reg({
         base: "Edits where you stand are O(1); finding or jumping is O(n).",
         intuitive: "Re-aiming arrows where you stand is instant; reaching any card means walking the chain.",
-        rigorous: "Splice/unlink at a held node is O(1); find or index-k is an O(n) walk — no random access.",
+        rigorous: "Splice/unlink at a held node is O(1); find or index-k is an O(n) walk, no random access.",
       }),
       visual: (api) => <FindCostGate api={api} />,
       panels: [{
         left: 470, top: 20, width: 360, variant: "main", label: "The operations", title: "Cheap edits, expensive lookups.",
         body: reg({
-          base: <>Insert or remove where you&rsquo;re standing: <Term word="O(1)"><strong>O(1)</strong></Term> &mdash; instant, same cost no matter how long the list. But find a value, or jump to the 50th item: <Term word="O(n)"><strong>O(n)</strong></Term> &mdash; cost grows with the list&rsquo;s length (n) &mdash; you must walk from the head; there&rsquo;s no shortcut.</>,
-          intuitive: <>Insert or remove where you&rsquo;re standing: one or two arrow re-aims, the same at any size &mdash; that flat cost is written <Term word="O(1)"><strong>O(1)</strong></Term>. But <em>reaching</em> a card &mdash; the one holding 7, say &mdash; when no slot numbers exist? Make your prediction below, then watch the chain answer and count the hops.</>,
-          rigorous: <>Splice and unlink are the pointer writes already counted &mdash; constant, <Term word="O(1)"><strong>O(1)</strong></Term>, independent of n. Access is the open question: no address arithmetic exists, so predict the path to the last node, then let the walk count its hops &mdash; that linear count is what <Term word="O(n)"><strong>O(n)</strong></Term> names.</>,
+          base: <>Insert or remove where you&rsquo;re standing: <Term word="O(1)"><strong>O(1)</strong></Term>, instant, the same cost no matter how long the list. But find a value, or jump to the 50th item: <Term word="O(n)"><strong>O(n)</strong></Term>, cost that grows with the list&rsquo;s length (n). You must walk from the head; there&rsquo;s no shortcut.</>,
+          intuitive: <>Insert or remove where you&rsquo;re standing: one or two arrow re-aims, the same at any size. That flat cost is written <Term word="O(1)"><strong>O(1)</strong></Term>. But <em>reaching</em> a card, the one holding 7 say, when no slot numbers exist? Make your prediction below, then watch the chain answer and count the hops.</>,
+          rigorous: <>Splice and unlink are the pointer writes already counted: constant, <Term word="O(1)"><strong>O(1)</strong></Term>, independent of n. Access is the open question: no address arithmetic exists, so predict the path to the last node, then let the walk count its hops. That linear count is what <Term word="O(n)"><strong>O(n)</strong></Term> names.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p><strong>Insert after a node you&rsquo;re already at:</strong> <code>O(1)</code> &mdash; &ldquo;constant time,&rdquo; meaning the cost is the same whether the list has five items or five million. You point the new node at whatever came next, then re-aim the current node&rsquo;s arrow at the new node. Two arrow changes and you&rsquo;re done.</p>
-            <p><strong>Remove the node after you:</strong> <code>O(1)</code> too &mdash; just one arrow change, re-routed to skip past the node you&rsquo;re dropping. The skipped node, now pointed at by nothing, gets cleaned up automatically.</p>
-            <p><strong>Find a value, or jump to the k-th item:</strong> <code>O(n)</code> &mdash; cost grows in step with the list&rsquo;s length <code>n</code>. Watch the walk above: there&rsquo;s no instant jump, so you start at the head and follow arrows one at a time until you arrive. The longer the list, the longer the walk &mdash; no shortcut.</p>
-            <p><strong>The edges that bite:</strong> an empty list (<code>head</code> is <code>None</code>) ends every walk before it starts; a search for a value that isn&rsquo;t there walks all <code>n</code> nodes before giving up; and the front is special &mdash; inserting before the first node means re-aiming <code>head</code> itself, since no node points at the first one.</p>
+            <p><strong>Insert after a node you&rsquo;re already at:</strong> <code>O(1)</code>, &ldquo;constant time,&rdquo; meaning the cost is the same whether the list has five items or five million. You point the new node at whatever came next, then re-aim the current node&rsquo;s arrow at the new node. Two arrow changes and you&rsquo;re done.</p>
+            <p><strong>Remove the node after you:</strong> <code>O(1)</code> too, just one arrow change, re-routed to skip past the node you&rsquo;re dropping. The skipped node, now pointed at by nothing, gets cleaned up automatically.</p>
+            <p><strong>Find a value, or jump to the k-th item:</strong> <code>O(n)</code>. Cost grows in step with the list&rsquo;s length <code>n</code>. Watch the walk above: there&rsquo;s no instant jump, so you start at the head and follow arrows one at a time until you arrive. The longer the list, the longer the walk, with no shortcut.</p>
+            <p><strong>The edges that bite:</strong> an empty list (<code>head</code> is <code>None</code>) ends every walk before it starts; a search for a value that isn&rsquo;t there walks all <code>n</code> nodes before giving up; and the front is special, since inserting before the first node means re-aiming <code>head</code> itself, because no node points at the first one.</p>
           </>
         ),
         intuitive: (
           <>
-            <p><strong>Insert after the card you&rsquo;re standing at:</strong> point the new card at whatever came next, then re-aim your card&rsquo;s arrow at the new one. Two arrow changes &mdash; the same two whether the chain holds five cards or five million. Cost that stays flat like that is written <Term word="O(1)"><code>O(1)</code></Term>.</p>
-            <p><strong>Remove the card after you:</strong> one arrow change &mdash; re-aim past it, and the skipped card simply drops out of the chain.</p>
+            <p><strong>Insert after the card you&rsquo;re standing at:</strong> point the new card at whatever came next, then re-aim your card&rsquo;s arrow at the new one. Two arrow changes, the same two whether the chain holds five cards or five million. Cost that stays flat like that is written <Term word="O(1)"><code>O(1)</code></Term>.</p>
+            <p><strong>Remove the card after you:</strong> one arrow change. Re-aim past it, and the skipped card simply drops out of the chain.</p>
             <p><strong>Find a value, or reach &ldquo;the 50th&rdquo;:</strong> you just watched it &mdash; start at the head and follow arrows one at a time until you arrive. A longer chain means a longer walk; work that grows with the length <code>n</code> is written <Term word="O(n)"><code>O(n)</code></Term>.</p>
-            <p><strong>Watch the edges:</strong> an empty chain (the head points at nothing) ends the walk before it starts; hunting for a value that isn&rsquo;t there means visiting every card and coming back empty-handed; and the very front is special &mdash; to put a card before the first one you re-aim the <em>head</em> arrow itself, because no card points at the first card.</p>
+            <p><strong>Watch the edges:</strong> an empty chain (the head points at nothing) ends the walk before it starts; hunting for a value that isn&rsquo;t there means visiting every card and coming back empty-handed; and the very front is special, since to put a card before the first one you re-aim the <em>head</em> arrow itself, because no card points at the first card.</p>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>Exact costs.</strong> <code>insert_after</code> / <code>remove_after</code> at a held node: O(1) &mdash; two writes, one write. <code>find(value)</code>: O(n) worst case and on every miss; index k: k+1 hops, O(n) &mdash; there is no address math to shortcut it. Append is O(n) without a tail reference, O(1) with one. Overheads: one pointer per element, and nodes scatter, so a full walk loses <Term word="memory locality">locality</Term> and trails an array scan by a constant factor.</p>
-            <p><strong>Edges.</strong> Empty list: <code>head</code> is <code>None</code> &mdash; every walk terminates immediately and <code>find</code> returns <code>None</code>. One node: <code>head.next</code> is <code>None</code> &mdash; <code>remove_after(head)</code> has nothing to unlink; the code checks first. The front is the one asymmetry: inserting before the first node rebinds <code>head</code> itself, not any node&rsquo;s <code>next</code>. And lose the head &mdash; the chain is unreachable; the head IS the list.</p>
+            <p><strong>Exact costs.</strong> <code>insert_after</code> / <code>remove_after</code> at a held node: O(1), two writes, one write. <code>find(value)</code>: O(n) worst case and on every miss; index k: k+1 hops, O(n), since there is no address math to shortcut it. Append is O(n) without a tail reference, O(1) with one. Overheads: one pointer per element, and nodes scatter, so a full walk loses <Term word="memory locality">locality</Term> and trails an array scan by a constant factor.</p>
+            <p><strong>Edges.</strong> Empty list: <code>head</code> is <code>None</code>, so every walk terminates immediately and <code>find</code> returns <code>None</code>. One node: <code>head.next</code> is <code>None</code>, so <code>remove_after(head)</code> has nothing to unlink; the code checks first. The front is the one asymmetry: inserting before the first node rebinds <code>head</code> itself, not any node&rsquo;s <code>next</code>. And lose the head: the chain is unreachable; the head IS the list.</p>
           </>
         ),
       }),
@@ -773,7 +774,7 @@ export const linkedListsLesson: LessonSpec = {
       label: "When it fits",
       registers: ["intuitive"],
       trimOnRefresh: true,
-      connector: "Cheap edits, costly lookups — that profile rarely wins on its own, but the node-and-arrow idea behind it shows up everywhere.",
+      connector: "Cheap edits, costly lookups: that profile rarely wins on its own, but the node-and-arrow idea behind it shows up everywhere.",
       actionLabel: "Name it",
       takeaway: "The node-and-arrow idea is the model under trees and graphs.",
       visual: <Generalize />,
@@ -783,7 +784,7 @@ export const linkedListsLesson: LessonSpec = {
       }],
       detail: (
         <>
-          <p>Honest answer: in modern Python you almost never reach for a bare linked list. When you genuinely need fast edits in the middle, there&rsquo;s usually a more specialized tool &mdash; a <strong>deque</strong> (a double-ended queue, fast to add and drop at either end), an ordered map, or a tree.</p>
+          <p>Honest answer: in modern Python you almost never reach for a bare linked list. When you genuinely need fast edits in the middle, there&rsquo;s usually a more specialized tool: a <strong>deque</strong> (a double-ended queue, fast to add and drop at either end), an ordered map, or a tree.</p>
           <p>You still need the linked list because it&rsquo;s the <em>mental model</em> the fancier structures are built on. A <strong>tree</strong> is just nodes where each one can point to several children instead of one next. A <strong>graph</strong> is nodes that can point at any other nodes at all. Get the chain &mdash; one node, one arrow &mdash; and those richer shapes come almost for free; the plain list is simply their simplest case.</p>
         </>
       ),
@@ -794,52 +795,52 @@ export const linkedListsLesson: LessonSpec = {
       id: "name",
       label: "Linked list",
       connector: reg({
-        base: "Trees, graphs, deques — they all trace back to the one shape you just built. Time to name it.",
-        structured: "Cheap edits where you stand, a walk to reach anywhere — that deal has a name.",
-        rigorous: "Costs priced, edges checked — name the structure and file the idea it seeds.",
+        base: "Trees, graphs, deques: they all trace back to the one shape you just built. Time to name it.",
+        structured: "Cheap edits where you stand, a walk to reach anywhere. That deal has a name.",
+        rigorous: "Costs priced, edges checked. Name the structure and file the idea it seeds.",
       }),
       takeaway: reg({
-        base: "It's a Linked List — position is not address; order is the arrows.",
-        intuitive: "Linked list: order lives in the arrows — one edit is one arrow re-aim.",
-        rigorous: "Linked list: pointer-defined order — O(1) splice in hand, O(n) access; a head plus a smaller list.",
+        base: "It's a Linked List: position is not address; order is the arrows.",
+        intuitive: "Linked list: order lives in the arrows; one edit is one arrow re-aim.",
+        rigorous: "Linked list: pointer-defined order, O(1) splice in hand, O(n) access; a head plus a smaller list.",
       }),
       visual: <NameSummary />,
       panels: [{
         left: 150, top: 20, width: 580, variant: "main", label: "The structure", title: "Linked List.",
         body: reg({
-          base: <>That&rsquo;s the name. <strong>Singly linked</strong> = each node has one arrow (to next). <strong>Doubly linked</strong> = two arrows (next AND previous) so you can walk backwards. The big idea: position is not address &mdash; order is whatever the arrows say, and an edit costs one pointer swap.</>,
-          intuitive: <>The name: a <strong>linked list</strong>. <strong>Singly linked</strong> = one arrow per card, to the next one. <strong>Doubly linked</strong> = two arrows per card (next AND previous), so you can also walk backwards. The big idea: position is not address &mdash; order is whatever the arrows say, and one edit costs one re-aim.</>,
-          rigorous: <>A <strong>linked list</strong> &mdash; singly: one forward pointer; doubly: <code>prev</code> + <code>next</code>, buying backward walks and O(1) removal of a held node for one extra pointer per element. Order is pointer-defined; position carries nothing. And the shape is recursive: every node heads its own smaller list.</>,
+          base: <>That&rsquo;s the name. <strong>Singly linked</strong> = each node has one arrow (to next). <strong>Doubly linked</strong> = two arrows (next AND previous) so you can walk backwards. The big idea: position is not address. Order is whatever the arrows say, and an edit costs one pointer swap.</>,
+          intuitive: <>The name: a <strong>linked list</strong>. <strong>Singly linked</strong> = one arrow per card, to the next one. <strong>Doubly linked</strong> = two arrows per card (next AND previous), so you can also walk backwards. The big idea: position is not address. Order is whatever the arrows say, and one edit costs one re-aim.</>,
+          rigorous: <>A <strong>linked list</strong>. Singly: one forward pointer; doubly: <code>prev</code> + <code>next</code>, buying backward walks and O(1) removal of a held node for one extra pointer per element. Order is pointer-defined; position carries nothing. And the shape is recursive: every node heads its own smaller list.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>That&rsquo;s the name: a <strong>linked list</strong>. It comes in two flavors. <em>Singly linked</em> means each node has just one arrow, pointing to the next node &mdash; you can only walk forward. <em>Doubly linked</em> means each node has two arrows, one to the next node and one to the previous one, so you can also walk backwards and unhook a node without first finding the one before it.</p>
-            <p>The big idea to carry away: <strong>position is not address</strong>. Order isn&rsquo;t set by where things sit in a row &mdash; it&rsquo;s whatever the arrows say. And because of that, inserting or removing costs exactly what it should: a single pointer swap, not a cascade of shoves.</p>
+            <p>That&rsquo;s the name: a <strong>linked list</strong>. It comes in two flavors. <em>Singly linked</em> means each node has just one arrow, pointing to the next node, so you can only walk forward. <em>Doubly linked</em> means each node has two arrows, one to the next node and one to the previous one, so you can also walk backwards and unhook a node without first finding the one before it.</p>
+            <p>The big idea to carry away: <strong>position is not address</strong>. Order isn&rsquo;t set by where things sit in a row; it&rsquo;s whatever the arrows say. And because of that, inserting or removing costs exactly what it should: a single pointer swap, not a cascade of shoves.</p>
             <p>Open the code drawer to see a tiny Python sketch of a node and the chain it forms.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The seed of idea 4 of 7 &mdash; decomposition:</strong> a chain is a head plus a smaller chain &mdash; the first structure that contains itself. Trees and recursion grow from exactly this shape.
+              <strong>The seed of idea 4 of 7, decomposition:</strong> a chain is a head plus a smaller chain, the first structure that contains itself. Trees and recursion grow from exactly this shape.
             </div>
           </>
         ),
         intuitive: (
           <>
-            <p>You built it; now name it: a <strong>linked list</strong>. <em>Singly linked</em>: every card carries one arrow, to the next card &mdash; forward walks only. <em>Doubly linked</em>: two arrows per card, next and previous, so you can back up, and a card can be unhooked without first hunting for its neighbour.</p>
-            <p>The idea to keep: <strong>position is not address</strong>. Order isn&rsquo;t where things sit &mdash; it&rsquo;s where the arrows point. That&rsquo;s why one edit costs one re-aim instead of a cascade of shoves.</p>
+            <p>You built it; now name it: a <strong>linked list</strong>. <em>Singly linked</em>: every card carries one arrow, to the next card, forward walks only. <em>Doubly linked</em>: two arrows per card, next and previous, so you can back up, and a card can be unhooked without first hunting for its neighbour.</p>
+            <p>The idea to keep: <strong>position is not address</strong>. Order isn&rsquo;t where things sit; it&rsquo;s where the arrows point. That&rsquo;s why one edit costs one re-aim instead of a cascade of shoves.</p>
             <p>And look at the shape one last time: behind the head sits&hellip; a slightly shorter chain, with its own head. A chain is a head plus a smaller chain &mdash; and the next lesson&rsquo;s trees are &ldquo;a node plus smaller trees,&rdquo; the same move grown up.</p>
             <p>Open the code drawer to see a tiny Python sketch of a node and the chain it forms.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The fourth big idea (4 of 7), planted &mdash; solve a smaller version of the same problem:</strong> a chain contains a smaller chain. Keep this shape in your pocket &mdash; it&rsquo;s what recursion will stand on.
+              <strong>The fourth big idea (4 of 7), planted, solve a smaller version of the same problem:</strong> a chain contains a smaller chain. Keep this shape in your pocket; it&rsquo;s what recursion will stand on.
             </div>
           </>
         ),
         rigorous: (
           <>
             <p><strong>Summary.</strong> Singly linked: one pointer per node, forward traversal only, O(1) insert/delete after a held node, O(n) access and search. Doubly linked: a <code>prev</code> pointer per node buys backward traversal and O(1) deletion of a held node. Python&rsquo;s <code>collections.deque</code> is the production form of the idea; bare node chains are rare in practice but load-bearing as a model.</p>
-            <p><strong>The export is the definition:</strong> a list is <code>None</code> or <code>(value, list)</code>. Self-referential structure is the substrate under trees &mdash; a node plus smaller trees &mdash; and under every divide step later.</p>
+            <p><strong>The export is the definition:</strong> a list is <code>None</code> or <code>(value, list)</code>. Self-referential structure is the substrate under trees, a node plus smaller trees, and under every divide step later.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 4 of 7, foreshadowed &mdash; decomposition:</strong> a chain is a head plus a smaller chain; solve-the-smaller-instance starts at this shape.
+              <strong>Idea 4 of 7, foreshadowed, decomposition:</strong> a chain is a head plus a smaller chain; solve-the-smaller-instance starts at this shape.
             </div>
           </>
         ),
