@@ -127,15 +127,16 @@ function StopCheckingPredict({ api }: { api: BeatVisualApi }) {
  *   refresh    : additionally trims `need` (trimOnRefresh).                    */
 export const conditionalsLesson: LessonSpec = {
   topicTitle: "if / else · choosing a path",
-  layout: "scene",
+  layout: "focus",
+  diagramShape: "line",
   canvas: { width: VW, height: VH },
   codeSource: conditionalsPy as string,
   // standing on operators (TRACK-NARRATIVES.md row 5): comparisons already
   // produce booleans — this lesson is where the program finally acts on one.
   bridgeFrom: reg({
-    base: "Comparisons like score >= 90 already hand you a True or False — now the program finally acts on the answer.",
-    intuitive: "You can already ask a value a yes/no question — now the program takes one road for yes, another for no.",
-    rigorous: "Operators yield booleans — conditionals consume them: one test selects a branch, the rest never run.",
+    base: "Comparisons like score >= 90 already hand you a True or False. Now the program finally acts on the answer.",
+    intuitive: "You can already ask a value a yes/no question. Now the program takes one road for yes, another for no.",
+    rigorous: "Operators yield booleans; conditionals consume them: one test selects a branch, the rest never run.",
   }),
   // ⚑ foreshadow stamp (TRACK-NARRATIVES row 5): one test abandons a whole
   // branch of what-could-run — the SEED of search-space pruning, not its proof.
@@ -156,7 +157,7 @@ export const conditionalsLesson: LessonSpec = {
         left: 150, top: 24, width: 560, variant: "main", label: "The choice", title: "Turn a score into a grade.",
         body: reg({
           base: <>Code that does the same thing every time can&rsquo;t react. Given a <code>score</code>, we want different results: 90+ is an A, 60+ is a B, otherwise F. The program has to <strong>choose</strong>.</>,
-          intuitive: <>Up to now a program does the exact same thing every run &mdash; it can&rsquo;t react. Given a <code>score</code>, we want different endings: 90 or more earns an A, 60 or more a B, anything else an F. The program has to pick <em>one</em> of three roads.</>,
+          intuitive: <>Up to now a program does the exact same thing every run, so it can&rsquo;t react. Given a <code>score</code>, we want different endings: 90 or more earns an A, 60 or more a B, anything else an F. The program has to pick <em>one</em> of three roads.</>,
         }),
       }],
       detail: reg({
@@ -169,8 +170,8 @@ export const conditionalsLesson: LessonSpec = {
         intuitive: (
           <>
             <p>Until now, every line of a program runs, top to bottom, every single time. A program like that can&rsquo;t react to anything.</p>
-            <p>To make it decide, we hand it a yes/no question about a value &mdash; like &ldquo;is the score at least 90?&rdquo; &mdash; and let the answer pick which lines run. Picture three doors in a hallway, each with its own rule on the front: you walk in carrying your score, and the first door that accepts it is the one you go through.</p>
-            <p>Today&rsquo;s walker: <code>score = 72</code>. Before we trace it &mdash; which grade do you think comes out?</p>
+            <p>To make it decide, we hand it a yes/no question about a value, like &ldquo;is the score at least 90?&rdquo;, and let the answer pick which lines run. Picture three doors in a hallway, each with its own rule on the front: you walk in carrying your score, and the first door that accepts it is the one you go through.</p>
+            <p>Today&rsquo;s walker: <code>score = 72</code>. Before we trace it, which grade do you think comes out?</p>
           </>
         ),
       }),
@@ -178,13 +179,13 @@ export const conditionalsLesson: LessonSpec = {
     },
     {
       id: "if",
-      label: "if — the first test",
+      label: "if: the first test",
       registers: ["intuitive", "structured"],
       connector: "Start with the top question and check it.",
-      actionLabel: "It failed — now what?",
+      actionLabel: "It failed. Now what?",
       takeaway: reg({
         base: "if runs its block only when its condition is True.",
-        intuitive: "An if asks a yes/no question — its indented lines run only on yes.",
+        intuitive: "An if asks a yes/no question; its indented lines run only on yes.",
       }),
       visual: (
         <g>
@@ -193,23 +194,23 @@ export const conditionalsLesson: LessonSpec = {
         </g>
       ),
       panels: [{
-        left: 150, top: 24, width: 560, variant: "main", label: "if — the first test", title: "if score >= 90:",
+        left: 150, top: 24, width: 560, variant: "main", label: "if: the first test", title: "if score >= 90:",
         body: reg({
-          base: <>An <Term word="if">if</Term> is a <Term word="condition">condition</Term> &mdash; a yes/no test. <code>score &gt;= 90</code> with <code>score = 72</code> is <strong>False</strong>, so the <Term word="indented">indented</Term> <code>grade = &quot;A&quot;</code> never runs.</>,
-          intuitive: <>The first door&rsquo;s rule is an <Term word="if">if</Term> &mdash; a yes/no <Term word="condition">condition</Term>. &ldquo;Is 72 at least 90?&rdquo; No. So the door stays shut: the <Term word="indented">indented</Term> line <code>grade = &quot;A&quot;</code> is never even touched.</>,
+          base: <>An <Term word="if">if</Term> is a <Term word="condition">condition</Term>: a yes/no test. <code>score &gt;= 90</code> with <code>score = 72</code> is <strong>False</strong>, so the <Term word="indented">indented</Term> <code>grade = &quot;A&quot;</code> never runs.</>,
+          intuitive: <>The first door&rsquo;s rule is an <Term word="if">if</Term>, a yes/no <Term word="condition">condition</Term>. &ldquo;Is 72 at least 90?&rdquo; No. So the door stays shut: the <Term word="indented">indented</Term> line <code>grade = &quot;A&quot;</code> is never even touched.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>The <code>&gt;=</code> (&ldquo;greater than or equal&rdquo;) gives back a <Term word="boolean">boolean</Term> &mdash; <code>True</code> or <code>False</code>. <code>72 &gt;= 90</code> is <code>False</code>.</p>
-            <p>The <strong>indented</strong> lines under the <code>if</code> are its <Term word="block">block</Term>. They run only when the test is True &mdash; here, they&rsquo;re skipped entirely.</p>
+            <p>The <code>&gt;=</code> (&ldquo;greater than or equal&rdquo;) gives back a <Term word="boolean">boolean</Term>: <code>True</code> or <code>False</code>. <code>72 &gt;= 90</code> is <code>False</code>.</p>
+            <p>The <strong>indented</strong> lines under the <code>if</code> are its <Term word="block">block</Term>. They run only when the test is True, so here they&rsquo;re skipped entirely.</p>
           </>
         ),
         intuitive: (
           <>
-            <p>The <code>&gt;=</code> sign simply asks &ldquo;at least?&rdquo;, and it always answers with a <Term word="boolean">boolean</Term> &mdash; the computer&rsquo;s plain yes or no, written <code>True</code> or <code>False</code>. Here <code>72 &gt;= 90</code> answers <code>False</code>.</p>
-            <p>The lines shifted right underneath the <code>if</code> are <em>inside</em> it &mdash; that shift is <Term word="indented">indentation</Term>, and the shifted lines are the if&rsquo;s <Term word="block">block</Term>. Shut door, untouched block: for a 72, <code>grade = &quot;A&quot;</code> might as well not exist.</p>
+            <p>The <code>&gt;=</code> sign simply asks &ldquo;at least?&rdquo;, and it always answers with a <Term word="boolean">boolean</Term>: the computer&rsquo;s plain yes or no, written <code>True</code> or <code>False</code>. Here <code>72 &gt;= 90</code> answers <code>False</code>.</p>
+            <p>The lines shifted right underneath the <code>if</code> are <em>inside</em> it. That shift is <Term word="indented">indentation</Term>, and the shifted lines are the if&rsquo;s <Term word="block">block</Term>. Shut door, untouched block: for a 72, <code>grade = &quot;A&quot;</code> might as well not exist.</p>
           </>
         ),
       }),
@@ -217,38 +218,38 @@ export const conditionalsLesson: LessonSpec = {
     },
     {
       id: "elif",
-      label: "elif — the next test",
+      label: "elif: the next test",
       // Appears for EVERY register — rigorous opens here, so its connector is empty.
       connector: reg({
-        base: "The first answer was no — so fall through to the next question.",
+        base: "The first answer was no, so fall through to the next question.",
         rigorous: "",
       }),
       actionLabel: "And if all fail?",
       takeaway: reg({
         base: "elif checks the next condition only if the ones above were False.",
-        intuitive: "elif is the next door — tried only after every door above said no.",
+        intuitive: "elif is the next door, tried only after every door above said no.",
         rigorous: "Chain order is semantics: the first True test runs; later tests are never evaluated.",
       }),
       visual: (api) => <StopCheckingPredict api={api} />,
       panels: [{
-        left: 150, top: 24, width: 560, variant: "main", label: "elif — the next test", title: "elif score >= 60:",
+        left: 150, top: 24, width: 560, variant: "main", label: "elif: the next test", title: "elif score >= 60:",
         body: reg({
-          base: <><code>elif</code> (&ldquo;else if&rdquo;) is checked only because the <code>if</code> was False. <code>72 &gt;= 60</code> is <strong>True</strong>, so <code>grade = &quot;B&quot;</code> runs &mdash; and the ladder stops.</>,
-          intuitive: <>The next door&rsquo;s rule is <code>elif</code> &mdash; short for &ldquo;else, if&rdquo;. It&rsquo;s only even read because the first door said no. &ldquo;Is 72 at least 60?&rdquo; Yes &mdash; so <code>grade = &quot;B&quot;</code> runs. But what about the door below? Commit to your prediction first.</>,
-          rigorous: <>Evaluation is top to bottom: <code>elif</code> is reached only because <code>score &gt;= 90</code> was <code>False</code>. <code>72 &gt;= 60</code> is <code>True</code>, so this block runs. The chain&rsquo;s defining rule is what happens to the rows below a satisfied test &mdash; commit to a prediction below.</>,
+          base: <><code>elif</code> (&ldquo;else if&rdquo;) is checked only because the <code>if</code> was False. <code>72 &gt;= 60</code> is <strong>True</strong>, so <code>grade = &quot;B&quot;</code> runs, and the ladder stops.</>,
+          intuitive: <>The next door&rsquo;s rule is <code>elif</code>, short for &ldquo;else, if&rdquo;. It&rsquo;s only even read because the first door said no. &ldquo;Is 72 at least 60?&rdquo; Yes, so <code>grade = &quot;B&quot;</code> runs. But what about the door below? Commit to your prediction first.</>,
+          rigorous: <>Evaluation is top to bottom: <code>elif</code> is reached only because <code>score &gt;= 90</code> was <code>False</code>. <code>72 &gt;= 60</code> is <code>True</code>, so this block runs. The chain&rsquo;s defining rule is what happens to the rows below a satisfied test, so commit to a prediction below.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>Conditions are checked <strong>top to bottom</strong>. The moment one is True, its block runs and every remaining <code>elif</code>/<code>else</code> is ignored &mdash; even if a later one would also be True.</p>
+            <p>Conditions are checked <strong>top to bottom</strong>. The moment one is True, its block runs and every remaining <code>elif</code>/<code>else</code> is ignored, even if a later one would also be True.</p>
             <p>That &ldquo;stop at the first match&rdquo; rule is why order matters: put the strictest test first.</p>
           </>
         ),
         intuitive: (
           <>
-            <p>The doors are tried strictly <strong>top to bottom</strong>, and the first one that opens ends the walk &mdash; you&rsquo;re through, and the doors below are never even glanced at. That&rsquo;s what you just predicted: the ladder <em>stops</em> at its first yes.</p>
-            <p>That rule has teeth. Take a score of 95: it would pass the first test <em>and</em> the second. Only the first one fires &mdash; so 95 earns an A, not a B. Order is what keeps the grades honest: put the strictest test first.</p>
+            <p>The doors are tried strictly <strong>top to bottom</strong>, and the first one that opens ends the walk. You&rsquo;re through, and the doors below are never even glanced at. That&rsquo;s what you just predicted: the ladder <em>stops</em> at its first yes.</p>
+            <p>That rule has teeth. Take a score of 95: it would pass the first test <em>and</em> the second. Only the first one fires, so 95 earns an A, not a B. Order is what keeps the grades honest: put the strictest test first.</p>
           </>
         ),
         rigorous: (
@@ -263,7 +264,7 @@ export const conditionalsLesson: LessonSpec = {
     },
     {
       id: "else",
-      label: "else — the fallback",
+      label: "else: the fallback",
       connector: reg({
         base: "What grade comes out when none of the tests pass?",
         rigorous: "One case remains: no test passes.",
@@ -271,7 +272,7 @@ export const conditionalsLesson: LessonSpec = {
       actionLabel: "See it whole",
       takeaway: reg({
         base: "else is the catch-all: it runs only when every test above was False.",
-        intuitive: "else is the otherwise — it catches every value no test above claimed.",
+        intuitive: "else is the otherwise: it catches every value no test above claimed.",
         rigorous: "With else the chain is total: exactly one branch runs, no value falls through.",
       }),
       visual: (
@@ -281,29 +282,29 @@ export const conditionalsLesson: LessonSpec = {
         </g>
       ),
       panels: [{
-        left: 150, top: 24, width: 560, variant: "main", label: "else — the fallback", title: "else:",
+        left: 150, top: 24, width: 560, variant: "main", label: "else: the fallback", title: "else:",
         body: reg({
-          base: <><code>else</code> has no condition &mdash; it&rsquo;s the <strong>otherwise</strong>. It runs when every <code>if</code>/<code>elif</code> above came out False. With <code>72</code> we already matched B, so <code>else</code> is skipped.</>,
-          intuitive: <>The last door, <code>else</code>, has no rule on it at all &mdash; it&rsquo;s the <strong>otherwise</strong>, and it opens for anyone who reaches it. A 72 never gets that far (door two already opened), so today it stays unused.</>,
-          rigorous: <><code>else</code> executes exactly when every preceding condition evaluated <code>False</code> &mdash; the complement of the tests above. Here the <code>elif</code> matched, so for 72 the <code>else</code> block is dead. It is the chain&rsquo;s totality guarantee.</>,
+          base: <><code>else</code> has no condition: it&rsquo;s the <strong>otherwise</strong>. It runs when every <code>if</code>/<code>elif</code> above came out False. With <code>72</code> we already matched B, so <code>else</code> is skipped.</>,
+          intuitive: <>The last door, <code>else</code>, has no rule on it at all. It&rsquo;s the <strong>otherwise</strong>, and it opens for anyone who reaches it. A 72 never gets that far (door two already opened), so today it stays unused.</>,
+          rigorous: <><code>else</code> executes exactly when every preceding condition evaluated <code>False</code>: the complement of the tests above. Here the <code>elif</code> matched, so for 72 the <code>else</code> block is dead. It is the chain&rsquo;s totality guarantee.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>If <code>score</code> were <code>40</code>: <code>40 &gt;= 90</code> False, <code>40 &gt;= 60</code> False &mdash; so <code>else</code> fires and <code>grade</code> becomes <code>&quot;F&quot;</code>.</p>
+            <p>If <code>score</code> were <code>40</code>: <code>40 &gt;= 90</code> False, <code>40 &gt;= 60</code> False, so <code>else</code> fires and <code>grade</code> becomes <code>&quot;F&quot;</code>.</p>
             <p><code>else</code> guarantees <em>some</em> branch always runs, so <code>grade</code> is never left unset.</p>
           </>
         ),
         intuitive: (
           <>
-            <p>Walk a 40 through the hallway: &ldquo;at least 90?&rdquo; No. &ldquo;At least 60?&rdquo; No. Both doors shut &mdash; so the 40 reaches the <code>else</code> and leaves with an F. Nobody walks out of this hallway without a grade.</p>
-            <p>Two walkers worth checking by hand: exactly 90 passes the first test, because <code>&gt;=</code> means &ldquo;90 counts&rdquo; &mdash; an A. Exactly 60 just makes the B. Sneaky mistakes love to hide right at those edges.</p>
+            <p>Walk a 40 through the hallway: &ldquo;at least 90?&rdquo; No. &ldquo;At least 60?&rdquo; No. Both doors shut, so the 40 reaches the <code>else</code> and leaves with an F. Nobody walks out of this hallway without a grade.</p>
+            <p>Two walkers worth checking by hand: exactly 90 passes the first test, because <code>&gt;=</code> means &ldquo;90 counts&rdquo;, so it earns an A. Exactly 60 just makes the B. Sneaky mistakes love to hide right at those edges.</p>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>Edges.</strong> The boundaries sit on the <code>&gt;=</code>: 90 &rarr; A, 60 &rarr; B; switching to <code>&gt;</code> silently demotes both. The all-False path (a 40) belongs to the <code>else</code>; drop the <code>else</code> and that path assigns nothing &mdash; <code>grade</code> stays unbound and <code>print(grade)</code> raises <code>NameError</code>.</p>
+            <p><strong>Edges.</strong> The boundaries sit on the <code>&gt;=</code>: 90 &rarr; A, 60 &rarr; B; switching to <code>&gt;</code> silently demotes both. The all-False path (a 40) belongs to the <code>else</code>; drop the <code>else</code> and that path assigns nothing: <code>grade</code> stays unbound and <code>print(grade)</code> raises <code>NameError</code>.</p>
             <p><strong>Exactly-one, sketch:</strong> tests run in order; the first True selects its block and ends the chain; <code>else</code> covers the all-False case. With an else, exactly one branch executes; without one, at most one.</p>
           </>
         ),
@@ -315,13 +316,13 @@ export const conditionalsLesson: LessonSpec = {
       label: "Exactly one path",
       connector: reg({
         base: "Read the whole ladder as one decision.",
-        rigorous: "The chain, end to end — one selection.",
+        rigorous: "The chain, end to end: one selection.",
       }),
       actionLabel: "Done",
       takeaway: reg({
         base: "if / elif / else: tests run top-to-bottom, exactly one branch wins.",
         intuitive: "A conditional picks one road: the first test that says yes wins, the rest are skipped.",
-        rigorous: "if/elif/else selects exactly one branch — the first True test in source order.",
+        rigorous: "if/elif/else selects exactly one branch: the first True test in source order.",
       }),
       visual: (
         <g>
@@ -332,9 +333,9 @@ export const conditionalsLesson: LessonSpec = {
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Exactly one path", title: "One question, one answer.",
         body: reg({
-          base: <>An <code>if / elif / else</code> chain is a single decision: Python walks the tests top to bottom and runs the <strong>first</strong> block whose condition is True &mdash; exactly one, then continues with <code>print</code>.</>,
-          intuitive: <>This whole shape is a <strong>conditional</strong> &mdash; the program&rsquo;s way of choosing. It walks the questions top to bottom, the <strong>first</strong> yes opens its door, exactly one door is used &mdash; and then the program carries on with <code>print</code>.</>,
-          rigorous: <>The construct is a <strong>conditional</strong>: conditions evaluated in source order, the first satisfied branch executed &mdash; exactly one of the three assignments runs, then control falls through to <code>print</code>.</>,
+          base: <>An <code>if / elif / else</code> chain is a single decision: Python walks the tests top to bottom and runs the <strong>first</strong> block whose condition is True. Exactly one runs, then it continues with <code>print</code>.</>,
+          intuitive: <>This whole shape is a <strong>conditional</strong>, the program&rsquo;s way of choosing. It walks the questions top to bottom, the <strong>first</strong> yes opens its door, exactly one door is used, and then the program carries on with <code>print</code>.</>,
+          rigorous: <>The construct is a <strong>conditional</strong>: conditions evaluated in source order, the first satisfied branch executed. Exactly one of the three assignments runs, then control falls through to <code>print</code>.</>,
         }),
       }],
       detail: reg({
@@ -342,23 +343,23 @@ export const conditionalsLesson: LessonSpec = {
           <>
             <p>You now have the two halves of every program: <strong>remember</strong> values (variables) and <strong>decide</strong> with them (conditions). Next we&rsquo;ll make the program <em>repeat</em> the same steps with loops.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The seed of idea 2 of 7 &mdash; search-space pruning:</strong> one yes/no test abandons a whole branch of code without ever running it.
+              <strong>The seed of idea 2 of 7, search-space pruning:</strong> one yes/no test abandons a whole branch of code without ever running it.
             </div>
           </>
         ),
         intuitive: (
           <>
-            <p>You now own the two halves of every program: <strong>remember</strong> values (variables) and <strong>decide</strong> with them (conditionals). Next we&rsquo;ll make the program <em>repeat</em> steps with loops &mdash; one decision, asked again and again.</p>
+            <p>You now own the two halves of every program: <strong>remember</strong> values (variables) and <strong>decide</strong> with them (conditionals). Next we&rsquo;ll make the program <em>repeat</em> steps with loops: one decision, asked again and again.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The second big idea (2 of 7) &mdash; rule it out instead of trying it:</strong> one question, and whole roads are abandoned unwalked. Later, the same move aimed at data &mdash; binary search &mdash; throws away half a million possibilities one question at a time.
+              <strong>The second big idea (2 of 7), rule it out instead of trying it:</strong> one question, and whole roads are abandoned unwalked. Later, the same move aimed at data, binary search, throws away half a million possibilities one question at a time.
             </div>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>The model, complete:</strong> conditions are boolean expressions; the chain evaluates them in source order, executes the first satisfied block, and leaves the rest unevaluated; <code>else</code> makes the selection total. Branching plus the bindings you already have is a program that computes different things on different inputs. Next: a condition re-asked &mdash; the loop.</p>
+            <p><strong>The model, complete:</strong> conditions are boolean expressions; the chain evaluates them in source order, executes the first satisfied block, and leaves the rest unevaluated; <code>else</code> makes the selection total. Branching plus the bindings you already have is a program that computes different things on different inputs. Next: a condition re-asked, the loop.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 2 of 7, foreshadowed &mdash; search-space pruning:</strong> a single test discards entire branches unexecuted. Aim the same move at data and you get binary search: one comparison, half the candidates gone.
+              <strong>Idea 2 of 7, foreshadowed as search-space pruning:</strong> a single test discards entire branches unexecuted. Aim the same move at data and you get binary search: one comparison, half the candidates gone.
             </div>
           </>
         ),
