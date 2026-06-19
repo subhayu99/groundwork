@@ -164,6 +164,20 @@ export function FocusLayout({
     if (nb !== b) { closePanel(); setB(nb); }
   }
 
+  // KEYBOARD: ← / → walk the beats (forward respects the wedge gate). Tab + Enter
+  // already activate buttons/links natively. (Broader keyboard control of the
+  // on-canvas interactions is a separate later pass.)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && /^(input|textarea|select)$/i.test(t.tagName)) return;
+      if (e.key === "ArrowRight") { if (!gated && !(b === last && completed)) { e.preventDefault(); goNext(); } }
+      else if (e.key === "ArrowLeft") { if (b > 0) { e.preventDefault(); go(-1); } }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [b, last, gated, completed]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // The diagram plane (svg + arrows + on-canvas note panels), shared by the
   // desktop and mobile boxes. `sref` is the svg ref used for centring.
   const plane = (sref: Ref<SVGSVGElement>, sc: number, shift: number, withNotes: boolean) => (
@@ -248,85 +262,123 @@ export function FocusLayout({
         )}
       </div>
 
-      {/* ── STAGE: one centred column. Scrolls; the nav below is never covered.
-          Top-aligns when a panel is open so tall content (code) fits. ──────── */}
-      <div className={`flex-1 min-h-0 overflow-y-auto flex flex-col items-center px-3 sm:px-5 py-3 ${openPanel ? "justify-start pt-[3vh]" : "justify-center"}`}>
-        {/* bridge — beat 0 orientation; yields to the prereq nudge */}
-        {bridge && b === 0 && !showNudge && (
-          <div className="shrink-0 mb-3 max-w-[620px] px-1 text-center text-[12.5px] italic leading-snug text-[var(--text-faint)]">
-            <span className="not-italic font-mono text-[9.5px] uppercase tracking-wider">standing on · </span>{bridge}
-          </div>
-        )}
+      {/* ── BODY: a width-capped reading column flanked by full-height TAP ZONES.
+          Click the LEFT margin → previous beat, the RIGHT margin → next (also the
+          ← / → arrow keys). The column never sprawls across a wide screen, and the
+          lower area stays uncluttered — navigation lives on the sides. ────────── */}
+      <div className="relative flex-1 min-h-0 flex flex-col">
+        {/* LEFT tap zone (lg+) — previous */}
+        <button type="button" onClick={() => go(-1)} disabled={b === 0} aria-label="Previous step"
+          className="hidden lg:flex absolute inset-y-0 left-0 right-[calc(50%_+_380px)] z-20 items-center justify-center group disabled:opacity-20 disabled:cursor-default cursor-pointer">
+          <span className="flex flex-col items-center gap-1.5 text-[var(--text-faint)] transition-colors group-hover:text-[var(--text)]">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+            <span className="font-mono text-[9px] uppercase tracking-[0.18em]">back</span>
+          </span>
+        </button>
+        {/* RIGHT tap zone (lg+) — next (gated → no advance) */}
+        <button type="button" onClick={() => { if (gated || (b === last && completed)) return; goNext(); }}
+          aria-disabled={gated || (b === last && completed)} aria-describedby={gated ? cueId : undefined}
+          aria-label={gated ? "Locked — try the diagram first" : "Next step"}
+          className={`hidden lg:flex absolute inset-y-0 right-0 left-[calc(50%_+_380px)] z-20 items-center justify-center group cursor-pointer ${b === last && completed ? "opacity-30 cursor-default" : ""}`}>
+          <span className={`flex flex-col items-center gap-1.5 transition-colors ${gated ? "text-[var(--text-faint)]" : "text-[var(--accent-ink)] group-hover:text-[var(--text)]"}`}>
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={gated ? "M7 11V7a5 5 0 0 1 10 0v4M5 11h14v9H5z" : "M9 18l6-6-6-6"} /></svg>
+            <span className="font-mono text-[9px] uppercase tracking-[0.18em] max-w-[140px] text-center truncate">{gated ? "locked" : b === last ? (completed ? "done" : "finish") : (beat.actionLabel ?? "next")}</span>
+          </span>
+        </button>
 
-        {/* DESKTOP hero box — aspect-locked, the diagram centred in the full box */}
-        <div
-          style={{ aspectRatio: `${VW} / ${VH}` }}
-          className={`relative w-full shrink-0 hidden xl:block self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden transition-[max-height] duration-200 ${openPanel ? "xl:max-h-[42vh]" : "xl:max-h-[56vh]"}`}>
-          <PanZoom ref={areaRef} className="absolute inset-0" contentWidth={VW * scale} contentHeight={VH * scale} minZoom={1} maxZoom={4} resetKey={beat.id}>
-            {plane(svgRef, scale, vShift, true)}
-          </PanZoom>
-        </div>
-
-        {/* MOBILE hero box — shape-aware: a "line" fits the whole width (one row,
-            never wrapped); a "box" fills the box. Pinch/drag to inspect. */}
-        <PanZoom
-          ref={mAreaRef}
-          className={`xl:hidden relative w-full shrink-0 rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] ${shape === "line" ? "min-h-[26vh]" : "min-h-[42vh]"}`}
-          contentWidth={VW * mScale} contentHeight={VH * mScale} minZoom={shape === "line" ? 1 : 0.5} maxZoom={4} allowPageScrollAtRest resetKey={beat.id}>
-          {plane(mSvgRef, mScale, mVShift, false)}
-        </PanZoom>
-
-        {/* CAPTION — the single idea + one supporting line (the main panel). */}
-        {mainPanel && (
-          <AnimatePresence mode="wait">
-            <motion.div key={beat.id}
-              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.28, ease: [0.22, 0.65, 0.3, 1] }}
-              className="shrink-0 mt-5 text-center max-w-[620px]">
-              {mainPanel.label && <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)] mb-1">{mainPanel.label}</div>}
-              <div className="font-semibold text-[19px] leading-snug text-[var(--text)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono">{mainPanel.title ?? mainPanel.body}</div>
-              {mainPanel.title != null && mainPanel.body != null && (
-                <div className="mt-2 text-[13.5px] leading-relaxed text-[var(--text-muted)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)]">{mainPanel.body}</div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        )}
-
-        {/* AFFORDANCE ROW — quiet, opt-in. why? · code · recap · step. */}
-        <div className="shrink-0 mt-5 flex items-center justify-center flex-wrap gap-x-1">
-          {beat.detail && (
-            <button onClick={() => togglePanel("why")} className={`font-mono text-[10px] uppercase tracking-[0.14em] px-3 py-1.5 transition-colors ${openPanel === "why" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>why?</button>
-          )}
-          {beat.detail && <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>}
-          <button onClick={() => togglePanel("code")} className={`font-mono text-[10px] uppercase tracking-[0.14em] px-3 py-1.5 transition-colors ${openPanel === "code" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>code</button>
-          <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>
-          <button onClick={() => togglePanel("recap")} className={`font-mono text-[10px] uppercase tracking-[0.14em] px-3 py-1.5 transition-colors ${openPanel === "recap" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>recap</button>
-          <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>
-          <span className="font-mono text-[10px] uppercase tracking-[0.14em] px-3 py-1.5 text-[var(--text-faint)] whitespace-nowrap"><b className="font-normal text-[var(--text-muted)]">{b + 1} / {beats.length}</b>{beat.label ? ` · ${beat.label}` : ""}</span>
-        </div>
-
-        {/* IN-FLOW DETAIL — opens here, below the caption, inside the scrollable
-            stage. Bounded height + internal scroll; never over the pinned nav. */}
-        <div className={`w-full max-w-[640px] overflow-hidden transition-[max-height,opacity,margin] duration-300 ${openPanel ? "max-h-[46vh] opacity-100 mt-5" : "max-h-0 opacity-0"}`}>
-          <div className="flex flex-col max-h-[46vh] overflow-hidden text-left rounded-2xl border border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_55%,transparent)]">
-            <div className="shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-[var(--line-faint)]">
-              <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">
-                {openPanel === "why" ? (beat.label ?? "why") : openPanel === "code" ? "the code so far" : "what we've established"}
-              </span>
-              <button onClick={closePanel} aria-label="close" className="inline-flex items-center justify-center w-6 h-6 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <div ref={openPanel === "code" ? codeScrollRef : undefined} className="flex-1 overflow-auto">
-              {openPanel === "why" && beat.detail && (
-                <div className="px-4 py-3.5 text-[13.5px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
-                  {beat.connector && <p className="italic text-[var(--text-faint)] !mb-1">{beat.connector}</p>}
-                  {beat.detail}
+        {/* CENTER COLUMN — width-capped, centred */}
+        <div className="flex-1 min-h-0 flex flex-col px-4 sm:px-6 lg:px-0 py-2.5">
+          <div className="w-full max-w-[720px] mx-auto flex-1 min-h-0 flex flex-col">
+            <div className={`flex flex-col items-center min-h-0 overflow-y-auto ${openPanel ? "shrink-0" : "flex-1 justify-center"}`}>
+              {/* bridge — beat 0 orientation; yields to the prereq nudge */}
+              {bridge && b === 0 && !showNudge && (
+                <div className="shrink-0 mb-3 max-w-[560px] px-1 text-center text-[12.5px] italic leading-snug text-[var(--text-faint)]">
+                  <span className="not-italic font-mono text-[9.5px] uppercase tracking-wider">standing on · </span>{bridge}
                 </div>
               )}
-              {openPanel === "code" && <FocusCode code={PY} activeLines={activeLines} practice={practice} />}
-              {openPanel === "recap" && <FocusSpine lines={spineLines} current={b} />}
+
+              {/* DESKTOP hero box — aspect-locked; smaller when a panel is open */}
+              <div
+                style={{ aspectRatio: `${VW} / ${VH}` }}
+                className={`relative w-full shrink-0 hidden lg:block self-center rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] overflow-hidden transition-[max-height] duration-200 ${openPanel ? "lg:max-h-[26vh]" : "lg:max-h-[46vh]"}`}>
+                <PanZoom ref={areaRef} className="absolute inset-0" contentWidth={VW * scale} contentHeight={VH * scale} minZoom={1} maxZoom={4} resetKey={beat.id}>
+                  {plane(svgRef, scale, vShift, true)}
+                </PanZoom>
+              </div>
+
+              {/* MOBILE hero box — shape-aware; smaller when a panel is open */}
+              <PanZoom
+                ref={mAreaRef}
+                className={`lg:hidden relative w-full shrink-0 rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_45%,transparent)] ${openPanel ? "min-h-[18vh] max-h-[22vh]" : (shape === "line" ? "min-h-[24vh]" : "min-h-[40vh]")}`}
+                contentWidth={VW * mScale} contentHeight={VH * mScale} minZoom={shape === "line" ? 1 : 0.5} maxZoom={4} allowPageScrollAtRest resetKey={beat.id}>
+                {plane(mSvgRef, mScale, mVShift, false)}
+              </PanZoom>
+
+              {/* CAPTION — readable. Body clamps when a panel is open. */}
+              {mainPanel && (
+                <AnimatePresence mode="wait">
+                  <motion.div key={beat.id}
+                    initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                    transition={{ duration: 0.28, ease: [0.22, 0.65, 0.3, 1] }}
+                    className="shrink-0 mt-4 text-center max-w-[600px]">
+                    {mainPanel.label && <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)] mb-1.5">{mainPanel.label}</div>}
+                    <div className="font-semibold text-[21px] leading-snug text-[var(--text)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono">{mainPanel.title ?? mainPanel.body}</div>
+                    {mainPanel.title != null && mainPanel.body != null && (
+                      <div className={`mt-2 text-[14.5px] leading-relaxed text-[var(--text-muted)] [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] ${openPanel ? "line-clamp-2" : ""}`}>{mainPanel.body}</div>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              )}
+
+              {/* AFFORDANCE ROW — quiet, opt-in. why? · code · recap. */}
+              <div className="shrink-0 mt-4 flex items-center justify-center flex-wrap gap-x-0.5">
+                {beat.detail && (
+                  <button onClick={() => togglePanel("why")} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${openPanel === "why" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>why?</button>
+                )}
+                {beat.detail && <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>}
+                <button onClick={() => togglePanel("code")} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${openPanel === "code" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>code</button>
+                <span className="text-[var(--line-strong)] text-[10px] select-none">·</span>
+                <button onClick={() => togglePanel("recap")} className={`font-mono text-[10.5px] uppercase tracking-[0.14em] px-2.5 py-1.5 transition-colors ${openPanel === "recap" ? "text-[var(--accent-ink)]" : "text-[var(--text-faint)] hover:text-[var(--text-muted)]"}`}>recap</button>
+              </div>
+
+              {/* PROGRESS DOTS — tappable; steps live here now so the bottom stays clear. */}
+              <div className="shrink-0 mt-3 flex items-center justify-center gap-2">
+                {beats.map((bt, i) => (
+                  <button key={bt.id} onClick={() => { if (gated && i > b) return; closePanel(); setB(i); }} disabled={gated && i > b}
+                    aria-current={i === b ? "step" : undefined} aria-label={`step ${i + 1} of ${beats.length}${bt.label ? ": " + bt.label : ""}`}
+                    className="inline-flex items-center justify-center w-5 h-5 rounded-full disabled:opacity-40 disabled:cursor-not-allowed">
+                    <span className={`block rounded-full transition-all ${i === b ? "w-2.5 h-2.5 ring-2 ring-offset-2 ring-offset-[var(--bg)] ring-[var(--accent)]" : "w-2 h-2"}`} style={{ backgroundColor: i === b ? "var(--accent)" : "var(--line)" }} />
+                  </button>
+                ))}
+              </div>
+
+              {gated && <div className="shrink-0 mt-2.5 text-center font-mono text-[10px] uppercase tracking-wider text-[var(--accent-ink)]">↑ try it on the diagram to continue</div>}
             </div>
+
+            {/* IN-FLOW PANEL — FILLS the remaining space below the top zone; its body
+                scrolls INTERNALLY, so it can never run under the bar, at any height. */}
+            {openPanel && (
+              <div className="flex-1 min-h-0 w-full mt-3 flex flex-col overflow-hidden text-left rounded-2xl border border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_55%,transparent)]">
+                <div className="shrink-0 flex items-center justify-between px-4 py-2 border-b border-[var(--line-faint)]">
+                  <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">
+                    {openPanel === "why" ? (beat.label ?? "why") : openPanel === "code" ? "the code so far" : "what we've established"}
+                  </span>
+                  <button onClick={closePanel} aria-label="close" className="inline-flex items-center justify-center w-6 h-6 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                  </button>
+                </div>
+                <div ref={openPanel === "code" ? codeScrollRef : undefined} className="flex-1 min-h-0 overflow-auto">
+                  {openPanel === "why" && beat.detail && (
+                    <div className="px-4 py-3 text-[13.5px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
+                      {beat.connector && <p className="italic text-[var(--text-faint)] !mb-1">{beat.connector}</p>}
+                      {beat.detail}
+                    </div>
+                  )}
+                  {openPanel === "code" && <FocusCode code={PY} activeLines={activeLines} practice={practice} />}
+                  {openPanel === "recap" && <FocusSpine lines={spineLines} current={b} />}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -391,34 +443,15 @@ export function FocusLayout({
         </div>
       )}
 
-      {/* ── ACTION BAR — always pinned, always visible ───────────────────── */}
-      <div className="relative z-30 shrink-0 flex items-center gap-2 sm:gap-4 px-3 sm:px-5 pt-1 pb-3 border-t border-[var(--line)] bg-[var(--bg)]">
+      {/* ── BOTTOM BAR — mobile/tablet only; on lg+ the side tap zones navigate. */}
+      <div className="lg:hidden relative z-30 shrink-0 flex items-center gap-3 px-3 sm:px-5 pt-1.5 pb-3 border-t border-[var(--line)] bg-[var(--bg)]">
         <button onClick={() => go(-1)} disabled={b === 0} aria-label="Go to previous step"
-          className="min-h-[40px] px-3 sm:px-4 rounded-lg border border-[var(--line)] text-[var(--text-muted)] disabled:opacity-40 hover:border-[var(--line-strong)] text-[14px]">← Back</button>
-
-        <nav aria-label="lesson steps" className="hidden sm:block">
-          <ol role="list" className="flex items-center gap-2">
-            {beats.map((bt, i) => (
-              <li key={bt.id}>
-                <button onClick={() => { if (gated && i > b) return; closePanel(); setB(i); }} aria-current={i === b ? "step" : undefined}
-                  disabled={gated && i > b} aria-label={`step ${i + 1} of ${beats.length}${bt.label ? ": " + bt.label : ""}`}
-                  className="inline-flex items-center justify-center w-7 h-7 rounded-full disabled:opacity-40 disabled:cursor-not-allowed">
-                  <span className={`block rounded-full transition-all ${i === b ? "w-3 h-3 ring-2 ring-offset-2 ring-offset-[var(--bg)] ring-[var(--accent)]" : "w-2.5 h-2.5"}`}
-                    style={{ backgroundColor: i === b ? "var(--accent)" : "var(--line)" }} />
-                </button>
-              </li>
-            ))}
-          </ol>
-        </nav>
-
-        <span className="sm:hidden font-mono text-[11px] text-[var(--text-muted)]">{b + 1}/{beats.length}</span>
-        <div className="flex-1" />
-
+          className="min-h-[42px] px-4 rounded-lg border border-[var(--line)] text-[var(--text-muted)] disabled:opacity-40 text-[14px]">← Back</button>
+        <span className="mx-auto font-mono text-[11px] text-[var(--text-muted)] truncate px-2">{b + 1} / {beats.length}</span>
         <button onClick={() => { if (gated || (b === last && completed)) return; goNext(); }}
           aria-disabled={gated || (b === last && completed)} disabled={b === last && completed}
           aria-describedby={gated ? cueId : undefined}
-          title={gated ? "Try the interaction on the canvas first" : undefined}
-          className={`min-h-[40px] px-4 sm:px-5 rounded-lg border font-medium text-[14px] transition-colors ${
+          className={`min-h-[42px] px-5 rounded-lg border font-medium text-[14px] transition-colors ${
             gated
               ? "border-dashed border-[var(--line)] bg-transparent text-[var(--text-faint)]"
               : b === last && completed
@@ -428,15 +461,7 @@ export function FocusLayout({
           {advanceLabel}
         </button>
       </div>
-      {gated && (
-        <>
-          <span id={cueId} className="sr-only">Try the interaction on the canvas to continue.</span>
-          <div className="shrink-0 mx-3 sm:mx-5 mb-2 flex items-center justify-center gap-2 rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] px-3 py-2 text-center text-[12.5px] font-medium text-[var(--accent-ink)]">
-            <span aria-hidden="true" className="text-[15px] leading-none">↑</span>
-            <span>Try it on the diagram above to continue</span>
-          </div>
-        </>
-      )}
+      <span id={cueId} className="sr-only">Try the interaction on the diagram to continue.</span>
 
       <div aria-live="polite" aria-atomic="true" className="sr-only">
         {`Step ${b + 1} of ${beats.length}${beat.label ? ": " + beat.label : ""}${gated ? ". Interaction required: try it on the canvas to continue." : ""}`}
