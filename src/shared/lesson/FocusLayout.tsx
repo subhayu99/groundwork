@@ -71,6 +71,23 @@ export function FocusLayout({
   const closePanel = () => { cancelClose(); setOpenPanel(null); setHoverPanel(null); };
   const togglePanel = (p: Panel) => { cancelClose(); setHoverPanel(null); setOpenPanel((cur) => (cur === p ? null : p)); };
 
+  // The right-edge card spans the lesson's content vertically: its TOP aligns
+  // with the top of the content (the "standing on" line on beat 0, else the
+  // diagram) and its BOTTOM with the last content (the progress dots) — measured
+  // per beat so it tracks the content band, not the viewport. Mobile keeps the
+  // bottom sheet, so the measured bounds are applied on desktop only.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const stackRef = useRef<HTMLDivElement>(null);
+  const [cardBox, setCardBox] = useState<{ top: number; height: number } | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
   const mainPanel = beat.panels.find((p) => p.variant !== "note");
   const noteePanels = beat.panels.filter((p) => p.variant === "note");
 
@@ -145,6 +162,23 @@ export function FocusLayout({
     window.addEventListener("resize", measure);
     return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
   }, [VW, VH, b, shape]);
+
+  // measure the content stack → the right card's vertical bounds (desktop)
+  useEffect(() => {
+    const measure = () => {
+      const stack = stackRef.current, body = bodyRef.current;
+      if (!stack || !body) return;
+      const sr = stack.getBoundingClientRect(), br = body.getBoundingClientRect();
+      if (br.height < 1) return;
+      const top = Math.max(8, Math.round(sr.top - br.top));
+      const bottom = Math.min(Math.round(br.height - 8), Math.round(sr.bottom - br.top));
+      setCardBox({ top, height: Math.max(140, bottom - top) });
+    };
+    measure();
+    const ts = [120, 320, 540].map((d) => setTimeout(measure, d));
+    window.addEventListener("resize", measure);
+    return () => { ts.forEach(clearTimeout); window.removeEventListener("resize", measure); };
+  }, [b, beat.id, VW, VH, isDesktop]);
 
   // keep the active code line in view while the code panel is open
   const activeKey = activeLines.join(",");
@@ -286,7 +320,7 @@ export function FocusLayout({
           Click the LEFT margin → previous beat, the RIGHT margin → next (also the
           ← / → arrow keys). The column never sprawls across a wide screen, and the
           lower area stays uncluttered — navigation lives on the sides. ────────── */}
-      <div className="relative flex-1 min-h-0 flex flex-col">
+      <div ref={bodyRef} className="relative flex-1 min-h-0 flex flex-col">
         {/* LEFT tap zone (lg+) — previous */}
         <button type="button" onClick={() => go(-1)} disabled={b === 0} aria-label="Previous step"
           className="hidden lg:flex absolute inset-y-0 left-0 right-[calc(50%_+_520px)] z-20 items-center justify-end pr-5 group disabled:opacity-20 disabled:cursor-default cursor-pointer transition-colors hover:bg-[color-mix(in_oklab,var(--bg-card)_22%,transparent)]">
@@ -310,6 +344,7 @@ export function FocusLayout({
         <div className="flex-1 min-h-0 flex flex-col px-4 sm:px-6 lg:px-0 py-2.5">
           <div className="w-full max-w-[1000px] mx-auto flex-1 min-h-0 flex flex-col">
             <div className="flex-1 min-h-0 flex flex-col items-center justify-center overflow-y-auto">
+              <div ref={stackRef} className="w-full flex flex-col items-center">
               {/* bridge — beat 0 orientation; yields to the prereq nudge */}
               {bridge && b === 0 && !showNudge && (
                 <div className="shrink-0 mb-3 max-w-[560px] px-1 text-center text-[12.5px] italic leading-snug text-[var(--text-faint)]">
@@ -373,6 +408,7 @@ export function FocusLayout({
               </div>
 
               {gated && <div className="shrink-0 mt-2.5 text-center font-mono text-[10px] uppercase tracking-wider text-[var(--accent-ink)]">↑ try it on the diagram to continue</div>}
+              </div>
             </div>
           </div>
         </div>
@@ -386,36 +422,32 @@ export function FocusLayout({
           {activePanel && (
             <motion.div
               key="focus-panel"
+              data-focus-card
               initial={{ opacity: 0, x: 14 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 14 }}
               transition={{ duration: 0.18, ease: [0.22, 0.65, 0.3, 1] }}
-              className="absolute z-40 inset-x-3 bottom-3 lg:inset-x-auto lg:left-auto lg:right-5 lg:inset-y-3 flex lg:items-center pointer-events-none">
-              {/* The card itself sizes to its content, capped (58vh on a phone, the
-                  full drawer height on desktop) with an internal scroll — never
-                  forced full-height. Vertically centred on the right edge. */}
-              <div
-                onMouseEnter={cancelClose}
-                onMouseLeave={scheduleClose}
-                className="pointer-events-auto w-full max-h-[58vh] lg:w-[420px] lg:max-h-full flex flex-col overflow-hidden text-left rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_94%,var(--bg))] shadow-[0_16px_48px_-12px_rgba(0,0,0,0.55)] backdrop-blur-sm">
-                <div className="shrink-0 flex items-center justify-between px-4 py-2 border-b border-[var(--line-faint)]">
-                  <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">
-                    {activePanel === "why" ? (beat.label ?? "why") : activePanel === "code" ? "the code so far" : "what we've established"}
-                  </span>
-                  <button onClick={closePanel} aria-label="close" className="inline-flex items-center justify-center w-6 h-6 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
-                  </button>
-                </div>
-                <div ref={activePanel === "code" ? codeScrollRef : undefined} className="flex-1 min-h-0 overflow-auto">
-                  {activePanel === "why" && beat.detail && (
-                    <div className="px-4 py-3 text-[13.5px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
-                      {beat.connector && <p className="italic text-[var(--text-faint)] !mb-1">{beat.connector}</p>}
-                      {beat.detail}
-                    </div>
-                  )}
-                  {activePanel === "code" && <FocusCode code={PY} activeLines={activeLines} practice={practice} />}
-                  {activePanel === "recap" && <FocusSpine lines={spineLines} current={b} />}
-                </div>
+              onMouseEnter={cancelClose}
+              onMouseLeave={scheduleClose}
+              style={isDesktop && cardBox ? { top: cardBox.top, height: cardBox.height } : undefined}
+              className="absolute z-40 inset-x-3 bottom-3 max-h-[58vh] lg:inset-x-auto lg:bottom-auto lg:right-5 lg:max-h-none lg:w-[440px] flex flex-col overflow-hidden text-left rounded-2xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--bg-card)_94%,var(--bg))] shadow-[0_16px_48px_-12px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+              <div className="shrink-0 flex items-center justify-between px-4 py-2 border-b border-[var(--line-faint)]">
+                <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)]">
+                  {activePanel === "why" ? (beat.label ?? "why") : activePanel === "code" ? "the code so far" : "what we've established"}
+                </span>
+                <button onClick={closePanel} aria-label="close" className="inline-flex items-center justify-center w-6 h-6 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                </button>
+              </div>
+              <div ref={activePanel === "code" ? codeScrollRef : undefined} className="flex-1 min-h-0 overflow-auto">
+                {activePanel === "why" && beat.detail && (
+                  <div className="px-4 py-3 text-[13.5px] leading-relaxed text-[var(--text-muted)] space-y-2 [&_code]:text-[var(--accent-ink)] [&_code]:font-mono [&_strong]:text-[var(--text)] [&_em]:text-[var(--text)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
+                    {beat.connector && <p className="italic text-[var(--text-faint)] !mb-1">{beat.connector}</p>}
+                    {beat.detail}
+                  </div>
+                )}
+                {activePanel === "code" && <FocusCode code={PY} activeLines={activeLines} practice={practice} />}
+                {activePanel === "recap" && <FocusSpine lines={spineLines} current={b} />}
               </div>
             </motion.div>
           )}
