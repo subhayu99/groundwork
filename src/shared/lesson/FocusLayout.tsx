@@ -323,7 +323,15 @@ export function FocusLayout({
           <div className="flex items-center gap-2 px-3 sm:px-5 py-1.5 border-b border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--accent-sky)_7%,transparent)]">
             <span className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--accent-ink)] shrink-0">builds on</span>
             <span className="text-[11.5px] text-[var(--text-muted)] truncate min-w-0">
-              {prerequisites!.filter((p) => !p.completed).map((p) => p.name).join(", ")}
+              {prerequisites!.filter((p) => !p.completed).map((p, i) => (
+                <span key={p.href}>
+                  {i > 0 && ", "}
+                  <Link href={p.href} title={`Open ${p.name} first`}
+                    className="font-medium text-[var(--accent-ink)] underline decoration-dotted underline-offset-2 hover:text-[var(--text)] hover:decoration-solid transition-colors">
+                    {p.name}
+                  </Link>
+                </span>
+              ))}
             </span>
             <button onClick={() => setPrereqDismissed(true)} aria-label="dismiss prerequisite note"
               className="ml-auto shrink-0 inline-flex items-center justify-center w-9 h-9 -mr-1.5 rounded-md text-[var(--text-faint)] hover:text-[var(--text)] hover:bg-[var(--bg-inset)]">
