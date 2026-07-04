@@ -233,10 +233,10 @@ function MergeCostGate({ api }: { api: BeatVisualApi }) {
 
   return (
     <g>
-      <text x={VW / 2} y={214} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+      <text x={VW / 2} y={190} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
         swap-by-swap prices 1,000 cards at about a million steps &mdash; now price split-and-merge
       </text>
-      <foreignObject x={190} y={240} width={480} height={200}>
+      <foreignObject x={190} y={210} width={480} height={244} style={{ overflow: "visible" }}>
         <div data-canvas-panel="predict">
           <PredictGate
             api={api}
@@ -305,16 +305,17 @@ function DivideConquer() {
  *   refresh    : additionally trims `naive` + `general` (trimOnRefresh).      */
 export const mergesortLesson: LessonSpec = {
   topicTitle: "mergesort · sort eight cards",
-  layout: "scene",
+  layout: "focus",
+  diagramShape: "line",
   canvas: { width: VW, height: VH },
   codeSource: mergesortPy as string,
   // standing on recursion (the anchor, per TRACK-NARRATIVES.md): trust the
   // smaller call — mergesort makes that decomposition total: split to trivial,
   // merge the sorted answers back.
   bridgeFrom: reg({
-    base: "You already trust a function to solve a smaller copy of its own problem — now that one act of trust sorts anything.",
-    intuitive: "You've seen a recipe call itself on a smaller piece and trust the answer — today that trick sorts a whole messy row.",
-    rigorous: "Recursion: a base case plus a trusted smaller call. Mergesort instantiates it — split to trivial, merge sorted halves.",
+    base: "You already trust a function to solve a smaller copy of its own problem. Now that one act of trust sorts anything.",
+    intuitive: "You've seen a recipe call itself on a smaller piece and trust the answer. Today that trick sorts a whole messy row.",
+    rigorous: "Recursion: a base case plus a trusted smaller call. Mergesort instantiates it: split to trivial, merge sorted halves.",
   }),
   // from meta (TRACK-NARRATIVES row 29): split to trivial, merge with two
   // pointers — decomposition made total.
@@ -329,8 +330,8 @@ export const mergesortLesson: LessonSpec = {
         structured: "Find a faster move",
       }),
       takeaway: reg({
-        base: "Eight cards in a jumble — and computers do this on millions of rows.",
-        intuitive: "Eight messy cards are easy by eye — the method is what survives a million rows.",
+        base: "Eight cards in a jumble, and computers do this on millions of rows.",
+        intuitive: "Eight messy cards are easy by eye. The method is what survives a million rows.",
       }),
       visual: (
         <g>
@@ -341,21 +342,21 @@ export const mergesortLesson: LessonSpec = {
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "The setup", title: "Eight cards in a jumble. Put them in order.",
         body: reg({
-          base: <>Eight cards landed out of order: 5, 2, 4, 7, 1, 3, 8, 6. Sorting eight by eye is easy. But computers sort tables with <strong>hundreds of millions of rows</strong> &mdash; every leaderboard, every database lookup. The <em>method</em> is what matters.</>,
-          intuitive: <>Eight cards landed in a jumble: 5, 2, 4, 7, 1, 3, 8, 6. You could line up eight by eye in seconds. But the same chore runs on <strong>millions of rows</strong> &mdash; every leaderboard, every search results page. At that size only the <em>method</em> matters, so that&rsquo;s what we&rsquo;ll build.</>,
+          base: <>Eight cards landed out of order: 5, 2, 4, 7, 1, 3, 8, 6. Sorting eight by eye is easy. But computers sort tables with <strong>hundreds of millions of rows</strong>: every leaderboard, every database lookup. The <em>method</em> is what matters.</>,
+          intuitive: <>Eight cards landed in a jumble: 5, 2, 4, 7, 1, 3, 8, 6. You could line up eight by eye in seconds. But the same chore runs on <strong>millions of rows</strong>, every leaderboard and every search results page. At that size only the <em>method</em> matters, so that&rsquo;s what we&rsquo;ll build.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
             <p>You&rsquo;ve got eight cards spread on the table, face up, in whatever order they landed: <code>5, 2, 4, 7, 1, 3, 8, 6</code>. The job is simply to put them in order, smallest to largest.</p>
-            <p>Eight cards is easy to do by eye. Eighty is annoying. Eight hundred <em>million</em> is the kind of thing computers spend their lives doing &mdash; every time a database joins two tables, ranks search results, or builds a leaderboard, something is sorting. At that size you can&rsquo;t eyeball it, so the exact <em>method</em> you use is what decides whether the answer comes back in a second or a week.</p>
+            <p>Eight cards is easy to do by eye. Eighty is annoying. Eight hundred <em>million</em> is the kind of thing computers spend their lives doing. Every time a database joins two tables, ranks search results, or builds a leaderboard, something is sorting. At that size you can&rsquo;t eyeball it, so the exact <em>method</em> you use is what decides whether the answer comes back in a second or a week.</p>
           </>
         ),
         intuitive: (
           <>
             <p>Spread eight cards on the table, face up, just as they landed: <code>5, 2, 4, 7, 1, 3, 8, 6</code>. The whole job: line them up, smallest to largest.</p>
-            <p>Eight is easy. But sorting is the computer&rsquo;s daily chore &mdash; ranking search results, building leaderboards, lining up database rows &mdash; on piles of <em>millions</em>. Nobody can eyeball a million, so the exact recipe you follow is what decides whether the answer takes a second or a week. We&rsquo;ll build that recipe on eight cards, and it&rsquo;ll work unchanged on a million.</p>
+            <p>Eight is easy. But sorting is the computer&rsquo;s daily chore (ranking search results, building leaderboards, lining up database rows) on piles of <em>millions</em>. Nobody can eyeball a million, so the exact recipe you follow is what decides whether the answer takes a second or a week. We&rsquo;ll build that recipe on eight cards, and it&rsquo;ll work unchanged on a million.</p>
           </>
         ),
       }),
@@ -367,21 +368,21 @@ export const mergesortLesson: LessonSpec = {
       label: "The obvious thing",
       registers: ["intuitive"],
       trimOnRefresh: true,
-      connector: "Eight by eye was easy — so what’s the most obvious recipe a computer could follow?",
+      connector: "Eight by eye was easy. So what’s the most obvious recipe a computer could follow?",
       actionLabel: "Split. Sort. Merge.",
       takeaway: reg({
-        base: "Swapping neighbours works but is O(n²) — moving a card far is slow.",
+        base: "Swapping neighbours works but is O(n²): moving a card far is slow.",
         intuitive: "Swapping neighbours works, but doubling the cards roughly quadruples the work.",
       }),
       visual: idleRow(ARR.map((_, i) => (i === 0 || i === 1 ? "muted" : undefined))),
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The obvious thing", title: "Swap neighbours until nothing's backwards.",
-        body: <>The first idea: walk left to right, swap any pair that&rsquo;s out of order, repeat. It works but crawls &mdash; each swap fixes one tiny disagreement, so moving a card far means swapping it past every neighbour. Double the cards and the work roughly <em>quadruples</em>.</>,
+        body: <>The first idea: walk left to right, swap any pair that&rsquo;s out of order, repeat. It works but crawls. Each swap fixes one tiny disagreement, so moving a card far means swapping it past every neighbour. Double the cards and the work roughly <em>quadruples</em>.</>,
       }],
       detail: (
         <>
-          <p>The first method everyone reaches for: walk left to right and swap any two neighbours that are out of order. Do a full pass; if you made any swaps, do another. When a whole pass makes zero swaps, everything is sorted. It works &mdash; it&rsquo;s just slow.</p>
-          <p>The trouble is that each swap only fixes one tiny local disagreement between two touching cards. To carry a card a long way across the row, you have to swap it past <em>every single neighbour</em> on the way. So the total work grows like the <em>square</em> of the size &mdash; written <Term word="O(n²)"><code>O(n&sup2;)</code></Term> (&ldquo;order n squared&rdquo;, meaning the work scales with the number of cards <code>n</code> multiplied by itself). A thousand cards can mean about a million swaps; double the cards and the work roughly quadruples.</p>
+          <p>The first method everyone reaches for: walk left to right and swap any two neighbours that are out of order. Do a full pass; if you made any swaps, do another. When a whole pass makes zero swaps, everything is sorted. It works; it&rsquo;s just slow.</p>
+          <p>The trouble is that each swap only fixes one tiny local disagreement between two touching cards. To carry a card a long way across the row, you have to swap it past <em>every single neighbour</em> on the way. So the total work grows like the <em>square</em> of the size, written <Term word="O(n²)"><code>O(n&sup2;)</code></Term> (&ldquo;order n squared&rdquo;, meaning the work scales with the number of cards <code>n</code> multiplied by itself). A thousand cards can mean about a million swaps; double the cards and the work roughly quadruples.</p>
           <p>What we really want is a way to move information across the row in big chunks instead of one nudge at a time.</p>
         </>
       ),
@@ -396,43 +397,43 @@ export const mergesortLesson: LessonSpec = {
       // so the beat still opens cleanly when `naive` is cut or trimmed.
       connector: reg({
         base: "If single swaps move cards too slowly, what if we could move a whole side at once?",
-        intuitive: "One swap only ever fixes two touching cards — what if a whole side could move in one go?",
-        structured: "Swapping neighbours costs about a million steps on a thousand cards — here's the move that shifts whole sides at once.",
+        intuitive: "One swap only ever fixes two touching cards. What if a whole side could move in one go?",
+        structured: "Swapping neighbours costs about a million steps on a thousand cards. Here's the move that shifts whole sides at once.",
       }),
       actionLabel: "Make it a rule",
       takeaway: reg({
         base: "Split to single cards, then merge sorted halves in one clean sweep.",
-        intuitive: "Keep cutting to single cards, then zip sorted halves back — one sweep each.",
+        intuitive: "Keep cutting to single cards, then zip sorted halves back, one sweep each.",
       }),
       visual: (api) => <SplitMerge api={api} />,
       panels: [
         {
           left: 150, top: 18, width: 560, variant: "main", label: "The instinct", title: "Cut in half. Sort each half. Merge them.",
           body: reg({
-            base: <>Pretend the two halves are already sorted. Finishing is easy: walk both with two fingers, always take the smaller card &mdash; one pass, each card seen once. The only question left is &ldquo;how do I sort a half?&rdquo; Same trick, smaller. <strong>Use the buttons under the row: split all the way down, then merge.</strong></>,
-            intuitive: <>Pretend someone already sorted each half for you. Finishing is suddenly easy: one finger at the front of each half, always take the smaller card, step that finger on. One sweep and the row is sorted &mdash; each card looked at once. The only mystery left: who sorts the halves? The same trick, on smaller piles. <strong>Use the buttons under the row: split all the way down, then merge.</strong></>,
+            base: <>Pretend the two halves are already sorted. Finishing is easy: walk both with two fingers, always take the smaller card. One pass, each card seen once. The only question left is &ldquo;how do I sort a half?&rdquo; Same trick, smaller. <strong>Use the buttons under the row: split all the way down, then merge.</strong></>,
+            intuitive: <>Pretend someone already sorted each half for you. Finishing is suddenly easy: one finger at the front of each half, always take the smaller card, step that finger on. One sweep and the row is sorted, each card looked at once. The only mystery left: who sorts the halves? The same trick, on smaller piles. <strong>Use the buttons under the row: split all the way down, then merge.</strong></>,
           }),
         },
         {
           left: 558, top: 352, width: 272, variant: "note",
-          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> keep cutting until each piece is a single card &mdash; and one card is already in order. Then merge the pieces back, two at a time.</>,
+          body: <><strong className="text-[var(--accent-ink)]">The instinct:</strong> keep cutting until each piece is a single card, and one card is already in order. Then merge the pieces back, two at a time.</>,
         },
       ],
       detail: reg({
         base: (
           <>
-            <p>Here&rsquo;s the instinct. Pretend, just for a moment, that the left half of the row and the right half are each <em>already</em> sorted. Then finishing the whole row is easy: put one finger at the front of each half and compare. Whichever finger points at the smaller card, take that card and slide that finger forward. Keep going and the cards come out in perfect order &mdash; a single left-to-right pass where each card is touched once. That step is called a <strong>merge</strong>.</p>
-            <p>So the hard question shrinks to a smaller version of itself: how do you sort a half? The same way &mdash; cut it in half, sort the two pieces, merge them. The pieces keep getting smaller until each is a <em>single card</em>, and a single card is already sorted, so the splitting stops there. A rule that solves a problem by calling itself on a smaller piece is called <Term word="recursion"><strong>recursion</strong></Term>.</p>
-            <p>Use the <strong>split</strong> button under the row and the row breaks into halves, quarters, then singletons. Once every piece is a single card the button becomes <strong>merge</strong> &mdash; keep pressing it and the sorted pieces fuse back together. <strong>↺ reset</strong> sends the cards back to their starting jumble.</p>
+            <p>Here&rsquo;s the instinct. Pretend, just for a moment, that the left half of the row and the right half are each <em>already</em> sorted. Then finishing the whole row is easy: put one finger at the front of each half and compare. Whichever finger points at the smaller card, take that card and slide that finger forward. Keep going and the cards come out in perfect order, a single left-to-right pass where each card is touched once. That step is called a <strong>merge</strong>.</p>
+            <p>So the hard question shrinks to a smaller version of itself: how do you sort a half? The same way. Cut it in half, sort the two pieces, merge them. The pieces keep getting smaller until each is a <em>single card</em>, and a single card is already sorted, so the splitting stops there. A rule that solves a problem by calling itself on a smaller piece is called <Term word="recursion"><strong>recursion</strong></Term>.</p>
+            <p>Use the <strong>split</strong> button under the row and the row breaks into halves, quarters, then singletons. Once every piece is a single card the button becomes <strong>merge</strong>: keep pressing it and the sorted pieces fuse back together. <strong>↺ reset</strong> sends the cards back to their starting jumble.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The instinct:</strong> sorting halves and merging them is far less work than swap-by-swap, because the merge moves cards from one side to the other in one clean sweep instead of one nudge at a time.</div>
           </>
         ),
         intuitive: (
           <>
-            <p>Play pretend for a second: imagine the left four cards are already in order, and the right four too. Could you finish the row? Easily &mdash; put a finger on the front card of each half and compare. Take the smaller card, slide that finger forward, compare again. One sweep, left to right, and the whole row comes out sorted &mdash; no card looked at twice. That finishing move is called a <strong>merge</strong>.</p>
-            <p>So the only question left is &ldquo;who sorted the halves?&rdquo; And the answer is: the same move, on smaller piles. Cut each half in half, and again, until every pile is one single card &mdash; and a single card can&rsquo;t be out of order, so the cutting stops by itself. A recipe that solves a problem by handing a smaller copy to itself is called <Term word="recursion"><strong>recursion</strong></Term> &mdash; you met it a lesson ago; this is it earning its keep.</p>
-            <p>Try it &mdash; press <strong>split</strong> until every pile is a single card, then press <strong>merge</strong> and watch the sorted piles fuse back, two at a time. <strong>↺ reset</strong> reshuffles the jumble.</p>
-            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The instinct:</strong> the merge carries cards across the row in whole sorted sweeps &mdash; far cheaper than nudging them along one swap at a time.</div>
+            <p>Play pretend for a second: imagine the left four cards are already in order, and the right four too. Could you finish the row? Easily. Put a finger on the front card of each half and compare. Take the smaller card, slide that finger forward, compare again. One sweep, left to right, and the whole row comes out sorted, no card looked at twice. That finishing move is called a <strong>merge</strong>.</p>
+            <p>So the only question left is &ldquo;who sorted the halves?&rdquo; And the answer is: the same move, on smaller piles. Cut each half in half, and again, until every pile is one single card. A single card can&rsquo;t be out of order, so the cutting stops by itself. A recipe that solves a problem by handing a smaller copy to itself is called <Term word="recursion"><strong>recursion</strong></Term> &mdash; you met it a lesson ago; this is it earning its keep.</p>
+            <p>Try it: press <strong>split</strong> until every pile is a single card, then press <strong>merge</strong> and watch the sorted piles fuse back, two at a time. <strong>↺ reset</strong> reshuffles the jumble.</p>
+            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The instinct:</strong> the merge carries cards across the row in whole sorted sweeps, far cheaper than nudging them along one swap at a time.</div>
           </>
         ),
       }),
@@ -445,8 +446,8 @@ export const mergesortLesson: LessonSpec = {
       // Appears for EVERY register — rigorous opens here; its connector reads
       // as an opener on top of the rigorous bridgeFrom line.
       connector: reg({
-        base: "You just did it by hand — now turn that split-sort-merge move into a rule a computer can repeat.",
-        rigorous: "Two cases carry the whole algorithm — a trivial base and split-recurse-merge. State them exactly.",
+        base: "You just did it by hand. Now turn that split-sort-merge move into a rule a computer can repeat.",
+        rigorous: "Two cases carry the whole algorithm: a trivial base and split-recurse-merge. State them exactly.",
       }),
       actionLabel: "Count the work",
       takeaway: reg({
@@ -462,35 +463,35 @@ export const mergesortLesson: LessonSpec = {
           rigorous: "One base case, two recursive calls, one linear merge.",
         }),
         body: reg({
-          base: <>Write <code>sort</code> as <strong>recursion</strong> &mdash; a recipe that calls itself on a smaller piece. Simplest case: 0 or 1 cards are already sorted, hand them back. Otherwise find the middle, sort each half, then merge. The merge uses two <em>fingers</em> &mdash; markers showing where you&rsquo;re looking in each half.</>,
-          intuitive: <>Watch the rule run itself. If a pile has 0 or 1 cards, hand it back &mdash; nothing to sort. Otherwise: cut at the middle, sort each half <em>by this very rule</em>, then merge with two fingers &mdash; little markers showing where you&rsquo;re looking in each half. Press <strong>↺ replay</strong> as often as you like.</>,
-          rigorous: <><code>mergesort(nums)</code>: if <code>len(nums) &lt;= 1</code>, return it &mdash; the base case anchors termination. Else recurse on <code>nums[:mid]</code> and <code>nums[mid:]</code>, then <code>merge</code>: pointers <code>i</code>, <code>j</code> walk the halves, the smaller head is appended each round, the survivor&rsquo;s tail is extended on. Sorted in, sorted out &mdash; merge&rsquo;s contract.</>,
+          base: <>Write <code>sort</code> as <strong>recursion</strong>, a recipe that calls itself on a smaller piece. Simplest case: 0 or 1 cards are already sorted, hand them back. Otherwise find the middle, sort each half, then merge. The merge uses two <em>fingers</em>, markers showing where you&rsquo;re looking in each half.</>,
+          intuitive: <>Watch the rule run itself. If a pile has 0 or 1 cards, hand it back; nothing to sort. Otherwise: cut at the middle, sort each half <em>by this very rule</em>, then merge with two fingers, little markers showing where you&rsquo;re looking in each half. Press <strong>↺ replay</strong> as often as you like.</>,
+          rigorous: <><code>mergesort(nums)</code>: if <code>len(nums) &lt;= 1</code>, return it &mdash; the base case anchors termination. Else recurse on <code>nums[:mid]</code> and <code>nums[mid:]</code>, then <code>merge</code>: pointers <code>i</code>, <code>j</code> walk the halves, the smaller head is appended each round, the survivor&rsquo;s tail is extended on. Sorted in, sorted out: merge&rsquo;s contract.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>Write the recipe as <code>sort(arr)</code> &mdash; a rule that calls itself on smaller pieces (that self-calling is <strong>recursion</strong>). It has two cases.</p>
-            <p><strong>The simplest case.</strong> If the list has 0 or 1 cards, it&rsquo;s already in order &mdash; just hand it straight back. This is what stops the recursion from going forever.</p>
-            <p><strong>The general case.</strong> Find the middle. Let <code>left = mergesort(nums[:mid])</code> and <code>right = mergesort(nums[mid:])</code> &mdash; sort each half by the very same rule &mdash; then return <code>merge(left, right)</code>. (In the code drawer the function is named <code>mergesort(nums)</code> &mdash; same idea as the <code>sort</code> recipe above.)</p>
-            <p><strong>The merge.</strong> Use two <em>fingers</em> &mdash; pointers marking where you&rsquo;re looking in each half: <code>i</code> at the front of <code>left</code>, <code>j</code> at the front of <code>right</code>. Whichever points at the smaller card, write that card to the output and step that finger forward. When one side runs out, dump whatever&rsquo;s left of the other side onto the end.</p>
-            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The principle &mdash; decomposition:</strong> a hard sort becomes two smaller sorts plus a cheap merge, and those smaller sorts solve themselves by the exact same rule.</div>
+            <p>Write the recipe as <code>sort(arr)</code>, a rule that calls itself on smaller pieces (that self-calling is <strong>recursion</strong>). It has two cases.</p>
+            <p><strong>The simplest case.</strong> If the list has 0 or 1 cards, it&rsquo;s already in order, so just hand it straight back. This is what stops the recursion from going forever.</p>
+            <p><strong>The general case.</strong> Find the middle. Let <code>left = mergesort(nums[:mid])</code> and <code>right = mergesort(nums[mid:])</code> sort each half by the very same rule, then return <code>merge(left, right)</code>. (In the code drawer the function is named <code>mergesort(nums)</code>, the same idea as the <code>sort</code> recipe above.)</p>
+            <p><strong>The merge.</strong> Use two <em>fingers</em>, pointers marking where you&rsquo;re looking in each half: <code>i</code> at the front of <code>left</code>, <code>j</code> at the front of <code>right</code>. Whichever points at the smaller card, write that card to the output and step that finger forward. When one side runs out, dump whatever&rsquo;s left of the other side onto the end.</p>
+            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The principle, decomposition:</strong> a hard sort becomes two smaller sorts plus a cheap merge, and those smaller sorts solve themselves by the exact same rule.</div>
           </>
         ),
         intuitive: (
           <>
             <p>Now write your hand-moves down as a rule the computer can repeat. It has just two cases.</p>
-            <p><strong>The tiny case.</strong> A pile of 0 or 1 cards is already in order &mdash; hand it straight back. This is the stop sign: it&rsquo;s why the self-calling can&rsquo;t go on forever.</p>
+            <p><strong>The tiny case.</strong> A pile of 0 or 1 cards is already in order, so hand it straight back. This is the stop sign: it&rsquo;s why the self-calling can&rsquo;t go on forever.</p>
             <p><strong>Every other case.</strong> Cut at the middle. Ask the same recipe to sort the left pile, then the right pile &mdash; trust it; the piles only get smaller &mdash; then <strong>merge</strong> the two sorted answers with the two-finger move you just did by hand: whichever finger points at the smaller card, that card goes to the output and the finger steps on. When one side runs dry, the other side&rsquo;s leftovers slide onto the end.</p>
             <p>That&rsquo;s genuinely all of it. In the code drawer the recipe is <code>mergesort(nums)</code> and the two-finger move is its helper, <code>merge</code>.</p>
-            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The big idea:</strong> a hard sort becomes two easier sorts plus one cheap merge &mdash; and the easier sorts solve themselves by the same rule.</div>
+            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The big idea:</strong> a hard sort becomes two easier sorts plus one cheap merge, and the easier sorts solve themselves by the same rule.</div>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>The model.</strong> <code>mergesort(nums)</code>: if <code>len(nums) &lt;= 1</code>, return <code>nums</code>; else split at <code>mid = len(nums) // 2</code>, recurse on both slices, return <code>merge(left, right)</code>. The merge loop keeps an <Term word="invariant">invariant</Term>: <code>out</code> is sorted, and everything in <code>out</code> is &le; everything not yet consumed in either half &mdash; so appending the smaller head preserves it, and extending the leftover tail finishes it.</p>
-            <p><strong>Correctness</strong> by induction on length: the base case is trivially sorted; the halves are sorted by hypothesis; the invariant makes <code>merge</code>&rsquo;s output sorted. Termination: every recursive call is on a strictly shorter slice. One subtlety pays rent later: the <code>&lt;=</code> in the compare takes from <code>left</code> on ties, so equal items keep their original order &mdash; the sort is <em>stable</em>.</p>
-            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The principle &mdash; decomposition, idea 4 of 7:</strong> the problem reduces to two half-size copies of itself plus a linear combine. The next beat prices exactly that recurrence.</div>
+            <p><strong>The model.</strong> <code>mergesort(nums)</code>: if <code>len(nums) &lt;= 1</code>, return <code>nums</code>; else split at <code>mid = len(nums) // 2</code>, recurse on both slices, return <code>merge(left, right)</code>. The merge loop keeps an <Term word="invariant">invariant</Term>: <code>out</code> is sorted, and everything in <code>out</code> is &le; everything not yet consumed in either half, so appending the smaller head preserves it, and extending the leftover tail finishes it.</p>
+            <p><strong>Correctness</strong> by induction on length: the base case is trivially sorted; the halves are sorted by hypothesis; the invariant makes <code>merge</code>&rsquo;s output sorted. Termination: every recursive call is on a strictly shorter slice. One subtlety pays rent later: the <code>&lt;=</code> in the compare takes from <code>left</code> on ties, so equal items keep their original order, and the sort is <em>stable</em>.</p>
+            <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]"><strong>The principle, decomposition, idea 4 of 7:</strong> the problem reduces to two half-size copies of itself plus a linear combine. The next beat prices exactly that recurrence.</div>
           </>
         ),
       }),
@@ -501,8 +502,8 @@ export const mergesortLesson: LessonSpec = {
       id: "ops",
       label: "The operations",
       connector: reg({
-        base: "The rule clearly works — but is it actually faster than swapping? Count the steps.",
-        rigorous: "Now price the recurrence: count the levels, count the work per level — commit before the diagram counts it for you.",
+        base: "The rule clearly works. But is it actually faster than swapping? Count the steps.",
+        rigorous: "Now price the recurrence: count the levels, count the work per level, and commit before the diagram counts it for you.",
       }),
       actionLabel: reg({
         base: "Same shape, new problems",
@@ -510,9 +511,9 @@ export const mergesortLesson: LessonSpec = {
         rigorous: "Name the pattern",
       }),
       takeaway: reg({
-        base: "log n levels × n cards per level = O(n log n) — millions, not trillions.",
-        intuitive: "A few halving levels, one sweep each — a million cards in about twenty million steps.",
-        rigorous: "Halving gives log n levels × n merge work — O(n log n) every case, O(n) extra space.",
+        base: "log n levels × n cards per level = O(n log n): millions, not trillions.",
+        intuitive: "A few halving levels, one sweep each: a million cards in about twenty million steps.",
+        rigorous: "Halving gives log n levels × n merge work: O(n log n) every case, O(n) extra space.",
       }),
       visual: (api) => <MergeCostGate api={api} />,
       panels: [{
@@ -522,33 +523,33 @@ export const mergesortLesson: LessonSpec = {
           rigorous: "⌈log₂ n⌉ levels, n work per level.",
         }),
         body: reg({
-          base: <>A thousand cards take about ten cuts to reach single cards &mdash; call that count of halvings <code>log n</code> (it grows slowly: double the cards, add one cut). Each level touches every card once: <code>n</code>, the number of cards. Total <code>n × log n</code> &mdash; 20 million steps for a million cards, not a trillion.</>,
-          intuitive: <>Count it on the triangle. A thousand cards take about <strong>ten cuts</strong> to reach single cards &mdash; double the cards, just one more cut. And each level&rsquo;s merging touches every card exactly once: one sweep per level. A few levels, one sweep each &mdash; a million cards cost about twenty million steps, where swap-by-swap would&rsquo;ve cost about a <em>trillion</em>.</>,
-          rigorous: <>The triangle is the recurrence drawn. Each split level halves the slices &mdash; ⌈log&#8322; n⌉ + 1 levels down to singletons &mdash; and the merges on any level touch each of the <code>n</code> elements exactly once. Count first, then name it: <code>n</code> per level &times; <code>log n</code> levels is <Term word="O(n log n)"><code>O(n log n)</code></Term> &mdash; and the shape never depends on the values, so worst case equals best case.</>,
+          base: <>A thousand cards take about ten cuts to reach single cards. Call that count of halvings <code>log n</code> (it grows slowly: double the cards, add one cut). Each level touches every card once: <code>n</code>, the number of cards. Total <code>n × log n</code>: 20 million steps for a million cards, not a trillion.</>,
+          intuitive: <>Count it on the triangle. A thousand cards take about <strong>ten cuts</strong> to reach single cards; double the cards, just one more cut. And each level&rsquo;s merging touches every card exactly once: one sweep per level. A few levels, one sweep each, so a million cards cost about twenty million steps, where swap-by-swap would&rsquo;ve cost about a <em>trillion</em>.</>,
+          rigorous: <>The triangle is the recurrence drawn. Each split level halves the slices &mdash; ⌈log&#8322; n⌉ + 1 levels down to singletons &mdash; and the merges on any level touch each of the <code>n</code> elements exactly once. Count first, then name it: <code>n</code> per level &times; <code>log n</code> levels is <Term word="O(n log n)"><code>O(n log n)</code></Term>, and the shape never depends on the values, so worst case equals best case.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p><strong>How many times do we cut?</strong> Each split halves the pile. Halving a thousand cards down to single cards takes only about ten steps (because halving ten times splits roughly a thousand into one). That count of halvings is written <Term word="O(log n)"><code>O(log n)</code></Term> (&ldquo;order log n&rdquo;) &mdash; a cost that grows very slowly: <em>doubling</em> the number of cards adds just one more level.</p>
-            <p><strong>How much work at each level?</strong> Every merge on a level looks at each card in its slice exactly once, and across the whole level the merges touch every card &mdash; that&rsquo;s <Term word="O(n)"><code>O(n)</code></Term> (&ldquo;order n&rdquo;), work proportional to the number of cards <code>n</code>.</p>
-            <p><strong>Total.</strong> <code>n</code> cards per level times about <code>log n</code> levels gives <Term word="O(n log n)"><code>O(n log n)</code></Term>. For a million cards that&rsquo;s roughly twenty million steps &mdash; not the trillion that swap-by-swap (<code>O(n&sup2;)</code>) would have demanded.</p>
-            <p><strong>Memory.</strong> The merge needs a second strip of space to write the combined result into, so it uses <code>O(n)</code> extra memory &mdash; an amount that grows with the number of cards. Some sorts (like quicksort) avoid that extra copy, but they trade away a different guarantee to do it.</p>
+            <p><strong>How many times do we cut?</strong> Each split halves the pile. Halving a thousand cards down to single cards takes only about ten steps (because halving ten times splits roughly a thousand into one). That count of halvings is written <Term word="O(log n)"><code>O(log n)</code></Term> (&ldquo;order log n&rdquo;), a cost that grows very slowly: <em>doubling</em> the number of cards adds just one more level.</p>
+            <p><strong>How much work at each level?</strong> Every merge on a level looks at each card in its slice exactly once, and across the whole level the merges touch every card. That&rsquo;s <Term word="O(n)"><code>O(n)</code></Term> (&ldquo;order n&rdquo;), work proportional to the number of cards <code>n</code>.</p>
+            <p><strong>Total.</strong> <code>n</code> cards per level times about <code>log n</code> levels gives <Term word="O(n log n)"><code>O(n log n)</code></Term>. For a million cards that&rsquo;s roughly twenty million steps, not the trillion that swap-by-swap (<code>O(n&sup2;)</code>) would have demanded.</p>
+            <p><strong>Memory.</strong> The merge needs a second strip of space to write the combined result into, so it uses <code>O(n)</code> extra memory, an amount that grows with the number of cards. Some sorts (like quicksort) avoid that extra copy, but they trade away a different guarantee to do it.</p>
           </>
         ),
         intuitive: (
           <>
             <p><strong>How many levels?</strong> Watch the halving: 1,000 &rarr; 500 &rarr; 250 &hellip; about ten cuts and every pile is a single card. Doubling the cards adds just <em>one</em> more cut. (That slow-growing count is what the chip <Term word="O(log n)"><code>O(log n)</code></Term> means, whenever you meet it.)</p>
-            <p><strong>How much work per level?</strong> The merges on one level, between them, pick up every card exactly once &mdash; one clean sweep across the row, whether you&rsquo;re near the top of the triangle or the bottom. Work that touches each card once is <Term word="O(n)"><code>O(n)</code></Term>.</p>
-            <p><strong>Put together:</strong> one sweep of all the cards, repeated once per level. A million cards means twenty-ish levels of a million touches &mdash; about twenty million steps, where swap-by-swap needed about a trillion. That bargain is what <Term word="O(n log n)"><code>O(n log n)</code></Term> names.</p>
-            <p><strong>The honest costs.</strong> The merge writes into a fresh strip of space, so you need room for a second copy of the cards. And the recipe never cuts corners: a row that&rsquo;s <em>already sorted</em> still pays full price. Zero cards, or one? Already sorted &mdash; the tiny case hands them straight back.</p>
+            <p><strong>How much work per level?</strong> The merges on one level, between them, pick up every card exactly once: one clean sweep across the row, whether you&rsquo;re near the top of the triangle or the bottom. Work that touches each card once is <Term word="O(n)"><code>O(n)</code></Term>.</p>
+            <p><strong>Put together:</strong> one sweep of all the cards, repeated once per level. A million cards means twenty-ish levels of a million touches, about twenty million steps, where swap-by-swap needed about a trillion. That bargain is what <Term word="O(n log n)"><code>O(n log n)</code></Term> names.</p>
+            <p><strong>The honest costs.</strong> The merge writes into a fresh strip of space, so you need room for a second copy of the cards. And the recipe never cuts corners: a row that&rsquo;s <em>already sorted</em> still pays full price. Zero cards, or one? Already sorted, so the tiny case hands them straight back.</p>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>Exact cost.</strong> T(n) = 2T(n/2) + cn unrolls to cn work on each of ⌈log&#8322; n⌉ levels: <Term word="O(n log n)"><code>O(n log n)</code></Term> comparisons and moves &mdash; best, average, and worst case alike, because splitting and merging never inspect the arrangement. Contrast quicksort: in-place and often faster in practice, but O(n&sup2;) on adversarial input; mergesort&rsquo;s bound is unconditional.</p>
-            <p><strong>Space.</strong> <code>merge</code> writes a fresh <code>out</code> &mdash; <Term word="O(n)"><code>O(n)</code></Term> auxiliary &mdash; and this implementation&rsquo;s <code>nums[:mid]</code> slices copy as well (same bound, bigger constant). Recursion depth is log&#8322; n <Term word="frame">frames</Term> &mdash; about 30 for a billion items, no stack concern.</p>
-            <p><strong>Edges.</strong> Empty and one-element lists are the base case, returned as-is. Already-sorted input still pays the full n log n &mdash; Timsort (Python&rsquo;s built-in) exploits existing runs to drop toward O(n) there. Ties: the <code>&lt;=</code> in the compare takes from the left half first, so stability holds &mdash; change it to <code>&lt;</code> and stability silently breaks.</p>
+            <p><strong>Exact cost.</strong> T(n) = 2T(n/2) + cn unrolls to cn work on each of ⌈log&#8322; n⌉ levels: <Term word="O(n log n)"><code>O(n log n)</code></Term> comparisons and moves in best, average, and worst case alike, because splitting and merging never inspect the arrangement. Contrast quicksort: in-place and often faster in practice, but O(n&sup2;) on adversarial input; mergesort&rsquo;s bound is unconditional.</p>
+            <p><strong>Space.</strong> <code>merge</code> writes a fresh <code>out</code> &mdash; <Term word="O(n)"><code>O(n)</code></Term> auxiliary &mdash; and this implementation&rsquo;s <code>nums[:mid]</code> slices copy as well (same bound, bigger constant). Recursion depth is log&#8322; n <Term word="frame">frames</Term>, about 30 for a billion items, no stack concern.</p>
+            <p><strong>Edges.</strong> Empty and one-element lists are the base case, returned as-is. Already-sorted input still pays the full n log n; Timsort (Python&rsquo;s built-in) exploits existing runs to drop toward O(n) there. Ties: the <code>&lt;=</code> in the compare takes from the left half first, so stability holds. Change it to <code>&lt;</code> and stability silently breaks.</p>
           </>
         ),
       }),
@@ -561,19 +562,19 @@ export const mergesortLesson: LessonSpec = {
       label: "The generalization",
       registers: ["intuitive"],
       trimOnRefresh: true,
-      connector: "That n log n win wasn’t luck — it comes from a shape that shows up far beyond sorting.",
+      connector: "That n log n win wasn’t luck. It comes from a shape that shows up far beyond sorting.",
       actionLabel: "Name the pattern",
-      takeaway: "Split, solve each half, cheaply combine — the same shape solves many problems.",
+      takeaway: "Split, solve each half, cheaply combine: the same shape solves many problems.",
       visual: <DivideConquer />,
       panels: [{
         left: 150, top: 22, width: 560, variant: "main", label: "The generalization", title: "Divide and conquer is everywhere.",
-        body: <>The shape &mdash; split, solve each half, cheaply combine &mdash; fits any problem that breaks into a smaller copy of itself. Each box (a <em>node</em>) holds one chunk. The same skeleton multiplies huge numbers and splits work across processors.</>,
+        body: <>The shape, split, solve each half, cheaply combine, fits any problem that breaks into a smaller copy of itself. Each box (a <em>node</em>) holds one chunk. The same skeleton multiplies huge numbers and splits work across processors.</>,
       }],
       detail: (
         <>
-          <p>The shape of mergesort &mdash; split the problem, solve each half, then cheaply combine &mdash; shows up wherever a problem on <em>n</em> items breaks naturally into the same problem on <em>n/2</em> items with an inexpensive combine step. Each box in the diagram (called a <strong>node</strong> &mdash; just one point in a branching tree of subproblems) holds one chunk of the work.</p>
+          <p>The shape of mergesort &mdash; split the problem, solve each half, then cheaply combine &mdash; shows up wherever a problem on <em>n</em> items breaks naturally into the same problem on <em>n/2</em> items with an inexpensive combine step. Each box in the diagram (called a <strong>node</strong>, just one point in a branching tree of subproblems) holds one chunk of the work.</p>
           <p>Same skeleton, different stories: counting how many pairs in a list are out of order (a sneaky variant of mergesort), finding the closest pair of points on a map, multiplying enormous numbers (Karatsuba&rsquo;s method), the fast Fourier transform behind audio and image processing, and splitting work across two processors that each solve a half and then merge their results.</p>
-          <p>When the combine step is the expensive part, this approach can lose; when combining is cheap, it wins big. Mergesort wins precisely because merging is <em>linear</em> &mdash; touching each card once is far cheaper than re-sorting each half from scratch would have been.</p>
+          <p>When the combine step is the expensive part, this approach can lose; when combining is cheap, it wins big. Mergesort wins precisely because merging is <em>linear</em>: touching each card once is far cheaper than re-sorting each half from scratch would have been.</p>
         </>
       ),
       arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 188 }],
@@ -585,15 +586,15 @@ export const mergesortLesson: LessonSpec = {
       // The base line leans on `general`'s divide-and-conquer reveal, which only
       // full-path intuitive sees — every register gets a self-contained variant.
       connector: reg({
-        base: "It’s the textbook face of that divide-and-conquer shape — so give it its name and learn to spot it.",
-        intuitive: "The split-sort-merge move has earned its proper name — and the cues for spotting it in the wild.",
-        structured: "The split-sort-merge rule has earned its name — and the cues that tell you to reach for it.",
+        base: "It’s the textbook face of that divide-and-conquer shape, so give it its name and learn to spot it.",
+        intuitive: "The split-sort-merge move has earned its proper name, plus the cues for spotting it in the wild.",
+        structured: "The split-sort-merge rule has earned its name, plus the cues that tell you to reach for it.",
         rigorous: "Name it, and file it under the idea it embodies.",
       }),
       takeaway: reg({
-        base: "It’s Mergesort — reach for it on big sorts needing dependable speed.",
-        intuitive: "It's called mergesort: split to single cards, merge back up — dependably fast at any size.",
-        rigorous: "Mergesort: stable, O(n log n) worst case, O(n) space — the canonical decomposition.",
+        base: "It’s Mergesort: reach for it on big sorts needing dependable speed.",
+        intuitive: "It's called mergesort: split to single cards, merge back up, dependably fast at any size.",
+        rigorous: "Mergesort: stable, O(n log n) worst case, O(n) space, the canonical decomposition.",
       }),
       visual: (
         <g>
@@ -604,15 +605,15 @@ export const mergesortLesson: LessonSpec = {
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The pattern", title: "Mergesort.",
         body: reg({
-          base: <>That&rsquo;s the name. The recursion divides; the merge conquers. Reach for it to sort big data with dependable speed even at its worst, to merge two already-sorted streams, or for a file too big to fit in memory. Open the drawer &mdash; around twenty real lines.</>,
-          intuitive: <>Its name is <strong>mergesort</strong> &mdash; the splitting divides, the merging conquers. File it under <strong>idea 4 of 7, decomposition</strong>: solve a smaller version of the same problem. Reach for it on big sorts that must be dependably fast, or whenever two sorted piles need combining &mdash; that&rsquo;s the merge on its own. Open the drawer &mdash; about twenty real lines.</>,
-          rigorous: <>Mergesort &mdash; divide and conquer in its textbook form, <strong>idea 4 of 7: decomposition</strong>. Triggers: a guaranteed <code>O(n log n)</code> on big or adversarial data; stability requirements; merging already-sorted streams (the merge alone); external sorting when data outgrows memory. Open the drawer &mdash; the whole thing is about twenty lines.</>,
+          base: <>That&rsquo;s the name. The recursion divides; the merge conquers. Reach for it to sort big data with dependable speed even at its worst, to merge two already-sorted streams, or for a file too big to fit in memory. Open the drawer for around twenty real lines.</>,
+          intuitive: <>Its name is <strong>mergesort</strong>: the splitting divides, the merging conquers. File it under <strong>idea 4 of 7, decomposition</strong>: solve a smaller version of the same problem. Reach for it on big sorts that must be dependably fast, or whenever two sorted piles need combining, which is the merge on its own. Open the drawer for about twenty real lines.</>,
+          rigorous: <>Mergesort: divide and conquer in its textbook form, <strong>idea 4 of 7: decomposition</strong>. Triggers: a guaranteed <code>O(n log n)</code> on big or adversarial data; stability requirements; merging already-sorted streams (the merge alone); external sorting when data outgrows memory. Open the drawer; the whole thing is about twenty lines.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>That&rsquo;s the name: <strong>mergesort</strong>. It&rsquo;s the textbook example of <em>divide and conquer</em> &mdash; the recursion does the dividing, and the merge does the conquering.</p>
+            <p>That&rsquo;s the name: <strong>mergesort</strong>. It&rsquo;s the textbook example of <em>divide and conquer</em>: the recursion does the dividing, and the merge does the conquering.</p>
             <p>Reach for it when you see signals like these:</p>
             <ul>
               <li>&ldquo;Sort&rdquo; on big data where you need a dependable worst-case speed</li>
@@ -625,24 +626,24 @@ export const mergesortLesson: LessonSpec = {
         ),
         intuitive: (
           <>
-            <p>You derived a famous algorithm: <strong>mergesort</strong>. The recursion does the dividing; the merge does the conquering &mdash; <em>divide and conquer</em>, as programmers call that whole family of recipes.</p>
+            <p>You derived a famous algorithm: <strong>mergesort</strong>. The recursion does the dividing; the merge does the conquering. That&rsquo;s <em>divide and conquer</em>, as programmers call that whole family of recipes.</p>
             <p>Cues that say &ldquo;reach for it&rdquo;:</p>
             <ul>
-              <li>A big sort that must be dependably fast <em>every</em> time &mdash; no unlucky slow days</li>
-              <li>Two already-sorted lists to combine &mdash; that&rsquo;s the two-finger merge on its own</li>
-              <li>A file too big for memory &mdash; sort it in chunks, then merge the chunks</li>
+              <li>A big sort that must be dependably fast <em>every</em> time, with no unlucky slow days</li>
+              <li>Two already-sorted lists to combine; that&rsquo;s the two-finger merge on its own</li>
+              <li>A file too big for memory: sort it in chunks, then merge the chunks</li>
             </ul>
-            <p>Open the code drawer and read it &mdash; the recursion is four short lines, the merge is the loop, and you can follow every line now.</p>
+            <p>Open the code drawer and read it: the recursion is four short lines, the merge is the loop, and you can follow every line now.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 4 of 7 &mdash; decomposition:</strong> solve a smaller version of the same problem &mdash; split to single cards, trust the recipe on each half, combine cheaply.
+              <strong>Idea 4 of 7, decomposition:</strong> solve a smaller version of the same problem. Split to single cards, trust the recipe on each half, combine cheaply.
             </div>
           </>
         ),
         rigorous: (
           <>
-            <p>Mergesort. Stable (ties resolve left-first), <code>O(n log n)</code> in every case, <code>O(n)</code> auxiliary space, log-depth recursion. Triggers: worst-case guarantees; stability; merging sorted streams &mdash; the merge step alone, <code>O(n + m)</code>; external sort (sorted runs merged k-way) when data exceeds memory. Python&rsquo;s built-in sort is Timsort: mergesort&rsquo;s merge engineered over natural runs, adaptive down to O(n) on nearly-sorted input.</p>
+            <p>Mergesort. Stable (ties resolve left-first), <code>O(n log n)</code> in every case, <code>O(n)</code> auxiliary space, log-depth recursion. Triggers: worst-case guarantees; stability; merging sorted streams (the merge step alone, <code>O(n + m)</code>); external sort (sorted runs merged k-way) when data exceeds memory. Python&rsquo;s built-in sort is Timsort: mergesort&rsquo;s merge engineered over natural runs, adaptive down to O(n) on nearly-sorted input.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 4 of 7 &mdash; decomposition, made total:</strong> split to trivial, trust the smaller call, combine linearly &mdash; two pointers in the merge, halving in the levels: the track&rsquo;s moves reunited in one algorithm.
+              <strong>Idea 4 of 7, decomposition made total:</strong> split to trivial, trust the smaller call, combine linearly &mdash; two pointers in the merge, halving in the levels: the track&rsquo;s moves reunited in one algorithm.
             </div>
           </>
         ),

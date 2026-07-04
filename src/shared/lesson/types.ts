@@ -182,7 +182,17 @@ export interface LessonSpec {
   /** Lesson layout. Default/undefined = "classic" (the established top-to-bottom
    *  composition used by every topic). "scene" opts into the immersive one-scene
    *  layout: hero diagram in a confidently-boxed plane, a collapsible right reading
-   *  rail, an accreting "what we've established" spine, and a Focus Mode. Opt-in per
-   *  topic — does not change any classic-layout topic. */
-  layout?: "classic" | "scene";
+   *  rail, an accreting "what we've established" spine, and a Focus Mode. "focus"
+   *  opts into the single-column low-cognitive-load layout: one centered hero
+   *  diagram + one caption, with the "why"/code/recap revealed on demand BELOW the
+   *  caption (never over the always-pinned Back/Next). All three layouts share ONE
+   *  engine; opt-in per topic — does not change any other topic. */
+  layout?: "classic" | "scene" | "focus";
+  /** Diagram shape hint for the focus layout's MOBILE treatment. "line" = a
+   *  horizontal row/line whose meaning is the straight line (binary search, arrays,
+   *  two-pointers, sliding-window, linked-list chain): on a phone the WHOLE line is
+   *  fit to width so it never wraps and you watch it shrink. "box" = a 2-D figure
+   *  (trees, graphs, grids, dp tables): scaled to fit the box (height-biased), as
+   *  today. Default/undefined = "box". Ignored by classic/scene layouts. */
+  diagramShape?: "line" | "box";
 }

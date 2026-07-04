@@ -8,6 +8,7 @@ import { prepareCode, resolveLines } from "@/shared/code/syncAnchors";
 import { ArrowDefs, Arrow } from "./canvas";
 import { PrereqNudge, type PrereqItem } from "./PrereqNudge";
 import { SceneLayout } from "./SceneLayout";
+import { FocusLayout } from "./FocusLayout";
 import { clampBeatIndex, filterBeatsForAudience, resolveBeatForRegister, type BeatVisualApi, type LessonSpec } from "./types";
 import { lessonSpecs } from "./registry";
 import { getLessonResources, getInterviewAngle } from "./nextStepsResources";
@@ -233,8 +234,23 @@ export function useLessonEngine(spec: LessonSpec, {
 
 export type LessonEngine = ReturnType<typeof useLessonEngine>;
 
+/** A dev/QA layout override via `?layout=focus|scene|classic`, read AFTER mount
+ *  (so it never causes a hydration mismatch). Lets us A/B a topic's layouts on the
+ *  same URL without touching its spec — used to compare the focus-layout pilot. */
+function useLayoutOverride(): LessonSpec["layout"] | null {
+  const [v, setV] = useState<LessonSpec["layout"] | null>(null);
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get("layout");
+    if (p === "classic" || p === "scene" || p === "focus") setV(p);
+  }, []);
+  return v;
+}
+
 export function LessonRuntime(props: LessonRuntimeProps) {
-  if (props.spec.layout === "scene") return <SceneLayout {...props} />;
+  const override = useLayoutOverride();
+  const layout = override ?? props.spec.layout ?? "classic";
+  if (layout === "focus") return <FocusLayout {...props} />;
+  if (layout === "scene") return <SceneLayout {...props} />;
   return <ClassicLessonRuntime {...props} />;
 }
 

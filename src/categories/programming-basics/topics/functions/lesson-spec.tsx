@@ -80,15 +80,16 @@ function ReuseCallPredict({ api }: { api: BeatVisualApi }) {
  *   refresh    : additionally trims `need` (trimOnRefresh).                    */
 export const functionsLesson: LessonSpec = {
   topicTitle: "functions · inputs in, answer out",
-  layout: "scene",
+  layout: "focus",
+  diagramShape: "line",
   canvas: { width: VW, height: VH },
   codeSource: functionsPy as string,
   // standing on conditionals (TRACK-NARRATIVES row 8): the learner can already
   // make a program choose a branch — now whole blocks of steps get a name.
   bridgeFrom: reg({
-    base: "Your program can already choose — one test, one branch runs. Now fold a whole block of steps under a single name.",
-    intuitive: "Your program can pick a road with a yes/no test — now bottle a run of steps under one name you press like a button.",
-    rigorous: "Branching selects which statements run; a function names a parameterized block — define once, call anywhere.",
+    base: "Your program can already choose: one test, one branch runs. Now fold a whole block of steps under a single name.",
+    intuitive: "Your program can pick a road with a yes/no test. Now bottle a run of steps under one name you press like a button.",
+    rigorous: "Branching selects which statements run; a function names a parameterized block, defined once and called anywhere.",
   }),
   // ⚑ foreshadow stamp (TRACK-NARRATIVES row 8): a program becomes smaller
   // named problems — the SEED of decomposition, not its proof.
@@ -105,8 +106,8 @@ export const functionsLesson: LessonSpec = {
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Name a set of steps", title: "Bottle up a calculation.",
         body: reg({
-          base: <>You keep needing the same steps &mdash; the area of a room, then a hall, then a desk. Copy-pasting <code>width * height</code> everywhere is error-prone. A <Term word="function">function</Term> lets you write it <strong>once</strong>, give it a name, and reuse it.</>,
-          intuitive: <>The same steps keep coming up &mdash; the area of a room, then a hall, then a desk. Copying <code>width * height</code> around invites typos, and a fix has to be hunted down in every copy. A <Term word="function">function</Term> is the way out: write the steps <strong>once</strong>, name them, and from then on use the name.</>,
+          base: <>You keep needing the same steps: the area of a room, then a hall, then a desk. Copy-pasting <code>width * height</code> everywhere is error-prone. A <Term word="function">function</Term> lets you write it <strong>once</strong>, give it a name, and reuse it.</>,
+          intuitive: <>The same steps keep coming up: the area of a room, then a hall, then a desk. Copying <code>width * height</code> around invites typos, and a fix has to be hunted down in every copy. A <Term word="function">function</Term> is the way out: write the steps <strong>once</strong>, name them, and from then on use the name.</>,
         }),
       }],
       detail: reg({
@@ -128,22 +129,22 @@ export const functionsLesson: LessonSpec = {
       actionLabel: "Press the button",
       takeaway: reg({
         base: "def names the function; its parameters are blanks filled in later.",
-        intuitive: "def files the recipe under a name — the blanks wait, nothing runs yet.",
+        intuitive: "def files the recipe under a name; the blanks wait, nothing runs yet.",
       }),
       visual: <g><Cap>def area(width, height): return width * height   ·   not run yet</Cap><Machine wv="width" hv="height" out="?" /></g>,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "def — the recipe", title: "def area(width, height):",
         body: reg({
-          base: <><code>def</code> defines a function. <code>width</code> and <code>height</code> are <Term word="parameter">parameters</Term> &mdash; named blanks for the inputs. The indented body is the recipe; <code>def</code> just stores it &mdash; nothing runs yet.</>,
-          intuitive: <>The word <code>def</code> is short for &ldquo;define&rdquo; &mdash; it builds the machine. <code>width</code> and <code>height</code> are <Term word="parameter">parameters</Term>: named blanks, waiting for real values. The <Term word="indented">indented</Term> lines underneath are the steps themselves &mdash; and here&rsquo;s the surprise: <code>def</code> only files them away. Nothing runs yet.</>,
+          base: <><code>def</code> defines a function. <code>width</code> and <code>height</code> are <Term word="parameter">parameters</Term>: named blanks for the inputs. The indented body is the recipe; <code>def</code> just stores it, and nothing runs yet.</>,
+          intuitive: <>The word <code>def</code> is short for &ldquo;define&rdquo;: it builds the machine. <code>width</code> and <code>height</code> are <Term word="parameter">parameters</Term>: named blanks, waiting for real values. The <Term word="indented">indented</Term> lines underneath are the steps themselves. Here&rsquo;s the surprise: <code>def</code> only files them away. Nothing runs yet.</>,
         }),
       }],
       detail: reg({
-        base: <><p>The <code>return</code> line says what the function hands back. Defining is like writing a recipe card and filing it away &mdash; no cooking happens until someone actually calls it.</p></>,
+        base: <><p>The <code>return</code> line says what the function hands back. Defining is like writing a recipe card and filing it away. No cooking happens until someone actually calls it.</p></>,
         intuitive: (
           <>
             <p>The <code>return</code> line is the machine&rsquo;s out-tray: whatever it works out is what gets handed back.</p>
-            <p>Defining is writing a recipe card and filing it in a drawer. The kitchen stays cold &mdash; no cooking happens until someone actually asks for the dish.</p>
+            <p>Defining is writing a recipe card and filing it in a drawer. The kitchen stays cold; no cooking happens until someone actually asks for the dish.</p>
           </>
         ),
       }),
@@ -168,22 +169,22 @@ export const functionsLesson: LessonSpec = {
         left: 150, top: 24, width: 560, variant: "main", label: "call — fill the blanks", title: "room = area(4, 3)",
         body: reg({
           base: <>Writing <code>area(4, 3)</code> <strong>calls</strong> it: <code>4</code> fills <code>width</code>, <code>3</code> fills <code>height</code> (these are the <Term word="argument">arguments</Term>). The body runs, <code>return</code> hands back <code>12</code>, and that value lands in <code>room</code>.</>,
-          intuitive: <>Writing <code>area(4, 3)</code> presses the button &mdash; that&rsquo;s a <strong>call</strong>. The <code>4</code> drops into the <code>width</code> blank, the <code>3</code> into <code>height</code>; values you pass in are called <Term word="argument">arguments</Term>. The steps run, <code>return</code> hands back <code>12</code>, and the <code>12</code> lands in the box named <code>room</code>.</>,
-          rigorous: <>A call: evaluate the arguments, bind them to the parameters (<code>width</code>&rarr;<code>4</code>, <code>height</code>&rarr;<code>3</code>) in a fresh local <Term word="frame">frame</Term>, run the body. <code>return</code> ends the call, and <code>area(4, 3)</code> evaluates to <code>12</code> &mdash; bound to <code>room</code>.</>,
+          intuitive: <>Writing <code>area(4, 3)</code> presses the button. That&rsquo;s a <strong>call</strong>. The <code>4</code> drops into the <code>width</code> blank, the <code>3</code> into <code>height</code>; values you pass in are called <Term word="argument">arguments</Term>. The steps run, <code>return</code> hands back <code>12</code>, and the <code>12</code> lands in the box named <code>room</code>.</>,
+          rigorous: <>A call: evaluate the arguments, bind them to the parameters (<code>width</code>&rarr;<code>4</code>, <code>height</code>&rarr;<code>3</code>) in a fresh local <Term word="frame">frame</Term>, run the body. <code>return</code> ends the call, and <code>area(4, 3)</code> evaluates to <code>12</code>, bound to <code>room</code>.</>,
         }),
       }],
       detail: reg({
         base: <><p>The returned value <em>replaces</em> the call: <code>room = area(4, 3)</code> becomes <code>room = 12</code>. A function call is just an expression that stands in for whatever it returns.</p></>,
         intuitive: (
           <>
-            <p>Here&rsquo;s the quiet superpower: when the machine finishes, the whole call <em>becomes</em> its answer. <code>room = area(4, 3)</code> turns into <code>room = 12</code> &mdash; as if the <code>12</code> had been typed right there.</p>
-            <p>That makes a call an <Term word="expression">expression</Term> &mdash; a piece of code that stands for a value &mdash; so it can go anywhere a value can: stored in a box, printed, even fed into another call.</p>
+            <p>Here&rsquo;s the quiet superpower: when the machine finishes, the whole call <em>becomes</em> its answer. <code>room = area(4, 3)</code> turns into <code>room = 12</code>, as if the <code>12</code> had been typed right there.</p>
+            <p>That makes a call an <Term word="expression">expression</Term>, a piece of code that stands for a value, so it can go anywhere a value can: stored in a box, printed, even fed into another call.</p>
           </>
         ),
         rigorous: (
           <>
-            <p><code>def</code> ran earlier and did exactly one thing: bound the name <code>area</code> to the stored body &mdash; nothing executed at definition time. Execution is per call: arguments are evaluated first, parameters bind in a fresh <Term word="frame">frame</Term> on the <Term word="call stack">call stack</Term>, the body runs until <code>return</code>, the frame is discarded.</p>
-            <p>The call expression stands for the returned value &mdash; <code>room = area(4, 3)</code> assigns <code>12</code> &mdash; so calls compose anywhere an expression can appear.</p>
+            <p><code>def</code> ran earlier and did exactly one thing: bound the name <code>area</code> to the stored body. Nothing executed at definition time. Execution is per call: arguments are evaluated first, parameters bind in a fresh <Term word="frame">frame</Term> on the <Term word="call stack">call stack</Term>, the body runs until <code>return</code>, the frame is discarded.</p>
+            <p>The call expression stands for the returned value, so <code>room = area(4, 3)</code> assigns <code>12</code>, and calls compose anywhere an expression can appear.</p>
           </>
         ),
       }),
@@ -194,21 +195,21 @@ export const functionsLesson: LessonSpec = {
       label: "Reuse it",
       connector: reg({
         base: "Same machine, brand new inputs.",
-        rigorous: "A second use arrives — commit to the move before it runs.",
+        rigorous: "A second use arrives; commit to the move before it runs.",
       }),
       actionLabel: "Sum up",
       takeaway: reg({
         base: "Define once, call many times with different inputs.",
-        intuitive: "One recipe, many calls — every call fills the blanks fresh.",
+        intuitive: "One recipe, many calls: every call fills the blanks fresh.",
         rigorous: "One definition serves every call site; parameters rebind per call, then vanish.",
       }),
       visual: (api) => <ReuseCallPredict api={api} />,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Reuse it", title: "hall = area(10, 2)  →  20",
         body: reg({
-          base: <>Call it again with different arguments and you get a different answer &mdash; <code>20</code> &mdash; from the very same definition. That&rsquo;s the whole point: write the logic once, reuse it everywhere.</>,
-          intuitive: <>Press the button again with new values and the very same machine hands back a new answer &mdash; <code>20</code>. The blanks fill fresh on every call; nothing from last time lingers. Build once, press anywhere.</>,
-          rigorous: <>A second call site, same definition: <code>area(10, 2)</code> rebinds the parameters in a new frame and returns <code>20</code>. Call sites multiply; the definition doesn&rsquo;t &mdash; and a fix lands once, for every caller.</>,
+          base: <>Call it again with different arguments and you get a different answer, <code>20</code>, from the very same definition. That&rsquo;s the whole point: write the logic once, reuse it everywhere.</>,
+          intuitive: <>Press the button again with new values and the very same machine hands back a new answer, <code>20</code>. The blanks fill fresh on every call; nothing from last time lingers. Build once, press anywhere.</>,
+          rigorous: <>A second call site, same definition: <code>area(10, 2)</code> rebinds the parameters in a new frame and returns <code>20</code>. Call sites multiply; the definition doesn&rsquo;t, and a fix lands once, for every caller.</>,
         }),
       }],
       detail: reg({
@@ -216,12 +217,12 @@ export const functionsLesson: LessonSpec = {
         intuitive: (
           <>
             <p>This is the payoff of giving steps a name: if the formula was ever wrong, you fix the recipe card <em>once</em> and every call everywhere serves the corrected answer. More calls, never more copies &mdash; that&rsquo;s how programs stay small while doing more.</p>
-            <p>One quiet detail: the blanks really do empty between calls. <code>width</code> and <code>height</code> exist only while the machine runs &mdash; after <code>return</code> they&rsquo;re gone, ready to be filled fresh next time.</p>
+            <p>One quiet detail: the blanks really do empty between calls. <code>width</code> and <code>height</code> exist only while the machine runs. After <code>return</code> they&rsquo;re gone, ready to be filled fresh next time.</p>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>One definition, n call sites:</strong> a change propagates to every caller. Parameters are locals &mdash; bound at call time, alive only in that call&rsquo;s frame, gone on return; they never collide with outer names, and two calls never share state through them.</p>
+            <p><strong>One definition, n call sites:</strong> a change propagates to every caller. Parameters are locals: bound at call time, alive only in that call&rsquo;s frame, gone on return; they never collide with outer names, and two calls never share state through them.</p>
             <p><strong>Edges:</strong> a body that ends without <code>return</code> (or a bare <code>return</code>) yields <code>None</code>; the wrong number of arguments raises <code>TypeError</code> before the body starts; arguments are evaluated exactly once, before binding.</p>
           </>
         ),
@@ -234,13 +235,13 @@ export const functionsLesson: LessonSpec = {
       label: "Inputs in, answer out",
       connector: reg({
         base: "The shape of every function.",
-        rigorous: "One definition, two call sites, two values — the whole mechanism on one screen.",
+        rigorous: "One definition, two call sites, two values: the whole mechanism on one screen.",
       }),
       actionLabel: "Done",
       takeaway: reg({
         base: "Functions: inputs (arguments) in, one result (return) out, reusable.",
         intuitive: "A function is a named machine: inputs in, one answer out, usable anywhere.",
-        rigorous: "A function names a parameterized block — the unit programs decompose into.",
+        rigorous: "A function names a parameterized block: the unit programs decompose into.",
       }),
       visual: <g><Cap>one definition, called many times: room = 12, hall = 20</Cap><Machine wv="width" hv="height" out="?" /></g>,
       panels: [{
@@ -252,7 +253,7 @@ export const functionsLesson: LessonSpec = {
         body: reg({
           base: <>A function is a named machine: arguments go in, the body runs, a value comes back via <code>return</code>. It turns &ldquo;a block of steps&rdquo; into &ldquo;one word you can reuse.&rdquo;</>,
           intuitive: <>A function is a named machine: <Term word="argument">arguments</Term> go in, the steps run, one answer comes back through <code>return</code>. A whole block of work is now a single word you can write anywhere.</>,
-          rigorous: <>A function binds a name to a parameterized block: arguments in, the body evaluates in its own frame, one value out via <code>return</code>. Programs are then built by composing named units &mdash; calls of calls.</>,
+          rigorous: <>A function binds a name to a parameterized block: arguments in, the body evaluates in its own frame, one value out via <code>return</code>. Programs are then built by composing named units: calls of calls.</>,
         }),
       }],
       detail: reg({
@@ -260,16 +261,16 @@ export const functionsLesson: LessonSpec = {
           <>
             <p>Functions are also how you tame complexity: each one hides its steps behind a name, so bigger programs read as a few clear calls. Nearly all the code you&rsquo;ll meet lives inside functions.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The seed of idea 4 of 7 &mdash; decomposition:</strong> a big program becomes smaller, named problems &mdash; solve each once, then call it by name.
+              <strong>The seed of idea 4 of 7, decomposition:</strong> a big program becomes smaller, named problems. Solve each once, then call it by name.
             </div>
           </>
         ),
         intuitive: (
           <>
-            <p>Step back and look at the new power: you can hide any set of steps behind a name, then build with names. Big programs are exactly this &mdash; a few clear calls, each hiding its own steps &mdash; so they read like short stories instead of walls of code.</p>
+            <p>Step back and look at the new power: you can hide any set of steps behind a name, then build with names. Big programs are exactly this, a few clear calls each hiding its own steps, so they read like short stories instead of walls of code.</p>
             <p>Next lesson: the world misbehaves &mdash; and a function learns to stay standing when it does.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The fourth big idea (4 of 7) &mdash; break it into smaller problems:</strong> name a smaller problem, solve it once, and the big one becomes a few calls.
+              <strong>The fourth big idea, 4 of 7, break it into smaller problems:</strong> name a smaller problem, solve it once, and the big one becomes a few calls.
             </div>
           </>
         ),
@@ -277,7 +278,7 @@ export const functionsLesson: LessonSpec = {
           <>
             <p><strong>The model, complete:</strong> <code>def</code> binds a name to a parameterized block; a call evaluates its arguments, binds parameters in a fresh frame, runs the body, and the call expression becomes the returned value. Locals die with the frame; a missing <code>return</code> yields <code>None</code>.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 4 of 7, foreshadowed &mdash; decomposition:</strong> a program becomes smaller named problems &mdash; recursion and divide-and-conquer grow from this seed.
+              <strong>Idea 4 of 7, foreshadowed, decomposition:</strong> a program becomes smaller named problems. Recursion and divide-and-conquer grow from this seed.
             </div>
           </>
         ),

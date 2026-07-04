@@ -380,15 +380,16 @@ function MidRecursion() {
  *   refresh    : additionally trims `obvious` + `general` (trimOnRefresh).    */
 export const recursionLesson: LessonSpec = {
   topicTitle: "recursion · how big is your Downloads folder?",
-  layout: "scene",
+  layout: "focus",
+  diagramShape: "box",
   canvas: { width: VW, height: VH },
   codeSource: recursionPy as string,
   // standing on trees (the bridge anchor, per TRACK-NARRATIVES.md): a tree is
   // a node plus smaller trees — recursion takes that shape at its word.
   bridgeFrom: reg({
-    base: "A tree is a node plus smaller trees — you banked that shape; recursion is the move that takes it at its word.",
+    base: "A tree is a node plus smaller trees. You banked that shape; recursion is the move that takes it at its word.",
     intuitive: "You saw it with trees: every branch is a smaller tree of its own. Today that one fact does all the work.",
-    rigorous: "A tree is recursively defined — a node plus subtrees. The algorithm below simply mirrors that definition.",
+    rigorous: "A tree is recursively defined: a node plus subtrees. The algorithm below simply mirrors that definition.",
   }),
   // direct stamp (TRACK-NARRATIVES row 24, from meta): recursion IS
   // decomposition in executable form — trust the smaller call.
@@ -411,20 +412,20 @@ export const recursionLesson: LessonSpec = {
         left: 150, top: 24, width: 580, variant: "main", label: "The setup", title: "How big is your Downloads folder?",
         body: reg({
           base: <>Your phone says Downloads is <strong>19MB</strong>. But files hide inside folders, inside more folders. To get one number you must add up every file. Each folder shows a <code>?</code> until you total it. How does the phone know?</>,
-          intuitive: <>Your phone shows one tidy number: <strong>19MB</strong>. But the files behind it hide inside folders, inside more folders, as deep as anyone nested them. To get one number, every single file has to be added up &mdash; each folder shows a <code>?</code> until something totals it. How does the phone know?</>,
+          intuitive: <>Your phone shows one tidy number: <strong>19MB</strong>. But the files behind it hide inside folders, inside more folders, as deep as anyone nested them. To get one number, every single file has to be added up. Each folder shows a <code>?</code> until something totals it. How does the phone know?</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>You open your Downloads folder to free up space. Inside are some files and some folders. Inside <em>those</em> folders are more files and more folders. Yet your phone just shows you one number &mdash; <code>19MB</code>. How does it know?</p>
+            <p>You open your Downloads folder to free up space. Inside are some files and some folders. Inside <em>those</em> folders are more files and more folders. Yet your phone just shows you one number: <code>19MB</code>. How does it know?</p>
             <p>The straight answer: add up the size of every single file. The catch is that you can&rsquo;t see them all at once. They&rsquo;re hiding behind folders, behind more folders, going down as deep as someone cared to nest them.</p>
           </>
         ),
         intuitive: (
           <>
-            <p>You open Downloads to free up space. Some files, some folders. Open a folder &mdash; more files, more folders inside. And still the phone prints one calm number: <code>19MB</code>.</p>
-            <p>The only honest way to get that number is to add up every single file. But you can&rsquo;t see them all at once &mdash; they sit behind folders, behind more folders, nested as deep as anyone ever bothered to drag them. The whole lesson is the question on the screen: how does the phone get its one number?</p>
+            <p>You open Downloads to free up space. Some files, some folders. Open a folder, and there are more files and more folders inside. And still the phone prints one calm number: <code>19MB</code>.</p>
+            <p>The only honest way to get that number is to add up every single file. But you can&rsquo;t see them all at once: they sit behind folders, behind more folders, nested as deep as anyone ever bothered to drag them. The whole lesson is the question on the screen: how does the phone get its one number?</p>
           </>
         ),
       }),
@@ -442,12 +443,12 @@ export const recursionLesson: LessonSpec = {
       visual: <NaiveScan />,
       panels: [{
         left: 150, top: 24, width: 600, variant: "main", label: "The obvious thing", title: "Loops inside loops inside loops.",
-        body: <>The naive plan: a loop walks the top items, adding file sizes. Hit a folder? Loop inside it. Hit another? Loop again. You can hand-write two or three levels, but folders nest as deep as they like &mdash; you can&rsquo;t write a loop for a depth you don&rsquo;t know.</>,
+        body: <>The naive plan: a loop walks the top items, adding file sizes. Hit a folder? Loop inside it. Hit another? Loop again. You can hand-write two or three levels, but folders nest as deep as they like, and you can&rsquo;t write a loop for a depth you don&rsquo;t know.</>,
       }],
       detail: (
         <>
           <p>Here&rsquo;s the obvious plan. Walk the top-level items. If it&rsquo;s a file, add its size. If it&rsquo;s a folder, <em>loop</em> over its contents (a loop just means &ldquo;do this for each thing inside&rdquo;). If <em>that</em> holds a folder, loop again. And again.</p>
-          <p>You can hand-write the loops for two levels. Three. Four. But folders aren&rsquo;t promised to stop at any fixed depth &mdash; you can&rsquo;t write loops for a depth you don&rsquo;t know in advance. The diagram shows a flat loop reaching only the top row; <code>app.zip</code>, buried three levels down, never gets counted.</p>
+          <p>You can hand-write the loops for two levels. Three. Four. But folders aren&rsquo;t promised to stop at any fixed depth, so you can&rsquo;t write loops for a depth you don&rsquo;t know in advance. The diagram shows a flat loop reaching only the top row; <code>app.zip</code>, buried three levels down, never gets counted.</p>
           <p>There is something the same about every loop, though. Each time we open a folder we do the exact same job: <em>add up the size of everything inside</em>. The job never changes. Only the folder changes.</p>
         </>
       ),
@@ -459,23 +460,23 @@ export const recursionLesson: LessonSpec = {
       label: "The instinct",
       registers: ["intuitive", "structured"],
       connector: reg({
-        base: "That repeated job — the same work on every folder — is the crack to lever open.",
+        base: "That repeated job, the same work on every folder, is the crack to lever open.",
         // self-contained so it also reads cleanly when goal=refresh trims `obvious`
-        intuitive: "Every folder, however deep it sits, demands the exact same job — and that repeat is the crack to lever open.",
-        structured: "Loops inside loops fail at unknown depth — but every folder demands the exact same job, and that repeat is the crack.",
+        intuitive: "Every folder, however deep it sits, demands the exact same job, and that repeat is the crack to lever open.",
+        structured: "Loops inside loops fail at unknown depth. But every folder demands the exact same job, and that repeat is the crack.",
       }),
       actionLabel: "Let the function call itself",
       takeaway: reg({
         base: "Each subfolder is the same problem, just on fewer items.",
-        intuitive: "Inside any folder sits the same shape again — the same problem, just smaller.",
+        intuitive: "Inside any folder sits the same shape again: the same problem, just smaller.",
       }),
       visual: (api) => <AskAFolder api={api} />,
       panels: [
         {
-          left: 60, top: 18, width: 740, variant: "main", label: "The instinct", title: "Open a folder — it’s a smaller copy of the same problem.",
+          left: 60, top: 18, width: 740, variant: "main", label: "The instinct", title: "Open a folder, and it’s a smaller copy of the same problem.",
           body: reg({
-            base: <>Click any folder to ask its total. Inside you always find the same shape: some files with sizes, some more folders. So a folder&rsquo;s total is its own files plus each inner folder&rsquo;s total &mdash; the <strong>same problem, on fewer items.</strong></>,
-            intuitive: <>Click any folder and ask it &ldquo;how big are you?&rdquo; Inside you always meet the same sight: a few files with sizes, a few more folders. So a folder&rsquo;s total is its own files plus each inner folder&rsquo;s total &mdash; the <strong>same problem, just on fewer items.</strong></>,
+            base: <>Click any folder to ask its total. Inside you always find the same shape: some files with sizes, some more folders. So a folder&rsquo;s total is its own files plus each inner folder&rsquo;s total: the <strong>same problem, on fewer items.</strong></>,
+            intuitive: <>Click any folder and ask it &ldquo;how big are you?&rdquo; Inside you always meet the same sight: a few files with sizes, a few more folders. So a folder&rsquo;s total is its own files plus each inner folder&rsquo;s total: the <strong>same problem, just on fewer items.</strong></>,
           }),
         },
         {
@@ -486,8 +487,8 @@ export const recursionLesson: LessonSpec = {
       detail: reg({
         base: (
           <>
-            <p>Click any folder in the picture to peek inside. Notice what you find: files (each with a size) and more folders. The smaller folders have the <em>same shape</em> as the big one &mdash; some files, some folders. Nothing about a subfolder looks different from the folder you started with; it&rsquo;s just smaller.</p>
-            <p>So if you already knew the size of every subfolder, the answer for the outer folder would be easy: add up the file sizes you can see, plus the size of each subfolder. Done. The hard part isn&rsquo;t the adding &mdash; it&rsquo;s that the subfolders are themselves unsolved.</p>
+            <p>Click any folder in the picture to peek inside. Notice what you find: files (each with a size) and more folders. The smaller folders have the <em>same shape</em> as the big one: some files, some folders. Nothing about a subfolder looks different from the folder you started with; it&rsquo;s just smaller.</p>
+            <p>So if you already knew the size of every subfolder, the answer for the outer folder would be easy: add up the file sizes you can see, plus the size of each subfolder. Done. The hard part isn&rsquo;t the adding. It&rsquo;s that the subfolders are themselves unsolved.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
               <strong>The instinct:</strong> each subfolder is <em>the same problem</em> as the original, just on fewer items.
             </div>
@@ -495,10 +496,10 @@ export const recursionLesson: LessonSpec = {
         ),
         intuitive: (
           <>
-            <p>Click folders in the picture and watch what comes back. Every single one holds the same two kinds of thing: files (each already knowing its size) and more folders. A subfolder isn&rsquo;t a new kind of puzzle &mdash; it&rsquo;s the puzzle you started with, shrunk.</p>
-            <p>Now imagine a helper magically told you every subfolder&rsquo;s size. The outer folder would be easy: add the file sizes you can see, add each subfolder&rsquo;s number, done. The adding was never the hard part &mdash; the unsolved subfolders were.</p>
+            <p>Click folders in the picture and watch what comes back. Every single one holds the same two kinds of thing: files (each already knowing its size) and more folders. A subfolder isn&rsquo;t a new kind of puzzle; it&rsquo;s the puzzle you started with, shrunk.</p>
+            <p>Now imagine a helper magically told you every subfolder&rsquo;s size. The outer folder would be easy: add the file sizes you can see, add each subfolder&rsquo;s number, done. The adding was never the hard part. The unsolved subfolders were.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The instinct:</strong> a subfolder is the very problem you started with, only smaller &mdash; so could one rule answer both?
+              <strong>The instinct:</strong> a subfolder is the very problem you started with, only smaller. So could one rule answer both?
             </div>
           </>
         ),
@@ -511,53 +512,53 @@ export const recursionLesson: LessonSpec = {
       label: "The derivation",
       // rigorous OPENS here (after the bridge line) — its connector is empty.
       connector: reg({
-        base: "If a subfolder is just a smaller copy of the same question, then the rule that answers the whole can answer the part — so let's write that rule down.",
+        base: "If a subfolder is just a smaller copy of the same question, then the rule that answers the whole can answer the part. So let's write that rule down.",
         rigorous: "",
       }),
       actionLabel: "Count the work",
       takeaway: reg({
         base: "The rule: a file returns its size; a folder asks each child and adds up.",
         intuitive: "Two cases run it all: a file returns its size; a folder adds its children's answers.",
-        rigorous: "Base case returns; the self-call always takes a strictly smaller subtree — so it stops.",
+        rigorous: "Base case returns; the self-call always takes a strictly smaller subtree, so it stops.",
       }),
       visual: <MidRecursion />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The derivation", title: "Write the rule. The function calls itself.",
         body: reg({
-          base: <>Define <code>folder_size(node)</code> &mdash; a recipe taking one item (a <code>node</code> is a file or folder). Two cases. <strong>File:</strong> return its size, stop. <strong>Folder:</strong> run the recipe on each child, then add the answers. It can&rsquo;t run forever &mdash; every call works on a <em>strictly smaller</em> item.</>,
-          intuitive: <>Name the recipe <code>folder_size(node)</code> &mdash; it takes one item (a <code>node</code> just means &ldquo;a file or a folder&rdquo;). Two cases. <strong>File:</strong> hand back its size, stop. <strong>Folder:</strong> run the same recipe on each child, add up what comes back. It can&rsquo;t spin forever &mdash; every call gets a <em>smaller</em> piece than the one before.</>,
-          rigorous: <><code>folder_size(node)</code>: if <code>node</code> is a file, return its size &mdash; the base case. Otherwise return the sum of <code>folder_size(child)</code> over the children. The invariant: every call&rsquo;s argument is a <em>strict</em> subtree of its caller&rsquo;s, so depth decreases and the recursion terminates.</>,
+          base: <>Define <code>folder_size(node)</code>, a recipe taking one item (a <code>node</code> is a file or folder). Two cases. <strong>File:</strong> return its size, stop. <strong>Folder:</strong> run the recipe on each child, then add the answers. It can&rsquo;t run forever, because every call works on a <em>strictly smaller</em> item.</>,
+          intuitive: <>Name the recipe <code>folder_size(node)</code>. It takes one item (a <code>node</code> just means &ldquo;a file or a folder&rdquo;). Two cases. <strong>File:</strong> hand back its size, stop. <strong>Folder:</strong> run the same recipe on each child, add up what comes back. It can&rsquo;t spin forever, because every call gets a <em>smaller</em> piece than the one before.</>,
+          rigorous: <><code>folder_size(node)</code>: if <code>node</code> is a file, return its size. That&rsquo;s the base case. Otherwise return the sum of <code>folder_size(child)</code> over the children. The invariant: every call&rsquo;s argument is a <em>strict</em> subtree of its caller&rsquo;s, so depth decreases and the recursion terminates.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>Let&rsquo;s name the recipe <code>folder_size(node)</code>. A <strong>function</strong> is just a named recipe you can run; a <strong>node</strong> is one item in the tree &mdash; either a file or a folder. The recipe has exactly two cases.</p>
+            <p>Let&rsquo;s name the recipe <code>folder_size(node)</code>. A <strong>function</strong> is just a named recipe you can run; a <strong>node</strong> is one item in the tree, either a file or a folder. The recipe has exactly two cases.</p>
             <p><strong>File.</strong> The node is a file. Return its size and stop. Nothing to dig into.</p>
-            <p><strong>Folder.</strong> The node is a folder. Go through its children, and for each child run <code>folder_size(child)</code> &mdash; the recipe <em>asks itself the same question</em> on a smaller piece. Add up the answers it gets back and return the total.</p>
-            <p>A recipe that runs itself sounds like it could spin forever, but it can&rsquo;t here: every call is on something <strong>strictly smaller</strong> &mdash; a child of the folder we&rsquo;re standing in, never the folder itself. Because each step shrinks the problem, it has to bottom out at files.</p>
+            <p><strong>Folder.</strong> The node is a folder. Go through its children, and for each child run <code>folder_size(child)</code>. The recipe <em>asks itself the same question</em> on a smaller piece. Add up the answers it gets back and return the total.</p>
+            <p>A recipe that runs itself sounds like it could spin forever, but it can&rsquo;t here: every call is on something <strong>strictly smaller</strong>, a child of the folder we&rsquo;re standing in, never the folder itself. Because each step shrinks the problem, it has to bottom out at files.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The principle &mdash; <Term word="decomposition">decomposition</Term>:</strong> solve a problem by solving a smaller version of itself.
+              <strong>The principle, <Term word="decomposition">decomposition</Term>:</strong> solve a problem by solving a smaller version of itself.
             </div>
           </>
         ),
         intuitive: (
           <>
-            <p>Name the recipe <code>folder_size(node)</code>. A <Term word="function"><strong>function</strong></Term> is a named recipe you can run whenever you like; a <Term word="node"><strong>node</strong></Term> is one item in the tree &mdash; a file or a folder. The recipe needs exactly two cases.</p>
+            <p>Name the recipe <code>folder_size(node)</code>. A <Term word="function"><strong>function</strong></Term> is a named recipe you can run whenever you like; a <Term word="node"><strong>node</strong></Term> is one item in the tree, a file or a folder. The recipe needs exactly two cases.</p>
             <p><strong>File.</strong> A file already knows its own size. Hand it back, stop. No digging.</p>
             <p><strong>Folder.</strong> For each child inside, run <code>folder_size(child)</code> &mdash; yes, the recipe <em>runs itself</em>, on the smaller piece &mdash; then add up the answers and hand back the total.</p>
-            <p>&ldquo;A recipe that runs itself&rdquo; sounds like a trap that never ends. It can&rsquo;t be: every call works on a child of the folder before it &mdash; always a <strong>smaller</strong> piece &mdash; so the chain of calls must bottom out at plain files, where the answer is free.</p>
+            <p>&ldquo;A recipe that runs itself&rdquo; sounds like a trap that never ends. It can&rsquo;t be: every call works on a child of the folder before it, always a <strong>smaller</strong> piece, so the chain of calls must bottom out at plain files, where the answer is free.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The big move &mdash; <Term word="decomposition">decomposition</Term>:</strong> answer a problem by answering smaller versions of the same problem.
+              <strong>The big move, <Term word="decomposition">decomposition</Term>:</strong> answer a problem by answering smaller versions of the same problem.
             </div>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>The invariant that makes self-call safe:</strong> every recursive call receives a strictly smaller subtree &mdash; a child, never the node itself. Descent on a finite tree is well-founded, so every call chain bottoms out at leaves; termination is structural, not luck.</p>
+            <p><strong>The invariant that makes self-call safe:</strong> every recursive call receives a strictly smaller subtree, a child, never the node itself. Descent on a finite tree is well-founded, so every call chain bottoms out at leaves; termination is structural, not luck.</p>
             <p><strong>Correctness, one line of induction:</strong> a leaf returns its size (trivially right); assuming each child&rsquo;s call is right, the parent&rsquo;s sum is right. By structural induction the function is correct on every node of a finite tree.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong><Term word="decomposition">Decomposition</Term>, stated:</strong> a node&rsquo;s answer is composed from its subtrees&rsquo; answers &mdash; define the two cases and the tree does the rest.
+              <strong><Term word="decomposition">Decomposition</Term>, stated:</strong> a node&rsquo;s answer is composed from its subtrees&rsquo; answers. Define the two cases and the tree does the rest.
             </div>
           </>
         ),
@@ -571,7 +572,7 @@ export const recursionLesson: LessonSpec = {
       label: "The operations",
       connector: reg({
         base: "The rule is written; now see it actually run, and count how much work it does.",
-        rigorous: "The rule is stated — commit to its cost, then count it in the run.",
+        rigorous: "The rule is stated. Commit to its cost, then count it in the run.",
       }),
       actionLabel: reg({
         base: "How tall the pile gets",
@@ -580,44 +581,44 @@ export const recursionLesson: LessonSpec = {
       }),
       takeaway: reg({
         base: "Every item is touched once (O(n)); calls wait in a stack until they return.",
-        intuitive: "Each file and folder gets looked at exactly once — the stack is just the waiting calls.",
-        rigorous: "O(n) time — each node pushed and popped once; peak memory equals the deepest nesting.",
+        intuitive: "Each file and folder gets looked at exactly once; the stack is just the waiting calls.",
+        rigorous: "O(n) time: each node pushed and popped once; peak memory equals the deepest nesting.",
       }),
       visual: (api) => <TouchCountGate api={api} />,
       panels: [{
         left: 150, top: 22, width: 600, variant: "main", label: "The operations", title: "Each item is touched once; calls pile up in a stack.",
         body: reg({
-          base: <>Every item is looked at exactly once &mdash; that&rsquo;s <Term word="O(n)"><code>O(n)</code></Term> (work grows in step with the number of items, <em>n</em>). Watch the <Term word="call stack"><strong>call stack</strong></Term> on the right: a to-do list where the newest waiting call sits on top, draining as each returns.</>,
-          intuitive: <>Commit to a guess, then watch the count: every file and folder gets looked at exactly <strong>once</strong> &mdash; double the items, double the work. That steady growth is written <Term word="O(n)"><code>O(n)</code></Term> (it just means &ldquo;work grows in step with the item count&rdquo;). The <Term word="call stack"><strong>call stack</strong></Term> on the right is the to-do list of recipes still waiting.</>,
-          rigorous: <>Predict, then count the run: each node is pushed exactly once and popped exactly once &mdash; 2<em>n</em> stack events, O(1) work each beyond its share of the sums. That count is <Term word="O(n)"><code>O(n)</code></Term> time. The <Term word="call stack">stack</Term> peaks at the deepest nesting &mdash; memory follows height, not item count.</>,
+          base: <>Every item is looked at exactly once. That&rsquo;s <Term word="O(n)"><code>O(n)</code></Term> (work grows in step with the number of items, <em>n</em>). Watch the <Term word="call stack"><strong>call stack</strong></Term> on the right: a to-do list where the newest waiting call sits on top, draining as each returns.</>,
+          intuitive: <>Commit to a guess, then watch the count: every file and folder gets looked at exactly <strong>once</strong>, so double the items means double the work. That steady growth is written <Term word="O(n)"><code>O(n)</code></Term> (it just means &ldquo;work grows in step with the item count&rdquo;). The <Term word="call stack"><strong>call stack</strong></Term> on the right is the to-do list of recipes still waiting.</>,
+          rigorous: <>Predict, then count the run: each node is pushed exactly once and popped exactly once, for 2<em>n</em> stack events, O(1) work each beyond its share of the sums. That count is <Term word="O(n)"><code>O(n)</code></Term> time. The <Term word="call stack">stack</Term> peaks at the deepest nesting, so memory follows height, not item count.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>The run plays on its own &mdash; just follow it (the <strong>&#8634; replay</strong> button under the stack restarts it). Every node in the tree &mdash; every file, every folder &mdash; gets looked at exactly one time. We write that cost as <Term word="O(n)"><code>O(n)</code></Term>: the work grows in step with how many items <em>n</em> are in the tree (folders included). Twice as many items, roughly twice the work &mdash; no hidden blow-up.</p>
-            <p>Now watch the panel on the right. The <Term word="call stack"><strong>call stack</strong></Term> is the computer&rsquo;s to-do list of recipes it has started but not yet finished. Each time <code>folder_size</code> opens a folder and calls itself on a child, a new entry is stacked on top &mdash; the newest, innermost call always sits on top. That call has to finish before the one beneath it can continue.</p>
-            <p>As each call returns its answer, its entry is removed and the total bubbles up to the folder waiting below. The stack grows as we dive in and <em>drains</em> back to empty once every call has returned &mdash; that&rsquo;s the moment the root finally reads its full size.</p>
+            <p>The run plays on its own; just follow it (the <strong>&#8634; replay</strong> button under the stack restarts it). Every node in the tree, every file and every folder, gets looked at exactly one time. We write that cost as <Term word="O(n)"><code>O(n)</code></Term>: the work grows in step with how many items <em>n</em> are in the tree (folders included). Twice as many items, roughly twice the work, with no hidden blow-up.</p>
+            <p>Now watch the panel on the right. The <Term word="call stack"><strong>call stack</strong></Term> is the computer&rsquo;s to-do list of recipes it has started but not yet finished. Each time <code>folder_size</code> opens a folder and calls itself on a child, a new entry is stacked on top: the newest, innermost call always sits on top. That call has to finish before the one beneath it can continue.</p>
+            <p>As each call returns its answer, its entry is removed and the total bubbles up to the folder waiting below. The stack grows as we dive in and <em>drains</em> back to empty once every call has returned. That&rsquo;s the moment the root finally reads its full size.</p>
           </>
         ),
         intuitive: (
           <>
-            <p>After your guess, the run plays on its own (the <strong>&#8634; replay</strong> under the stack restarts it). Watch any single file or folder: it lights up once, gets counted once, and is never visited again. Twice as many items would mean about twice the waiting &mdash; that steady, no-surprises growth is what <Term word="O(n)"><code>O(n)</code></Term> says.</p>
-            <p>Now the right-hand panel. The <Term word="call stack"><strong>call stack</strong></Term> is the computer&rsquo;s to-do list of recipes it has started but not finished. Every time <code>folder_size</code> steps into a child, a new slip goes on top of the pile &mdash; and the top slip must finish before the one under it can carry on.</p>
-            <p>When a call finishes, its slip comes off and its answer drops to the folder waiting below. The pile grows on the way in and drains on the way out &mdash; the moment it&rsquo;s empty, the root finally knows its full 19MB.</p>
+            <p>After your guess, the run plays on its own (the <strong>&#8634; replay</strong> under the stack restarts it). Watch any single file or folder: it lights up once, gets counted once, and is never visited again. Twice as many items would mean about twice the waiting. That steady, no-surprises growth is what <Term word="O(n)"><code>O(n)</code></Term> says.</p>
+            <p>Now the right-hand panel. The <Term word="call stack"><strong>call stack</strong></Term> is the computer&rsquo;s to-do list of recipes it has started but not finished. Every time <code>folder_size</code> steps into a child, a new slip goes on top of the pile, and the top slip must finish before the one under it can carry on.</p>
+            <p>When a call finishes, its slip comes off and its answer drops to the folder waiting below. The pile grows on the way in and drains on the way out. The moment it&rsquo;s empty, the root finally knows its full 19MB.</p>
           </>
         ),
         structured: (
           <>
-            <p>The playback answers the prediction: every node &mdash; file or folder &mdash; is visited exactly once, because only its parent ever asks it. With <em>n</em> items in the tree, the work grows in step with <em>n</em>: that count, made before the name, is <Term word="O(n)"><code>O(n)</code></Term>.</p>
-            <p>The <Term word="call stack"><strong>call stack</strong></Term> on the right is the runtime&rsquo;s ledger of started-but-unfinished calls: each self-call pushes a <Term word="frame">frame</Term>, each return pops one and hands its total to the caller below. Its tallest moment equals the tree&rsquo;s deepest nesting &mdash; 4 here &mdash; so the memory cost follows <em>depth</em>, not item count.</p>
-            <p>That depth is also the one real hazard: Python caps waiting calls (about 1,000 by default), so a pathologically deep chain &mdash; or a base case that never fires &mdash; dies with <code>RecursionError</code>. The empty folder, by contrast, is already safe: the sum of no children is 0.</p>
+            <p>The playback answers the prediction: every node, file or folder, is visited exactly once, because only its parent ever asks it. With <em>n</em> items in the tree, the work grows in step with <em>n</em>: that count, made before the name, is <Term word="O(n)"><code>O(n)</code></Term>.</p>
+            <p>The <Term word="call stack"><strong>call stack</strong></Term> on the right is the runtime&rsquo;s ledger of started-but-unfinished calls: each self-call pushes a <Term word="frame">frame</Term>, each return pops one and hands its total to the caller below. Its tallest moment equals the tree&rsquo;s deepest nesting, 4 here, so the memory cost follows <em>depth</em>, not item count.</p>
+            <p>That depth is also the one real hazard: Python caps waiting calls (about 1,000 by default), so a pathologically deep chain, or a base case that never fires, dies with <code>RecursionError</code>. The empty folder, by contrast, is already safe: the sum of no children is 0.</p>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>Exact costs.</strong> Each node is pushed once and popped once &mdash; 2n stack events for n nodes, so O(n) time, each visit O(1) beyond summing its children&rsquo;s returns. Peak stack = tree height h: O(h) <Term word="frame">frames</Term> of memory &mdash; log-depth for balanced trees, n for a degenerate chain.</p>
-            <p><strong>Edges.</strong> Empty folder: the sum over no children returns 0 &mdash; no special case needed. A lone file: the base case fires immediately. A missing or unreachable base case never stops descending &mdash; Python kills it at the recursion limit (about 1,000 frames, <code>RecursionError</code>); the same limit bites <em>correct</em> code on pathologically deep inputs, where an explicit stack replaces the call stack.</p>
+            <p><strong>Exact costs.</strong> Each node is pushed once and popped once: 2n stack events for n nodes, so O(n) time, each visit O(1) beyond summing its children&rsquo;s returns. Peak stack = tree height h: O(h) <Term word="frame">frames</Term> of memory, log-depth for balanced trees, n for a degenerate chain.</p>
+            <p><strong>Edges.</strong> Empty folder: the sum over no children returns 0, so no special case is needed. A lone file: the base case fires immediately. A missing or unreachable base case never stops descending, so Python kills it at the recursion limit (about 1,000 frames, <code>RecursionError</code>); the same limit bites <em>correct</em> code on pathologically deep inputs, where an explicit stack replaces the call stack.</p>
           </>
         ),
       }),
@@ -630,19 +631,19 @@ export const recursionLesson: LessonSpec = {
       // E18 companion beat at full depth; its essentials are folded into
       // `operations` structured/rigorous prose, so it stays intuitive-only.
       registers: ["intuitive"],
-      connector: "Those piled-up calls aren't free — they take memory, so the next question is how tall the pile can get.",
+      connector: "Those piled-up calls aren't free; they take memory, so the next question is how tall the pile can get.",
       actionLabel: "Same shape, new questions",
       takeaway: "Memory cost = the deepest nesting, not the total number of items.",
       visual: <ResolvedPeak />,
       panels: [{
         left: 150, top: 22, width: 580, variant: "main", label: "The memory cost", title: "The stack only gets as tall as the deepest folder.",
-        body: <>When every call has returned, the root reads <strong>19MB</strong>. The stack&rsquo;s tallest moment equals the deepest nesting &mdash; here <code>Downloads › projects › code › app.zip</code>, just 4 calls. Only a very deep chain could run the stack out of room.</>,
+        body: <>When every call has returned, the root reads <strong>19MB</strong>. The stack&rsquo;s tallest moment equals the deepest nesting: here <code>Downloads › projects › code › app.zip</code>, just 4 calls. Only a very deep chain could run the stack out of room.</>,
       }],
       detail: (
         <>
           <p>Each call sitting on the stack is waiting for its children to finish, and each one takes a little memory while it waits. So the real question for memory is: how tall does the stack ever get?</p>
-          <p>The tallest moment equals the <em>deepest nesting</em> in the tree &mdash; the longest chain of folders inside folders. Here that chain is <code>Downloads › projects › code › app.zip</code>, so the stack peaks at just 4 calls (the bracket marks that height). If a tree were balanced and 30 levels deep, the peak would be 30 calls &mdash; not the total number of items, just the depth.</p>
-          <p>If a tree is <em>extremely</em> deep &mdash; think a million-level chain &mdash; the stack can run out of room (most languages cap it around 1,000&ndash;10,000 waiting calls). Real file systems never get that deep, so this is never the limit in practice. For artificial worst cases you&rsquo;d swap the self-calling recipe for an explicit to-do list you manage by hand &mdash; a pattern for another day.</p>
+          <p>The tallest moment equals the <em>deepest nesting</em> in the tree, the longest chain of folders inside folders. Here that chain is <code>Downloads › projects › code › app.zip</code>, so the stack peaks at just 4 calls (the bracket marks that height). If a tree were balanced and 30 levels deep, the peak would be 30 calls: not the total number of items, just the depth.</p>
+          <p>If a tree is <em>extremely</em> deep &mdash; think a million-level chain &mdash; the stack can run out of room (most languages cap it around 1,000&ndash;10,000 waiting calls). Real file systems never get that deep, so this is never the limit in practice. For artificial worst cases you&rsquo;d swap the self-calling recipe for an explicit to-do list you manage by hand, a pattern for another day.</p>
         </>
       ),
       arrows: [{ x1: 540, y1: 152, x2: STACK_CX - STACK_W / 2 - 24, y2: STACK_TOP + 30 }],
@@ -659,7 +660,7 @@ export const recursionLesson: LessonSpec = {
       visual: <SameShape />,
       panels: [{
         left: 150, top: 24, width: 580, variant: "main", label: "The generalization", title: "Tree-shaped data is everywhere.",
-        body: <>The same trick fits anything built from smaller copies of itself. A JSON record holds records. An HTML box holds boxes. The math <code>(2 + (3 * (4 - 1)))</code> nests inside itself. Org charts, reply threads, file trees &mdash; all solved by &ldquo;answer me by answering my parts.&rdquo;</>,
+        body: <>The same trick fits anything built from smaller copies of itself. A JSON record holds records. An HTML box holds boxes. The math <code>(2 + (3 * (4 - 1)))</code> nests inside itself. Org charts, reply threads, file trees: all solved by &ldquo;answer me by answering my parts.&rdquo;</>,
       }],
       detail: (
         <>
@@ -669,7 +670,7 @@ export const recursionLesson: LessonSpec = {
             <li><strong>HTML</strong> (the structure of a web page): a box holds boxes that hold boxes. Want the total height? Same recipe.</li>
             <li><strong>Math expressions</strong> like <code>(2 + (3 * (4 - 1)))</code>: each set of parentheses is a smaller expression you evaluate exactly the same way.</li>
           </ul>
-          <p>File permissions, nested comment threads, org-chart head-counts, outline indent levels, the way a chess engine looks moves ahead &mdash; all the same shape. Each one says: <em>solve me by solving my children.</em></p>
+          <p>File permissions, nested comment threads, org-chart head-counts, outline indent levels, the way a chess engine looks moves ahead: all the same shape. Each one says: <em>solve me by solving my children.</em></p>
         </>
       ),
       arrows: [{ x1: 430, y1: 152, x2: 430, y2: 196 }],
@@ -679,33 +680,33 @@ export const recursionLesson: LessonSpec = {
       id: "name",
       label: "The pattern",
       connector: reg({
-        base: "All those examples share one move with one name — here it is, plus the cues that tell you to reach for it.",
+        base: "All those examples share one move with one name. Here it is, plus the cues that tell you to reach for it.",
         // works after `general` AND when goal=refresh trims it
-        intuitive: "However the data nests, the move is one and the same — here's its name, plus the cues that tell you to reach for it.",
-        structured: "The rule, the run, and its costs are on the table — time to name the move.",
+        intuitive: "However the data nests, the move is one and the same. Here's its name, plus the cues that tell you to reach for it.",
+        structured: "The rule, the run, and its costs are on the table. Time to name the move.",
         rigorous: "Costs counted. Name the pattern and file it.",
       }),
       takeaway: reg({
-        base: "It's Recursion — a base case plus a self-call on a smaller piece.",
+        base: "It's Recursion: a base case plus a self-call on a smaller piece.",
         intuitive: "Recursion: a tiny obvious case, plus the function calling itself on smaller pieces.",
-        rigorous: "Recursion = base case + self-call on strictly smaller input — decomposition, executable.",
+        rigorous: "Recursion = base case + self-call on strictly smaller input: decomposition, executable.",
       }),
       visual: <NamedPattern />,
       panels: [{
         left: 150, top: 24, width: 600, variant: "main", label: "The pattern", title: "Recursion.",
         body: reg({
-          base: <>That&rsquo;s the name: <Term word="recursion"><strong>recursion</strong></Term> &mdash; a function that calls itself on a smaller version of the same problem. It needs a <strong>base case</strong> (so small the answer is obvious &mdash; a file knows its size) and a <strong>recursive case</strong> (shrink, combine, return).</>,
-          intuitive: <>The move has a name: <Term word="recursion"><strong>recursion</strong></Term> &mdash; a function that calls itself on a smaller version of the same problem. It always needs two parts: a <strong>base case</strong> (so small the answer is free &mdash; a file knows its size) and a <strong>recursive case</strong> (shrink, ask again, add up). That&rsquo;s idea 4 of 7 &mdash; <strong>decomposition</strong> &mdash; in action.</>,
-          rigorous: <><Term word="recursion">Recursion</Term>: solve a problem by solving strictly smaller instances of itself &mdash; a base case that returns without descending, a recursive case that descends and combines. This is <strong>decomposition</strong>, idea 4 of 7, in its purest executable form.</>,
+          base: <>That&rsquo;s the name: <Term word="recursion"><strong>recursion</strong></Term>, a function that calls itself on a smaller version of the same problem. It needs a <strong>base case</strong> (so small the answer is obvious: a file knows its size) and a <strong>recursive case</strong> (shrink, combine, return).</>,
+          intuitive: <>The move has a name: <Term word="recursion"><strong>recursion</strong></Term>, a function that calls itself on a smaller version of the same problem. It always needs two parts: a <strong>base case</strong> (so small the answer is free: a file knows its size) and a <strong>recursive case</strong> (shrink, ask again, add up). That&rsquo;s idea 4 of 7, <strong>decomposition</strong>, in action.</>,
+          rigorous: <><Term word="recursion">Recursion</Term>: solve a problem by solving strictly smaller instances of itself, with a base case that returns without descending and a recursive case that descends and combines. This is <strong>decomposition</strong>, idea 4 of 7, in its purest executable form.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>That&rsquo;s the name: <strong>recursion</strong> &mdash; a function that calls itself on a smaller version of the same problem. Every recursion has two non-negotiable pieces:</p>
+            <p>That&rsquo;s the name: <strong>recursion</strong>, a function that calls itself on a smaller version of the same problem. Every recursion has two non-negotiable pieces:</p>
             <ul>
-              <li><strong>A base case.</strong> A version so small the answer is obvious without calling yourself &mdash; here, a file already knows its own size, so it just returns it (marked on the picture).</li>
-              <li><strong>A recursive case.</strong> Reduce the work to one or more <em>strictly smaller</em> copies of the same problem, combine their answers, and return &mdash; here, a folder asks each child and adds up.</li>
+              <li><strong>A base case.</strong> A version so small the answer is obvious without calling yourself. Here, a file already knows its own size, so it just returns it (marked on the picture).</li>
+              <li><strong>A recursive case.</strong> Reduce the work to one or more <em>strictly smaller</em> copies of the same problem, combine their answers, and return. Here, a folder asks each child and adds up.</li>
             </ul>
             <p>How do you spot a problem that wants recursion? Watch for these signals:</p>
             <ul>
@@ -713,32 +714,32 @@ export const recursionLesson: LessonSpec = {
               <li>the answer for a whole depends on the answer for its parts</li>
               <li>you catch yourself writing &ldquo;a loop inside a loop inside a loop&rdquo;</li>
             </ul>
-            <p>Open the code drawer to see it in Python: about five lines do the real work &mdash; the rest is just the rule, written down.</p>
+            <p>Open the code drawer to see it in Python: about five lines do the real work, and the rest is just the rule, written down.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 4 of 7 &mdash; <Term word="decomposition">decomposition</Term>:</strong> solve a smaller version of the same problem. Recursion is that idea running as code &mdash; next, the same self-call walks a maze as depth-first search.
+              <strong>Idea 4 of 7, <Term word="decomposition">decomposition</Term>:</strong> solve a smaller version of the same problem. Recursion is that idea running as code; next, the same self-call walks a maze as depth-first search.
             </div>
           </>
         ),
         intuitive: (
           <>
-            <p>The trick you derived has a proper name: <strong>recursion</strong> &mdash; a function that calls itself on a smaller version of the same problem. Two parts are non-negotiable:</p>
+            <p>The trick you derived has a proper name: <strong>recursion</strong>, a function that calls itself on a smaller version of the same problem. Two parts are non-negotiable:</p>
             <ul>
-              <li><strong>A base case.</strong> A piece so small the answer is free &mdash; a file already knows its size (marked on the picture). Without it, the calls never stop.</li>
-              <li><strong>A recursive case.</strong> Hand each <em>strictly smaller</em> piece to the same function, then combine what comes back &mdash; a folder asks each child and adds up.</li>
+              <li><strong>A base case.</strong> A piece so small the answer is free: a file already knows its size (marked on the picture). Without it, the calls never stop.</li>
+              <li><strong>A recursive case.</strong> Hand each <em>strictly smaller</em> piece to the same function, then combine what comes back. A folder asks each child and adds up.</li>
             </ul>
             <p>When should your hand reach for it? Three tells: things nest inside things; the whole&rsquo;s answer is built from its parts&rsquo; answers; you catch yourself writing a loop inside a loop inside a loop.</p>
             <p>Open the code drawer: about five honest lines do all of it.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The fourth big idea (4 of 7) &mdash; decomposition:</strong> solve a smaller version of the same problem. You just watched it compute what no stack of hand-written loops could &mdash; and next door, the very same self-call walks mazes as depth-first search.
+              <strong>The fourth big idea (4 of 7), decomposition:</strong> solve a smaller version of the same problem. You just watched it compute what no stack of hand-written loops could, and next door, the very same self-call walks mazes as depth-first search.
             </div>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>The pattern:</strong> recursion &mdash; a base case that returns without descending, plus a recursive case that descends on strictly smaller input and combines. Drop the base case or fail to shrink, and the result is a wrong answer or a <code>RecursionError</code>, nothing in between.</p>
-            <p>Reach for it whenever the data or the problem is self-similar &mdash; trees, nested records, expressions, divide-and-conquer. The structural-induction proof and the O(n) time / height-bounded memory come with the shape for free.</p>
+            <p><strong>The pattern:</strong> recursion, a base case that returns without descending, plus a recursive case that descends on strictly smaller input and combines. Drop the base case or fail to shrink, and the result is a wrong answer or a <code>RecursionError</code>, nothing in between.</p>
+            <p>Reach for it whenever the data or the problem is self-similar: trees, nested records, expressions, divide-and-conquer. The structural-induction proof and the O(n) time / height-bounded memory come with the shape for free.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 4 of 7 &mdash; <Term word="decomposition">decomposition</Term>:</strong> solve strictly smaller instances of the same problem and combine. dfs, mergesort, and dp-1d all open from this move.
+              <strong>Idea 4 of 7, <Term word="decomposition">decomposition</Term>:</strong> solve strictly smaller instances of the same problem and combine. dfs, mergesort, and dp-1d all open from this move.
             </div>
           </>
         ),

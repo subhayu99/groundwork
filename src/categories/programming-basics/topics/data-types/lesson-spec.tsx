@@ -77,15 +77,16 @@ function QuotedDigitsGate({ api }: { api: BeatVisualApi }) {
  *   refresh    : additionally trims `need` + `numbers` (trimOnRefresh).        */
 export const dataTypesLesson: LessonSpec = {
   topicTitle: "data types · kinds of value",
-  layout: "scene",
+  layout: "focus",
+  diagramShape: "line",
   canvas: { width: VW, height: 470 },
   codeSource: dataTypesPy as string,
   // standing on variables (TRACK-NARRATIVES row 3): a name remembers one
   // value — this lesson looks at what KINDS of value a name can hold.
   bridgeFrom: reg({
-    base: "A variable names one value you can read and reassign — now meet the kinds those values come in.",
-    intuitive: "You can make a named box and drop any value inside — now look closer at the kinds of value that go in.",
-    rigorous: "A name binds one value — and every value carries a type: a standing guarantee of what it can do.",
+    base: "A variable names one value you can read and reassign. Now meet the kinds those values come in.",
+    intuitive: "You can make a named box and drop any value inside. Now look closer at the kinds of value that go in.",
+    rigorous: "A name binds one value, and every value carries a type: a standing guarantee of what it can do.",
   }),
   // ⚑ foreshadow stamp (TRACK-NARRATIVES row 3): a type is a standing
   // guarantee about what a value can do — the SEED of idea 3 (invariants),
@@ -100,22 +101,22 @@ export const dataTypesLesson: LessonSpec = {
       actionLabel: "Whole numbers",
       takeaway: reg({
         base: "Every value has a type; Python infers it from how you write it.",
-        intuitive: "Every value is a kind of value — Python reads the kind off how you write it.",
+        intuitive: "Every value is a kind of value, and Python reads the kind off how you write it.",
       }),
       visual: <g><Cap>a value isn't just a value — it's a kind of value</Cap>{four(-1)}</g>,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Kinds of value", title: "Not all values are alike.",
         body: reg({
-          base: <>A whole number, a number with a decimal, a piece of text, a yes/no &mdash; these behave differently. Each value carries a <strong>type</strong>, and Python works it out from how you write the value (no need to declare it).</>,
-          intuitive: <>Look at the four boxes: a whole number, a number with a decimal point, a piece of text, a yes/no answer. They feel different because they <em>are</em> different &mdash; each value carries a <strong>type</strong>, its kind. And you never announce the kind: Python reads it straight off how you write the value.</>,
+          base: <>A whole number, a number with a decimal, a piece of text, a yes/no. These behave differently. Each value carries a <strong>type</strong>, and Python works it out from how you write the value (no need to declare it).</>,
+          intuitive: <>Look at the four boxes: a whole number, a number with a decimal point, a piece of text, a yes/no answer. They feel different because they <em>are</em> different. Each value carries a <strong>type</strong>, its kind. And you never announce the kind: Python reads it straight off how you write the value.</>,
         }),
       }],
       detail: reg({
-        base: <><p>The type decides what you can do with a value: you can multiply numbers, join text, and test booleans. Mixing them up is one of the most common beginner errors &mdash; knowing the four basic types prevents it.</p></>,
+        base: <><p>The type decides what you can do with a value: you can multiply numbers, join text, and test booleans. Mixing them up is one of the most common beginner errors. Knowing the four basic types prevents it.</p></>,
         intuitive: (
           <>
-            <p>Why care about kinds? Because the kind decides what a value can <em>do</em>. You can multiply two numbers &mdash; but what would multiplying two pieces of text even mean? You can ask &ldquo;yes or no?&rdquo; of a <Term word="boolean">boolean</Term> &mdash; but not of a price.</p>
-            <p>Treating one kind like another &mdash; text like a number, say &mdash; is one of the most common beginner errors there is. Meeting the four basic kinds now is the vaccine.</p>
+            <p>Why care about kinds? Because the kind decides what a value can <em>do</em>. You can multiply two numbers, but what would multiplying two pieces of text even mean? You can ask &ldquo;yes or no?&rdquo; of a <Term word="boolean">boolean</Term>, but not of a price.</p>
+            <p>Treating one kind like another (text like a number, say) is one of the most common beginner errors there is. Meeting the four basic kinds now is the vaccine.</p>
           </>
         ),
       }),
@@ -138,11 +139,11 @@ export const dataTypesLesson: LessonSpec = {
         }),
       }],
       detail: reg({
-        base: <><p>Both are numbers, so <code>+ - * /</code> work on them. Dividing with <code>/</code> always gives a float (<code>10 / 2</code> is <code>5.0</code>), which surprises people &mdash; that trailing <code>.0</code> is Python telling you the type.</p></>,
+        base: <><p>Both are numbers, so <code>+ - * /</code> work on them. Dividing with <code>/</code> always gives a float (<code>10 / 2</code> is <code>5.0</code>), which surprises people: that trailing <code>.0</code> is Python telling you the type.</p></>,
         intuitive: (
           <>
-            <p>Both kinds are numbers, so the usual maths &mdash; <code>+ - * /</code> &mdash; works on either. One surprise worth banking now: dividing with <code>/</code> always hands back a float, even when it lands exactly. <code>10 / 2</code> is <code>5.0</code>, not <code>5</code>.</p>
-            <p>That trailing <code>.0</code> isn&rsquo;t decoration &mdash; it&rsquo;s Python showing you the answer&rsquo;s kind right in how it&rsquo;s written: the same spelling signal, read back the other way.</p>
+            <p>Both kinds are numbers, so the usual maths (<code>+ - * /</code>) works on either. One surprise worth banking now: dividing with <code>/</code> always hands back a float, even when it lands exactly. <code>10 / 2</code> is <code>5.0</code>, not <code>5</code>.</p>
+            <p>That trailing <code>.0</code> isn&rsquo;t decoration: it&rsquo;s Python showing you the answer&rsquo;s kind right in how it&rsquo;s written, the same spelling signal read back the other way.</p>
           </>
         ),
       }),
@@ -153,7 +154,7 @@ export const dataTypesLesson: LessonSpec = {
       label: "Text: str",
       // Appears for EVERY register — rigorous opens here, so its connector is empty.
       connector: reg({
-        base: "Text is its own type — and it needs quotes.",
+        base: "Text is its own type, and it needs quotes.",
         rigorous: "",
       }),
       actionLabel: reg({
@@ -163,23 +164,23 @@ export const dataTypesLesson: LessonSpec = {
       takeaway: reg({
         base: "Text is a string (str), written inside quotes.",
         intuitive: 'Quotes make text: "7" in quotes is a string, not the number 7.',
-        rigorous: 'Literal syntax fixes type — "7" is str, not int, and different operations apply.',
+        rigorous: 'Literal syntax fixes type: "7" is str, not int, and different operations apply.',
       }),
       visual: (api) => <QuotedDigitsGate api={api} />,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Text: str", title: 'name = "Ada"',
         body: reg({
           base: <>Text is a <Term word="string">string</Term> (<code>str</code>). The <strong>quotes</strong> matter: <code>&quot;Ada&quot;</code> is the text Ada, while <code>Ada</code> without quotes would be a variable name to look up.</>,
-          intuitive: <>A piece of text is a <Term word="string">string</Term> &mdash; type <code>str</code>. The <strong>quotes</strong> do real work: <code>&quot;Ada&quot;</code> means the text Ada, while bare <code>Ada</code> would send Python looking for a variable by that name. So quotes turn what they wrap into text. One case is trickier than it looks &mdash; commit to a guess below before reading on.</>,
-          rigorous: <>String literals: quotes delimit text &mdash; <code>&quot;Ada&quot;</code> is a <code>str</code> value, bare <code>Ada</code> is a name lookup. The literal&rsquo;s syntax alone fixes the type, and the type is the invariant: set when the value is written, unchanged for the value&rsquo;s lifetime &mdash; only names get rebound. Commit to the case below first.</>,
+          intuitive: <>A piece of text is a <Term word="string">string</Term>, type <code>str</code>. The <strong>quotes</strong> do real work: <code>&quot;Ada&quot;</code> means the text Ada, while bare <code>Ada</code> would send Python looking for a variable by that name. So quotes turn what they wrap into text. One case is trickier than it looks, so commit to a guess below before reading on.</>,
+          rigorous: <>String literals: quotes delimit text, so <code>&quot;Ada&quot;</code> is a <code>str</code> value and bare <code>Ada</code> is a name lookup. The literal&rsquo;s syntax alone fixes the type, and the type is the invariant: set when the value is written, unchanged for the value&rsquo;s lifetime. Only names get rebound. Commit to the case below first.</>,
         }),
       }],
       detail: reg({
-        base: <><p><code>&quot;7&quot;</code> (with quotes) is text, not the number <code>7</code> &mdash; you can&rsquo;t do maths on it until you convert it. That type mismatch is behind a huge share of beginner bugs.</p></>,
+        base: <><p><code>&quot;7&quot;</code> (with quotes) is text, not the number <code>7</code>. You can&rsquo;t do maths on it until you convert it. That type mismatch is behind a huge share of beginner bugs.</p></>,
         intuitive: (
           <>
-            <p>The case you just predicted: <code>&quot;7&quot;</code>, with quotes, is text &mdash; a string that happens to be made of a digit. It is not the number <code>7</code>. Try maths on it and Python refuses: <code>&quot;7&quot; + 1</code> is an error, because gluing a number onto text makes no sense.</p>
-            <p>When you really do have digits-as-text (something a user typed, say), convert first: <code>int(&quot;7&quot;)</code> hands you the number <code>7</code>. Mixing the two without converting is behind a huge share of beginner bugs &mdash; you&rsquo;ve now met it once, on purpose.</p>
+            <p>The case you just predicted: <code>&quot;7&quot;</code>, with quotes, is text: a string that happens to be made of a digit. It is not the number <code>7</code>. Try maths on it and Python refuses: <code>&quot;7&quot; + 1</code> is an error, because gluing a number onto text makes no sense.</p>
+            <p>When you really do have digits-as-text (something a user typed, say), convert first: <code>int(&quot;7&quot;)</code> hands you the number <code>7</code>. Mixing the two without converting is behind a huge share of beginner bugs. You&rsquo;ve now met it once, on purpose.</p>
           </>
         ),
         rigorous: (
@@ -198,22 +199,22 @@ export const dataTypesLesson: LessonSpec = {
       connector: "And the type behind every decision.",
       actionLabel: "See them together",
       takeaway: reg({
-        base: "A boolean (bool) is just True or False — what conditions produce.",
-        intuitive: "A bool is a yes/no value — True or False — exactly what an if checks.",
+        base: "A boolean (bool) is just True or False, what conditions produce.",
+        intuitive: "A bool is a yes/no value, True or False, exactly what an if checks.",
       }),
       visual: <g><Cap>{"age >= 18 → False · a bool is the answer to a yes/no question"}</Cap>{four(3)}</g>,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Yes / no: bool", title: "is_adult = age >= 18",
         body: reg({
           base: <>A <Term word="boolean">boolean</Term> (<code>bool</code>) is either <code>True</code> or <code>False</code>. Comparisons produce them &mdash; <code>age &gt;= 18</code> is <code>False</code> &mdash; and that&rsquo;s exactly what an <code>if</code> checks.</>,
-          intuitive: <>The fourth kind answers a yes/no question. A <Term word="boolean">boolean</Term> (<code>bool</code>) has exactly two possible values: <code>True</code> and <code>False</code>. You rarely type them yourself &mdash; comparisons make them. <code>age &gt;= 18</code> asks &ldquo;is age at least 18?&rdquo;; with <code>age</code> holding <code>7</code>, the answer is <code>False</code>.</>,
+          intuitive: <>The fourth kind answers a yes/no question. A <Term word="boolean">boolean</Term> (<code>bool</code>) has exactly two possible values: <code>True</code> and <code>False</code>. You rarely type them yourself; comparisons make them. <code>age &gt;= 18</code> asks &ldquo;is age at least 18?&rdquo;; with <code>age</code> holding <code>7</code>, the answer is <code>False</code>.</>,
         }),
       }],
       detail: reg({
-        base: <><p>Booleans are the bridge to conditionals: a condition is just an expression whose type is <code>bool</code>. <code>True</code> and <code>False</code> are special words, not text &mdash; no quotes.</p></>,
+        base: <><p>Booleans are the bridge to conditionals: a condition is just an expression whose type is <code>bool</code>. <code>True</code> and <code>False</code> are special words, not text, so no quotes.</p></>,
         intuitive: (
           <>
-            <p>Notice: no quotes. <code>True</code> and <code>False</code> are special words Python knows, not text &mdash; after the last beat you can say why <code>&quot;True&quot;</code> in quotes would be something else entirely (a string). The capital letter matters too.</p>
+            <p>Notice: no quotes. <code>True</code> and <code>False</code> are special words Python knows, not text. After the last beat you can say why <code>&quot;True&quot;</code> in quotes would be something else entirely (a string). The capital letter matters too.</p>
             <p>And this kind is the doorway ahead: a condition is simply an expression whose value is a <code>bool</code>, and an <code>if</code> reads that yes/no to decide which code runs. That&rsquo;s the next power unlocked.</p>
           </>
         ),
@@ -225,13 +226,13 @@ export const dataTypesLesson: LessonSpec = {
       label: "Four to start",
       connector: reg({
         base: "Read all four as one row.",
-        rigorous: "One rule covers the whole row — name it and file it.",
+        rigorous: "One rule covers the whole row. Name it and file it.",
       }),
       actionLabel: "Done",
       takeaway: reg({
-        base: "int · float · str · bool — the type decides what you can do.",
-        intuitive: "Four starter types — int, float, str, bool; the kind decides what a value can do.",
-        rigorous: "A value's type is fixed and decides its valid operations — the first invariant.",
+        base: "int · float · str · bool. The type decides what you can do.",
+        intuitive: "Four starter types: int, float, str, bool; the kind decides what a value can do.",
+        rigorous: "A value's type is fixed and decides its valid operations. That is the first invariant.",
       }),
       visual: <g><Cap>{"type(price) → <class 'float'> · the same value can be checked any time"}</Cap>{four(-1)}</g>,
       panels: [{
@@ -241,9 +242,9 @@ export const dataTypesLesson: LessonSpec = {
           rigorous: "A type: a value's standing guarantee.",
         }),
         body: reg({
-          base: <>Those four cover most early code. The type travels <em>with</em> the value, so <code>3 + 4</code> adds to <code>7</code>, while <code>&quot;3&quot; + &quot;4&quot;</code> joins to <code>&quot;34&quot;</code> &mdash; same symbol, different behaviour by type.</>,
-          intuitive: <>Four kinds cover most early code &mdash; and the kind travels <em>with</em> the value wherever it goes. <code>3 + 4</code> adds up to <code>7</code>, while <code>&quot;3&quot; + &quot;4&quot;</code> glues text into <code>&quot;34&quot;</code>. Same <code>+</code>, completely different move &mdash; the value&rsquo;s kind decided which.</>,
-          rigorous: <>The model: every value carries exactly one type; names carry none. Operators dispatch on it &mdash; <code>3 + 4</code> &rarr; <code>7</code>, <code>&quot;3&quot; + &quot;4&quot;</code> &rarr; <code>&quot;34&quot;</code>, <code>&quot;3&quot; + 4</code> &rarr; <code>TypeError</code>. <code>type(x)</code> inspects the guarantee at runtime.</>,
+          base: <>Those four cover most early code. The type travels <em>with</em> the value, so <code>3 + 4</code> adds to <code>7</code>, while <code>&quot;3&quot; + &quot;4&quot;</code> joins to <code>&quot;34&quot;</code>: same symbol, different behaviour by type.</>,
+          intuitive: <>Four kinds cover most early code, and the kind travels <em>with</em> the value wherever it goes. <code>3 + 4</code> adds up to <code>7</code>, while <code>&quot;3&quot; + &quot;4&quot;</code> glues text into <code>&quot;34&quot;</code>. Same <code>+</code>, completely different move, and the value&rsquo;s kind decided which.</>,
+          rigorous: <>The model: every value carries exactly one type; names carry none. Operators dispatch on it: <code>3 + 4</code> &rarr; <code>7</code>, <code>&quot;3&quot; + &quot;4&quot;</code> &rarr; <code>&quot;34&quot;</code>, <code>&quot;3&quot; + 4</code> &rarr; <code>TypeError</code>. <code>type(x)</code> inspects the guarantee at runtime.</>,
         }),
       }],
       detail: reg({
@@ -251,15 +252,15 @@ export const dataTypesLesson: LessonSpec = {
           <>
             <p>You can always ask Python a value&rsquo;s type with <code>type(x)</code>. Later types (lists, and more) build on these same ideas. Next: the <strong>operators</strong> that combine them.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The seed of idea 3 of 7 &mdash; invariants:</strong> a type is a standing guarantee about a value &mdash; a fact that stays true, so nothing downstream has to re-check it.
+              <strong>The seed of idea 3 of 7, invariants:</strong> a type is a standing guarantee about a value, a fact that stays true, so nothing downstream has to re-check it.
             </div>
           </>
         ),
         intuitive: (
           <>
-            <p>These kinds have a proper name: <strong>data types</strong>. You can always ask Python a value&rsquo;s kind with <code>type(x)</code> &mdash; try it on <code>price</code> in the code panel. Later kinds (lists and more) build on these same four. Next: the <strong>operators</strong> that combine them.</p>
+            <p>These kinds have a proper name: <strong>data types</strong>. You can always ask Python a value&rsquo;s kind with <code>type(x)</code>; try it on <code>price</code> in the code panel. Later kinds (lists and more) build on these same four. Next: the <strong>operators</strong> that combine them.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The third big idea (3 of 7), planted early &mdash; a promise that holds:</strong> a value&rsquo;s kind is a guarantee that never breaks, so you can lean on it without ever checking twice. Later lessons run whole algorithms on facts like that &mdash; they&rsquo;re called <Term word="invariant">invariants</Term>.
+              <strong>The third big idea (3 of 7), planted early, a promise that holds:</strong> a value&rsquo;s kind is a guarantee that never breaks, so you can lean on it without ever checking twice. Later lessons run whole algorithms on facts like that. They&rsquo;re called <Term word="invariant">invariants</Term>.
             </div>
           </>
         ),
@@ -267,7 +268,7 @@ export const dataTypesLesson: LessonSpec = {
           <>
             <p><strong>The model, complete:</strong> values are typed, names are not; literal syntax fixes the type; operators dispatch on it, and mismatches raise <code>TypeError</code> rather than coerce. <code>int(&quot;7&quot;)</code>, <code>str(7)</code>, <code>float(7)</code> convert explicitly. Edges worth banking: <code>/</code> always yields <code>float</code> (<code>10 / 2</code> is <code>5.0</code>; <code>//</code> floors), and <code>bool</code> is a subclass of <code>int</code> (<code>True == 1</code>), so booleans survive arithmetic contexts.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 3 of 7, foreshadowed &mdash; <Term word="invariant">invariants</Term>:</strong> a type is a guarantee fixed for the value&rsquo;s lifetime; maintaining a fact that stays true is the same move algorithms later make at full scale.
+              <strong>Idea 3 of 7, foreshadowed, <Term word="invariant">invariants</Term>:</strong> a type is a guarantee fixed for the value&rsquo;s lifetime; maintaining a fact that stays true is the same move algorithms later make at full scale.
             </div>
           </>
         ),

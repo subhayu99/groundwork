@@ -85,15 +85,16 @@ function ExitPredict({ api }: { api: BeatVisualApi }) {
  *   refresh    : additionally trims `need` (trimOnRefresh).                    */
 export const whileLoopsLesson: LessonSpec = {
   topicTitle: "while loops · repeat while true",
-  layout: "scene",
+  layout: "focus",
+  diagramShape: "line",
   canvas: { width: VW, height: 470 },
   codeSource: whilePy as string,
   // standing on conditionals (TRACK-NARRATIVES row 6): one yes/no test chose a
   // road once — this lesson re-asks that same test until the answer flips.
   bridgeFrom: reg({
-    base: "A condition picks one branch and runs it once — while re-asks that same test, repeating until the answer flips.",
-    intuitive: "You've seen a yes/no test send the program down one road — now one test gets asked again and again, until it says no.",
-    rigorous: "if evaluates its condition once and branches; while re-evaluates it every pass — repeat on True, exit on False.",
+    base: "A condition picks one branch and runs it once. While re-asks that same test, repeating until the answer flips.",
+    intuitive: "You've seen a yes/no test send the program down one road. Now one test gets asked again and again, until it says no.",
+    rigorous: "if evaluates its condition once and branches; while re-evaluates it every pass: repeat on True, exit on False.",
   }),
   // ⚑ foreshadow stamp (TRACK-NARRATIVES row 6): the guard + progress toward it
   // is what proves the loop stops — the SEED of monotonicity-and-invariants,
@@ -114,15 +115,15 @@ export const whileLoopsLesson: LessonSpec = {
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Repeat without copying", title: "Repetition, written once.",
         body: reg({
-          base: <>To print <code>0</code>, <code>1</code>, <code>2</code> you could write three lines &mdash; but for a thousand? You need a way to say &ldquo;keep doing this&rdquo; once, and let the computer repeat it.</>,
-          intuitive: <>To print <code>0</code>, <code>1</code>, <code>2</code> you could copy the print line three times &mdash; count it: three written lines for three prints. A thousand prints would cost a thousand copied lines. You need a way to say &ldquo;keep doing this&rdquo; <em>once</em>, and let the computer do the repeating.</>,
+          base: <>To print <code>0</code>, <code>1</code>, <code>2</code> you could write three lines. But for a thousand? You need a way to say &ldquo;keep doing this&rdquo; once, and let the computer repeat it.</>,
+          intuitive: <>To print <code>0</code>, <code>1</code>, <code>2</code> you could copy the print line three times. Count it: three written lines for three prints. A thousand prints would cost a thousand copied lines. You need a way to say &ldquo;keep doing this&rdquo; <em>once</em>, and let the computer do the repeating.</>,
         }),
       }],
       detail: reg({
         base: <><p>A <Term word="loop">loop</Term> runs the same block of code again and again. The <code>while</code> loop is the most basic kind: it repeats <strong>as long as a condition is True</strong>.</p></>,
         intuitive: (
           <>
-            <p>Copy-paste has a second, sneakier problem: it only works when you <em>know</em> the number of repeats up front. &ldquo;Keep asking until the user types quit&rdquo; can&rsquo;t be copy-pasted &mdash; nobody knows if that&rsquo;s 2 rounds or 200.</p>
+            <p>Copy-paste has a second, sneakier problem: it only works when you <em>know</em> the number of repeats up front. &ldquo;Keep asking until the user types quit&rdquo; can&rsquo;t be copy-pasted, because nobody knows if that&rsquo;s 2 rounds or 200.</p>
             <p>A <Term word="loop">loop</Term> fixes both problems: it runs the same <Term word="block">block</Term> of code &mdash; the indented lines that move together &mdash; again and again. The <code>while</code> loop is the most basic kind: it repeats <strong>as long as a condition is True</strong>.</p>
           </>
         ),
@@ -159,7 +160,7 @@ export const whileLoopsLesson: LessonSpec = {
       // empty; structured's connector folds in the `setup` beat it never saw.
       connector: reg({
         base: "Watch it actually run.",
-        structured: "Two pieces set it up — count = 0, then the test count < 3 — now watch it run.",
+        structured: "Two pieces set it up: count = 0, then the test count < 3. Now watch it run.",
         rigorous: "",
       }),
       actionLabel: "When does it stop?",
@@ -172,9 +173,9 @@ export const whileLoopsLesson: LessonSpec = {
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Round by round", title: "Check → run → repeat.",
         body: reg({
-          base: <>Round 1: <code>0 &lt; 3</code> is True, so it prints <code>0</code> and bumps <code>count</code> to <code>1</code>. Round 2 with <code>1</code>, round 3 with <code>2</code> &mdash; each time it loops back to the test.</>,
-          intuitive: <>Read the rounds top to bottom. Round 1: is <code>0 &lt; 3</code>? Yes &mdash; so print <code>0</code>, bump <code>count</code> to <code>1</code>, and walk back up to the test. Round 2 asks again with <code>1</code>; round 3 with <code>2</code>. The same small rhythm every time: check, run, back to the check.</>,
-          rigorous: <>Setup: <code>count = 0</code>; guard: <code>count &lt; 3</code>. Each pass evaluates the guard &mdash; True &rarr; run the block, return to the test. The block&rsquo;s last line steps <code>count</code> up by one, so every pass moves the state one step toward a failing guard. Three passes: 0, 1, 2.</>,
+          base: <>Round 1: <code>0 &lt; 3</code> is True, so it prints <code>0</code> and bumps <code>count</code> to <code>1</code>. Round 2 with <code>1</code>, round 3 with <code>2</code>, and each time it loops back to the test.</>,
+          intuitive: <>Read the rounds top to bottom. Round 1: is <code>0 &lt; 3</code>? Yes, so print <code>0</code>, bump <code>count</code> to <code>1</code>, and walk back up to the test. Round 2 asks again with <code>1</code>; round 3 with <code>2</code>. The same small rhythm every time: check, run, back to the check.</>,
+          rigorous: <>Setup: <code>count = 0</code>; guard: <code>count &lt; 3</code>. Each pass evaluates the guard; True &rarr; run the block, return to the test. The block&rsquo;s last line steps <code>count</code> up by one, so every pass moves the state one step toward a failing guard. Three passes: 0, 1, 2.</>,
         }),
       }],
       detail: reg({
@@ -182,7 +183,7 @@ export const whileLoopsLesson: LessonSpec = {
         intuitive: (
           <>
             <p>Spot the quiet hero: <code>count = count + 1</code>. The print is what you came for, but this line is what moves the story forward &mdash; every round it pushes the counter one step <strong>toward</strong> the day the answer is no. Without it, the test would stay True forever.</p>
-            <p>There&rsquo;s also a steady promise being kept: at every check, <code>count</code> equals how many prints have already happened &mdash; 0, then 1, then 2. Noticing what <em>stays</em> true while everything changes is a habit that pays off in a big way later.</p>
+            <p>There&rsquo;s also a steady promise being kept: at every check, <code>count</code> equals how many prints have already happened: 0, then 1, then 2. Noticing what <em>stays</em> true while everything changes is a habit that pays off in a big way later.</p>
           </>
         ),
         rigorous: (
@@ -198,7 +199,7 @@ export const whileLoopsLesson: LessonSpec = {
       label: "The exit",
       connector: reg({
         base: "So what finally ends it?",
-        rigorous: "Now the exit — commit to it before it runs.",
+        rigorous: "Now the exit. Commit to it before it runs.",
       }),
       actionLabel: reg({
         base: "The catch",
@@ -214,25 +215,25 @@ export const whileLoopsLesson: LessonSpec = {
         left: 150, top: 24, width: 560, variant: "main", label: "The exit",
         title: reg({
           base: "3 < 3  →  False  →  stop",
-          intuitive: "count is 3 — the test gets asked once more.",
+          intuitive: "count is 3: the test gets asked once more.",
         }),
         body: reg({
           base: <>After the third round <code>count</code> is <code>3</code>. Now <code>3 &lt; 3</code> is <strong>False</strong>, so the block is skipped and the program moves on to whatever comes after the loop.</>,
-          intuitive: <>After the third round <code>count</code> is <code>3</code>, and the loop walks back up to its question one more time. You already know everything you need to call this one &mdash; tap your prediction in the picture and watch what the check decides.</>,
-          rigorous: <>After three iterations <code>count = 3</code>: the guard <code>3 &lt; 3</code> evaluates False, the block is skipped, and control falls through to the line after the loop. Exit happens only at the test &mdash; never mid-block.</>,
+          intuitive: <>After the third round <code>count</code> is <code>3</code>, and the loop walks back up to its question one more time. You already know everything you need to call this one. Tap your prediction in the picture and watch what the check decides.</>,
+          rigorous: <>After three iterations <code>count = 3</code>: the guard <code>3 &lt; 3</code> evaluates False, the block is skipped, and control falls through to the line after the loop. Exit happens only at the test, never mid-block.</>,
         }),
       }],
       detail: reg({
-        base: <><p>The danger: if the condition can <em>never</em> become False (you forget <code>count = count + 1</code>), the loop runs forever &mdash; an <Term word="infinite loop">infinite loop</Term>. Every <code>while</code> must make progress toward its exit.</p></>,
+        base: <><p>The danger: if the condition can <em>never</em> become False (you forget <code>count = count + 1</code>), the loop runs forever, an <Term word="infinite loop">infinite loop</Term>. Every <code>while</code> must make progress toward its exit.</p></>,
         intuitive: (
           <>
-            <p>Count the asks across the whole run: <strong>four checks for three rounds</strong> &mdash; the extra one is the check that says no. That&rsquo;s how every while loop ends: it finds out it&rsquo;s done by asking one more time.</p>
-            <p>Two situations to keep in your pocket. If the answer is already False at the very start (imagine beginning with <code>count = 5</code>), the block never runs at all &mdash; zero rounds is a perfectly legal run. And if the answer can <em>never</em> turn False &mdash; you forget <code>count = count + 1</code> &mdash; the loop runs forever: an <Term word="infinite loop">infinite loop</Term>. Every <code>while</code> must make progress toward its exit.</p>
+            <p>Count the asks across the whole run: <strong>four checks for three rounds</strong>, the extra one being the check that says no. That&rsquo;s how every while loop ends: it finds out it&rsquo;s done by asking one more time.</p>
+            <p>Two situations to keep in your pocket. If the answer is already False at the very start (imagine beginning with <code>count = 5</code>), the block never runs at all; zero rounds is a perfectly legal run. And if the answer can <em>never</em> turn False, say you forget <code>count = count + 1</code>, the loop runs forever: an <Term word="infinite loop">infinite loop</Term>. Every <code>while</code> must make progress toward its exit.</p>
           </>
         ),
         rigorous: (
           <>
-            <p>Count the guard evaluations: <code>n</code> iterations cost <code>n + 1</code> checks &mdash; four tests for three rounds here, the failing one being the exit. Edges: guard False on entry &rarr; zero iterations, the block never runs; no progress step &rarr; the guard never changes and the loop diverges. The termination argument is always the same pair: a bounded guard plus strictly <Term word="monotonic">monotone</Term> progress toward falsifying it.</p>
+            <p>Count the guard evaluations: <code>n</code> iterations cost <code>n + 1</code> checks, four tests for three rounds here, the failing one being the exit. Edges: guard False on entry &rarr; zero iterations, the block never runs; no progress step &rarr; the guard never changes and the loop diverges. The termination argument is always the same pair: a bounded guard plus strictly <Term word="monotonic">monotone</Term> progress toward falsifying it.</p>
           </>
         ),
       }),
@@ -249,7 +250,7 @@ export const whileLoopsLesson: LessonSpec = {
       actionLabel: "Done",
       takeaway: reg({
         base: "while = repeat while a condition holds; make progress toward False.",
-        intuitive: "A while loop repeats while its question is True — and must step toward False.",
+        intuitive: "A while loop repeats while its question is True, and must step toward False.",
         rigorous: "while = guard + body + progress; monotone progress to a False guard proves it stops.",
       }),
       visual: <g><Cap>✓ printed 0, 1, 2 — then stopped</Cap>{trace(["done", "done", "done"], "done")}</g>,
@@ -261,24 +262,24 @@ export const whileLoopsLesson: LessonSpec = {
         }),
         body: reg({
           base: <>A <code>while</code> loop is a question asked over and over: while it&rsquo;s True, run the block; the moment it&rsquo;s False, stop. The body must nudge the world toward that False, or it never ends.</>,
-          intuitive: <>That&rsquo;s the whole machine: one question, asked over and over. While the answer is True the block runs; the moment it&rsquo;s False the loop is done. And the block itself must nudge the world toward that False &mdash; that nudge is the loop&rsquo;s promise to stop.</>,
-          rigorous: <>The full form: initialize state, guard on it, let the body advance it. &ldquo;Repeat while True&rdquo; is half the contract; the other half is progress &mdash; the guarantee the guard eventually fails. Guard + progress is the loop&rsquo;s termination proof.</>,
+          intuitive: <>That&rsquo;s the whole machine: one question, asked over and over. While the answer is True the block runs; the moment it&rsquo;s False the loop is done. And the block itself must nudge the world toward that False. That nudge is the loop&rsquo;s promise to stop.</>,
+          rigorous: <>The full form: initialize state, guard on it, let the body advance it. &ldquo;Repeat while True&rdquo; is half the contract; the other half is progress: the guarantee the guard eventually fails. Guard + progress is the loop&rsquo;s termination proof.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p><code>while</code> is perfect when you don&rsquo;t know how many rounds you&rsquo;ll need (&ldquo;until the user quits&rdquo;). When you&rsquo;re going through a <em>known</em> set of things one by one, the <strong>for</strong> loop is cleaner &mdash; that&rsquo;s next.</p>
+            <p><code>while</code> is perfect when you don&rsquo;t know how many rounds you&rsquo;ll need (&ldquo;until the user quits&rdquo;). When you&rsquo;re going through a <em>known</em> set of things one by one, the <strong>for</strong> loop is cleaner. That&rsquo;s next.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The seed of idea 3 of 7 &mdash; invariants &amp; progress:</strong> a test you can trust, plus steady progress toward it, is what proves a loop stops.
+              <strong>The seed of idea 3 of 7, invariants &amp; progress:</strong> a test you can trust, plus steady progress toward it, is what proves a loop stops.
             </div>
           </>
         ),
         intuitive: (
           <>
-            <p>The move you just derived is the <code>while</code> loop: set a counter, ask a question, run the block while the answer is True &mdash; and make every round step toward a no. It&rsquo;s the tool for when you <em>can&rsquo;t</em> know the round count up front (&ldquo;keep going until the user quits&rdquo;). For walking a known set of things one by one, the <strong>for</strong> loop is cleaner &mdash; that&rsquo;s next.</p>
+            <p>The move you just derived is the <code>while</code> loop: set a counter, ask a question, run the block while the answer is True, and make every round step toward a no. It&rsquo;s the tool for when you <em>can&rsquo;t</em> know the round count up front (&ldquo;keep going until the user quits&rdquo;). For walking a known set of things one by one, the <strong>for</strong> loop is cleaner. That&rsquo;s next.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>A first taste of big idea 3 of 7 &mdash; promises you can lean on:</strong> the loop stops because two things stay true: its question has a &ldquo;no&rdquo; in its future, and every round steps toward it. (Kept promises like these are called <Term word="invariant">invariants</Term> &mdash; they grow into a superpower later.)
+              <strong>A first taste of big idea 3 of 7, promises you can lean on:</strong> the loop stops because two things stay true: its question has a &ldquo;no&rdquo; in its future, and every round steps toward it. (Kept promises like these are called <Term word="invariant">invariants</Term> &mdash; they grow into a superpower later.)
             </div>
           </>
         ),
@@ -286,7 +287,7 @@ export const whileLoopsLesson: LessonSpec = {
           <>
             <p><code>while</code> covers the unknown-trip-count case; <code>for</code> (next) specializes it for a known collection. Same skeleton either way: state, guard, progress.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 3 of 7, foreshadowed &mdash; monotonicity &amp; invariants:</strong> a monotone measure under a bounding guard is the termination proof &mdash; the same pair that later drives two-pointers and binary search.
+              <strong>Idea 3 of 7, foreshadowed, monotonicity &amp; invariants:</strong> a monotone measure under a bounding guard is the termination proof. It is the same pair that later drives two-pointers and binary search.
             </div>
           </>
         ),

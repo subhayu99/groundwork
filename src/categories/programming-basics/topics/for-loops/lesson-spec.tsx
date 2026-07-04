@@ -91,15 +91,16 @@ function NextRoundPredict({ api }: { api: BeatVisualApi }) {
  *                  register re-derives from the gate beat + the close.          */
 export const forLoopsLesson: LessonSpec = {
   topicTitle: "for loops · once per item",
-  layout: "scene",
+  layout: "focus",
+  diagramShape: "line",
   canvas: { width: VW, height: 470 },
   codeSource: forPy as string,
   // standing on while-loops (per TRACK-NARRATIVES.md): the stop-promise the
   // learner kept by hand becomes the collection's job.
   bridgeFrom: reg({
-    base: "A while loop runs while its condition holds — you supply the progress. Now the collection does: one round per item.",
-    intuitive: "With while, you kept the loop honest — counting toward the stop yourself. A for loop does that bookkeeping for you.",
-    rigorous: "while = guard plus progress you maintain; for swaps the guard for exhaustion — termination comes free.",
+    base: "A while loop runs while its condition holds, and you supply the progress. Now the collection does: one round per item.",
+    intuitive: "With while, you kept the loop honest by counting toward the stop yourself. A for loop does that bookkeeping for you.",
+    rigorous: "while = guard plus progress you maintain; for swaps the guard for exhaustion, so termination comes free.",
   }),
   // ⚑ foreshadow stamp (TRACK-NARRATIVES row 7): the accumulator carries
   // everything learned so far through the loop — the SEED of information
@@ -112,7 +113,7 @@ export const forLoopsLesson: LessonSpec = {
       registers: ["intuitive", "structured"],
       trimOnRefresh: true,
       actionLabel: "Set up the walk",
-      takeaway: "A for loop runs its block once for each item — no counter to manage.",
+      takeaway: "A for loop runs its block once for each item, with no counter to manage.",
       visual: (
         <g>
           <Cap>you have a list of things; do the same step to each one</Cap>
@@ -124,15 +125,15 @@ export const forLoopsLesson: LessonSpec = {
         left: 150, top: 24, width: 560, variant: "main", label: "Walk a collection", title: "Do something to every item.",
         body: reg({
           base: <>Often you have a <em>collection</em> &mdash; prices, names, rows &mdash; and want the same step for each. A <code>while</code> with a counter works, but it&rsquo;s fiddly (start, condition, increment, off-by-one). The <code>for</code> loop is built exactly for this.</>,
-          intuitive: <>Three prices sit in a list &mdash; 10, 20, 30 &mdash; and you want them added up. You could use <code>while</code>: set up a counter, test it every round, bump it every round &mdash; three jobs of pure bookkeeping, and one slip (starting at 1, stopping a round early) makes the answer silently wrong. The <code>for</code> loop exists so you do none of those jobs.</>,
+          intuitive: <>Three prices sit in a list, 10, 20, 30, and you want them added up. You could use <code>while</code>: set up a counter, test it every round, bump it every round. That&rsquo;s three jobs of pure bookkeeping, and one slip (starting at 1, stopping a round early) makes the answer silently wrong. The <code>for</code> loop exists so you do none of those jobs.</>,
         }),
       }],
       detail: reg({
         base: <><p>Read it almost like English: <code>for price in [10, 20, 30]:</code> means &ldquo;for each <code>price</code> in this list, do the block.&rdquo; No counter, no condition to get wrong.</p></>,
         intuitive: (
           <>
-            <p>Read the line out loud: <code>for price in [10, 20, 30]:</code> &mdash; &ldquo;for each <code>price</code> in this list, do the indented block.&rdquo; That&rsquo;s the entire setup. No counter to start, no test to write, no bump to forget.</p>
-            <p><code>price</code> is just a variable &mdash; a labelled box, like always. The one new thing is <em>who fills it</em>. Hold that question for a moment.</p>
+            <p>Read the line out loud: <code>for price in [10, 20, 30]:</code> says &ldquo;for each <code>price</code> in this list, do the indented block.&rdquo; That&rsquo;s the entire setup. No counter to start, no test to write, no bump to forget.</p>
+            <p><code>price</code> is just a variable, a labelled box, like always. The one new thing is <em>who fills it</em>. Hold that question for a moment.</p>
           </>
         ),
       }),
@@ -161,14 +162,14 @@ export const forLoopsLesson: LessonSpec = {
         left: 150, top: 24, width: 560, variant: "main", label: "First item", title: "price = 10  →  total = 10",
         body: reg({
           base: <>On the first round the loop sets <code>price</code> to the first item, <code>10</code>. The body runs: <code>total = total + price</code>, so <code>total</code> goes from <code>0</code> to <code>10</code>.</>,
-          intuitive: <>Round 1 starts and the loop makes the first move: it puts the first item, <code>10</code>, into <code>price</code>. You never typed <code>price = 10</code> &mdash; look for that line in the code; it isn&rsquo;t there. Then your block runs: <code>total = total + price</code> reads 0, adds 10, stores 10.</>,
+          intuitive: <>Round 1 starts and the loop makes the first move: it puts the first item, <code>10</code>, into <code>price</code>. You never typed <code>price = 10</code>. Look for that line in the code; it isn&rsquo;t there. Then your block runs: <code>total = total + price</code> reads 0, adds 10, stores 10.</>,
         }),
       }],
       detail: reg({
-        base: <><p>You never wrote <code>price = 10</code> yourself &mdash; the <code>for</code> loop assigned it for you. That&rsquo;s the convenience: the loop variable is handed the next item each round.</p></>,
+        base: <><p>You never wrote <code>price = 10</code> yourself; the <code>for</code> loop assigned it for you. That&rsquo;s the convenience: the loop variable is handed the next item each round.</p></>,
         intuitive: (
           <>
-            <p>Compare with the <code>while</code> version you&rsquo;d have written: there, <em>you</em> created the counter and <em>you</em> moved it along. Here the <code>for</code> line quietly does an <Term word="assignment">assignment</Term> for you at the top of every round &mdash; next item into the box.</p>
+            <p>Compare with the <code>while</code> version you&rsquo;d have written: there, <em>you</em> created the counter and <em>you</em> moved it along. Here the <code>for</code> line quietly does an <Term word="assignment">assignment</Term> for you at the top of every round, dropping the next item into the box.</p>
             <p>One box, by the way: <code>price</code> isn&rsquo;t a copy of the list. It holds exactly one item at a time.</p>
           </>
         ),
@@ -188,30 +189,30 @@ export const forLoopsLesson: LessonSpec = {
       actionLabel: "After the last",
       takeaway: reg({
         base: "It steps through every item, in order, until the collection runs out.",
-        intuitive: "Each round the same price box is refilled with the next item — old value replaced.",
-        rigorous: "for rebinds the target to each item in order; exhaustion — not a guard — ends it.",
+        intuitive: "Each round the same price box is refilled with the next item; the old value is replaced.",
+        rigorous: "for rebinds the target to each item in order; exhaustion, not a guard, ends it.",
       }),
       visual: (api) => <NextRoundPredict api={api} />,
       panels: [{
         left: 150, top: 24, width: 560, variant: "main", label: "Each one in turn", title: "price = 20  →  total = 30",
         body: reg({
-          base: <>Round 2: <code>price</code> is now <code>20</code>, and <code>total</code> becomes <code>30</code>. The loop simply walks to the next item and runs the same body &mdash; it knows when to stop on its own.</>,
-          intuitive: <>Commit to a guess below, then watch round 2 land: the loop refills <code>price</code> with the next item and the same block runs again. Nothing in <em>your</em> code moved anything along &mdash; the loop itself did.</>,
-          rigorous: <>Each round rebinds <code>price</code> to the next item and runs the body once. After round k, <code>total</code> holds the sum of the first k items &mdash; the loop&rsquo;s <Term word="invariant">invariant</Term>. There is no guard to maintain; the collection running out is the exit.</>,
+          base: <>Round 2: <code>price</code> is now <code>20</code>, and <code>total</code> becomes <code>30</code>. The loop simply walks to the next item and runs the same body; it knows when to stop on its own.</>,
+          intuitive: <>Commit to a guess below, then watch round 2 land: the loop refills <code>price</code> with the next item and the same block runs again. Nothing in <em>your</em> code moved anything along. The loop itself did.</>,
+          rigorous: <>Each round rebinds <code>price</code> to the next item and runs the body once. After round k, <code>total</code> holds the sum of the first k items: the loop&rsquo;s <Term word="invariant">invariant</Term>. There is no guard to maintain; the collection running out is the exit.</>,
         }),
       }],
       detail: reg({
         base: <><p>This is the key difference from <code>while</code>: there&rsquo;s no condition <em>you</em> manage and no risk of an infinite loop. The collection&rsquo;s length decides how many rounds happen.</p></>,
         intuitive: (
           <>
-            <p>The habit to unlearn from <code>while</code>: nobody wrote <code>price = 20</code>, and nobody bumped a counter. The <code>for</code> line itself swaps what&rsquo;s in <code>price</code> for the next item at the top of every round &mdash; same box, new value, old one gone. Watch the 10 dim in the row: it&rsquo;s still in the list, but <code>price</code> has moved on.</p>
-            <p>Count the rounds: three items, so the block runs exactly three times, then the loop is out of items. The list&rsquo;s length decides &mdash; not a test you wrote. That&rsquo;s why a plain <code>for</code> over a list can never become an <Term word="infinite loop">infinite loop</Term>.</p>
+            <p>The habit to unlearn from <code>while</code>: nobody wrote <code>price = 20</code>, and nobody bumped a counter. The <code>for</code> line itself swaps what&rsquo;s in <code>price</code> for the next item at the top of every round: same box, new value, old one gone. Watch the 10 dim in the row: it&rsquo;s still in the list, but <code>price</code> has moved on.</p>
+            <p>Count the rounds: three items, so the block runs exactly three times, then the loop is out of items. The list&rsquo;s length decides, not a test you wrote. That&rsquo;s why a plain <code>for</code> over a list can never become an <Term word="infinite loop">infinite loop</Term>.</p>
           </>
         ),
         rigorous: (
           <>
             <p><strong>The model.</strong> <code>for price in items:</code> binds <code>price</code> to each item of <code>items</code> in order and runs the body once per binding. The assignment is the loop&rsquo;s, never yours, and each new binding replaces the last. Termination needs no progress argument: a finite collection exhausts. (Contrast <code>while</code>: guard plus progress you must maintain.)</p>
-            <p><strong>The accumulator invariant.</strong> <code>total = 0</code> establishes it &mdash; the empty sum. Each round folds exactly one new item in, so after round k, <code>total</code> is the sum of the first k items; at exhaustion, k = n and <code>total</code> is the answer. Nothing is ever re-added.</p>
+            <p><strong>The accumulator invariant.</strong> <code>total = 0</code> establishes it: the empty sum. Each round folds exactly one new item in, so after round k, <code>total</code> is the sum of the first k items; at exhaustion, k = n and <code>total</code> is the answer. Nothing is ever re-added.</p>
           </>
         ),
       }),
@@ -223,7 +224,7 @@ export const forLoopsLesson: LessonSpec = {
       label: "Out the other side",
       connector: reg({
         base: "When the items are used up, the loop is done.",
-        rigorous: "Exhaustion, not a guard, ended it — now name the shape.",
+        rigorous: "Exhaustion, not a guard, ended it. Now name the shape.",
       }),
       actionLabel: "Done",
       takeaway: reg({
@@ -246,34 +247,34 @@ export const forLoopsLesson: LessonSpec = {
         }),
         body: reg({
           base: <>After the third item there&rsquo;s nothing left, so the loop ends and <code>total</code> is <code>60</code>. The pattern &mdash; start an <Term word="accumulator">accumulator</Term>, add each item &mdash; is how you sum, count, or build things from a collection.</>,
-          intuitive: <>The third item was the last, so the loop steps out the bottom &mdash; and <code>total</code> holds 60. Look at what <code>total</code> did all lesson: it started at 0 and <em>carried the answer-so-far</em> through every round. A box used that way is called an <Term word="accumulator">accumulator</Term>.</>,
-          rigorous: <>n = 3 items, exactly 3 body runs, then the line after the loop. The shape to file: initialize an <Term word="accumulator">accumulator</Term>, fold one item in per round, read it after &mdash; sum, count, max, and build-a-list all instantiate it.</>,
+          intuitive: <>The third item was the last, so the loop steps out the bottom, and <code>total</code> holds 60. Look at what <code>total</code> did all lesson: it started at 0 and <em>carried the answer-so-far</em> through every round. A box used that way is called an <Term word="accumulator">accumulator</Term>.</>,
+          rigorous: <>n = 3 items, exactly 3 body runs, then the line after the loop. The shape to file: initialize an <Term word="accumulator">accumulator</Term>, fold one item in per round, read it after. Sum, count, max, and build-a-list all instantiate it.</>,
         }),
       }],
       detail: reg({
         base: (
           <>
-            <p>Use <code>for</code> whenever you have a known set to walk; use <code>while</code> when you&rsquo;re waiting for a condition with no fixed count. Together they cover all repetition &mdash; and you&rsquo;ll see <code>for</code> on every array and list from here on.</p>
+            <p>Use <code>for</code> whenever you have a known set to walk; use <code>while</code> when you&rsquo;re waiting for a condition with no fixed count. Together they cover all repetition, and you&rsquo;ll see <code>for</code> on every array and list from here on.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The seed of idea 1 of 7 &mdash; information reuse:</strong> the accumulator carries everything learned so far through the loop &mdash; no round redoes the past.
+              <strong>The seed of idea 1 of 7, information reuse:</strong> the accumulator carries everything learned so far through the loop, so no round redoes the past.
             </div>
           </>
         ),
         intuitive: (
           <>
-            <p>When to reach for which loop: <code>for</code> when you have a known set of things to walk &mdash; a list, a word&rsquo;s letters, rows of a file. <code>while</code> when you&rsquo;re waiting for something with no fixed count. Together they cover all repetition &mdash; and you&rsquo;ll see <code>for</code> on every list from here on.</p>
-            <p>One quiet case worth knowing: if the list is <em>empty</em>, the block simply never runs &mdash; the loop ends before round 1, <code>total</code> stays 0, and that&rsquo;s the right answer for &ldquo;the sum of nothing.&rdquo;</p>
+            <p>When to reach for which loop: <code>for</code> when you have a known set of things to walk, like a list, a word&rsquo;s letters, rows of a file. <code>while</code> when you&rsquo;re waiting for something with no fixed count. Together they cover all repetition, and you&rsquo;ll see <code>for</code> on every list from here on.</p>
+            <p>One quiet case worth knowing: if the list is <em>empty</em>, the block simply never runs. The loop ends before round 1, <code>total</code> stays 0, and that&rsquo;s the right answer for &ldquo;the sum of nothing.&rdquo;</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>The first big idea (1 of 7) &mdash; reuse what you already know:</strong> <code>total</code> remembers all the adding done so far, so each round adds one new item &mdash; never the old ones again.
+              <strong>The first big idea (1 of 7), reuse what you already know:</strong> <code>total</code> remembers all the adding done so far, so each round adds one new item, never the old ones again.
             </div>
           </>
         ),
         rigorous: (
           <>
-            <p><strong>Edges.</strong> Empty collection: zero body runs; execution falls straight through and <code>total</code> keeps its initial value &mdash; the correct empty fold. One item: one run, no special case. After exit, <code>price</code> keeps its last binding (Python leaves the loop variable in scope). Mutating the collection while iterating over it is the classic hazard &mdash; iterate a copy if you must edit.</p>
-            <p><strong>Cost, as counted.</strong> n items, exactly n body runs &mdash; the linear walk, written <Term word="O(n)"><code>O(n)</code></Term> once you start metering structures. Rule: <code>for</code> for a known collection, <code>while</code> for an open-ended condition.</p>
+            <p><strong>Edges.</strong> Empty collection: zero body runs; execution falls straight through and <code>total</code> keeps its initial value, the correct empty fold. One item: one run, no special case. After exit, <code>price</code> keeps its last binding (Python leaves the loop variable in scope). Mutating the collection while iterating over it is the classic hazard; iterate a copy if you must edit.</p>
+            <p><strong>Cost, as counted.</strong> n items, exactly n body runs: the linear walk, written <Term word="O(n)"><code>O(n)</code></Term> once you start metering structures. Rule: <code>for</code> for a known collection, <code>while</code> for an open-ended condition.</p>
             <div className="mt-1 p-3 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--text)]">
-              <strong>Idea 1 of 7, foreshadowed &mdash; information reuse:</strong> the accumulator is the carried partial result &mdash; round k folds in one item and never recomputes the first k &minus; 1.
+              <strong>Idea 1 of 7, foreshadowed, information reuse:</strong> the accumulator is the carried partial result; round k folds in one item and never recomputes the first k &minus; 1.
             </div>
           </>
         ),
