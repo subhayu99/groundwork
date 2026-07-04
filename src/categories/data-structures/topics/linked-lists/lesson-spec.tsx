@@ -315,7 +315,7 @@ function Anatomy() {
 /* ════════════════════════════════════════════════════════════════════════════
    BEAT 5 — operations: find-walk playback (NET-NEW amber traversal) + cost table
    ════════════════════════════════════════════════════════════════════════════ */
-const OPS_G = chainGeom(CHAIN.length, 214);
+const OPS_G = chainGeom(CHAIN.length, 186);
 const FIND_TARGET = 7; // last node, so the walk lights the whole chain
 function FindWalk({ api }: { api: BeatVisualApi }) {
   const targetIdx = CHAIN.indexOf(FIND_TARGET);
@@ -407,7 +407,7 @@ function FindCostGate({ api }: { api: BeatVisualApi }) {
         style={{ fontSize: 12, fill: "var(--text-faint)" }}>
         we want the node holding {FIND_TARGET}, sitting at the far end
       </text>
-      <foreignObject x={(VW - 500) / 2} y={g.y + NODE_H + 30} width={500} height={180}>
+      <foreignObject x={(VW - 500) / 2} y={g.y + NODE_H + 16} width={500} height={208}>
         <div data-canvas-panel="predict">
           <PredictGate
             api={api}
@@ -765,7 +765,7 @@ export const linkedListsLesson: LessonSpec = {
           </>
         ),
       }),
-      arrows: [{ x1: 470, y1: 110, x2: OPS_G.valCx(0), y2: 208 }],
+      arrows: [{ x1: 470, y1: 110, x2: OPS_G.valCx(0), y2: 180 }],
       codeLabels: ["insert_relink", "remove_relink", "traverse_init", "traverse_loop", "traverse_advance"],
       interaction: "wedge",
     },

@@ -233,10 +233,10 @@ function MergeCostGate({ api }: { api: BeatVisualApi }) {
 
   return (
     <g>
-      <text x={VW / 2} y={214} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
+      <text x={VW / 2} y={190} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>
         swap-by-swap prices 1,000 cards at about a million steps &mdash; now price split-and-merge
       </text>
-      <foreignObject x={190} y={240} width={480} height={200}>
+      <foreignObject x={190} y={210} width={480} height={244} style={{ overflow: "visible" }}>
         <div data-canvas-panel="predict">
           <PredictGate
             api={api}

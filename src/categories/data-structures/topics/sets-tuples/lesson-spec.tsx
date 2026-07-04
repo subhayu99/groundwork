@@ -329,12 +329,12 @@ function MembershipCostGate({ api }: { api: BeatVisualApi }) {
 
   return (
     <g>
-      <SetPills members={["alice", "bob"]} y={196} label="set · add · in · remove" />
-      <text x={VW / 2} y={250} textAnchor="middle" className="font-mono select-none"
+      <SetPills members={["alice", "bob"]} y={168} label="set · add · in · remove" />
+      <text x={VW / 2} y={222} textAnchor="middle" className="font-mono select-none"
         style={{ fontSize: 12, fill: "var(--text-faint)" }}>
         the room keeps filling — picture a million names in those cubbies
       </text>
-      <foreignObject x={190} y={268} width={480} height={190}>
+      <foreignObject x={190} y={234} width={480} height={228}>
         <div data-canvas-panel="predict">
           <PredictGate
             api={api}
@@ -583,7 +583,7 @@ export const setsTuplesLesson: LessonSpec = {
         </>
         ),
       }),
-      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: 186 }],
+      arrows: [{ x1: VW / 2, y1: 122, x2: VW / 2, y2: 158 }],
       codeLabels: ["set_ops", "tuple_immutable", "tuple_key"],
       interaction: "wedge",
     },

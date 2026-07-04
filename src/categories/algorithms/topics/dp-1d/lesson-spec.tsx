@@ -18,8 +18,10 @@ const DP = (() => {
   for (let i = 2; i <= 8; i++) a[i] = a[i - 1] + a[i - 2];
   return a;
 })();
-/* Row geometry for the 9-cell dp table, centered, sitting in the middle band. */
-const G = rowGeom(DP.length, VW, 300, 52, 10, 52);
+/* Row geometry for the 9-cell dp table, centered, sitting in the middle band.
+ * y raised to 200 so the operations-beat predict gate (which hangs below the
+ * row at G.y + cellH + 26, height 180) clears the VH=470 focus-box bottom. */
+const G = rowGeom(DP.length, VW, 200, 52, 10, 52);
 
 /* ── shared SVG caption above/below the visual ─────────────────────────────── */
 function Caption({ y, text, tone = "var(--text-faint)" }: { y: number; text: string; tone?: string }) {
@@ -464,7 +466,7 @@ export const dp1dLesson: LessonSpec = {
           </>
         ),
       }),
-      arrows: [{ x1: 213, y1: 152, x2: 213, y2: G.y - 30 }],
+      arrows: [{ x1: 213, y1: G.y - 72, x2: 213, y2: G.y - 30 }],
       codeLabels: ["base_check", "base_return", "init_table"],
     },
     {
@@ -521,7 +523,7 @@ export const dp1dLesson: LessonSpec = {
           </>
         ),
       }),
-      arrows: [{ x1: 430, y1: 152, x2: 430, y2: G.y - 44 }],
+      arrows: [{ x1: 430, y1: G.y - 86, x2: 430, y2: G.y - 44 }],
       codeLabels: ["loop", "recurrence", "answer"],
       interaction: "wedge",
     },
@@ -577,7 +579,7 @@ export const dp1dLesson: LessonSpec = {
           }),
         },
         {
-          left: 500, top: 20, width: 320, variant: "note",
+          left: 260, top: 300, width: 340, variant: "note",
           body: reg({
             base: <>Spot it on <strong>number of ways / minimum cost / maximum value</strong> problems where naive recursion explodes from repeated calls, and a greedy grab-the-best step gives the wrong answer.</>,
             rigorous: <>Triggers: count-the-ways / min-cost / max-value with a recurrence on smaller indices; naive recursion repeats subproblems; greedy refuted because later choices depend on earlier ones.</>,
@@ -624,7 +626,7 @@ export const dp1dLesson: LessonSpec = {
           </>
         ),
       }),
-      arrows: [{ x1: G.cx(8), y1: 230, x2: G.cx(8), y2: G.y - 4 }],
+      arrows: [{ x1: G.cx(8), y1: G.y - 46, x2: G.cx(8), y2: G.y - 4 }],
       codeLabels: ["answer"],
     },
   ],

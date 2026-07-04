@@ -244,7 +244,9 @@ function SortAndPick({ api }: { api: BeatVisualApi }) {
   const btnY = yOf(MEETINGS.length) + 26;
 
   return (
-    <g>
+    // shift the whole 7-row diagram + controls up 24px so the caption below the
+    // buttons (btnY+44 = 480 in canvas units) clears the box bottom (VH-8 = 462)
+    <g transform="translate(0,-24)">
       {free !== undefined && <FreeAt hour={free} rows={MEETINGS.length} />}
       {order.map((m, i) => (
         <Bar key={m.id} m={m} row={i} state={states[m.id]} />
@@ -423,7 +425,11 @@ function FirstClashGate({ api }: { api: BeatVisualApi }) {
   const kept = order[0]; // stand-up, 9–11 — the first, automatic accept
   const next = order[1]; // design sync, 10–12 — the decision in question
   return (
-    <g>
+    // shift the 2-row diagram + caption + predict gate up 28px so the gate's
+    // bottom pill (foreignObject y=312 + ~175 content = 487 canvas units) clears
+    // the box bottom (VH-8 = 462); the diagram only uses 2 rows so there is ample
+    // headroom above (row 0 top 200 → 172, still well below the box top)
+    <g transform="translate(0,-28)">
       <FreeAt hour={kept.end} rows={2} />
       <Bar m={kept} row={0} state="accepted" />
       <Bar m={next} row={1} state="active" />

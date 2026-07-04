@@ -27,7 +27,7 @@ function Lock({ x, y }: { x: number; y: number }) {
  *    keeps the scene layout's auto-centring honest about the gate's footprint.
  *    The spoiling caption + crossed-out verdict are tap-conditional (variables-
  *    exemplar pattern): pre-tap, the pending line shows with no verdict. ────── */
-const GATE = { x: 190, y: 358, w: 480, h: 112 };
+const GATE = { x: 190, y: 344, w: 480, h: 112 };
 
 function PromisePredict({ api }: { api: BeatVisualApi }) {
   const [revealed, setRevealed] = useState(false);
