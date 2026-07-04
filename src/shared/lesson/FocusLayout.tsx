@@ -152,19 +152,34 @@ export function FocusLayout({
     const measure = () => {
       const w = el.clientWidth, h = el.clientHeight;
       if (h <= 0) return;
-      const byHeight = h / VH;
-      const byWidth = w > 0 ? w / VW : byHeight;
+      // Fit the actual DRAWN CONTENT (svg bbox), not the full 860×470 canvas, so a
+      // diagram that uses only part of the canvas (e.g. a centred grid) still fills
+      // the phone width instead of shrinking with the empty canvas margins. Mobile
+      // renders withNotes=false, so the svg bbox is exactly what's shown.
+      let cw = VW, ch = VH;
+      const svg = mSvgRef.current;
+      if (svg) {
+        try {
+          const bb = svg.getBBox();
+          if (bb.width > 8 && bb.height > 8) {
+            cw = Math.min(VW, bb.width + 24);   // clamp to canvas + a little margin
+            ch = Math.min(VH, bb.height + 24);
+          }
+        } catch { /* getBBox unavailable (hidden) → canvas fallback */ }
+      }
+      const byWidth = w / cw, byHeight = h / ch;
       const next = shape === "line"
-        ? Math.max(0.3, Math.min(byWidth, 1.6))            // whole line fits the width
-        : Math.max(0.3, Math.min(byHeight, byWidth, 1.6));
+        ? Math.max(0.3, Math.min(byWidth, 1.6))            // line: fit content width
+        : Math.max(0.3, Math.min(byWidth, byHeight, 1.6)); // box: fit whole content
       setMScale(next);
     };
     measure();
+    const ts = [90, 260, 480].map((d) => setTimeout(measure, d)); // catch content after paint
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     window.addEventListener("resize", measure);
-    return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
-  }, [VW, VH, b, shape]);
+    return () => { ts.forEach(clearTimeout); ro.disconnect(); window.removeEventListener("resize", measure); };
+  }, [VW, VH, b, beat.id, shape]);
 
   // measure the content stack → the right card's vertical bounds (desktop)
   useEffect(() => {
