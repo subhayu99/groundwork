@@ -141,8 +141,9 @@ export function FocusLayout({
   const shiftWrap = "transform .32s cubic-bezier(.22,.65,.3,1)";
 
   // ── MOBILE diagram scale — SHAPE-AWARE. A "line" fits the WHOLE width (so the
-  // straight line never wraps and you watch it halve); a "box" fills the box
-  // (height-biased), as the scene layout does. ───────────────────────────────
+  // straight line never wraps). A "box" fits the WHOLE canvas into the box —
+  // min(byWidth, byHeight) — so a wide diagram (tree/graph/grid) is never clipped
+  // left/right on a narrow phone (height-biased `max` used to overflow the width). ─
   const mAreaRef = useRef<HTMLDivElement>(null);
   const [mScale, setMScale] = useState(1);
   useEffect(() => {
@@ -155,7 +156,7 @@ export function FocusLayout({
       const byWidth = w > 0 ? w / VW : byHeight;
       const next = shape === "line"
         ? Math.max(0.3, Math.min(byWidth, 1.6))            // whole line fits the width
-        : Math.max(0.5, Math.min(Math.max(byHeight, byWidth), 1.6));
+        : Math.max(0.3, Math.min(byHeight, byWidth, 1.6));
       setMScale(next);
     };
     measure();
