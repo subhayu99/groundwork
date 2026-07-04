@@ -293,7 +293,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
           intuitive: <>The word <code>abracadabra</code>, one letter per box. Reading left to right, what&rsquo;s the longest run you can take without any letter showing up twice? Nobody hands us a length. We&rsquo;re handed a rule to protect: every letter inside is different.</>,
         }),
       }],
-      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: G.y - 18 }],
+      arrows: [{ x1: VW / 2, y1: 150, x2: VW / 2, y2: G.y - 42 }],
       codeLabels: ["sig"],
     },
     {
@@ -480,7 +480,7 @@ export const slidingWindowVariableLesson: LessonSpec = {
           rigorous: <>Count, then name: <code>R</code> makes n forward moves, <code>L</code> at most n, giving at most <code>2n</code> moves, each with an <Term word="O(1)"><code>O(1)</code></Term> lookup. That count is <Term word="O(n)"><code>O(n)</code></Term> time; space is one table entry per distinct character. Against the every-start scan&rsquo;s ~n&sup2;/2 checks: ~250&times; fewer at n = 1,000.</>,
         }),
       }],
-      arrows: [{ x1: G.cx(2), y1: 150, x2: G.cx(2), y2: G.y - 4 }],
+      arrows: [{ x1: G.cx(2), y1: 150, x2: G.cx(2), y2: G.y - 44 }],
       codeLabels: ["expand", "contract"],
       interaction: "none",
     },

@@ -128,6 +128,20 @@ function HashAddress({ api }: { api: BeatVisualApi }) {
   );
 }
 
+/* Render a bucket's contents inside a grid cell. A single name (or the slot
+ * index for an empty box) renders at the base font size; a multi-name chain is
+ * shrunk just enough that the widest label fits inside the cell width, so the
+ * comma-joined chain never overruns box 2's edges. Monospace advance ≈ 0.6em. */
+const GRID_CELL_INNER = GRID.cellPx - 8; // usable width inside the cell padding
+function chainFont(text: string, base: number): number {
+  const fit = GRID_CELL_INNER / (text.length * 0.6);
+  return Math.max(6.5, Math.min(base, fit));
+}
+function CellContent({ names, empty, base }: { names: string[]; empty: number; base: number }) {
+  const text = names.length ? names.join(",") : String(empty);
+  return <tspan style={{ fontSize: chainFont(text, base) }}>{text}</tspan>;
+}
+
 /* ── Beat 4 playback: the 13 names drop into their hashed boxes one at a time ──── */
 interface Drop { n: number; done: boolean; }
 function DropIntoBuckets({ api }: { api: BeatVisualApi }) {
@@ -160,7 +174,7 @@ function DropIntoBuckets({ api }: { api: BeatVisualApi }) {
           const i = r * 4 + c, names = filled[i];
           return {
             tone: (i === lastSlot ? "active" : names.length ? "visited" : undefined) as Tone | undefined,
-            content: <tspan style={{ fontSize: 10 }}>{names.length ? names.join(",") : i}</tspan>,
+            content: <CellContent names={names} empty={i} base={10} />,
           };
         }} />
       <text x={VW / 2} y={GRID.y0 - 28} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: s.done ? "var(--diff-easy)" : "var(--text-faint)" }}>
@@ -224,7 +238,7 @@ function CollisionGrid() {
           const i = r * 4 + c, names = GROUPED[i];
           return {
             tone: (COLLISION_SLOTS[i] ? "muted" : names.length ? "visited" : undefined) as Tone | undefined,
-            content: <tspan style={{ fontSize: 9 }}>{names.length ? names.join(",") : i}</tspan>,
+            content: <CellContent names={names} empty={i} base={9} />,
           };
         }} />
       <text x={VW / 2} y={GRID.y0 - 28} textAnchor="middle" className="font-mono select-none" style={{ fontSize: 12, fill: "var(--text-faint)" }}>

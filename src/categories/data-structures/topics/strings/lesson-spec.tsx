@@ -419,7 +419,7 @@ export const stringsLesson: LessonSpec = {
           </>
         ),
       }),
-      arrows: [{ x1: 380, y1: 150, x2: G.cx(10), y2: G.y - 4 }],
+      arrows: [{ x1: 560, y1: 150, x2: G.cx(10), y2: G.y - 4 }],
       codeLabels: ["slice", "find"],
       interaction: "wedge",
     },
