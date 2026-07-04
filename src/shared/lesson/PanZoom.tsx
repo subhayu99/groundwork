@@ -269,7 +269,7 @@ export const PanZoom = forwardRef<HTMLDivElement, PanZoomProps>(function PanZoom
       </div>
       {/* zoom controls — discoverable + keyboard-accessible; reset shows once zoomed */}
       <div
-        className="absolute bottom-2 right-2 z-20 flex items-center gap-0.5 rounded-lg border border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_80%,transparent)] px-0.5 py-0.5 opacity-60 hover:opacity-100 transition-opacity backdrop-blur-sm"
+        className={`absolute bottom-2 right-2 z-20 flex items-center gap-0.5 rounded-lg border border-[var(--line-faint)] bg-[color-mix(in_oklab,var(--bg-card)_80%,transparent)] px-0.5 py-0.5 transition-opacity backdrop-blur-sm ${atRest && allowPageScrollAtRest ? "opacity-0 pointer-events-none" : "opacity-60 hover:opacity-100"}`}
         onPointerDown={(e) => e.stopPropagation()}
         onDoubleClick={(e) => e.stopPropagation()}
       >
